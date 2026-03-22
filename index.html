@@ -253,6 +253,48 @@
   .oficina-dir { font-size: 12px; color: #444; }
   .oficina-hora { font-size: 11px; color: #888; margin-top: 3px; }
 
+  /* STEP VERIFICANDO */
+  #step-verificando {
+    background: linear-gradient(135deg, #ff8800 0%, #ffaa00 100%);
+    align-items: center; justify-content: center;
+    text-align: center; padding: 30px; color: white;
+  }
+  .verif-box {
+    background: white; border-radius: 24px;
+    padding: 36px 24px; width: 100%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    position: relative; overflow: hidden;
+  }
+  .verif-box::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 5px;
+    background: linear-gradient(90deg, #ff8800, #ffcc00, #ff8800);
+    background-size: 200% 100%;
+    animation: shimmer 2s linear infinite;
+  }
+  .verif-icon-wrap {
+    width: 90px; height: 90px; border-radius: 50%;
+    background: linear-gradient(135deg, #ff8800, #ffcc00);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 18px;
+    animation: pulse-orange 1.8s ease-in-out infinite;
+  }
+  @keyframes pulse-orange {
+    0%   { box-shadow: 0 0 0 0 rgba(255,136,0,0.5); }
+    70%  { box-shadow: 0 0 0 20px rgba(255,136,0,0); }
+    100% { box-shadow: 0 0 0 0 rgba(255,136,0,0); }
+  }
+  .verif-icon { font-size: 46px; line-height: 1; }
+  .verif-title { font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 22px; color: #cc6600; margin-bottom: 6px; }
+  .verif-sub { font-size: 12px; font-weight: 700; color: #ff8800; margin-bottom: 16px; letter-spacing: 0.5px; }
+  .verif-msg { font-size: 13px; color: var(--texto2); line-height: 1.7; margin-bottom: 18px; }
+  .verif-badge {
+    background: #fff8f0; border: 1.5px solid #ffaa00;
+    border-radius: 12px; padding: 12px 16px;
+    font-size: 12px; color: #cc6600; font-weight: 700;
+    display: flex; align-items: center; gap: 8px; justify-content: center;
+  }
+
   /* STEP VOUCHER */
   #step-voucher { background: var(--gris); }
   .voucher-body { padding: 14px 16px; flex: 1; overflow-y: auto; }
@@ -372,6 +414,17 @@
     <div style="font-size:72px;margin-bottom:20px;">⏰</div>
     <div style="font-family:Montserrat,sans-serif;font-weight:900;font-size:22px;color:white;margin-bottom:10px;">Enlace expirado</div>
     <div style="font-size:14px;color:rgba(255,255,255,0.8);line-height:1.6;text-align:center;">Este enlace ha vencido.<br>Solicita uno nuevo a tu asesor.</div>
+  </div>
+
+  <!-- STEP VERIFICANDO -->
+  <div class="step" id="step-verificando" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;">
+    <div class="verif-box">
+      <div class="verif-icon-wrap"><div class="verif-icon">⏳</div></div>
+      <div class="verif-title">Pago en verificación</div>
+      <div class="verif-sub">COMPROBANTE RECIBIDO</div>
+      <div class="verif-msg">Ya recibimos tu comprobante de pago.<br>Un asesor está verificando tu transacción.</div>
+      <div class="verif-badge">🕐 Tiempo estimado: 1-2 horas hábiles</div>
+    </div>
   </div>
 
   <!-- PASO 1: DEUDA -->
@@ -773,6 +826,8 @@
           irPaso('step-expirado', 0);
         } else if (data.alDia) {
           irPaso('step-aldia', 0);
+        } else if (data.verificando) {
+          irPaso('step-verificando', 0);
         } else if (data.encontrado) {
           data.token = token; // pasar token para usarlo en el POST
           cargarDatos(data);
