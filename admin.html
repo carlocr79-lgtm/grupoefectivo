@@ -403,9 +403,12 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   function getSession() { return sessionStorage.getItem('ge_session'); }
 
   async function apiFetch(params) {
-    // Sin headers custom para evitar CORS preflight en Apps Script
-    const url = API_URL + '?' + new URLSearchParams({...params, sessionToken: getSession()});
-    const res = await fetch(url);
+    // Usamos POST para todo — evita CORS en Apps Script
+    const body = {...params, sessionToken: getSession(), _method: 'GET'};
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      body: JSON.stringify(body)
+    });
     const text = await res.text();
     let data;
     try { data = JSON.parse(text); }
