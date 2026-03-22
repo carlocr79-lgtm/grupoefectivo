@@ -950,19 +950,31 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       cajaDatos = resp;
       cajaSaldoTeorico = resp.saldo;
       cajaMovimientos = resp.movimientos || [];
-      cajaRenderResumen(resp);
-      cajaRenderTabla(cajaMovimientos);
-      cajaRenderCategorias(resp.categorias || []);
-      // Actualizar selector de sedes
+      
+      // Poblar selector de sedes
       const sel = document.getElementById('caja-sede-select');
-      if (sel.options.length === 0 && resp.sedes) {
+      if (sel && resp.sedes && resp.sedes.length > 0) {
+        const currentVal = sel.value;
+        sel.innerHTML = '';
+        // Admin ve todas
+        const rolActual = sessionStorage.getItem('ge_rol') || 'asesor';
+        if (rolActual === 'admin') {
+          const optTodos = document.createElement('option');
+          optTodos.value = ''; optTodos.textContent = 'Todas las sedes';
+          sel.appendChild(optTodos);
+        }
         resp.sedes.forEach(function(s) {
           const opt = document.createElement('option');
           opt.value = s; opt.textContent = s;
           sel.appendChild(opt);
         });
-        if (resp.sedeActiva) sel.value = resp.sedeActiva;
+        if (resp.sedeActiva && resp.sedeActiva !== '') sel.value = resp.sedeActiva;
+        else if (currentVal) sel.value = currentVal;
       }
+      
+      cajaRenderResumen(resp);
+      cajaRenderTabla(cajaMovimientos);
+      cajaRenderCategorias(resp.categorias || []);
       // Actualizar saldo teórico en arqueo
       document.getElementById('arq-teorico').textContent = 'S/. ' + resp.saldo.toLocaleString('es-PE', {minimumFractionDigits:2});
     } catch(e) { showToast('❌ Error: ' + e.message); }
