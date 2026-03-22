@@ -267,21 +267,62 @@
 
   /* CELEBRATION */
   #step-exito {
-    background: linear-gradient(135deg, var(--azul) 0%, var(--azul2) 100%);
+    background: linear-gradient(135deg, #003087 0%, #0052cc 50%, #00aa44 100%);
+    background-size: 300% 300%;
+    animation: bgFlow 4s ease infinite;
     align-items: center; justify-content: center;
-    text-align: center; padding: 30px; color: white;
+    text-align: center; padding: 24px; color: white;
+  }
+  @keyframes bgFlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
   }
   .confetti-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999; }
   .exito-box {
-    background: white; border-radius: 24px;
-    padding: 36px 24px; width: 100%;
-    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    background: white; border-radius: 28px;
+    padding: 40px 24px; width: 100%;
+    animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    position: relative; overflow: hidden;
   }
-  @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-  .exito-icon { font-size: 64px; margin-bottom: 14px; }
-  .exito-title { font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 22px; color: var(--verde); margin-bottom: 8px; }
-  .exito-msg { font-size: 13px; color: var(--texto2); line-height: 1.6; margin-bottom: 16px; }
-  .exito-badge { background: #f0fff4; border-radius: 10px; padding: 10px; font-size: 12px; color: var(--verde); font-weight: 600; margin-bottom: 20px; }
+  .exito-box::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 5px;
+    background: linear-gradient(90deg, #003087, #00aa44, #ffaa00, #003087);
+    background-size: 200% 100%;
+    animation: shimmer 2s linear infinite;
+  }
+  @keyframes shimmer { to { background-position: -200% 0; } }
+  @keyframes popIn { from { transform: scale(0.3) rotate(-5deg); opacity: 0; } to { transform: scale(1) rotate(0deg); opacity: 1; } }
+  .exito-icon-wrap {
+    width: 100px; height: 100px; border-radius: 50%;
+    background: linear-gradient(135deg, #00aa44, #00cc55);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 20px;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(0,170,68,0.5); }
+    70% { box-shadow: 0 0 0 22px rgba(0,170,68,0); }
+    100% { box-shadow: 0 0 0 0 rgba(0,170,68,0); }
+  }
+  .exito-icon { font-size: 52px; line-height: 1; }
+  .exito-title { font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 26px; color: #003087; margin-bottom: 6px; }
+  .exito-subtitle { font-size: 13px; color: #00aa44; font-weight: 700; margin-bottom: 16px; }
+  .exito-msg { font-size: 13px; color: var(--texto2); line-height: 1.7; margin-bottom: 20px; }
+  .exito-badge {
+    background: linear-gradient(135deg, #f0fff4, #e0f7ea);
+    border: 1.5px solid #00cc55; border-radius: 12px;
+    padding: 12px 16px; font-size: 12px; color: #00aa44;
+    font-weight: 700; margin-bottom: 20px;
+    display: flex; align-items: center; gap: 8px; justify-content: center;
+  }
+  .exito-gracias {
+    font-family: 'Montserrat', sans-serif; font-weight: 800;
+    font-size: 13px; color: #003087;
+    background: #e8f0ff; border-radius: 10px; padding: 10px 16px;
+  }
 
   /* TOAST */
   .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--azul); color: white; padding: 10px 20px; border-radius: 30px; font-size: 13px; font-weight: 600; opacity: 0; transition: opacity 0.3s; z-index: 9999; pointer-events: none; white-space: nowrap; }
@@ -461,10 +502,14 @@
   <!-- PASO 4: EXITO -->
   <div class="step" id="step-exito" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;">
     <div class="exito-box">
-      <div class="exito-icon">🎉</div>
+      <div class="exito-icon-wrap">
+        <div class="exito-icon">✅</div>
+      </div>
       <div class="exito-title">¡Pago Registrado!</div>
-      <div class="exito-msg">Tu comprobante fue enviado correctamente. Un asesor verificará tu pago en breve.</div>
-      <div class="exito-badge">✅ Tiempo de verificación: 1-2 horas hábiles</div>
+      <div class="exito-subtitle">COMPROBANTE RECIBIDO</div>
+      <div class="exito-msg">Tu voucher fue enviado correctamente.<br>Un asesor verificará tu pago y actualizará tu estado en breve.</div>
+      <div class="exito-badge">⏱️ Tiempo de verificación: 1-2 horas hábiles</div>
+      <div class="exito-gracias">🙌 ¡Gracias por tu pago, Grupo Efectivo!</div>
     </div>
   </div>
 
@@ -631,22 +676,47 @@
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    const colores = ['#003087','#0052cc','#00aa44','#ffaa00','#ff4444','#ffffff'];
+    const colores = ['#003087','#0052cc','#00aa44','#ffaa00','#ff4444','#ffffff','#00cc55','#ffcc00'];
     const particulas = [];
-    for (let i = 0; i < 120; i++) {
-      particulas.push({ x: Math.random()*canvas.width, y: -10, w: Math.random()*10+4, h: Math.random()*6+3, color: colores[Math.floor(Math.random()*colores.length)], vel: Math.random()*4+2, angulo: Math.random()*360, rot: Math.random()*10-5 });
+    for (let i = 0; i < 220; i++) {
+      const tipo = Math.random() > 0.5 ? 'rect' : 'circle';
+      particulas.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height - canvas.height,
+        w: Math.random() * 12 + 4,
+        h: Math.random() * 7 + 3,
+        color: colores[Math.floor(Math.random() * colores.length)],
+        vel: Math.random() * 5 + 2,
+        angulo: Math.random() * 360,
+        rot: Math.random() * 8 - 4,
+        oscila: Math.random() * 3 - 1.5,
+        tipo: tipo
+      });
     }
     let frame = 0;
     function animar() {
-      ctx.clearRect(0,0,canvas.width,canvas.height);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
       particulas.forEach(p => {
-        ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.angulo*Math.PI/180);
-        ctx.fillStyle = p.color; ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h); ctx.restore();
-        p.y += p.vel; p.angulo += p.rot; p.x += Math.sin(frame*0.05)*1.5;
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.angulo * Math.PI / 180);
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = Math.max(0, 1 - frame / 280);
+        if (p.tipo === 'circle') {
+          ctx.beginPath();
+          ctx.arc(0, 0, p.w / 2, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        }
+        ctx.restore();
+        p.y += p.vel;
+        p.angulo += p.rot;
+        p.x += Math.sin(frame * 0.04 + p.oscila) * 2;
       });
       frame++;
-      if (frame < 150) requestAnimationFrame(animar);
-      else ctx.clearRect(0,0,canvas.width,canvas.height);
+      if (frame < 300) requestAnimationFrame(animar);
+      else ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
     animar();
   }
