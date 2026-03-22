@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Panel Admin - Grupo Efectivo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --azul: #003087; --azul2: #0052cc; --azul-claro: #e8f0ff;
+  --verde: #00aa44; --rojo: #cc0000; --naranja: #ff8800;
+  --gris: #f5f7fc; --gris2: #e0e6f0; --texto: #1a1a2e; --texto2: #5a6475;
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris); color:var(--texto); }
+
+/* ── LOGIN ── */
+#login-screen {
+  min-height:100vh; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; padding:24px;
+  background:linear-gradient(135deg,#003087 0%,#0052cc 100%);
+}
+.login-logo { font-family:'Montserrat',sans-serif; font-weight:900; font-size:22px; color:white; margin-bottom:6px; }
+.login-sub { font-size:12px; color:rgba(255,255,255,0.7); margin-bottom:32px; }
+.login-box { background:white; border-radius:20px; padding:28px 24px; width:100%; max-width:360px; box-shadow:0 20px 60px rgba(0,0,0,0.3); }
+.login-box h2 { font-family:'Montserrat',sans-serif; font-weight:800; font-size:18px; color:var(--azul); margin-bottom:20px; text-align:center; }
+.form-group { margin-bottom:16px; }
+.form-group label { font-size:11px; font-weight:600; color:var(--texto2); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:6px; }
+.form-group input { width:100%; padding:12px 14px; border:2px solid var(--gris2); border-radius:10px; font-size:14px; font-family:'DM Sans',sans-serif; outline:none; transition:border-color 0.2s; }
+.form-group input:focus { border-color:var(--azul2); }
+.btn-login { width:100%; padding:14px; background:linear-gradient(135deg,var(--azul),var(--azul2)); color:white; border:none; border-radius:12px; font-family:'Montserrat',sans-serif; font-weight:800; font-size:15px; cursor:pointer; margin-top:8px; }
+.login-error { color:var(--rojo); font-size:12px; text-align:center; margin-top:10px; display:none; }
+
+/* ── APP ── */
+#app { display:none; min-height:100vh; flex-direction:column; }
+
+/* NAVBAR */
+.navbar {
+  background:linear-gradient(135deg,var(--azul),var(--azul2));
+  padding:10px 16px; display:flex; align-items:center;
+  justify-content:space-between; position:sticky; top:0; z-index:100;
+  box-shadow:0 2px 20px rgba(0,48,135,0.3); height:54px;
+}
+.navbar-brand { display:flex; align-items:center; gap:8px; }
+.navbar-title { color:white; font-family:'Montserrat',sans-serif; font-weight:800; font-size:13px; }
+.navbar-title span { display:block; font-size:9px; font-weight:400; opacity:0.7; }
+.btn-logout { background:rgba(255,255,255,0.15); border:none; color:white; padding:6px 12px; border-radius:8px; font-size:11px; font-weight:600; cursor:pointer; }
+
+/* TABS */
+.tabs { display:flex; background:white; border-bottom:2px solid var(--gris2); overflow-x:auto; position:sticky; top:54px; z-index:99; }
+.tab-btn {
+  flex:1; min-width:80px; padding:12px 8px; border:none; background:transparent;
+  font-family:'DM Sans',sans-serif; font-size:11px; font-weight:600;
+  color:var(--texto2); cursor:pointer; border-bottom:3px solid transparent;
+  transition:all 0.2s; white-space:nowrap; text-align:center;
+}
+.tab-btn.active { color:var(--azul2); border-bottom-color:var(--azul2); }
+.tab-badge { display:inline-block; background:var(--rojo); color:white; border-radius:10px; font-size:9px; padding:1px 6px; margin-left:4px; font-weight:700; }
+
+/* CONTENIDO */
+.tab-content { display:none; padding:14px 16px; flex:1; }
+.tab-content.active { display:block; }
+
+/* BUSCADOR */
+.search-bar { position:relative; margin-bottom:14px; }
+.search-bar input { width:100%; padding:10px 14px 10px 36px; border:2px solid var(--gris2); border-radius:10px; font-size:13px; font-family:'DM Sans',sans-serif; outline:none; background:white; }
+.search-bar input:focus { border-color:var(--azul2); }
+.search-bar .icon { position:absolute; left:11px; top:50%; transform:translateY(-50%); font-size:15px; }
+
+/* FILTRO ASESOR */
+.filtros { display:flex; gap:8px; margin-bottom:14px; overflow-x:auto; padding-bottom:4px; }
+.filtro-btn { padding:5px 12px; border-radius:20px; border:1.5px solid var(--gris2); background:white; font-size:11px; font-weight:600; color:var(--texto2); cursor:pointer; white-space:nowrap; }
+.filtro-btn.active { background:var(--azul2); border-color:var(--azul2); color:white; }
+
+/* CARDS CLIENTE */
+.cliente-card {
+  background:white; border-radius:14px; margin-bottom:10px;
+  box-shadow:0 2px 10px rgba(0,48,135,0.07); overflow:hidden;
+}
+.cliente-header { padding:12px 14px; display:flex; justify-content:space-between; align-items:flex-start; }
+.cliente-nombre { font-family:'Montserrat',sans-serif; font-weight:800; font-size:13px; color:var(--texto); }
+.cliente-cod { font-size:10px; color:var(--texto2); margin-top:2px; }
+.cliente-monto { font-family:'Montserrat',sans-serif; font-weight:900; font-size:15px; color:var(--rojo); }
+.cliente-dias { font-size:10px; color:var(--texto2); text-align:right; }
+.cliente-info { padding:0 14px 10px; display:flex; gap:8px; flex-wrap:wrap; }
+.tag { padding:3px 8px; border-radius:20px; font-size:10px; font-weight:600; }
+.tag-asesor { background:var(--azul-claro); color:var(--azul); }
+.tag-tipo { background:#f0fff4; color:var(--verde); }
+.tag-critico { background:#fff0f0; color:var(--rojo); }
+.tag-vencido { background:#fff5e6; color:var(--naranja); }
+.tag-pendiente { background:#fff8e6; color:#cc8800; }
+.tag-verificado { background:#f0fff4; color:var(--verde); }
+.cliente-acciones { padding:10px 14px; border-top:1px solid var(--gris2); display:flex; gap:8px; }
+.btn-wa { flex:1; padding:9px; background:#25D366; color:white; border:none; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:5px; }
+.btn-token { flex:1; padding:9px; background:var(--azul-claro); color:var(--azul); border:none; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer; }
+.btn-ver { flex:1; padding:9px; background:#f0f4ff; color:var(--azul2); border:none; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer; }
+.btn-verificar { flex:1; padding:9px; background:linear-gradient(135deg,var(--verde),#00cc55); color:white; border:none; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer; }
+
+/* VOUCHER MODAL */
+.modal-overlay { position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,0.75); z-index:999; display:none; align-items:center; justify-content:center; padding:20px; }
+.modal-overlay.show { display:flex; }
+.modal-box { background:white; border-radius:20px; padding:20px; width:100%; max-width:420px; max-height:90vh; overflow-y:auto; }
+.modal-title { font-family:'Montserrat',sans-serif; font-weight:800; font-size:16px; color:var(--azul); margin-bottom:14px; }
+.modal-img { width:100%; border-radius:12px; border:2px solid var(--gris2); margin-bottom:14px; }
+.modal-info { background:var(--gris); border-radius:10px; padding:12px; margin-bottom:14px; font-size:13px; }
+.modal-info div { display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid var(--gris2); }
+.modal-info div:last-child { border:none; }
+.modal-info .lbl { color:var(--texto2); font-size:12px; }
+.modal-info .val { font-weight:600; }
+.modal-btns { display:flex; gap:10px; }
+.btn-cerrar { flex:1; padding:12px; background:var(--gris); color:var(--texto); border:none; border-radius:10px; font-weight:700; cursor:pointer; }
+
+/* HISTORIAL */
+.hist-filtros { display:flex; gap:8px; margin-bottom:14px; }
+.hist-filtros select { flex:1; padding:9px 12px; border:2px solid var(--gris2); border-radius:10px; font-size:12px; font-family:'DM Sans',sans-serif; outline:none; background:white; }
+.hist-card { background:white; border-radius:12px; padding:12px 14px; margin-bottom:8px; box-shadow:0 2px 8px rgba(0,48,135,0.06); display:flex; justify-content:space-between; align-items:center; }
+.hist-left .nombre { font-weight:700; font-size:13px; }
+.hist-left .det { font-size:11px; color:var(--texto2); margin-top:2px; }
+.hist-right .monto { font-family:'Montserrat',sans-serif; font-weight:900; font-size:14px; color:var(--verde); text-align:right; }
+.hist-right .fecha { font-size:10px; color:var(--texto2); text-align:right; margin-top:2px; }
+.hist-right a { font-size:10px; color:var(--azul2); text-decoration:none; display:block; text-align:right; margin-top:2px; }
+.resumen-box { background:linear-gradient(135deg,var(--azul),var(--azul2)); border-radius:14px; padding:16px; margin-bottom:14px; display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.resumen-item { text-align:center; }
+.resumen-item .val { font-family:'Montserrat',sans-serif; font-weight:900; font-size:18px; color:white; }
+.resumen-item .lbl { font-size:10px; color:rgba(255,255,255,0.7); margin-top:2px; }
+
+/* LOADING / EMPTY */
+.loading { text-align:center; padding:40px 20px; color:var(--texto2); font-size:13px; }
+.spinner-sm { width:28px; height:28px; border:3px solid var(--gris2); border-top-color:var(--azul2); border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 12px; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.empty { text-align:center; padding:40px 20px; color:var(--texto2); }
+.empty .icon { font-size:40px; margin-bottom:10px; }
+
+/* TOAST */
+.toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:var(--azul); color:white; padding:10px 20px; border-radius:30px; font-size:13px; font-weight:600; opacity:0; transition:opacity 0.3s; z-index:9999; pointer-events:none; white-space:nowrap; }
+.toast.show { opacity:1; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-logo">💼 Grupo Efectivo</div>
+  <div class="login-sub">Panel de Administración</div>
+  <div class="login-box">
+    <h2>🔐 Iniciar sesión</h2>
+    <div class="form-group">
+      <label>Usuario</label>
+      <input type="text" id="inp-usuario" placeholder="usuario" autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label>Contraseña</label>
+      <input type="password" id="inp-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')login()">
+    </div>
+    <button class="btn-login" onclick="login()">Ingresar →</button>
+    <div class="login-error" id="login-error">Usuario o contraseña incorrectos</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <div class="navbar-title">Grupo Efectivo <span>Panel de Operaciones</span></div>
+    </div>
+    <button class="btn-logout" onclick="logout()">Salir</button>
+  </nav>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="cambiarTab('clientes',this)">📋 Clientes</button>
+    <button class="tab-btn" onclick="cambiarTab('vouchers',this)">🧾 Vouchers <span class="tab-badge" id="badge-vouchers">0</span></button>
+    <button class="tab-btn" onclick="cambiarTab('historial',this)">📊 Historial</button>
+  </div>
+
+  <!-- TAB CLIENTES -->
+  <div class="tab-content active" id="tab-clientes">
+    <div class="search-bar">
+      <span class="icon">🔍</span>
+      <input type="text" id="buscar-cliente" placeholder="Buscar por nombre o celular..." oninput="filtrarClientes()">
+    </div>
+    <div class="filtros" id="filtros-asesores">
+      <button class="filtro-btn active" onclick="setFiltroAsesor('',this)">Todos</button>
+    </div>
+    <div id="lista-clientes"><div class="loading"><div class="spinner-sm"></div>Cargando clientes...</div></div>
+  </div>
+
+  <!-- TAB VOUCHERS -->
+  <div class="tab-content" id="tab-vouchers">
+    <div id="lista-vouchers"><div class="loading"><div class="spinner-sm"></div>Cargando vouchers...</div></div>
+  </div>
+
+  <!-- TAB HISTORIAL -->
+  <div class="tab-content" id="tab-historial">
+    <div class="hist-filtros">
+      <select id="filtro-hist-asesor" onchange="renderHistorial()">
+        <option value="">Todos los asesores</option>
+      </select>
+      <select id="filtro-hist-fecha" onchange="renderHistorial()">
+        <option value="">Todas las fechas</option>
+      </select>
+    </div>
+    <div class="resumen-box" id="resumen-historial">
+      <div class="resumen-item"><div class="val" id="res-total">-</div><div class="lbl">Total recaudado</div></div>
+      <div class="resumen-item"><div class="val" id="res-count">-</div><div class="lbl">Pagos registrados</div></div>
+    </div>
+    <div id="lista-historial"><div class="loading"><div class="spinner-sm"></div>Cargando historial...</div></div>
+  </div>
+</div>
+
+<!-- MODAL VOUCHER -->
+<div class="modal-overlay" id="modal-voucher">
+  <div class="modal-box">
+    <div class="modal-title">🧾 Comprobante de pago</div>
+    <img class="modal-img" id="modal-img" src="" alt="voucher">
+    <div class="modal-info" id="modal-info"></div>
+    <div class="modal-btns">
+      <button class="btn-cerrar" onclick="cerrarModal()">✕ Cerrar</button>
+      <button class="btn-verificar" id="modal-btn-verificar" onclick="verificarDesdeModal()">✅ Marcar verificado</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const API_URL = "https://script.google.com/macros/s/AKfycbw1A2uSU-aRx0lqzpSvCmVRJqSyNRXpFueCV_I2F9U-IBuLOYo6ceIlG8ioah73jm8_OA/exec";
+  const ADMIN_KEY = "geadmin2026";
+
+  // Credenciales (usuario: contraseña)
+  const USUARIOS = {
+    "cajero": "caja2026",
+    "admin":  "geadmin2026",
+    "cesar":  "cesar2026",
+    "raquel": "raquel2026",
+    "yanela": "yanela2026"
+  };
+
+  let clientes = [];
+  let vouchers = [];
+  let historial = [];
+  let filtroAsesor = '';
+  let modalFilaActual = null;
+  let modalNombreActual = '';
+  let modalMontoActual = 0;
+
+  // ── LOGIN ──
+  function login() {
+    const user = document.getElementById('inp-usuario').value.trim().toLowerCase();
+    const pass = document.getElementById('inp-password') ? 
+      document.getElementById('inp-password').value : 
+      document.getElementById('inp-pass').value;
+    
+    if (USUARIOS[user] && USUARIOS[user] === pass) {
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('app').style.display = 'flex';
+      document.getElementById('app').style.flexDirection = 'column';
+      sessionStorage.setItem('ge_auth', user);
+      cargarTodo();
+    } else {
+      document.getElementById('login-error').style.display = 'block';
+    }
+  }
+
+  function logout() {
+    sessionStorage.removeItem('ge_auth');
+    location.reload();
+  }
+
+  // ── TABS ──
+  function cambiarTab(tab, btn) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + tab).classList.add('active');
+  }
+
+  // ── CARGA INICIAL ──
+  async function cargarTodo() {
+    await Promise.all([cargarClientes(), cargarVouchers(), cargarHistorial()]);
+  }
+
+  async function apiFetch(params) {
+    const url = API_URL + '?' + new URLSearchParams({...params, key: ADMIN_KEY});
+    const res = await fetch(url, { cache: 'no-store' });
+    return res.json();
+  }
+
+  async function apiPost(body) {
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      body: JSON.stringify({...body, key: ADMIN_KEY})
+    });
+    return res.json();
+  }
+
+  // ── CLIENTES ──
+  async function cargarClientes() {
+    try {
+      clientes = await apiFetch({ admin: 'clientes' });
+      renderAsesoresFiltros();
+      renderClientes();
+    } catch(e) {
+      document.getElementById('lista-clientes').innerHTML = '<div class="empty"><div class="icon">⚠️</div>Error al cargar clientes</div>';
+    }
+  }
+
+  function renderAsesoresFiltros() {
+    const asesores = [...new Set(clientes.map(c => c.asesor.split(' ')[0]))].filter(Boolean);
+    const cont = document.getElementById('filtros-asesores');
+    cont.innerHTML = '<button class="filtro-btn active" onclick="setFiltroAsesor(\'\',this)">Todos</button>';
+    asesores.forEach(a => {
+      cont.innerHTML += `<button class="filtro-btn" onclick="setFiltroAsesor('${a}',this)">${a}</button>`;
+    });
+  }
+
+  function setFiltroAsesor(asesor, btn) {
+    filtroAsesor = asesor;
+    document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderClientes();
+  }
+
+  function filtrarClientes() { renderClientes(); }
+
+  function renderClientes() {
+    const busqueda = document.getElementById('buscar-cliente').value.toUpperCase();
+    let lista = clientes.filter(c => {
+      const matchAsesor = !filtroAsesor || c.asesor.includes(filtroAsesor);
+      const matchBusqueda = !busqueda || c.nombre.toUpperCase().includes(busqueda) || c.celular.includes(busqueda);
+      return matchAsesor && matchBusqueda;
+    });
+
+    if (lista.length === 0) {
+      document.getElementById('lista-clientes').innerHTML = '<div class="empty"><div class="icon">🔍</div>Sin resultados</div>';
+      return;
+    }
+
+    // Ordenar por días de atraso desc
+    lista.sort((a, b) => b.dias - a.dias);
+
+    document.getElementById('lista-clientes').innerHTML = lista.map(c => {
+      const diasTag = c.dias > 90 ? `<span class="tag tag-critico">🔴 ${c.dias} días</span>` :
+                      c.dias > 0  ? `<span class="tag tag-vencido">🟠 ${c.dias} días</span>` :
+                                    `<span class="tag tag-pendiente">🟡 Vence hoy</span>`;
+      const tieneVoucher = c.voucher ? `<span class="tag tag-pendiente">⏳ Voucher enviado</span>` : '';
+      const linkWA = c.telefono && c.mensaje ? 
+        `https://web.whatsapp.com/send?phone=${c.telefono}&text=${encodeURIComponent(c.mensaje)}` : '';
+      const linkWAMovil = c.telefono && c.mensaje ?
+        `https://api.whatsapp.com/send?phone=${c.telefono}&text=${encodeURIComponent(c.mensaje)}` : '';
+
+      return `
+      <div class="cliente-card">
+        <div class="cliente-header">
+          <div>
+            <div class="cliente-nombre">${c.nombre}</div>
+            <div class="cliente-cod">Cód. ${c.cod} · ${c.celular}</div>
+          </div>
+          <div>
+            <div class="cliente-monto">S/. ${parseFloat(c.deuda).toLocaleString('es-PE',{minimumFractionDigits:2})}</div>
+            <div class="cliente-dias">${c.cuotas} cuota${c.cuotas!==1?'s':''} vencida${c.cuotas!==1?'s':''}</div>
+          </div>
+        </div>
+        <div class="cliente-info">
+          <span class="tag tag-asesor">${c.asesor.split(' ')[0]}</span>
+          <span class="tag tag-tipo">${c.tipo}</span>
+          ${diasTag}
+          ${tieneVoucher}
+        </div>
+        <div class="cliente-acciones">
+          ${linkWA ? `<button class="btn-wa" onclick="enviarWA('${linkWAMovil}','${linkWA}')">
+            <span>📲</span> WhatsApp
+          </button>` : '<button class="btn-wa" disabled style="opacity:0.4">Sin mensaje</button>'}
+          <button class="btn-token" onclick="regenToken(${c.fila},'${c.nombre}')">🔑 Token</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function enviarWA(linkMovil, linkWeb) {
+    // Detectar si es móvil o desktop
+    const esMobil = /Android|iPhone|iPad/i.test(navigator.userAgent);
+    window.open(esMobil ? linkMovil : linkWeb, '_blank');
+  }
+
+  async function regenToken(fila, nombre) {
+    try {
+      const data = await apiPost({ adminAction: 'regenToken', fila: fila });
+      if (data.success) {
+        showToast('✅ Token regenerado para ' + nombre.split(' ')[0]);
+        await cargarClientes();
+      }
+    } catch(e) { showToast('❌ Error al regenerar token'); }
+  }
+
+  // ── VOUCHERS ──
+  async function cargarVouchers() {
+    try {
+      vouchers = await apiFetch({ admin: 'vouchers' });
+      document.getElementById('badge-vouchers').textContent = vouchers.length;
+      renderVouchers();
+    } catch(e) {
+      document.getElementById('lista-vouchers').innerHTML = '<div class="empty"><div class="icon">⚠️</div>Error al cargar</div>';
+    }
+  }
+
+  function renderVouchers() {
+    if (vouchers.length === 0) {
+      document.getElementById('lista-vouchers').innerHTML = '<div class="empty"><div class="icon">✅</div><strong>Sin vouchers pendientes</strong><br><small>Todos los pagos están verificados</small></div>';
+      return;
+    }
+    document.getElementById('lista-vouchers').innerHTML = vouchers.map(v => `
+      <div class="cliente-card">
+        <div class="cliente-header">
+          <div>
+            <div class="cliente-nombre">${v.nombre}</div>
+            <div class="cliente-cod">Cód. ${v.cod} · ${v.celular}</div>
+          </div>
+          <div>
+            <div class="cliente-monto">S/. ${parseFloat(v.monto).toLocaleString('es-PE',{minimumFractionDigits:2})}</div>
+            <div class="cliente-dias">${v.fechaPago ? formatFecha(v.fechaPago) : '-'}</div>
+          </div>
+        </div>
+        <div class="cliente-info">
+          <span class="tag tag-asesor">${v.asesor.split(' ')[0]}</span>
+          <span class="tag tag-pendiente">⏳ PENDIENTE</span>
+        </div>
+        <div class="cliente-acciones">
+          <button class="btn-ver" onclick="verVoucher(${v.fila},'${v.nombre}',${v.monto},'${v.voucher}','${v.asesor}','${v.cod}')">👁 Ver voucher</button>
+          <button class="btn-verificar" onclick="verificarPago(${v.fila},'${v.nombre}',${v.monto})">✅ Verificado</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function verVoucher(fila, nombre, monto, link, asesor, cod) {
+    modalFilaActual = fila;
+    modalNombreActual = nombre;
+    modalMontoActual = monto;
+    
+    // Convertir link de Drive a link directo de imagen
+    let imgUrl = link;
+    const match = link.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    if (match) imgUrl = 'https://drive.google.com/thumbnail?id=' + match[1] + '&sz=w800';
+
+    document.getElementById('modal-img').src = imgUrl;
+    document.getElementById('modal-info').innerHTML = `
+      <div><span class="lbl">Cliente</span><span class="val">${nombre}</span></div>
+      <div><span class="lbl">Código</span><span class="val">${cod}</span></div>
+      <div><span class="lbl">Asesor</span><span class="val">${asesor}</span></div>
+      <div><span class="lbl">Monto</span><span class="val" style="color:var(--verde);font-weight:900;">S/. ${parseFloat(monto).toLocaleString('es-PE',{minimumFractionDigits:2})}</span></div>
+      <div><span class="lbl">Ver original</span><span class="val"><a href="${link}" target="_blank" style="color:var(--azul2)">Abrir en Drive ↗</a></span></div>
+    `;
+    document.getElementById('modal-voucher').classList.add('show');
+  }
+
+  function cerrarModal() {
+    document.getElementById('modal-voucher').classList.remove('show');
+    modalFilaActual = null;
+  }
+
+  async function verificarDesdeModal() {
+    if (!modalFilaActual) return;
+    await verificarPago(modalFilaActual, modalNombreActual, modalMontoActual);
+    cerrarModal();
+  }
+
+  async function verificarPago(fila, nombre, monto) {
+    try {
+      const data = await apiPost({ adminAction: 'verificar', fila: fila, nombre: nombre, monto: monto });
+      if (data.success) {
+        showToast('✅ Pago verificado — ' + nombre.split(' ')[0]);
+        await Promise.all([cargarVouchers(), cargarHistorial()]);
+      }
+    } catch(e) { showToast('❌ Error al verificar'); }
+  }
+
+  // ── HISTORIAL ──
+  async function cargarHistorial() {
+    try {
+      historial = await apiFetch({ admin: 'historial' });
+      poblarFiltrosHistorial();
+      renderHistorial();
+    } catch(e) {
+      document.getElementById('lista-historial').innerHTML = '<div class="empty"><div class="icon">⚠️</div>Error al cargar historial</div>';
+    }
+  }
+
+  function poblarFiltrosHistorial() {
+    const asesores = [...new Set(historial.map(h => h.asesor).filter(Boolean))];
+    const fechas = [...new Set(historial.map(h => h.fecha).filter(Boolean))].sort().reverse();
+
+    const selAsesor = document.getElementById('filtro-hist-asesor');
+    selAsesor.innerHTML = '<option value="">Todos los asesores</option>';
+    asesores.forEach(a => selAsesor.innerHTML += `<option value="${a}">${a.split(' ')[0]}</option>`);
+
+    const selFecha = document.getElementById('filtro-hist-fecha');
+    selFecha.innerHTML = '<option value="">Todas las fechas</option>';
+    fechas.forEach(f => selFecha.innerHTML += `<option value="${f}">${f}</option>`);
+
+    // También poblar select de historial de asesores
+    const selHistAsesor = document.getElementById('filtro-hist-asesor');
+    const uniqueAsesores = [...new Set(historial.map(h => h.asesor))].filter(Boolean);
+    selHistAsesor.innerHTML = '<option value="">Todos los asesores</option>';
+    uniqueAsesores.forEach(a => {
+      selHistAsesor.innerHTML += `<option value="${a}">${a.split(' ')[0]}</option>`;
+    });
+  }
+
+  function renderHistorial() {
+    const filtAsesor = document.getElementById('filtro-hist-asesor').value;
+    const filtFecha = document.getElementById('filtro-hist-fecha').value;
+
+    let lista = historial.filter(h => {
+      return (!filtAsesor || h.asesor === filtAsesor) &&
+             (!filtFecha || h.fecha === filtFecha);
+    }).reverse();
+
+    const totalMonto = lista.reduce((sum, h) => sum + (parseFloat(h.monto) || 0), 0);
+    document.getElementById('res-total').textContent = 'S/. ' + totalMonto.toLocaleString('es-PE',{minimumFractionDigits:2});
+    document.getElementById('res-count').textContent = lista.length;
+
+    if (lista.length === 0) {
+      document.getElementById('lista-historial').innerHTML = '<div class="empty"><div class="icon">📋</div>Sin registros</div>';
+      return;
+    }
+
+    document.getElementById('lista-historial').innerHTML = lista.map(h => `
+      <div class="hist-card">
+        <div class="hist-left">
+          <div class="nombre">${h.nombre}</div>
+          <div class="det">${h.asesor ? h.asesor.split(' ')[0] : '-'} · ${h.tipo || '-'} · Cód. ${h.cod}</div>
+          <div class="det" style="margin-top:3px;">
+            <span class="tag ${h.estado && h.estado.includes('VERIFICADO') ? 'tag-verificado' : 'tag-pendiente'}" style="display:inline-block;">
+              ${h.estado || 'PENDIENTE'}
+            </span>
+          </div>
+        </div>
+        <div class="hist-right">
+          <div class="monto">S/. ${parseFloat(h.monto||0).toLocaleString('es-PE',{minimumFractionDigits:2})}</div>
+          <div class="fecha">${h.fecha || ''} ${h.hora || ''}</div>
+          ${h.voucher ? `<a href="${h.voucher}" target="_blank">Ver voucher ↗</a>` : ''}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // ── UTILS ──
+  function formatFecha(str) {
+    try { return new Date(str).toLocaleString('es-PE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}); }
+    catch(e) { return str; }
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2800);
+  }
+
+  // ── INIT ──
+  window.addEventListener('load', function() {
+    const auth = sessionStorage.getItem('ge_auth');
+    if (auth && USUARIOS[auth]) {
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('app').style.display = 'flex';
+      document.getElementById('app').style.flexDirection = 'column';
+      cargarTodo();
+    }
+
+    // Bloqueo zoom
+    document.addEventListener('touchstart', e => { if(e.touches.length>1) e.preventDefault(); }, {passive:false});
+    document.addEventListener('gesturestart', e => e.preventDefault(), {passive:false});
+  });
+</script>
+</body>
+</html>
