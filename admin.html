@@ -151,6 +151,50 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 .empty { text-align:center; padding:40px 20px; color:var(--texto2); }
 .empty .icon { font-size:40px; margin-bottom:10px; }
 
+/* CAJA CHICA */
+.caja-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:16px; }
+@media(max-width:768px) { .caja-grid { grid-template-columns:1fr; } }
+.caja-card { background:white; border-radius:14px; padding:16px; box-shadow:0 2px 10px rgba(0,48,135,0.07); border:1px solid var(--gris2); }
+.caja-card-title { font-size:10px; font-weight:700; color:var(--texto2); text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; }
+.caja-monto { font-family:'Montserrat',sans-serif; font-weight:900; font-size:24px; margin-bottom:4px; }
+.caja-monto.verde { color:var(--verde); }
+.caja-monto.rojo { color:var(--rojo); }
+.caja-monto.azul { color:var(--azul); }
+.caja-toolbar { display:flex; gap:8px; margin-bottom:12px; align-items:center; flex-wrap:wrap; }
+.caja-table-wrap { background:white; border-radius:14px; overflow:hidden; box-shadow:0 2px 10px rgba(0,48,135,0.07); }
+.caja-table { width:100%; border-collapse:collapse; font-size:12px; }
+.caja-table th { background:var(--gris); padding:10px 12px; text-align:left; font-size:10px; font-weight:700; color:var(--texto2); text-transform:uppercase; border-bottom:1px solid var(--gris2); }
+.caja-table td { padding:10px 12px; border-bottom:1px solid var(--gris2); color:var(--texto); }
+.caja-table tr:last-child td { border-bottom:none; }
+.caja-table tr:hover td { background:var(--azul-claro); }
+.badge-ingreso { background:#f0fff4; color:#00aa44; border-radius:20px; padding:2px 8px; font-size:10px; font-weight:700; }
+.badge-egreso { background:#fff0f0; color:var(--rojo); border-radius:20px; padding:2px 8px; font-size:10px; font-weight:700; }
+
+/* ARQUEO CAJA */
+.arqueo-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+@media(max-width:768px) { .arqueo-grid { grid-template-columns:1fr; } }
+.denom-section { background:white; border-radius:14px; padding:16px; box-shadow:0 2px 10px rgba(0,48,135,0.07); }
+.denom-section h4 { font-family:'Montserrat',sans-serif; font-weight:800; font-size:12px; color:var(--azul); margin-bottom:12px; text-transform:uppercase; }
+.denom-row { display:flex; align-items:center; justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--gris2); }
+.denom-row:last-child { border-bottom:none; }
+.denom-label { font-weight:600; font-size:13px; width:70px; }
+.denom-input { width:80px; padding:5px 8px; border:1px solid var(--gris2); border-radius:8px; text-align:center; font-weight:700; font-size:13px; color:var(--azul); }
+.denom-subtotal { width:70px; text-align:right; font-weight:600; font-size:12px; color:var(--texto2); }
+.diff-card { background:var(--gris); border-radius:12px; padding:14px; text-align:center; margin-top:12px; border:2px solid var(--gris2); transition:all 0.3s; }
+.diff-card.cuadre { background:#f0fff4; border-color:var(--verde); }
+.diff-card.sobrante { background:#fff8e6; border-color:#ffaa00; }
+.diff-card.faltante { background:#fff0f0; border-color:var(--rojo); }
+
+/* MODAL CAJA */
+.modal-caja { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:999; display:none; align-items:center; justify-content:center; padding:20px; }
+.modal-caja.show { display:flex; }
+.modal-caja-box { background:white; border-radius:20px; padding:24px; width:100%; max-width:440px; max-height:90vh; overflow-y:auto; }
+.modal-caja-box h3 { font-family:'Montserrat',sans-serif; font-weight:800; font-size:16px; color:var(--azul); margin-bottom:16px; }
+.form-caja-group { margin-bottom:12px; }
+.form-caja-group label { font-size:11px; font-weight:600; color:var(--texto2); text-transform:uppercase; display:block; margin-bottom:5px; }
+.form-caja-group input, .form-caja-group select, .form-caja-group textarea { width:100%; padding:9px 12px; border:1.5px solid var(--gris2); border-radius:10px; font-size:13px; font-family:'DM Sans',sans-serif; outline:none; }
+.form-caja-group input:focus, .form-caja-group select:focus { border-color:var(--azul2); }
+
 /* TOAST */
 .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:var(--azul); color:white; padding:10px 20px; border-radius:30px; font-size:13px; font-weight:600; opacity:0; transition:opacity 0.3s; z-index:9999; pointer-events:none; white-space:nowrap; }
 .toast.show { opacity:1; }
@@ -208,6 +252,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     <button class="tab-btn active" onclick="cambiarTab('clientes',this)">📋 Clientes</button>
     <button class="tab-btn" onclick="cambiarTab('vouchers',this)">🧾 Vouchers <span class="tab-badge" id="badge-vouchers">0</span></button>
     <button class="tab-btn" onclick="cambiarTab('historial',this)">📊 Historial</button>
+    <button class="tab-btn" onclick="cambiarTab('caja',this)">💰 Caja Chica</button>
     <div style="display:flex;align-items:center;gap:6px;padding:0 12px;margin-left:auto;">
       <button id="btn-refresh" onclick="refrescarDatos()" title="Actualizar datos"
         style="background:none;border:none;cursor:pointer;color:var(--texto2);font-size:14px;padding:4px;border-radius:6px;transition:color 0.2s;"
@@ -432,6 +477,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById('tab-' + tab).classList.add('active');
+    if (tab === 'caja' && !cajaDatos) cajaCargarDatos();
   }
 
   // ── CARGA INICIAL ──
@@ -764,6 +810,249 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     const t = document.getElementById('toast');
     t.textContent = msg; t.classList.add('show');
     setTimeout(() => t.classList.remove('show'), 2800);
+  }
+
+  // ════════════════════════════════════
+  // ──── MÓDULO CAJA CHICA JS ─────────
+  // ════════════════════════════════════
+
+  let cajaMovimientos = [];
+  let cajaDatos = null;
+  let cajaSedeActual = '';
+  let cajaSaldoTeorico = 0;
+
+  function cajaSwitchSubtab(tab, btn) {
+    ['resumen','movimientos','arqueo','historial-arq'].forEach(function(t) {
+      const el = document.getElementById('caja-sub-' + t);
+      if (el) el.style.display = 'none';
+      const b = document.getElementById('subtab-' + t);
+      if (b) { b.style.borderBottomColor = 'transparent'; b.style.color = 'var(--texto2)'; b.style.fontWeight = '600'; }
+    });
+    const target = document.getElementById('caja-sub-' + tab);
+    if (target) target.style.display = 'block';
+    if (btn) { btn.style.borderBottomColor = 'var(--azul2)'; btn.style.color = 'var(--azul2)'; btn.style.fontWeight = '700'; }
+    if (tab === 'arqueo') cajaLoadArqueo();
+    if (tab === 'historial-arq') cajaLoadHistorial();
+  }
+
+  async function cajaCargarDatos() {
+    const sede = document.getElementById('caja-sede-select').value;
+    cajaSedeActual = sede;
+    try {
+      const resp = await apiFetch({ admin: 'caja_datos', sedeContexto: sede });
+      if (!resp || resp.error) { showToast('❌ Error cargando caja: ' + (resp && resp.error ? resp.error : 'Sin respuesta')); return; }
+      cajaDatos = resp;
+      cajaSaldoTeorico = resp.saldo;
+      cajaMovimientos = resp.movimientos || [];
+      cajaRenderResumen(resp);
+      cajaRenderTabla(cajaMovimientos);
+      cajaRenderCategorias(resp.categorias || []);
+      // Actualizar selector de sedes
+      const sel = document.getElementById('caja-sede-select');
+      if (sel.options.length === 0 && resp.sedes) {
+        resp.sedes.forEach(function(s) {
+          const opt = document.createElement('option');
+          opt.value = s; opt.textContent = s;
+          sel.appendChild(opt);
+        });
+        if (resp.sedeActiva) sel.value = resp.sedeActiva;
+      }
+      // Actualizar saldo teórico en arqueo
+      document.getElementById('arq-teorico').textContent = 'S/. ' + resp.saldo.toLocaleString('es-PE', {minimumFractionDigits:2});
+    } catch(e) { showToast('❌ Error: ' + e.message); }
+  }
+
+  function cajaRenderResumen(data) {
+    document.getElementById('caja-saldo').textContent = 'S/. ' + (data.saldo || 0).toLocaleString('es-PE', {minimumFractionDigits:2});
+    document.getElementById('caja-ingresos').textContent = 'S/. ' + (data.metricas.totalIngresos || 0).toLocaleString('es-PE', {minimumFractionDigits:2});
+    document.getElementById('caja-egresos').textContent = 'S/. ' + (data.metricas.totalEgresos || 0).toLocaleString('es-PE', {minimumFractionDigits:2});
+    const top = data.metricas.topGastos || [];
+    const topEl = document.getElementById('caja-top-gastos');
+    if (top.length === 0) { topEl.innerHTML = '<div style="padding:10px;text-align:center;">Sin gastos registrados</div>'; return; }
+    topEl.innerHTML = top.map(function(g, i) {
+      return '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--gris2);">' +
+        '<span>' + (i+1) + '. ' + g.categoria + '</span>' +
+        '<strong style="color:var(--rojo);">S/. ' + g.monto.toLocaleString('es-PE', {minimumFractionDigits:2}) + '</strong></div>';
+    }).join('');
+  }
+
+  function cajaRenderTabla(movs) {
+    const tbody = document.getElementById('caja-tabla-body');
+    if (!movs || movs.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--texto2);">Sin movimientos</td></tr>';
+      return;
+    }
+    tbody.innerHTML = movs.map(function(m) {
+      const esIngreso = m.tipo === 'Ingreso';
+      return '<tr>' +
+        '<td>' + m.fecha + '</td>' +
+        '<td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + m.descripcion + '</td>' +
+        '<td>' + m.categoria + '</td>' +
+        '<td><span class="' + (esIngreso ? 'badge-ingreso' : 'badge-egreso') + '">' + m.tipo + '</span></td>' +
+        '<td style="text-align:right;font-weight:700;color:' + (esIngreso ? 'var(--verde)' : 'var(--rojo)') + ';">' +
+          (esIngreso ? '+' : '-') + ' S/. ' + m.monto.toLocaleString('es-PE', {minimumFractionDigits:2}) + '</td>' +
+        '<td style="text-align:center;">' +
+          '<button onclick="cajaEliminar('' + m.id + '')" style="background:none;border:none;cursor:pointer;color:var(--rojo);font-size:14px;" title="Eliminar">🗑</button>' +
+          (m.sustentoUrl ? ' <a href="' + m.sustentoUrl + '" target="_blank" style="font-size:12px;color:var(--azul2);">📎</a>' : '') +
+        '</td></tr>';
+    }).join('');
+  }
+
+  function cajaFiltrar() {
+    const q = document.getElementById('caja-buscar').value.toLowerCase();
+    const filtrados = cajaMovimientos.filter(function(m) {
+      return m.descripcion.toLowerCase().includes(q) || m.categoria.toLowerCase().includes(q);
+    });
+    cajaRenderTabla(filtrados);
+  }
+
+  function cajaRenderCategorias(cats) {
+    const sel = document.getElementById('caja-categoria');
+    sel.innerHTML = '<option value="">Seleccionar...</option>';
+    cats.forEach(function(c) {
+      sel.innerHTML += '<option value="' + c + '">' + c + '</option>';
+    });
+  }
+
+  function cajaShowModal(editData) {
+    document.getElementById('caja-edit-id').value = editData ? editData.id : '';
+    document.getElementById('modal-caja-titulo').textContent = editData ? '✏️ Editar Movimiento' : '➕ Nuevo Movimiento';
+    const hoy = new Date();
+    document.getElementById('caja-fecha').value = hoy.toISOString().split('T')[0];
+    if (editData) {
+      document.getElementById('caja-fecha').value = editData.fecha;
+      document.getElementById('caja-tipo').value = editData.tipo;
+      document.getElementById('caja-monto').value = editData.monto;
+      document.getElementById('caja-categoria').value = editData.categoria;
+      document.getElementById('caja-descripcion').value = editData.descripcion;
+    } else {
+      document.getElementById('caja-tipo').value = '';
+      document.getElementById('caja-monto').value = '';
+      document.getElementById('caja-categoria').value = '';
+      document.getElementById('caja-descripcion').value = '';
+    }
+    document.getElementById('modal-caja').classList.add('show');
+  }
+
+  function cajaHideModal() { document.getElementById('modal-caja').classList.remove('show'); }
+
+  async function cajaGuardar() {
+    const btn = document.getElementById('caja-btn-guardar');
+    const fecha = document.getElementById('caja-fecha').value;
+    const tipo = document.getElementById('caja-tipo').value;
+    const monto = document.getElementById('caja-monto').value;
+    const categoria = document.getElementById('caja-categoria').value;
+    const descripcion = document.getElementById('caja-descripcion').value;
+    const editId = document.getElementById('caja-edit-id').value;
+
+    if (!fecha || !tipo || !monto || !categoria || !descripcion) {
+      showToast('⚠️ Completa todos los campos'); return;
+    }
+    if (parseFloat(monto) <= 0) { showToast('⚠️ El monto debe ser mayor a 0'); return; }
+
+    btn.textContent = '⏳ Guardando...'; btn.disabled = true;
+    try {
+      const resp = await apiPost({
+        _method: 'POST', cajaAction: 'guardar',
+        fecha: fecha, tipo: tipo, monto: monto,
+        categoria: categoria, descripcion: descripcion,
+        edit_id: editId || '',
+        sedeContexto: cajaSedeActual
+      });
+      if (resp && resp.status === 'ok') {
+        showToast('✅ ' + resp.message);
+        cajaHideModal();
+        await cajaCargarDatos();
+      } else {
+        showToast('❌ ' + (resp && resp.message ? resp.message : 'Error'));
+      }
+    } catch(e) { showToast('❌ Error: ' + e.message); }
+    btn.textContent = 'Guardar'; btn.disabled = false;
+  }
+
+  async function cajaEliminar(id) {
+    if (!confirm('¿Eliminar este movimiento?')) return;
+    try {
+      const resp = await apiPost({ _method: 'POST', cajaAction: 'eliminar', id: id });
+      if (resp && resp.status === 'ok') {
+        showToast('✅ ' + resp.message);
+        await cajaCargarDatos();
+      } else { showToast('❌ ' + (resp && resp.message ? resp.message : 'Error')); }
+    } catch(e) { showToast('❌ Error: ' + e.message); }
+  }
+
+  function cajaCalcArqueo() {
+    let total = 0;
+    document.querySelectorAll('.arq-input').forEach(function(inp) {
+      const cant = parseFloat(inp.value) || 0;
+      const val = parseFloat(inp.dataset.val) || 0;
+      const sub = cant * val;
+      total += sub;
+      const subId = 'sub-' + inp.id.replace('arq-','');
+      const subEl = document.getElementById(subId);
+      if (subEl) subEl.textContent = sub.toFixed(2);
+    });
+    total = Math.round(total * 100) / 100;
+    document.getElementById('arq-fisico').textContent = 'S/. ' + total.toLocaleString('es-PE', {minimumFractionDigits:2});
+    const diff = Math.round((total - cajaSaldoTeorico) * 100) / 100;
+    const diffCard = document.getElementById('arq-diff-card');
+    const diffEl = document.getElementById('arq-diferencia');
+    const msgEl = document.getElementById('arq-msg');
+    diffEl.textContent = 'S/. ' + Math.abs(diff).toLocaleString('es-PE', {minimumFractionDigits:2});
+    const cuadre = Math.abs(diff) < 0.01;
+    diffCard.className = 'diff-card ' + (cuadre ? 'cuadre' : diff > 0 ? 'sobrante' : 'faltante');
+    msgEl.textContent = cuadre ? '✅ ¡CUADRE EXACTO!' : diff > 0 ? '⚠️ Sobrante' : '❌ Faltante';
+    document.getElementById('arq-btn-diario').disabled = !cuadre;
+    document.getElementById('arq-btn-mes').disabled = !cuadre;
+    return {total: total, diff: diff, cuadre: cuadre};
+  }
+
+  async function cajaLoadArqueo() {
+    await cajaCargarDatos();
+    document.querySelectorAll('.arq-input').forEach(function(i) { i.value = ''; });
+    cajaCalcArqueo();
+  }
+
+  async function cajaSubmitArqueo(tipoTexto) {
+    const calc = cajaCalcArqueo();
+    if (!calc.cuadre) { showToast('⚠️ Debe cuadrar la caja primero'); return; }
+    if (!confirm('¿Confirmar ' + tipoTexto + '?')) return;
+    const detalle = {};
+    document.querySelectorAll('.arq-input').forEach(function(inp) {
+      detalle[inp.id.replace('arq-','')] = parseFloat(inp.value) || 0;
+    });
+    try {
+      const resp = await apiPost({
+        _method: 'POST', cajaAction: 'arqueo',
+        tipoTexto: tipoTexto,
+        esCierre: tipoTexto === 'Cierre de Mes',
+        saldoTeorico: cajaSaldoTeorico,
+        saldoFisico: calc.total,
+        diferencia: calc.diff,
+        detalle: JSON.stringify(detalle),
+        sedeContexto: cajaSedeActual
+      });
+      if (resp && resp.status === 'ok') {
+        showToast('✅ ' + resp.message);
+        await cajaCargarDatos();
+        cajaSwitchSubtab('resumen', document.getElementById('subtab-resumen'));
+      } else { showToast('❌ ' + (resp && resp.message ? resp.message : 'Error')); }
+    } catch(e) { showToast('❌ Error: ' + e.message); }
+  }
+
+  async function cajaLoadHistorial() {
+    const resp = await apiFetch({ admin: 'caja_arqueos', sedeContexto: cajaSedeActual });
+    const tbody = document.getElementById('caja-hist-body');
+    if (!resp || !Array.isArray(resp) || resp.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--texto2);">Sin historial</td></tr>';
+      return;
+    }
+    tbody.innerHTML = resp.map(function(r) {
+      const diffColor = Math.abs(r.diferencia) < 0.01 ? 'var(--verde)' : r.diferencia > 0 ? '#cc8800' : 'var(--rojo)';
+      return '<tr><td>' + r.fecha + '</td><td>' + (r.usuario || '').split('@')[0] + '</td>' +
+        '<td><span style="background:var(--azul-claro);color:var(--azul);border-radius:20px;padding:2px 8px;font-size:10px;font-weight:700;">' + r.tipo + '</span></td>' +
+        '<td style="text-align:right;font-weight:700;color:' + diffColor + ';">S/. ' + (r.diferencia || 0).toFixed(2) + '</td></tr>';
+    }).join('');
   }
 
   // ── INIT ──
