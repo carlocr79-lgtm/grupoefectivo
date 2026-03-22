@@ -474,7 +474,7 @@
 
 <script>
   const API_URL = "https://script.google.com/macros/s/AKfycbzohLXlOnvRdmth1udVGdxoNkl7XjOPwo-LaIKv2Cum-wiix9emxVK73-ywlixk8jgxcA/exec";
-  let filaActual = null;
+  let tokenActual = null;
   let nombreActual = '';
   let montoActual = '';
   let pasoActual = 0;
@@ -527,7 +527,7 @@
     const monto = parseFloat(cliente.deuda) || 0;
     const cuota = parseFloat(cliente.cuota) || 0;
 
-    filaActual = cliente.fila;
+    tokenActual = cliente.token;
     nombreActual = cliente.nombres;
     montoActual = monto;
 
@@ -549,6 +549,7 @@
 
     // Actualizar banner monto
     document.getElementById('banner-monto').textContent = 'S/. ' + monto.toLocaleString('es-PE', {minimumFractionDigits:2});
+    document.getElementById('banner-nombre').textContent = (cliente.nombres || '').split(' ')[0];
 
     irPaso('step-deuda', 1);
   }
@@ -610,7 +611,7 @@
       const base64 = await comprimirImagen(fileInput.files[0], 600, 0.5);
       const res = await fetch(API_URL, {
         method: 'POST',
-        body: JSON.stringify({ fila: filaActual, voucher: base64, nombre: nombreActual, monto: montoActual })
+        body: JSON.stringify({ token: tokenActual, voucher: base64, nombre: nombreActual, monto: montoActual })
       });
       const data = await res.json();
       if (data.success) {
@@ -672,6 +673,7 @@
         } else if (data.alDia) {
           irPaso('step-aldia', 0);
         } else if (data.encontrado) {
+          data.token = token; // pasar token para usarlo en el POST
           cargarDatos(data);
         } else {
           irPaso('step-aldia', 0);
