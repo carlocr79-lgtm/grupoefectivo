@@ -473,7 +473,7 @@
 <div class="toast" id="toast">¡Copiado!</div>
 
 <script>
-  const API_URL = "https://script.google.com/macros/s/AKfycbwQEXQerAjBlj0YO4d40riJNltEd3j6m1srBdEk0SlyiM-HPjhX7bbGUQu0Py8AJnTJwQ/exec";
+  const API_URL = "https://script.google.com/macros/s/AKfycbzohLXlOnvRdmth1udVGdxoNkl7XjOPwo-LaIKv2Cum-wiix9emxVK73-ywlixk8jgxcA/exec";
   let filaActual = null;
   let nombreActual = '';
   let montoActual = '';
@@ -549,7 +549,6 @@
 
     // Actualizar banner monto
     document.getElementById('banner-monto').textContent = 'S/. ' + monto.toLocaleString('es-PE', {minimumFractionDigits:2});
-    document.getElementById('banner-nombre').textContent = (cliente.nombres || '').split(' ')[0];
 
     irPaso('step-deuda', 1);
   }
@@ -666,12 +665,8 @@
 
     if (token) {
       try {
-        const res = await fetch(API_URL + '?token=' + encodeURIComponent(token), {
-          method: 'GET',
-          redirect: 'follow'
-        });
-        const text = await res.text();
-        const data = JSON.parse(text);
+        const res = await fetch(API_URL + '?token=' + encodeURIComponent(token));
+        const data = await res.json();
         if (data.expirado) {
           irPaso('step-expirado', 0);
         } else if (data.alDia) {
@@ -682,7 +677,6 @@
           irPaso('step-aldia', 0);
         }
       } catch(err) {
-        console.error('Error:', err);
         showToast('❌ Error de conexión');
         irPaso('step-aldia', 0);
       }
