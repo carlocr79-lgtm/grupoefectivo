@@ -62,6 +62,10 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 .navbar-title span { display:block; font-size:9px; font-weight:400; opacity:0.7; }
 .btn-logout { background:rgba(255,255,255,0.15); border:none; color:white; padding:6px 12px; border-radius:8px; font-size:11px; font-weight:600; cursor:pointer; }
 
+/* REFRESH */
+.refreshing { animation: spin 1s linear infinite; display:inline-block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
 /* TABS */
 .tabs { display:flex; background:white; border-bottom:2px solid var(--gris2); overflow-x:auto; position:sticky; top:54px; z-index:99; }
 .tab-btn {
@@ -204,6 +208,8 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     <button class="tab-btn active" onclick="cambiarTab('clientes',this)">📋 Clientes</button>
     <button class="tab-btn" onclick="cambiarTab('vouchers',this)">🧾 Vouchers <span class="tab-badge" id="badge-vouchers">0</span></button>
     <button class="tab-btn" onclick="cambiarTab('historial',this)">📊 Historial</button>
+    <button class="tab-btn" id="btn-refresh" onclick="refrescarDatos()" style="flex:0;padding:12px 16px;color:var(--azul2);">🔄</button>
+    <div style="display:flex;align-items:center;padding:0 10px;font-size:10px;color:var(--texto2);white-space:nowrap;" id="ultimo-refresh"></div>
   </div>
 
   <!-- TAB CLIENTES -->
@@ -334,7 +340,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         const ofLabel = data.oficina && data.oficina !== 'TODOS' ? ' · ' + data.oficina : ' · Todas las oficinas';
         document.querySelector('.navbar-title').innerHTML = 
           'Grupo Efectivo <span>' + rolLabel + ofLabel + ' — ' + data.nombre.split(' ')[0] + '</span>';
-        cargarTodo();
+        cargarTodo().then(function() { iniciarAutoRefresh(); });
       } else {
         mostrarError('codigo-error', data.error || 'Código incorrecto');
       }
@@ -388,6 +394,32 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     sessionStorage.removeItem('ge_nombre');
     sessionStorage.removeItem('ge_rol');
     location.reload();
+  }
+
+  // ── AUTO-REFRESH ──
+  let autoRefreshInterval = null;
+  let refreshCount = 0;
+
+  function iniciarAutoRefresh() {
+    if (autoRefreshInterval) clearInterval(autoRefreshInterval);
+    autoRefreshInterval = setInterval(function() {
+      refrescarDatos(true); // true = silencioso
+    }, 60000); // cada 60 segundos
+  }
+
+  async function refrescarDatos(silencioso) {
+    const btn = document.getElementById('btn-refresh');
+    btn.classList.add('refreshing');
+    if (!silencioso) showToast('🔄 Actualizando datos...');
+    
+    await cargarTodo();
+    
+    btn.classList.remove('refreshing');
+    const ahora = new Date();
+    const h = String(ahora.getHours()).padStart(2,'0');
+    const m = String(ahora.getMinutes()).padStart(2,'0');
+    const s = String(ahora.getSeconds()).padStart(2,'0');
+    document.getElementById('ultimo-refresh').textContent = 'Actualizado ' + h + ':' + m + ':' + s;
   }
 
   // ── TABS ──
@@ -723,7 +755,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         document.querySelector('.navbar-title').innerHTML = 
           'Grupo Efectivo <span>' + rolLabel + ofLabel + ' — ' + nombre.split(' ')[0] + '</span>';
       }
-      cargarTodo();
+      cargarTodo().then(function() { iniciarAutoRefresh(); });
     }
 
     // Bloqueo zoom
