@@ -434,7 +434,13 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   // ── CLIENTES ──
   async function cargarClientes() {
     try {
-      clientes = await apiFetch({ admin: 'clientes' });
+      const resp = await apiFetch({ admin: 'clientes' });
+      if (!Array.isArray(resp)) {
+        console.error('Respuesta inesperada:', resp);
+        document.getElementById('lista-clientes').innerHTML = '<div class="empty"><div class="icon">⚠️</div>Error: ' + (resp && resp.error ? resp.error : 'Respuesta inválida') + '</div>';
+        return;
+      }
+      clientes = resp;
       renderAsesoresFiltros();
       renderClientes();
     } catch(e) {
@@ -534,7 +540,8 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   // ── VOUCHERS ──
   async function cargarVouchers() {
     try {
-      vouchers = await apiFetch({ admin: 'vouchers' });
+      const resp = await apiFetch({ admin: 'vouchers' });
+      vouchers = Array.isArray(resp) ? resp : [];
       document.getElementById('badge-vouchers').textContent = vouchers.length;
       renderVouchers();
     } catch(e) {
@@ -616,7 +623,8 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   // ── HISTORIAL ──
   async function cargarHistorial() {
     try {
-      historial = await apiFetch({ admin: 'historial' });
+      const resp = await apiFetch({ admin: 'historial' });
+      historial = Array.isArray(resp) ? resp : [];
       poblarFiltrosHistorial();
       renderHistorial();
     } catch(e) {
