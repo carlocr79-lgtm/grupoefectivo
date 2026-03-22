@@ -326,11 +326,14 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         sessionStorage.setItem('ge_session', data.sessionToken);
         sessionStorage.setItem('ge_nombre', data.nombre);
         sessionStorage.setItem('ge_rol', data.rol);
+        sessionStorage.setItem('ge_oficina', data.oficina || 'TODOS');
         document.getElementById('login-screen').style.display = 'none';
         const app = document.getElementById('app');
         app.style.display = 'flex'; app.style.flexDirection = 'column';
+        const rolLabel = data.rol === 'admin' ? '👑 Admin' : data.rol === 'cajero' ? '💼 Cajero' : '👤 Asesor';
+        const ofLabel = data.oficina && data.oficina !== 'TODOS' ? ' · ' + data.oficina : ' · Todas las oficinas';
         document.querySelector('.navbar-title').innerHTML = 
-          'Grupo Efectivo <span>Bienvenido, ' + data.nombre + '</span>';
+          'Grupo Efectivo <span>' + rolLabel + ofLabel + ' — ' + data.nombre.split(' ')[0] + '</span>';
         cargarTodo();
       } else {
         mostrarError('codigo-error', data.error || 'Código incorrecto');
@@ -508,6 +511,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         <div class="cliente-info">
           <span class="tag tag-asesor">${c.asesor.split(' ')[0]}</span>
           <span class="tag tag-tipo">${c.tipo}</span>
+          ${c.oficina ? '<span class="tag" style="background:#f0e8ff;color:#6600cc;">📍 ' + c.oficina + '</span>' : ''}
           ${diasTag}
           ${tieneVoucher}
         </div>
@@ -711,8 +715,14 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       document.getElementById('login-screen').style.display = 'none';
       const app = document.getElementById('app');
       app.style.display = 'flex'; app.style.flexDirection = 'column';
-      if (nombre) document.querySelector('.navbar-title').innerHTML = 
-        'Grupo Efectivo <span>Bienvenido, ' + nombre + '</span>';
+      if (nombre) {
+        const rol = sessionStorage.getItem('ge_rol') || 'asesor';
+        const oficina = sessionStorage.getItem('ge_oficina') || 'TODOS';
+        const rolLabel = rol === 'admin' ? '👑 Admin' : rol === 'cajero' ? '💼 Cajero' : '👤 Asesor';
+        const ofLabel = oficina !== 'TODOS' ? ' · ' + oficina : ' · Todas las oficinas';
+        document.querySelector('.navbar-title').innerHTML = 
+          'Grupo Efectivo <span>' + rolLabel + ofLabel + ' — ' + nombre.split(' ')[0] + '</span>';
+      }
       cargarTodo();
     }
 
