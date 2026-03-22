@@ -63,8 +63,8 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 .btn-logout { background:rgba(255,255,255,0.15); border:none; color:white; padding:6px 12px; border-radius:8px; font-size:11px; font-weight:600; cursor:pointer; }
 
 /* REFRESH */
-.refreshing { animation: spin 1s linear infinite; display:inline-block; }
-@keyframes spin { to { transform: rotate(360deg); } }
+.refreshing { animation: rotate 1s linear infinite; display:inline-block; }
+@keyframes rotate { to { transform: rotate(360deg); } }
 
 /* TABS */
 .tabs { display:flex; background:white; border-bottom:2px solid var(--gris2); overflow-x:auto; position:sticky; top:54px; z-index:99; }
@@ -208,8 +208,12 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     <button class="tab-btn active" onclick="cambiarTab('clientes',this)">📋 Clientes</button>
     <button class="tab-btn" onclick="cambiarTab('vouchers',this)">🧾 Vouchers <span class="tab-badge" id="badge-vouchers">0</span></button>
     <button class="tab-btn" onclick="cambiarTab('historial',this)">📊 Historial</button>
-    <button class="tab-btn" id="btn-refresh" onclick="refrescarDatos()" style="flex:0;padding:12px 16px;color:var(--azul2);">🔄</button>
-    <div style="display:flex;align-items:center;padding:0 10px;font-size:10px;color:var(--texto2);white-space:nowrap;" id="ultimo-refresh"></div>
+    <div style="display:flex;align-items:center;gap:6px;padding:0 12px;margin-left:auto;">
+      <button id="btn-refresh" onclick="refrescarDatos()" title="Actualizar datos"
+        style="background:none;border:none;cursor:pointer;color:var(--texto2);font-size:14px;padding:4px;border-radius:6px;transition:color 0.2s;"
+        onmouseover="this.style.color='var(--azul2)'" onmouseout="this.style.color='var(--texto2)'">⟳</button>
+      <span id="ultimo-refresh" style="font-size:10px;color:var(--texto2);white-space:nowrap;"></span>
+    </div>
   </div>
 
   <!-- TAB CLIENTES -->
@@ -700,7 +704,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
     const totalMonto = lista.reduce((sum, h) => sum + (parseFloat(h.monto) || 0), 0);
     document.getElementById('res-total').textContent = 'S/. ' + totalMonto.toLocaleString('es-PE',{minimumFractionDigits:2});
-    document.getElementById('res-count').textContent = lista.length;
+    document.getElementById('res-count').textContent = lista.length + ' pago' + (lista.length !== 1 ? 's' : '');
 
     if (lista.length === 0) {
       document.getElementById('lista-historial').innerHTML = '<div class="empty"><div class="icon">📋</div>Sin registros</div>';
@@ -710,17 +714,17 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     document.getElementById('lista-historial').innerHTML = lista.map(h => `
       <div class="hist-card">
         <div class="hist-left">
-          <div class="nombre">${h.nombre}</div>
-          <div class="det">${h.asesor ? h.asesor.split(' ')[0] : '-'} · ${h.tipo || '-'} · Cód. ${h.cod}</div>
+          <div class="nombre">${h.nombre || '-'}</div>
+          <div class="det">${h.asesor ? h.asesor.toString().split(' ')[0] : '-'} · ${h.tipo || '-'} · Cód. ${h.cod || '-'}</div>
           <div class="det" style="margin-top:3px;">
-            <span class="tag ${h.estado && h.estado.includes('VERIFICADO') ? 'tag-verificado' : 'tag-pendiente'}" style="display:inline-block;">
+            <span class="tag ${h.estado && h.estado.toString().includes('VERIFICADO') ? 'tag-verificado' : 'tag-pendiente'}" style="display:inline-block;font-size:10px;">
               ${h.estado || 'PENDIENTE'}
             </span>
           </div>
         </div>
         <div class="hist-right">
           <div class="monto">S/. ${parseFloat(h.monto||0).toLocaleString('es-PE',{minimumFractionDigits:2})}</div>
-          <div class="fecha">${h.fecha || ''} ${h.hora || ''}</div>
+          <div class="fecha">${formatFechaSolo(h.fecha)} ${h.hora || ''}</div>
           ${h.voucher ? `<a href="${h.voucher}" target="_blank">Ver voucher ↗</a>` : ''}
         </div>
       </div>
@@ -729,8 +733,31 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
   // ── UTILS ──
   function formatFecha(str) {
-    try { return new Date(str).toLocaleString('es-PE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}); }
-    catch(e) { return str; }
+    if (!str) return '-';
+    try {
+      const d = new Date(str);
+      if (isNaN(d.getTime())) return str;
+      return d.toLocaleDateString('es-PE',{day:'2-digit',month:'2-digit',year:'numeric'}) + 
+             ' ' + d.toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit'});
+    } catch(e) { return str; }
+  }
+
+  function formatFechaSolo(str) {
+    if (!str) return '-';
+    try {
+      // Si ya es formato dd/mm/yyyy o yyyy-mm-dd limpio, mostrarlo directo
+      if (typeof str === 'string' && str.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        const [y,m,d] = str.split('-');
+        return d + '/' + m + '/' + y;
+      }
+      const d = new Date(str);
+      if (isNaN(d.getTime())) return str;
+      // Ajustar timezone para evitar desfase de un día
+      const local = new Date(d.getTime() + d.getTimezoneOffset() * -60000);
+      return String(local.getDate()).padStart(2,'0') + '/' + 
+             String(local.getMonth()+1).padStart(2,'0') + '/' + 
+             local.getFullYear();
+    } catch(e) { return str; }
   }
 
   function showToast(msg) {
