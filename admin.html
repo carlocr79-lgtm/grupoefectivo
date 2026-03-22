@@ -16,7 +16,7 @@
   --gris: #f5f7fc; --gris2: #e0e6f0; --texto: #1a1a2e; --texto2: #5a6475;
 }
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris); color:var(--texto); }
+html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris); color:var(--texto); overflow-y:auto; }
 
 /* ── LOGIN ── */
 #login-screen {
@@ -78,8 +78,8 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 .tab-badge { display:inline-block; background:var(--rojo); color:white; border-radius:10px; font-size:9px; padding:1px 6px; margin-left:4px; font-weight:700; }
 
 /* CONTENIDO */
-.tab-content { display:none; padding:14px 16px; flex:1; }
-.tab-content.active { display:block; }
+.tab-content { display:none; padding:14px 16px; flex:1; overflow-y:auto; }
+.tab-content.active { display:block; min-height:200px; }
 
 /* BUSCADOR */
 .search-bar { position:relative; margin-bottom:14px; }
