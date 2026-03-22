@@ -3,8 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <title>Portal de Pagos - Grupo Efectivo SAC</title>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
     --azul: #003087;
@@ -50,6 +54,8 @@
 
   /* STEPS */
   .step {
+    will-change: transform;
+    -webkit-overflow-scrolling: touch;
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
     display: flex;
@@ -58,7 +64,7 @@
     transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     overflow-y: auto;
   }
-  .step.active { transform: translateX(0); }
+  .step.active { transform: translateX(0) translateZ(0); }
   .step.prev { transform: translateX(-100%); }
 
   /* STEP CARGANDO */
@@ -343,7 +349,7 @@
   <div class="navbar-steps" id="nav-steps"></div>
 </nav>
 
-<canvas class="confetti-canvas" id="confetti-canvas"></canvas>
+
 
 <div class="wizard">
 
@@ -519,6 +525,23 @@
 
 <script>
   const API_URL = "https://script.google.com/macros/s/AKfycbw1A2uSU-aRx0lqzpSvCmVRJqSyNRXpFueCV_I2F9U-IBuLOYo6ceIlG8ioah73jm8_OA/exec";
+
+  // ─── BLOQUEO DE ZOOM (iOS Safari ignora user-scalable=no) ───
+  document.addEventListener('touchstart', function(e) {
+    if (e.touches.length > 1) e.preventDefault();
+  }, { passive: false });
+  document.addEventListener('gesturestart', function(e) {
+    e.preventDefault();
+  }, { passive: false });
+  let lastTouchEnd = 0;
+  document.addEventListener('touchend', function(e) {
+    const now = Date.now();
+    if (now - lastTouchEnd <= 300) e.preventDefault(); // bloquea doble tap zoom
+    lastTouchEnd = now;
+  }, { passive: false });
+
+  // ─── DEBOUNCE: evita doble llamada al API ───
+  let cargando = false;
   let tokenActual = null;
   let nombreActual = '';
   let montoActual = '';
@@ -652,7 +675,7 @@
     btn.disabled = true;
 
     try {
-      const base64 = await comprimirImagen(fileInput.files[0], 600, 0.5);
+      const base64 = await comprimirImagen(fileInput.files[0], 480, 0.4);
       const res = await fetch(API_URL, {
         method: 'POST',
         body: JSON.stringify({ token: tokenActual, voucher: base64, nombre: nombreActual, monto: montoActual })
@@ -672,7 +695,14 @@
   }
 
   function lanzarConfetti() {
-    const canvas = document.getElementById('confetti-canvas');
+    // Canvas creado dinámicamente - no ocupa memoria hasta que se necesita
+    let canvas = document.getElementById('confetti-canvas');
+    if (!canvas) {
+      canvas = document.createElement('canvas');
+      canvas.id = 'confetti-canvas';
+      canvas.className = 'confetti-canvas';
+      document.body.appendChild(canvas);
+    }
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
@@ -716,7 +746,7 @@
       });
       frame++;
       if (frame < 300) requestAnimationFrame(animar);
-      else ctx.clearRect(0, 0, canvas.width, canvas.height);
+      else { ctx.clearRect(0, 0, canvas.width, canvas.height); canvas.remove(); }
     }
     animar();
   }
@@ -729,13 +759,15 @@
 
   // INICIO - verificar token
   window.addEventListener('load', async function() {
+    if (cargando) return; // debounce - evita doble ejecución
+    cargando = true;
     const params = new URLSearchParams(window.location.search);
     const token = params.get('token');
     const cel = params.get('cel');
 
     if (token) {
       try {
-        const res = await fetch(API_URL + '?token=' + encodeURIComponent(token));
+        const res = await fetch(API_URL + '?token=' + encodeURIComponent(token), { cache: 'no-store' });
         const data = await res.json();
         if (data.expirado) {
           irPaso('step-expirado', 0);
@@ -754,7 +786,7 @@
     } else if (cel) {
       // Fallback: buscar por celular
       try {
-        const res = await fetch(API_URL + '?q=' + encodeURIComponent(cel.replace(/\s/g,'')));
+        const res = await fetch(API_URL + '?q=' + encodeURIComponent(cel.replace(/\s/g,'')), { cache: 'no-store' });
         const data = await res.json();
         if (data && data.length > 0) {
           cargarDatos(data[0]);
