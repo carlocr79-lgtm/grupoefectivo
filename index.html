@@ -820,7 +820,7 @@
 
     if (token) {
       try {
-        const res = await fetch(API_URL + '?token=' + encodeURIComponent(token), { cache: 'no-store' });
+        const res = await fetch(API_URL + '?token=' + encodeURIComponent(token));
         const data = await res.json();
         if (data.expirado) {
           irPaso('step-expirado', 0);
@@ -841,7 +841,7 @@
     } else if (cel) {
       // Fallback: buscar por celular
       try {
-        const res = await fetch(API_URL + '?q=' + encodeURIComponent(cel.replace(/\s/g,'')), { cache: 'no-store' });
+        const res = await fetch(API_URL + '?q=' + encodeURIComponent(cel.replace(/\s/g,'')));
         const data = await res.json();
         if (data && data.length > 0) {
           cargarDatos(data[0]);
