@@ -549,7 +549,6 @@
 
     // Actualizar banner monto
     document.getElementById('banner-monto').textContent = 'S/. ' + monto.toLocaleString('es-PE', {minimumFractionDigits:2});
-    document.getElementById('banner-nombre').textContent = (cliente.nombres || '').split(' ')[0];
 
     irPaso('step-deuda', 1);
   }
