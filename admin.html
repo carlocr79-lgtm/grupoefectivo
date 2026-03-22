@@ -34,6 +34,18 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 .form-group input:focus { border-color:var(--azul2); }
 .btn-login { width:100%; padding:14px; background:linear-gradient(135deg,var(--azul),var(--azul2)); color:white; border:none; border-radius:12px; font-family:'Montserrat',sans-serif; font-weight:800; font-size:15px; cursor:pointer; margin-top:8px; }
 .login-error { color:var(--rojo); font-size:12px; text-align:center; margin-top:10px; display:none; }
+.login-success { color:var(--verde); font-size:12px; text-align:center; margin-top:10px; display:none; }
+.codigo-inputs { display:flex; gap:8px; justify-content:center; margin:16px 0; }
+.codigo-inputs input {
+  width:42px; height:52px; text-align:center; font-size:22px; font-weight:800;
+  border:2px solid var(--gris2); border-radius:10px; font-family:'Montserrat',sans-serif;
+  outline:none; transition:border-color 0.2s; color:var(--azul);
+}
+.codigo-inputs input:focus { border-color:var(--azul2); }
+.correo-display { background:var(--gris); border-radius:8px; padding:8px 12px; font-size:12px; color:var(--texto2); text-align:center; margin-bottom:14px; }
+.correo-display strong { color:var(--azul); }
+.btn-reenviar { background:none; border:none; color:var(--azul2); font-size:12px; cursor:pointer; margin-top:8px; display:block; width:100%; text-align:center; font-weight:600; }
+.timer { font-size:11px; color:var(--texto2); text-align:center; margin-top:6px; }
 
 /* ── APP ── */
 #app { display:none; min-height:100vh; flex-direction:column; }
@@ -146,18 +158,36 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 <div id="login-screen">
   <div class="login-logo">💼 Grupo Efectivo</div>
   <div class="login-sub">Panel de Administración</div>
-  <div class="login-box">
-    <h2>🔐 Iniciar sesión</h2>
+
+  <!-- PASO 1: CORREO -->
+  <div class="login-box" id="box-correo">
+    <h2>📧 Ingresa tu correo</h2>
     <div class="form-group">
-      <label>Usuario</label>
-      <input type="text" id="inp-usuario" placeholder="usuario" autocomplete="off">
+      <label>Correo autorizado</label>
+      <input type="email" id="inp-correo" placeholder="tucorreo@gmail.com" autocomplete="email"
+        onkeydown="if(event.key==='Enter')solicitarCodigo()">
     </div>
-    <div class="form-group">
-      <label>Contraseña</label>
-      <input type="password" id="inp-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')login()">
+    <button class="btn-login" id="btn-solicitar" onclick="solicitarCodigo()">Enviar código →</button>
+    <div class="login-error" id="login-error">Correo no autorizado</div>
+    <div class="login-success" id="login-ok">✅ Código enviado a tu correo</div>
+  </div>
+
+  <!-- PASO 2: CÓDIGO -->
+  <div class="login-box" id="box-codigo" style="display:none;">
+    <h2>🔢 Ingresa el código</h2>
+    <div class="correo-display">Código enviado a <strong id="correo-display-txt"></strong></div>
+    <div class="codigo-inputs">
+      <input type="tel" maxlength="1" class="cod-input" id="c1" oninput="avanzarCodigo(this,'c2')">
+      <input type="tel" maxlength="1" class="cod-input" id="c2" oninput="avanzarCodigo(this,'c3')" onkeydown="retrocederCodigo(event,'c1')">
+      <input type="tel" maxlength="1" class="cod-input" id="c3" oninput="avanzarCodigo(this,'c4')" onkeydown="retrocederCodigo(event,'c2')">
+      <input type="tel" maxlength="1" class="cod-input" id="c4" oninput="avanzarCodigo(this,'c5')" onkeydown="retrocederCodigo(event,'c3')">
+      <input type="tel" maxlength="1" class="cod-input" id="c5" oninput="avanzarCodigo(this,'c6')" onkeydown="retrocederCodigo(event,'c4')">
+      <input type="tel" maxlength="1" class="cod-input" id="c6" oninput="avanzarCodigo(this,null)" onkeydown="retrocederCodigo(event,'c5')">
     </div>
-    <button class="btn-login" onclick="login()">Ingresar →</button>
-    <div class="login-error" id="login-error">Usuario o contraseña incorrectos</div>
+    <button class="btn-login" id="btn-verificar-cod" onclick="verificarCodigo()">Verificar →</button>
+    <div class="login-error" id="codigo-error">Código incorrecto o expirado</div>
+    <div class="timer" id="timer-txt"></div>
+    <button class="btn-reenviar" onclick="volverCorreo()">← Cambiar correo / Reenviar</button>
   </div>
 </div>
 
@@ -228,16 +258,6 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
 <script>
   const API_URL = "https://script.google.com/macros/s/AKfycbw1A2uSU-aRx0lqzpSvCmVRJqSyNRXpFueCV_I2F9U-IBuLOYo6ceIlG8ioah73jm8_OA/exec";
-  const ADMIN_KEY = "geadmin2026";
-
-  // Credenciales (usuario: contraseña)
-  const USUARIOS = {
-    "cajero": "caja2026",
-    "admin":  "geadmin2026",
-    "cesar":  "cesar2026",
-    "raquel": "raquel2026",
-    "yanela": "yanela2026"
-  };
 
   let clientes = [];
   let vouchers = [];
@@ -246,27 +266,124 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   let modalFilaActual = null;
   let modalNombreActual = '';
   let modalMontoActual = 0;
+  let correoActual = '';
+  let timerInterval = null;
 
-  // ── LOGIN ──
-  function login() {
-    const user = document.getElementById('inp-usuario').value.trim().toLowerCase();
-    const pass = document.getElementById('inp-password') ? 
-      document.getElementById('inp-password').value : 
-      document.getElementById('inp-pass').value;
-    
-    if (USUARIOS[user] && USUARIOS[user] === pass) {
-      document.getElementById('login-screen').style.display = 'none';
-      document.getElementById('app').style.display = 'flex';
-      document.getElementById('app').style.flexDirection = 'column';
-      sessionStorage.setItem('ge_auth', user);
-      cargarTodo();
-    } else {
-      document.getElementById('login-error').style.display = 'block';
+  // ── AUTH: PASO 1 — SOLICITAR CÓDIGO ──
+  async function solicitarCodigo() {
+    const correo = document.getElementById('inp-correo').value.trim();
+    if (!correo || !correo.includes('@')) {
+      mostrarError('login-error', 'Ingresa un correo válido'); return;
+    }
+    const btn = document.getElementById('btn-solicitar');
+    btn.textContent = '⏳ Enviando...'; btn.disabled = true;
+    ocultarError('login-error'); ocultarError('login-ok');
+
+    try {
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        body: JSON.stringify({ authAction: 'solicitarCodigo', correo: correo })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        correoActual = correo;
+        document.getElementById('box-correo').style.display = 'none';
+        document.getElementById('box-codigo').style.display = 'block';
+        document.getElementById('correo-display-txt').textContent = correo;
+        document.getElementById('c1').focus();
+        iniciarTimer(10 * 60);
+      } else {
+        mostrarError('login-error', data.error || 'Correo no autorizado');
+      }
+    } catch(e) {
+      mostrarError('login-error', 'Error de conexión. Intenta de nuevo.');
+    }
+    btn.textContent = 'Enviar código →'; btn.disabled = false;
+  }
+
+  // ── AUTH: PASO 2 — VERIFICAR CÓDIGO ──
+  async function verificarCodigo() {
+    const codigo = ['c1','c2','c3','c4','c5','c6']
+      .map(id => document.getElementById(id).value).join('');
+
+    if (codigo.length < 6) {
+      mostrarError('codigo-error', 'Ingresa los 6 dígitos'); return;
+    }
+    const btn = document.getElementById('btn-verificar-cod');
+    btn.textContent = '⏳ Verificando...'; btn.disabled = true;
+    ocultarError('codigo-error');
+
+    try {
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        body: JSON.stringify({ authAction: 'verificarCodigo', correo: correoActual, codigo: codigo })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        clearInterval(timerInterval);
+        sessionStorage.setItem('ge_session', data.sessionToken);
+        sessionStorage.setItem('ge_nombre', data.nombre);
+        sessionStorage.setItem('ge_rol', data.rol);
+        document.getElementById('login-screen').style.display = 'none';
+        const app = document.getElementById('app');
+        app.style.display = 'flex'; app.style.flexDirection = 'column';
+        document.querySelector('.navbar-title').innerHTML = 
+          'Grupo Efectivo <span>Bienvenido, ' + data.nombre + '</span>';
+        cargarTodo();
+      } else {
+        mostrarError('codigo-error', data.error || 'Código incorrecto');
+      }
+    } catch(e) {
+      mostrarError('codigo-error', 'Error de conexión.');
+    }
+    btn.textContent = 'Verificar →'; btn.disabled = false;
+  }
+
+  function volverCorreo() {
+    clearInterval(timerInterval);
+    document.getElementById('box-codigo').style.display = 'none';
+    document.getElementById('box-correo').style.display = 'block';
+    ['c1','c2','c3','c4','c5','c6'].forEach(id => document.getElementById(id).value = '');
+  }
+
+  function avanzarCodigo(input, siguienteId) {
+    input.value = input.value.replace(/[^0-9]/g,'');
+    if (input.value && siguienteId) document.getElementById(siguienteId).focus();
+    if (!siguienteId && input.value) verificarCodigo();
+  }
+
+  function retrocederCodigo(e, anteriorId) {
+    if (e.key === 'Backspace' && !e.target.value && anteriorId) {
+      document.getElementById(anteriorId).focus();
     }
   }
 
+  function iniciarTimer(segundos) {
+    clearInterval(timerInterval);
+    const txt = document.getElementById('timer-txt');
+    timerInterval = setInterval(() => {
+      const m = Math.floor(segundos / 60);
+      const s = segundos % 60;
+      txt.textContent = 'Expira en ' + m + ':' + String(s).padStart(2,'0');
+      if (--segundos < 0) {
+        clearInterval(timerInterval);
+        txt.textContent = '⚠️ Código expirado. Solicita uno nuevo.';
+      }
+    }, 1000);
+  }
+
+  function mostrarError(id, msg) {
+    const el = document.getElementById(id);
+    el.textContent = msg; el.style.display = 'block';
+  }
+  function ocultarError(id) { document.getElementById(id).style.display = 'none'; }
+
   function logout() {
-    sessionStorage.removeItem('ge_auth');
+    sessionStorage.removeItem('ge_session');
+    sessionStorage.removeItem('ge_nombre');
+    sessionStorage.removeItem('ge_rol');
     location.reload();
   }
 
@@ -283,18 +400,24 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     await Promise.all([cargarClientes(), cargarVouchers(), cargarHistorial()]);
   }
 
+  function getSession() { return sessionStorage.getItem('ge_session'); }
+
   async function apiFetch(params) {
-    const url = API_URL + '?' + new URLSearchParams({...params, key: ADMIN_KEY});
+    const url = API_URL + '?' + new URLSearchParams({...params, sessionToken: getSession()});
     const res = await fetch(url, { cache: 'no-store' });
-    return res.json();
+    const data = await res.json();
+    if (data.error === 'Sesión inválida o expirada') { logout(); return null; }
+    return data;
   }
 
   async function apiPost(body) {
     const res = await fetch(API_URL, {
       method: 'POST',
-      body: JSON.stringify({...body, key: ADMIN_KEY})
+      body: JSON.stringify({...body, sessionToken: getSession()})
     });
-    return res.json();
+    const data = await res.json();
+    if (data && data.error === 'Sesión inválida o expirada') { logout(); return null; }
+    return data;
   }
 
   // ── CLIENTES ──
@@ -562,11 +685,14 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
   // ── INIT ──
   window.addEventListener('load', function() {
-    const auth = sessionStorage.getItem('ge_auth');
-    if (auth && USUARIOS[auth]) {
+    const session = sessionStorage.getItem('ge_session');
+    const nombre = sessionStorage.getItem('ge_nombre');
+    if (session) {
       document.getElementById('login-screen').style.display = 'none';
-      document.getElementById('app').style.display = 'flex';
-      document.getElementById('app').style.flexDirection = 'column';
+      const app = document.getElementById('app');
+      app.style.display = 'flex'; app.style.flexDirection = 'column';
+      if (nombre) document.querySelector('.navbar-title').innerHTML = 
+        'Grupo Efectivo <span>Bienvenido, ' + nombre + '</span>';
       cargarTodo();
     }
 
