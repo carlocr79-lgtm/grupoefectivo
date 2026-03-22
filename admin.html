@@ -404,18 +404,29 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
   async function apiFetch(params) {
     const url = API_URL + '?' + new URLSearchParams({...params, sessionToken: getSession()});
-    const res = await fetch(url, { cache: 'no-store' });
-    const data = await res.json();
-    if (data.error === 'Sesión inválida o expirada') { logout(); return null; }
+    const res = await fetch(url, { 
+      cache: 'no-store',
+      redirect: 'follow',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    const text = await res.text();
+    let data;
+    try { data = JSON.parse(text); } 
+    catch(e) { console.error('Response no es JSON:', text.substring(0,200)); throw new Error('Respuesta inválida del servidor'); }
+    if (data && data.error === 'Sesión inválida o expirada') { logout(); return null; }
     return data;
   }
 
   async function apiPost(body) {
     const res = await fetch(API_URL, {
       method: 'POST',
+      redirect: 'follow',
       body: JSON.stringify({...body, sessionToken: getSession()})
     });
-    const data = await res.json();
+    const text = await res.text();
+    let data;
+    try { data = JSON.parse(text); }
+    catch(e) { console.error('Response no es JSON:', text.substring(0,200)); throw new Error('Respuesta inválida'); }
     if (data && data.error === 'Sesión inválida o expirada') { logout(); return null; }
     return data;
   }
@@ -427,7 +438,8 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       renderAsesoresFiltros();
       renderClientes();
     } catch(e) {
-      document.getElementById('lista-clientes').innerHTML = '<div class="empty"><div class="icon">⚠️</div>Error al cargar clientes</div>';
+      console.error('Error clientes:', e);
+      document.getElementById('lista-clientes').innerHTML = '<div class="empty"><div class="icon">⚠️</div>Error: ' + e.message + '</div>';
     }
   }
 
