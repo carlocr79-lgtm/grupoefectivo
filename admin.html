@@ -309,6 +309,112 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   </div>
 </div>
 
+
+<!-- TAB CAJA CHICA -->
+<div class="tab-content" id="tab-caja">
+  <div style="display:flex;gap:8px;margin-bottom:14px;border-bottom:1px solid var(--gris2);padding-bottom:0;">
+    <button id="subtab-resumen" onclick="cajaSwitchSubtab('resumen',this)" style="padding:8px 16px;background:none;border:none;border-bottom:2px solid var(--azul2);color:var(--azul2);font-weight:700;font-size:12px;cursor:pointer;">📊 Resumen</button>
+    <button id="subtab-movimientos" onclick="cajaSwitchSubtab('movimientos',this)" style="padding:8px 16px;background:none;border:none;border-bottom:2px solid transparent;color:var(--texto2);font-weight:600;font-size:12px;cursor:pointer;">📋 Movimientos</button>
+    <button id="subtab-arqueo" onclick="cajaSwitchSubtab('arqueo',this)" style="padding:8px 16px;background:none;border:none;border-bottom:2px solid transparent;color:var(--texto2);font-weight:600;font-size:12px;cursor:pointer;">🔐 Arqueo</button>
+    <button id="subtab-historial-arq" onclick="cajaSwitchSubtab('historial-arq',this)" style="padding:8px 16px;background:none;border:none;border-bottom:2px solid transparent;color:var(--texto2);font-weight:600;font-size:12px;cursor:pointer;">📅 Historial</button>
+    <div style="margin-left:auto;display:flex;align-items:center;">
+      <select id="caja-sede-select" onchange="cajaCargarDatos()" style="padding:5px 10px;border:1px solid var(--gris2);border-radius:8px;font-size:11px;font-weight:600;color:var(--azul);"></select>
+    </div>
+  </div>
+  <div id="caja-sub-resumen">
+    <div class="caja-grid">
+      <div class="caja-card"><div class="caja-card-title">Saldo Disponible</div><div class="caja-monto azul" id="caja-saldo">S/. 0.00</div></div>
+      <div class="caja-card"><div class="caja-card-title">Ingresos</div><div class="caja-monto verde" id="caja-ingresos">S/. 0.00</div></div>
+      <div class="caja-card"><div class="caja-card-title">Egresos</div><div class="caja-monto rojo" id="caja-egresos">S/. 0.00</div></div>
+    </div>
+    <div class="caja-card"><div class="caja-card-title">Mayores Gastos</div><div id="caja-top-gastos">Cargando...</div></div>
+  </div>
+  <div id="caja-sub-movimientos" style="display:none;">
+    <div class="caja-toolbar">
+      <button class="btn-main" onclick="cajaShowModal()" style="width:auto;padding:9px 16px;font-size:13px;">+ Nuevo</button>
+      <input type="text" id="caja-buscar" placeholder="Buscar..." oninput="cajaFiltrar()" style="flex:1;padding:8px 12px;border:1.5px solid var(--gris2);border-radius:10px;font-size:13px;max-width:300px;">
+    </div>
+    <div class="caja-table-wrap">
+      <table class="caja-table">
+        <thead><tr><th>Fecha</th><th>Descripcion</th><th>Categoria</th><th>Tipo</th><th style="text-align:right;">Monto</th><th>Acc.</th></tr></thead>
+        <tbody id="caja-tabla-body"><tr><td colspan="6" style="text-align:center;padding:20px;">Cargando...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+  <div id="caja-sub-arqueo" style="display:none;">
+    <div style="background:white;border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 2px 10px rgba(0,48,135,0.07);">
+      <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+        <div><div style="font-size:11px;color:var(--texto2);">Saldo Teorico</div><div style="font-size:18px;font-weight:800;color:var(--azul);" id="arq-teorico">S/. 0.00</div></div>
+        <div><div style="font-size:11px;color:var(--texto2);">Saldo Fisico</div><div style="font-size:18px;font-weight:800;color:var(--verde);" id="arq-fisico">S/. 0.00</div></div>
+      </div>
+      <div class="diff-card" id="arq-diff-card">
+        <div style="font-size:10px;font-weight:700;">Diferencia</div>
+        <div style="font-size:22px;font-weight:900;" id="arq-diferencia">S/. 0.00</div>
+        <div style="font-size:11px;" id="arq-msg">Ingresa el conteo</div>
+      </div>
+    </div>
+    <div class="arqueo-grid">
+      <div class="denom-section">
+        <h4>Billetes</h4>
+        <div class="denom-row"><span class="denom-label">S/ 200</span><input type="number" class="denom-input arq-input" id="arq-b200" data-val="200" placeholder="0" oninput="cajaCalcArqueo()"><span class="denom-subtotal" id="sub-b200">0.00</span></div>
+        <div class="denom-row"><span class="denom-label">S/ 100</span><input type="number" class="denom-input arq-input" id="arq-b100" data-val="100" placeholder="0" oninput="cajaCalcArqueo()"><span class="denom-subtotal" id="sub-b100">0.00</span></div>
+        <div class="denom-row"><span class="denom-label">S/ 50</span><input type="number" class="denom-input arq-input" id="arq-b50" data-val="50" placeholder="0" oninput="cajaCalcArqueo()"><span class="denom-subtotal" id="sub-b50">0.00</span></div>
+        <div class="denom-row"><span class="denom-label">S/ 20</span><input type="number" class="denom-input arq-input" id="arq-b20" data-val="20" placeholder="0" oninput="cajaCalcArqueo()"><span class="denom-subtotal" id="sub-b20">0.00</span></div>
+        <div class="denom-row"><span class="denom-label">S/ 10</span><input type="number" class="denom-input arq-input" id="arq-b10" data-val="10" placeholder="0" oninput="cajaCalcArqueo()"><span class="denom-subtotal" id="sub-b10">0.00</span></div>
+      </div>
+      <div class="denom-section">
+        <h4>Monedas</h4>
+        <div class="denom-row"><span class="denom-label">S/ 5</span><input type="number" class="denom-input arq-input" id="arq-m5" data-val="5" placeholder="0" oninput="cajaCalcArqueo()"><span class="denom-subtotal" id="sub-m5">0.00</span></div>
+        <div class="denom-row"><span class="denom-label">S/ 2</span><input type="number" class="denom-input arq-input" id="arq-m2" data-val="2" placeholder="0" oninput="cajaCalcArqueo()"><span class="denom-subtotal" id="sub-m2">0.00</span></div>
+        <div class="denom-row"><span class="denom-label">S/ 1</span><input type="number" class="denom-input arq-input" id="arq-m1" data-val="1" placeholder="0" oninput="cajaCalcArqueo()"><span class="denom-subtotal" id="sub-m1">0.00</span></div>
+        <div class="denom-row"><span class="denom-label">S/ 0.50</span><input type="number" class="denom-input arq-input" id="arq-m050" data-val="0.50" placeholder="0" oninput="cajaCalcArqueo()"><span class="denom-subtotal" id="sub-m050">0.00</span></div>
+        <div class="denom-row"><span class="denom-label">S/ 0.20</span><input type="number" class="denom-input arq-input" id="arq-m020" data-val="0.20" placeholder="0" oninput="cajaCalcArqueo()"><span class="denom-subtotal" id="sub-m020">0.00</span></div>
+        <div class="denom-row"><span class="denom-label">S/ 0.10</span><input type="number" class="denom-input arq-input" id="arq-m010" data-val="0.10" placeholder="0" oninput="cajaCalcArqueo()"><span class="denom-subtotal" id="sub-m010">0.00</span></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:14px;">
+      <button class="btn-main" id="arq-btn-diario" onclick="cajaSubmitArqueo('Cierre Diario')" disabled style="flex:1;padding:12px;font-size:13px;">Guardar Cierre</button>
+      <button class="btn-main" id="arq-btn-mes" onclick="cajaSubmitArqueo('Cierre de Mes')" disabled style="flex:1;padding:12px;font-size:13px;background:linear-gradient(135deg,var(--rojo),#ff4444);">Cerrar Mes</button>
+    </div>
+  </div>
+  <div id="caja-sub-historial-arq" style="display:none;">
+    <div class="caja-table-wrap">
+      <table class="caja-table">
+        <thead><tr><th>Fecha</th><th>Usuario</th><th>Tipo</th><th style="text-align:right;">Diferencia</th></tr></thead>
+        <tbody id="caja-hist-body"><tr><td colspan="4" style="text-align:center;padding:20px;">Cargando...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CAJA -->
+<div class="modal-caja" id="modal-caja">
+  <div class="modal-caja-box">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h3 id="modal-caja-titulo">Nuevo Movimiento</h3>
+      <button onclick="cajaHideModal()" style="background:none;border:none;font-size:18px;cursor:pointer;">x</button>
+    </div>
+    <input type="hidden" id="caja-edit-id">
+    <div class="form-caja-group"><label>Fecha</label><input type="date" id="caja-fecha"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div class="form-caja-group"><label>Tipo</label>
+        <select id="caja-tipo">
+          <option value="">Seleccionar...</option>
+          <option value="Ingreso">Ingreso (+)</option>
+          <option value="Egreso">Egreso (-)</option>
+        </select>
+      </div>
+      <div class="form-caja-group"><label>Monto</label><input type="number" id="caja-monto" placeholder="0.00" step="0.01"></div>
+    </div>
+    <div class="form-caja-group"><label>Categoria</label><select id="caja-categoria"><option value="">Seleccionar...</option></select></div>
+    <div class="form-caja-group"><label>Descripcion</label><input type="text" id="caja-descripcion" placeholder="Detalle"></div>
+    <div style="display:flex;gap:10px;margin-top:8px;">
+      <button onclick="cajaHideModal()" style="flex:1;padding:12px;background:var(--gris);border:none;border-radius:10px;font-weight:700;cursor:pointer;">Cancelar</button>
+      <button class="btn-main" onclick="cajaGuardar()" id="caja-btn-guardar" style="flex:1;padding:12px;">Guardar</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
