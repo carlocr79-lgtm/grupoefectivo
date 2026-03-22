@@ -666,8 +666,12 @@
 
     if (token) {
       try {
-        const res = await fetch(API_URL + '?token=' + encodeURIComponent(token));
-        const data = await res.json();
+        const res = await fetch(API_URL + '?token=' + encodeURIComponent(token), {
+          method: 'GET',
+          redirect: 'follow'
+        });
+        const text = await res.text();
+        const data = JSON.parse(text);
         if (data.expirado) {
           irPaso('step-expirado', 0);
         } else if (data.alDia) {
@@ -678,6 +682,7 @@
           irPaso('step-aldia', 0);
         }
       } catch(err) {
+        console.error('Error:', err);
         showToast('❌ Error de conexión');
         irPaso('step-aldia', 0);
       }
