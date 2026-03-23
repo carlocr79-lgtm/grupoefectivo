@@ -294,20 +294,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     </div>
     <div id="lista-historial"><div class="loading"><div class="spinner-sm"></div>Cargando historial...</div></div>
   </div>
-</div>
 
-<!-- MODAL VOUCHER -->
-<div class="modal-overlay" id="modal-voucher">
-  <div class="modal-box">
-    <div class="modal-title">🧾 Comprobante de pago</div>
-    <img class="modal-img" id="modal-img" src="" alt="voucher">
-    <div class="modal-info" id="modal-info"></div>
-    <div class="modal-btns">
-      <button class="btn-cerrar" onclick="cerrarModal()">✕ Cerrar</button>
-      <button class="btn-verificar" id="modal-btn-verificar" onclick="verificarDesdeModal()">✅ Marcar verificado</button>
-    </div>
-  </div>
-</div>
 
 
 <!-- TAB CAJA CHICA -->
@@ -386,6 +373,21 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     </div>
   </div>
 </div>
+</div>
+
+<!-- MODAL VOUCHER -->
+<div class="modal-overlay" id="modal-voucher">
+  <div class="modal-box">
+    <div class="modal-title">🧾 Comprobante de pago</div>
+    <img class="modal-img" id="modal-img" src="" alt="voucher">
+    <div class="modal-info" id="modal-info"></div>
+    <div class="modal-btns">
+      <button class="btn-cerrar" onclick="cerrarModal()">✕ Cerrar</button>
+      <button class="btn-verificar" id="modal-btn-verificar" onclick="verificarDesdeModal()">✅ Marcar verificado</button>
+    </div>
+  </div>
+</div>
+
 
 <!-- MODAL CAJA -->
 <div class="modal-caja" id="modal-caja">
@@ -588,7 +590,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
   // ── CARGA INICIAL ──
   async function cargarTodo() {
-    await Promise.all([cargarClientes(), cargarVouchers(), cargarHistorial()]);
+    await Promise.all([cargarClientes(), cargarVouchers(), cargarHistorial(), cajaCargarDatos()]);
   }
 
   function getSession() { return sessionStorage.getItem('ge_session'); }
