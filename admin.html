@@ -195,6 +195,17 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 .form-caja-group input, .form-caja-group select, .form-caja-group textarea { width:100%; padding:9px 12px; border:1.5px solid var(--gris2); border-radius:10px; font-size:13px; font-family:'DM Sans',sans-serif; outline:none; }
 .form-caja-group input:focus, .form-caja-group select:focus { border-color:var(--azul2); }
 
+
+/* MODAL SUSTENTO */
+.modal-sustento { position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,0.82); z-index:1000; display:none; align-items:center; justify-content:center; padding:20px; }
+.modal-sustento.show { display:flex; }
+.modal-sustento-box { background:white; border-radius:20px; padding:20px; width:100%; max-width:520px; max-height:92vh; overflow-y:auto; position:relative; }
+.modal-sustento-box .ms-title { font-family:'Montserrat',sans-serif; font-weight:800; font-size:15px; color:var(--azul); margin-bottom:14px; display:flex; justify-content:space-between; align-items:center; }
+.modal-sustento-box .ms-title button { background:none; border:none; font-size:20px; cursor:pointer; color:var(--texto2); line-height:1; }
+.ms-img { width:100%; border-radius:12px; border:2px solid var(--gris2); margin-bottom:10px; }
+.ms-iframe { width:100%; height:420px; border:none; border-radius:12px; border:2px solid var(--gris2); margin-bottom:10px; }
+.ms-pdf-embed { width:100%; height:460px; border:none; border-radius:12px; border:2px solid var(--gris2); }
+
 /* TOAST */
 .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:var(--azul); color:white; padding:10px 20px; border-radius:30px; font-size:13px; font-weight:600; opacity:0; transition:opacity 0.3s; z-index:9999; pointer-events:none; white-space:nowrap; }
 .toast.show { opacity:1; }
@@ -384,6 +395,18 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       <button class="btn-cerrar" onclick="cerrarModal()">✕ Cerrar</button>
       <button class="btn-verificar" id="modal-btn-verificar" onclick="verificarDesdeModal()">✅ Marcar verificado</button>
     </div>
+  </div>
+</div>
+
+
+<!-- MODAL SUSTENTO -->
+<div class="modal-sustento" id="modal-sustento" onclick="if(event.target===this)cerrarSustento()">
+  <div class="modal-sustento-box">
+    <div class="ms-title">
+      <span>📎 Sustento</span>
+      <button onclick="cerrarSustento()">✕</button>
+    </div>
+    <div id="ms-contenido"></div>
   </div>
 </div>
 
@@ -911,6 +934,45 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     } catch(e) { return str; }
   }
 
+
+  function verSustento(url) {
+    const cont = document.getElementById('ms-contenido');
+    // Detectar tipo de archivo por URL
+    const urlLower = url.toLowerCase();
+    const esDrive = url.includes('drive.google.com') || url.includes('docs.google.com');
+    const esPdf = urlLower.includes('.pdf') || urlLower.includes('pdf');
+    const esImg = urlLower.match(/\.(jpg|jpeg|png|gif|webp)/);
+
+    if (esDrive) {
+      // Extraer ID de Google Drive y mostrar embed
+      const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+      if (match) {
+        const fileId = match[1];
+        // Intentar como imagen primero, con fallback a iframe
+        const imgUrl = 'https://drive.google.com/thumbnail?id=' + fileId + '&sz=w800';
+        const embedUrl = 'https://drive.google.com/file/d/' + fileId + '/preview';
+        cont.innerHTML =
+          '<img class="ms-img" src="' + imgUrl + '" ' +
+          'onerror="this.style.display=\'none\';document.getElementById(\'ms-iframe-fb\').style.display=\'block\';" />' +
+          '<iframe id="ms-iframe-fb" class="ms-pdf-embed" src="' + embedUrl + '" style="display:none;" allowfullscreen></iframe>';
+      } else {
+        cont.innerHTML = '<iframe class="ms-pdf-embed" src="' + url + '" allowfullscreen></iframe>';
+      }
+    } else if (esImg) {
+      cont.innerHTML = '<img class="ms-img" src="' + url + '" />';
+    } else if (esPdf) {
+      cont.innerHTML = '<iframe class="ms-pdf-embed" src="' + url + '" type="application/pdf"></iframe>';
+    } else {
+      cont.innerHTML = '<iframe class="ms-iframe" src="' + url + '"></iframe>';
+    }
+    document.getElementById('modal-sustento').classList.add('show');
+  }
+
+  function cerrarSustento() {
+    document.getElementById('modal-sustento').classList.remove('show');
+    document.getElementById('ms-contenido').innerHTML = '';
+  }
+
   function showToast(msg) {
     const t = document.getElementById('toast');
     t.textContent = msg; t.classList.add('show');
@@ -952,29 +1014,15 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     try {
       const resp = await apiFetch({ admin: 'caja_datos', sede: sedeElegida, sedeContexto: sedeElegida });
       if (!resp || resp.error) { showToast('Error cargando caja: ' + (resp && resp.error ? resp.error : 'Sin respuesta')); return; }
-      cajaDatos = resp;
-      cajaSaldoTeorico = resp.saldo;
-      cajaMovimientos = resp.movimientos || [];
+      cajaDatos = resp; cajaSaldoTeorico = resp.saldo; cajaMovimientos = resp.movimientos || [];
       if (esPrimeraVez && resp.sedes && resp.sedes.length > 0) {
         sel.innerHTML = '';
         const rolActual = sessionStorage.getItem('ge_rol') || 'asesor';
-        if (rolActual === 'admin') {
-          const optTodos = document.createElement('option');
-          optTodos.value = ''; optTodos.textContent = 'Todas las sedes';
-          sel.appendChild(optTodos);
-        }
-        resp.sedes.forEach(function(s) {
-          const opt = document.createElement('option');
-          opt.value = s; opt.textContent = s;
-          sel.appendChild(opt);
-        });
+        if (rolActual === 'admin') { const o = document.createElement('option'); o.value=''; o.textContent='Todas las sedes'; sel.appendChild(o); }
+        resp.sedes.forEach(function(s) { const o = document.createElement('option'); o.value=s; o.textContent=s; sel.appendChild(o); });
         if (resp.sedeActiva && resp.sedeActiva !== '') { sel.value = resp.sedeActiva; cajaSedeActual = resp.sedeActiva; }
-      } else if (!esPrimeraVez) {
-        sel.value = sedeElegida;
-      }
-      cajaRenderResumen(resp);
-      cajaRenderTabla(cajaMovimientos);
-      cajaRenderCategorias(resp.categorias || []);
+      } else if (!esPrimeraVez) { sel.value = sedeElegida; }
+      cajaRenderResumen(resp); cajaRenderTabla(cajaMovimientos); cajaRenderCategorias(resp.categorias || []);
       document.getElementById('arq-teorico').textContent = 'S/. ' + resp.saldo.toLocaleString('es-PE', {minimumFractionDigits:2});
     } catch(e) { showToast('Error: ' + e.message); }
   }
@@ -1001,16 +1049,18 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     }
     tbody.innerHTML = movs.map(function(m) {
       const esIngreso = m.tipo === 'Ingreso';
+      const mStr = JSON.stringify(m).replace(/'/g, "\'");
       return '<tr>' +
         '<td>' + m.fecha + '</td>' +
-        '<td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + m.descripcion + '</td>' +
+        '<td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + m.descripcion + '">' + m.descripcion + '</td>' +
         '<td>' + m.categoria + '</td>' +
         '<td><span class="' + (esIngreso ? 'badge-ingreso' : 'badge-egreso') + '">' + m.tipo + '</span></td>' +
         '<td style="text-align:right;font-weight:700;color:' + (esIngreso ? 'var(--verde)' : 'var(--rojo)') + ';">' +
           (esIngreso ? '+' : '-') + ' S/. ' + m.monto.toLocaleString('es-PE', {minimumFractionDigits:2}) + '</td>' +
-        '<td style="text-align:center;">' +
-          '<button onclick="cajaEliminar(\'' + m.id + '\')" style="background:none;border:none;cursor:pointer;color:var(--rojo);font-size:14px;" title="Eliminar">🗑</button>' +
-          (m.sustentoUrl ? ' <a href="' + m.sustentoUrl + '" target="_blank" style="font-size:12px;color:var(--azul2);">📎</a>' : '') +
+        '<td style="text-align:center;white-space:nowrap;">' +
+          '<button onclick="cajaShowModal(' + mStr + ')" style="background:none;border:none;cursor:pointer;color:var(--azul2);font-size:14px;padding:2px 4px;" title="Editar">✏️</button>' +
+          '<button onclick="cajaEliminar(\'' + m.id + '\')" style="background:none;border:none;cursor:pointer;color:var(--rojo);font-size:14px;padding:2px 4px;" title="Eliminar">🗑</button>' +
+          (m.sustentoUrl ? '<button onclick="verSustento(\'' + m.sustentoUrl + '\')" style="background:none;border:none;cursor:pointer;color:var(--azul2);font-size:14px;padding:2px 4px;" title="Ver sustento">📎</button>' : '') +
         '</td></tr>';
     }).join('');
   }
