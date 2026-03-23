@@ -294,20 +294,6 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     </div>
     <div id="lista-historial"><div class="loading"><div class="spinner-sm"></div>Cargando historial...</div></div>
   </div>
-</div>
-
-<!-- MODAL VOUCHER -->
-<div class="modal-overlay" id="modal-voucher">
-  <div class="modal-box">
-    <div class="modal-title">🧾 Comprobante de pago</div>
-    <img class="modal-img" id="modal-img" src="" alt="voucher">
-    <div class="modal-info" id="modal-info"></div>
-    <div class="modal-btns">
-      <button class="btn-cerrar" onclick="cerrarModal()">✕ Cerrar</button>
-      <button class="btn-verificar" id="modal-btn-verificar" onclick="verificarDesdeModal()">✅ Marcar verificado</button>
-    </div>
-  </div>
-</div>
 
 
 <!-- TAB CAJA CHICA -->
@@ -386,6 +372,21 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     </div>
   </div>
 </div>
+</div>
+
+<!-- MODAL VOUCHER -->
+<div class="modal-overlay" id="modal-voucher">
+  <div class="modal-box">
+    <div class="modal-title">🧾 Comprobante de pago</div>
+    <img class="modal-img" id="modal-img" src="" alt="voucher">
+    <div class="modal-info" id="modal-info"></div>
+    <div class="modal-btns">
+      <button class="btn-cerrar" onclick="cerrarModal()">✕ Cerrar</button>
+      <button class="btn-verificar" id="modal-btn-verificar" onclick="verificarDesdeModal()">✅ Marcar verificado</button>
+    </div>
+  </div>
+</div>
+
 
 <!-- MODAL CAJA -->
 <div class="modal-caja" id="modal-caja">
@@ -583,7 +584,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById('tab-' + tab).classList.add('active');
-    if (tab === 'caja' && !cajaDatos) cajaCargarDatos();
+    if (tab === 'caja') cajaCargarDatos();
   }
 
   // ── CARGA INICIAL ──
@@ -943,7 +944,6 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
   async function cajaCargarDatos() {
     const sel = document.getElementById('caja-sede-select');
-    // Poblar sedes solo la primera vez (cuando el select está vacío)
     const esPrimeraVez = sel.options.length === 0;
     const sede = sel.value;
     cajaSedeActual = sede;
@@ -954,7 +954,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       cajaSaldoTeorico = resp.saldo;
       cajaMovimientos = resp.movimientos || [];
 
-      // Poblar selector de sedes SOLO la primera vez
+      // Poblar sedes SOLO la primera vez
       if (esPrimeraVez && resp.sedes && resp.sedes.length > 0) {
         sel.innerHTML = '';
         const rolActual = sessionStorage.getItem('ge_rol') || 'asesor';
@@ -968,7 +968,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
           opt.value = s; opt.textContent = s;
           sel.appendChild(opt);
         });
-        // Solo en la primera carga usar sedeActiva del servidor
+        // Solo en primera carga respetar sedeActiva del servidor
         if (resp.sedeActiva && resp.sedeActiva !== '') {
           sel.value = resp.sedeActiva;
           cajaSedeActual = resp.sedeActiva;
