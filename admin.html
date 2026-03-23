@@ -945,16 +945,27 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   async function cajaCargarDatos() {
     const sel = document.getElementById('caja-sede-select');
     const esPrimeraVez = sel.options.length === 0;
-    const sede = sel.value;
-    cajaSedeActual = sede;
+    const sedeElegida = sel.value;
+    cajaSedeActual = sedeElegida;
+
+    // Loading visual
+    document.getElementById('caja-saldo').textContent = '...';
+    document.getElementById('caja-ingresos').textContent = '...';
+    document.getElementById('caja-egresos').textContent = '...';
+    document.getElementById('caja-tabla-body').innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;">Cargando...</td></tr>';
+
     try {
-      const resp = await apiFetch({ admin: 'caja_datos', sedeContexto: sede });
-      if (!resp || resp.error) { showToast('❌ Error cargando caja: ' + (resp && resp.error ? resp.error : 'Sin respuesta')); return; }
+      // Enviar sede elegida con ambos parametros para compatibilidad con el backend
+      const resp = await apiFetch({ admin: 'caja_datos', sede: sedeElegida, sedeContexto: sedeElegida });
+      if (!resp || resp.error) {
+        showToast('Error cargando caja: ' + (resp && resp.error ? resp.error : 'Sin respuesta'));
+        return;
+      }
       cajaDatos = resp;
       cajaSaldoTeorico = resp.saldo;
       cajaMovimientos = resp.movimientos || [];
 
-      // Poblar sedes SOLO la primera vez
+      // Poblar sedes SOLO la primera vez para no pisar la seleccion del usuario
       if (esPrimeraVez && resp.sedes && resp.sedes.length > 0) {
         sel.innerHTML = '';
         const rolActual = sessionStorage.getItem('ge_rol') || 'asesor';
@@ -968,18 +979,22 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
           opt.value = s; opt.textContent = s;
           sel.appendChild(opt);
         });
-        // Solo en primera carga respetar sedeActiva del servidor
         if (resp.sedeActiva && resp.sedeActiva !== '') {
           sel.value = resp.sedeActiva;
           cajaSedeActual = resp.sedeActiva;
         }
+      } else if (!esPrimeraVez) {
+        // Restaurar la seleccion del usuario tras la respuesta del servidor
+        sel.value = sedeElegida;
       }
 
       cajaRenderResumen(resp);
       cajaRenderTabla(cajaMovimientos);
       cajaRenderCategorias(resp.categorias || []);
       document.getElementById('arq-teorico').textContent = 'S/. ' + resp.saldo.toLocaleString('es-PE', {minimumFractionDigits:2});
-    } catch(e) { showToast('❌ Error: ' + e.message); }
+    } catch(e) {
+      showToast('Error: ' + e.message);
+    }
   }
 
   function cajaRenderResumen(data) {
