@@ -294,7 +294,20 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     </div>
     <div id="lista-historial"><div class="loading"><div class="spinner-sm"></div>Cargando historial...</div></div>
   </div>
+</div>
 
+<!-- MODAL VOUCHER -->
+<div class="modal-overlay" id="modal-voucher">
+  <div class="modal-box">
+    <div class="modal-title">🧾 Comprobante de pago</div>
+    <img class="modal-img" id="modal-img" src="" alt="voucher">
+    <div class="modal-info" id="modal-info"></div>
+    <div class="modal-btns">
+      <button class="btn-cerrar" onclick="cerrarModal()">✕ Cerrar</button>
+      <button class="btn-verificar" id="modal-btn-verificar" onclick="verificarDesdeModal()">✅ Marcar verificado</button>
+    </div>
+  </div>
+</div>
 
 
 <!-- TAB CAJA CHICA -->
@@ -373,21 +386,6 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     </div>
   </div>
 </div>
-</div>
-
-<!-- MODAL VOUCHER -->
-<div class="modal-overlay" id="modal-voucher">
-  <div class="modal-box">
-    <div class="modal-title">🧾 Comprobante de pago</div>
-    <img class="modal-img" id="modal-img" src="" alt="voucher">
-    <div class="modal-info" id="modal-info"></div>
-    <div class="modal-btns">
-      <button class="btn-cerrar" onclick="cerrarModal()">✕ Cerrar</button>
-      <button class="btn-verificar" id="modal-btn-verificar" onclick="verificarDesdeModal()">✅ Marcar verificado</button>
-    </div>
-  </div>
-</div>
-
 
 <!-- MODAL CAJA -->
 <div class="modal-caja" id="modal-caja">
@@ -590,7 +588,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
   // ── CARGA INICIAL ──
   async function cargarTodo() {
-    await Promise.all([cargarClientes(), cargarVouchers(), cargarHistorial(), cajaCargarDatos()]);
+    await Promise.all([cargarClientes(), cargarVouchers(), cargarHistorial()]);
   }
 
   function getSession() { return sessionStorage.getItem('ge_session'); }
@@ -944,7 +942,10 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   }
 
   async function cajaCargarDatos() {
-    const sede = document.getElementById('caja-sede-select').value;
+    const sel = document.getElementById('caja-sede-select');
+    // Poblar sedes solo la primera vez (cuando el select está vacío)
+    const esPrimeraVez = sel.options.length === 0;
+    const sede = sel.value;
     cajaSedeActual = sede;
     try {
       const resp = await apiFetch({ admin: 'caja_datos', sedeContexto: sede });
@@ -952,13 +953,10 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       cajaDatos = resp;
       cajaSaldoTeorico = resp.saldo;
       cajaMovimientos = resp.movimientos || [];
-      
-      // Poblar selector de sedes
-      const sel = document.getElementById('caja-sede-select');
-      if (sel && resp.sedes && resp.sedes.length > 0) {
-        const currentVal = sel.value;
+
+      // Poblar selector de sedes SOLO la primera vez
+      if (esPrimeraVez && resp.sedes && resp.sedes.length > 0) {
         sel.innerHTML = '';
-        // Admin ve todas
         const rolActual = sessionStorage.getItem('ge_rol') || 'asesor';
         if (rolActual === 'admin') {
           const optTodos = document.createElement('option');
@@ -970,14 +968,16 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
           opt.value = s; opt.textContent = s;
           sel.appendChild(opt);
         });
-        if (resp.sedeActiva && resp.sedeActiva !== '') sel.value = resp.sedeActiva;
-        else if (currentVal) sel.value = currentVal;
+        // Solo en la primera carga usar sedeActiva del servidor
+        if (resp.sedeActiva && resp.sedeActiva !== '') {
+          sel.value = resp.sedeActiva;
+          cajaSedeActual = resp.sedeActiva;
+        }
       }
-      
+
       cajaRenderResumen(resp);
       cajaRenderTabla(cajaMovimientos);
       cajaRenderCategorias(resp.categorias || []);
-      // Actualizar saldo teórico en arqueo
       document.getElementById('arq-teorico').textContent = 'S/. ' + resp.saldo.toLocaleString('es-PE', {minimumFractionDigits:2});
     } catch(e) { showToast('❌ Error: ' + e.message); }
   }
