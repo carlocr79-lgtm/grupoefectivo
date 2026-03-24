@@ -192,20 +192,20 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 .modal-caja-box h3 { font-family:'Montserrat',sans-serif; font-weight:800; font-size:16px; color:var(--azul); margin-bottom:16px; }
 .form-caja-group { margin-bottom:12px; }
 .form-caja-group label { font-size:11px; font-weight:600; color:var(--texto2); text-transform:uppercase; display:block; margin-bottom:5px; }
-.form-caja-group input:not([type=file]), .form-caja-group select, .form-caja-group textarea { width:100%; padding:9px 12px; border:1.5px solid var(--gris2); border-radius:10px; font-size:13px; font-family:'DM Sans',sans-serif; outline:none; }
+.form-caja-group input, .form-caja-group select, .form-caja-group textarea { width:100%; padding:9px 12px; border:1.5px solid var(--gris2); border-radius:10px; font-size:13px; font-family:'DM Sans',sans-serif; outline:none; }
 .form-caja-group input:focus, .form-caja-group select:focus { border-color:var(--azul2); }
 
 
 /* MODAL SUSTENTO */
 .modal-sustento { position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,0.85); z-index:1001; display:none; align-items:center; justify-content:center; padding:16px; }
 .modal-sustento.show { display:flex; }
-.ms-box { background:white; border-radius:20px; padding:20px; width:100%; max-width:540px; max-height:92vh; overflow-y:auto; position:relative; }
+.ms-box { background:white; border-radius:20px; padding:20px; width:100%; max-width:540px; max-height:92vh; overflow-y:auto; }
 .ms-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
 .ms-header span { font-family:'Montserrat',sans-serif; font-weight:800; font-size:15px; color:var(--azul); }
 .ms-header button { background:none; border:none; font-size:22px; cursor:pointer; color:var(--texto2); line-height:1; padding:0 4px; }
 .ms-img { width:100%; border-radius:12px; border:2px solid var(--gris2); display:block; }
 .ms-no-preview { text-align:center; padding:40px 20px; color:var(--texto2); }
-.ms-no-preview .icon { font-size:48px; margin-bottom:12px; }
+.ms-no-preview .ms-icon { font-size:48px; margin-bottom:12px; }
 
 /* TOAST */
 .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:var(--azul); color:white; padding:10px 20px; border-radius:30px; font-size:13px; font-weight:600; opacity:0; transition:opacity 0.3s; z-index:9999; pointer-events:none; white-space:nowrap; }
@@ -434,13 +434,13 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     <div class="form-caja-group"><label>Categoria</label><select id="caja-categoria"><option value="">Seleccionar...</option></select></div>
     <div class="form-caja-group"><label>Descripcion</label><input type="text" id="caja-descripcion" placeholder="Detalle"></div>
     <div class="form-caja-group">
-      <label>Sustento (imagen/foto)</label>
-      <input type="file" id="caja-sustento-file" accept="image/*" onchange="cajaSustentoPreview(this)" style="width:100%;padding:8px;border:1.5px solid var(--gris2);border-radius:10px;font-size:13px;">
+      <label>Sustento (foto)</label>
+      <input type="file" id="caja-sustento-file" accept="image/*" onchange="cajaSustentoPreview(this)" style="width:100%;padding:8px;border:1.5px solid var(--gris2);border-radius:10px;font-size:13px;font-family:'DM Sans',sans-serif;">
       <div id="caja-sustento-preview" style="display:none;margin-top:8px;position:relative;">
         <img id="caja-sustento-img" src="" style="width:100%;border-radius:10px;border:2px solid var(--gris2);">
-        <button onclick="cajaSustentoLimpiar()" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.6);color:white;border:none;border-radius:50%;width:26px;height:26px;cursor:pointer;font-size:14px;">✕</button>
+        <button onclick="cajaSustentoLimpiar()" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.6);color:white;border:none;border-radius:50%;width:26px;height:26px;cursor:pointer;font-size:14px;line-height:1;">x</button>
       </div>
-      <div id="caja-sustento-existente" style="display:none;margin-top:6px;font-size:11px;color:var(--texto2);">📎 Ya tiene sustento guardado. Sube una nueva imagen para reemplazarlo.</div>
+      <div id="caja-sustento-existente" style="display:none;margin-top:6px;font-size:11px;color:var(--texto2);">Ya tiene sustento. Sube una imagen nueva para reemplazarlo.</div>
     </div>
     <div style="display:flex;gap:10px;margin-top:8px;">
       <button onclick="cajaHideModal()" style="flex:1;padding:12px;background:var(--gris);border:none;border-radius:10px;font-weight:700;cursor:pointer;">Cancelar</button>
@@ -947,7 +947,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
   function cajaSustentoPreview(input) {
     if (input.files && input.files[0]) {
-      const reader = new FileReader();
+      var reader = new FileReader();
       reader.onload = function(e) {
         document.getElementById('caja-sustento-img').src = e.target.result;
         document.getElementById('caja-sustento-preview').style.display = 'block';
@@ -957,20 +957,22 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   }
 
   function cajaSustentoLimpiar() {
-    const fi = document.getElementById('caja-sustento-file');
+    var fi = document.getElementById('caja-sustento-file');
     if (fi) fi.value = '';
-    document.getElementById('caja-sustento-img').src = '';
-    document.getElementById('caja-sustento-preview').style.display = 'none';
+    var img = document.getElementById('caja-sustento-img');
+    if (img) img.src = '';
+    var prev = document.getElementById('caja-sustento-preview');
+    if (prev) prev.style.display = 'none';
   }
 
   function comprimirImagenCaja(file, maxWidth, calidad) {
     return new Promise(function(resolve) {
-      const reader = new FileReader();
+      var reader = new FileReader();
       reader.onload = function(e) {
-        const img = new Image();
+        var img = new Image();
         img.onload = function() {
-          const canvas = document.createElement('canvas');
-          let w = img.width, h = img.height;
+          var canvas = document.createElement('canvas');
+          var w = img.width, h = img.height;
           if (w > maxWidth) { h = Math.round(h * maxWidth / w); w = maxWidth; }
           canvas.width = w; canvas.height = h;
           canvas.getContext('2d').drawImage(img, 0, 0, w, h);
@@ -984,24 +986,17 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
   function verSustento(url) {
     if (!url) return;
-    const cont = document.getElementById('ms-contenido');
-    // Si es base64 o imagen directa
-    if (url.startsWith('data:image') || url.match(/\.(jpg|jpeg|png|gif|webp)/i)) {
-      cont.innerHTML = '<img class="ms-img" src="' + url + '" />';
-    } else if (url.includes('drive.google.com') || url.includes('docs.google.com')) {
-      // Google Drive: extraer ID y mostrar thumbnail
-      const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    var cont = document.getElementById('ms-contenido');
+    if (url.indexOf('drive.google.com') !== -1 || url.indexOf('docs.google.com') !== -1) {
+      var match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
       if (match) {
-        const fileId = match[1];
-        const thumb = 'https://lh3.googleusercontent.com/d/' + fileId;
-        cont.innerHTML =
-          '<img class="ms-img" src="' + thumb + '" ' +
-          'onerror="this.outerHTML='<div class=ms-no-preview><div class=icon>📄</div><p>No se puede previsualizar este archivo.<br>El archivo puede ser privado.</p></div>'" />';
+        var thumb = 'https://lh3.googleusercontent.com/d/' + match[1];
+        cont.innerHTML = '<img class="ms-img" src="' + thumb + '" onerror="this.outerHTML='<div class=ms-no-preview><div class=ms-icon>&#128196;</div><p>Archivo privado en Drive.<br>No se puede previsualizar.</p></div>'" />';
       } else {
-        cont.innerHTML = '<div class="ms-no-preview"><div class="icon">📄</div><p>No se puede previsualizar.</p></div>';
+        cont.innerHTML = '<div class="ms-no-preview"><div class="ms-icon">&#128196;</div><p>No se puede previsualizar.</p></div>';
       }
     } else {
-      cont.innerHTML = '<img class="ms-img" src="' + url + '" onerror="this.outerHTML='<div class=ms-no-preview><div class=icon>📄</div><p>No se puede mostrar la imagen.</p></div>'" />';
+      cont.innerHTML = '<img class="ms-img" src="' + url + '" onerror="this.outerHTML='<div class=ms-no-preview><div class=ms-icon>&#128196;</div><p>No se puede mostrar.</p></div>'" />';
     }
     document.getElementById('modal-sustento').classList.add('show');
   }
@@ -1085,12 +1080,14 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--texto2);">Sin movimientos</td></tr>';
       return;
     }
-    // Guardar movimientos en mapa global para acceso por id
+    // Mapa global para editar por id sin pasar objetos en HTML
     window._cajaMapa = {};
-    movs.forEach(function(m) { window._cajaMapa[m.id] = m; });
+    movs.forEach(function(m) { window._cajaMapa[String(m.id)] = m; });
 
     tbody.innerHTML = movs.map(function(m) {
       const esIngreso = m.tipo === 'Ingreso';
+      const sid = String(m.id).replace(/"/g,'');
+      const tieneSustento = !!(m.sustentoUrl || m.sustento);
       return '<tr>' +
         '<td>' + m.fecha + '</td>' +
         '<td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + m.descripcion + '">' + m.descripcion + '</td>' +
@@ -1099,19 +1096,28 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         '<td style="text-align:right;font-weight:700;color:' + (esIngreso ? 'var(--verde)' : 'var(--rojo)') + ';">' +
           (esIngreso ? '+' : '-') + ' S/. ' + m.monto.toLocaleString('es-PE', {minimumFractionDigits:2}) + '</td>' +
         '<td style="text-align:center;white-space:nowrap;">' +
-          '<button onclick="cajaEditarMovimiento(' + JSON.stringify(m.id) + ')" style="background:none;border:none;cursor:pointer;color:var(--azul2);font-size:15px;padding:2px 5px;" title="Editar">✏️</button>' +
-          '<button onclick="cajaEliminar(' + JSON.stringify(m.id) + ')" style="background:none;border:none;cursor:pointer;color:var(--rojo);font-size:15px;padding:2px 5px;" title="Eliminar">🗑</button>' +
-          (m.sustentoUrl || m.sustento ?
-            '<button onclick="verSustento(' + JSON.stringify(m.sustentoUrl || m.sustento) + ')" style="background:none;border:none;cursor:pointer;color:var(--azul2);font-size:15px;padding:2px 5px;" title="Ver sustento">📎</button>'
-            : '') +
+          '<button data-accion="editar" data-id="' + sid + '" style="background:none;border:none;cursor:pointer;color:var(--azul2);font-size:15px;padding:2px 5px;" title="Editar">&#x270F;&#xFE0F;</button>' +
+          '<button data-accion="eliminar" data-id="' + sid + '" style="background:none;border:none;cursor:pointer;color:var(--rojo);font-size:15px;padding:2px 5px;" title="Eliminar">&#x1F5D1;</button>' +
+          (tieneSustento ? '<button data-accion="sustento" data-id="' + sid + '" style="background:none;border:none;cursor:pointer;color:var(--azul2);font-size:15px;padding:2px 5px;" title="Ver sustento">&#x1F4CE;</button>' : '') +
         '</td></tr>';
     }).join('');
-  }
 
-  function cajaEditarMovimiento(id) {
-    const m = window._cajaMapa && window._cajaMapa[id];
-    if (!m) { showToast('No se encontró el movimiento'); return; }
-    cajaShowModal(m);
+    // Event delegation - un solo listener en tbody
+    tbody.onclick = function(e) {
+      const btn = e.target.closest('button[data-accion]');
+      if (!btn) return;
+      const accion = btn.dataset.accion;
+      const id = btn.dataset.id;
+      const mov = window._cajaMapa && window._cajaMapa[id];
+      if (accion === 'editar') {
+        if (mov) cajaShowModal(mov); else showToast('Movimiento no encontrado');
+      } else if (accion === 'eliminar') {
+        cajaEliminar(id);
+      } else if (accion === 'sustento') {
+        const url = mov && (mov.sustentoUrl || mov.sustento);
+        if (url) verSustento(url); else showToast('Sin sustento');
+      }
+    };
   }
 
   function cajaFiltrar() {
@@ -1132,10 +1138,8 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
   function cajaShowModal(editData) {
     document.getElementById('caja-edit-id').value = editData ? editData.id : '';
-    document.getElementById('modal-caja-titulo').textContent = editData ? '✏️ Editar Movimiento' : '➕ Nuevo Movimiento';
+    document.getElementById('modal-caja-titulo').textContent = editData ? 'Editar Movimiento' : 'Nuevo Movimiento';
     const hoy = new Date();
-    document.getElementById('caja-fecha').value = hoy.toISOString().split('T')[0];
-    // Limpiar sustento
     cajaSustentoLimpiar();
     document.getElementById('caja-sustento-existente').style.display = 'none';
     if (editData) {
@@ -1144,11 +1148,11 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       document.getElementById('caja-monto').value = editData.monto || '';
       document.getElementById('caja-categoria').value = editData.categoria || '';
       document.getElementById('caja-descripcion').value = editData.descripcion || '';
-      // Mostrar aviso si ya tiene sustento
       if (editData.sustentoUrl || editData.sustento) {
         document.getElementById('caja-sustento-existente').style.display = 'block';
       }
     } else {
+      document.getElementById('caja-fecha').value = hoy.toISOString().split('T')[0];
       document.getElementById('caja-tipo').value = '';
       document.getElementById('caja-monto').value = '';
       document.getElementById('caja-categoria').value = '';
@@ -1167,39 +1171,29 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     const categoria = document.getElementById('caja-categoria').value;
     const descripcion = document.getElementById('caja-descripcion').value;
     const editId = document.getElementById('caja-edit-id').value;
-
     if (!fecha || !tipo || !monto || !categoria || !descripcion) {
-      showToast('⚠️ Completa todos los campos'); return;
+      showToast('Completa todos los campos'); return;
     }
-    if (parseFloat(monto) <= 0) { showToast('⚠️ El monto debe ser mayor a 0'); return; }
-
-    btn.textContent = '⏳ Guardando...'; btn.disabled = true;
-
-    // Comprimir sustento si se subió uno nuevo
-    let sustentoBase64 = '';
-    const fileInput = document.getElementById('caja-sustento-file');
+    if (parseFloat(monto) <= 0) { showToast('El monto debe ser mayor a 0'); return; }
+    btn.textContent = 'Guardando...'; btn.disabled = true;
+    var sustentoBase64 = '';
+    var fileInput = document.getElementById('caja-sustento-file');
     if (fileInput && fileInput.files && fileInput.files[0]) {
       sustentoBase64 = await comprimirImagenCaja(fileInput.files[0], 800, 0.7);
     }
-
     try {
-      const payload = {
-        _method: 'POST', cajaAction: 'guardar',
-        fecha, tipo, monto, categoria, descripcion,
-        edit_id: editId || '',
-        sedeContexto: cajaSedeActual
-      };
+      var payload = { _method: 'POST', cajaAction: 'guardar', fecha: fecha, tipo: tipo, monto: monto,
+        categoria: categoria, descripcion: descripcion, edit_id: editId || '', sedeContexto: cajaSedeActual };
       if (sustentoBase64) payload.sustento = sustentoBase64;
-
-      const resp = await apiPost(payload);
+      var resp = await apiPost(payload);
       if (resp && resp.status === 'ok') {
-        showToast('✅ ' + resp.message);
+        showToast('Guardado correctamente');
         cajaHideModal();
         await cajaCargarDatos();
       } else {
-        showToast('❌ ' + (resp && resp.message ? resp.message : 'Error'));
+        showToast('Error: ' + (resp && resp.message ? resp.message : 'Intenta de nuevo'));
       }
-    } catch(e) { showToast('❌ Error: ' + e.message); }
+    } catch(e) { showToast('Error: ' + e.message); }
     btn.textContent = 'Guardar'; btn.disabled = false;
   }
 
