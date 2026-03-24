@@ -990,27 +990,28 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   function verSustento(url) {
     if (!url) return;
     var cont = document.getElementById('ms-contenido');
+    cont.innerHTML = '';
+    var img = document.createElement('img');
+    img.className = 'ms-img';
+    // Si es link de Drive, usar thumbnail público de Google
     if (url.indexOf('drive.google.com') !== -1) {
       var match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
       if (match) {
-        var thumb = 'https://lh3.googleusercontent.com/d/' + match[1];
-        var img = document.createElement('img');
-        img.className = 'ms-img';
-        img.src = thumb;
-        img.onerror = function() { msSustentoError('No se puede previsualizar este archivo de Drive.'); };
-        cont.innerHTML = '';
-        cont.appendChild(img);
+        // lh3 es el CDN público de Google Drive que no requiere login
+        img.src = 'https://lh3.googleusercontent.com/d/' + match[1];
       } else {
-        cont.innerHTML = '<p class="ms-error">No se puede previsualizar.</p>';
+        msSustentoError('No se puede previsualizar este archivo.');
+        document.getElementById('modal-sustento').classList.add('show');
+        return;
       }
     } else {
-      var img2 = document.createElement('img');
-      img2.className = 'ms-img';
-      img2.src = url;
-      img2.onerror = function() { msSustentoError('No se puede mostrar la imagen.'); };
-      cont.innerHTML = '';
-      cont.appendChild(img2);
+      // base64 u otra URL directa
+      img.src = url;
     }
+    img.onerror = function() {
+      msSustentoError('No se puede mostrar la imagen. El archivo puede ser privado o no existir.');
+    };
+    cont.appendChild(img);
     document.getElementById('modal-sustento').classList.add('show');
   }
 
@@ -1185,15 +1186,28 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     }
     if (parseFloat(monto) <= 0) { showToast('El monto debe ser mayor a 0'); return; }
     btn.textContent = 'Guardando...'; btn.disabled = true;
-    var sustentoBase64 = '';
+
+    var archivoBase64 = '';
     var fileInput = document.getElementById('caja-sustento-file');
     if (fileInput && fileInput.files && fileInput.files[0]) {
-      sustentoBase64 = await comprimirImagenCaja(fileInput.files[0], 800, 0.7);
+      var base64Full = await comprimirImagenCaja(fileInput.files[0], 800, 0.7);
+      // El backend espera solo el base64 sin el prefijo data:image/...
+      archivoBase64 = base64Full.indexOf(',') > -1 ? base64Full.split(',')[1] : base64Full;
     }
+
     try {
-      var payload = { _method: 'POST', cajaAction: 'guardar', fecha: fecha, tipo: tipo, monto: monto,
-        categoria: categoria, descripcion: descripcion, edit_id: editId || '', sedeContexto: cajaSedeActual };
-      if (sustentoBase64) payload.sustento = sustentoBase64;
+      var payload = {
+        _method: 'POST', cajaAction: 'guardar',
+        fecha: fecha, tipo: tipo, monto: monto,
+        categoria: categoria, descripcion: descripcion,
+        edit_id: editId || '',
+        sedeContexto: cajaSedeActual
+      };
+      if (archivoBase64) {
+        payload.archivoBase64 = archivoBase64;
+        payload.archivoMimeType = 'image/jpeg';
+        payload.archivoNombre = 'sustento_' + fecha + '.jpg';
+      }
       var resp = await apiPost(payload);
       if (resp && resp.status === 'ok') {
         showToast('Guardado correctamente');
