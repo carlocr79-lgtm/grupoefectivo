@@ -477,6 +477,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     try {
       const res = await fetch(API_URL, {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ authAction: 'solicitarCodigo', correo: correo })
       });
       const data = await res.json();
@@ -512,6 +513,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     try {
       const res = await fetch(API_URL, {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ authAction: 'verificarCodigo', correo: correoActual, codigo: codigo })
       });
       const data = await res.json();
