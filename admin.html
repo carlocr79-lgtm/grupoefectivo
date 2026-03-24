@@ -195,6 +195,17 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 .form-caja-group input, .form-caja-group select, .form-caja-group textarea { width:100%; padding:9px 12px; border:1.5px solid var(--gris2); border-radius:10px; font-size:13px; font-family:'DM Sans',sans-serif; outline:none; }
 .form-caja-group input:focus, .form-caja-group select:focus { border-color:var(--azul2); }
 
+
+/* MODAL SUSTENTO */
+.modal-sustento { position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,0.82); z-index:1000; display:none; align-items:center; justify-content:center; padding:20px; }
+.modal-sustento.show { display:flex; }
+.modal-sustento-box { background:white; border-radius:20px; padding:20px; width:100%; max-width:520px; max-height:92vh; overflow-y:auto; position:relative; }
+.modal-sustento-box .ms-title { font-family:'Montserrat',sans-serif; font-weight:800; font-size:15px; color:var(--azul); margin-bottom:14px; display:flex; justify-content:space-between; align-items:center; }
+.modal-sustento-box .ms-title button { background:none; border:none; font-size:20px; cursor:pointer; color:var(--texto2); line-height:1; }
+.ms-img { width:100%; border-radius:12px; border:2px solid var(--gris2); margin-bottom:10px; }
+.ms-iframe { width:100%; height:420px; border:none; border-radius:12px; border:2px solid var(--gris2); margin-bottom:10px; }
+.ms-pdf-embed { width:100%; height:460px; border:none; border-radius:12px; border:2px solid var(--gris2); }
+
 /* TOAST */
 .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:var(--azul); color:white; padding:10px 20px; border-radius:30px; font-size:13px; font-weight:600; opacity:0; transition:opacity 0.3s; z-index:9999; pointer-events:none; white-space:nowrap; }
 .toast.show { opacity:1; }
@@ -388,6 +399,18 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 </div>
 
 
+<!-- MODAL SUSTENTO -->
+<div class="modal-sustento" id="modal-sustento" onclick="if(event.target===this)cerrarSustento()">
+  <div class="modal-sustento-box">
+    <div class="ms-title">
+      <span>📎 Sustento</span>
+      <button onclick="cerrarSustento()">✕</button>
+    </div>
+    <div id="ms-contenido"></div>
+  </div>
+</div>
+
+
 <!-- MODAL CAJA -->
 <div class="modal-caja" id="modal-caja">
   <div class="modal-caja-box">
@@ -409,15 +432,6 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     </div>
     <div class="form-caja-group"><label>Categoria</label><select id="caja-categoria"><option value="">Seleccionar...</option></select></div>
     <div class="form-caja-group"><label>Descripcion</label><input type="text" id="caja-descripcion" placeholder="Detalle"></div>
-    <div class="form-caja-group">
-      <label>Sustento (foto opcional)</label>
-      <input type="file" id="caja-sustento-file" accept="image/*" onchange="cajaSustentoPreview(this)" style="width:100%;padding:8px;border:1.5px solid var(--gris2);border-radius:10px;font-size:13px;">
-      <div id="caja-sustento-preview" style="display:none;margin-top:8px;position:relative;">
-        <img id="caja-sustento-img" src="" style="width:100%;border-radius:10px;border:2px solid var(--gris2);">
-        <button onclick="cajaSustentoLimpiar()" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.6);color:white;border:none;border-radius:50%;width:26px;height:26px;cursor:pointer;font-size:13px;line-height:1;">x</button>
-      </div>
-      <p id="caja-sustento-existente" style="display:none;margin-top:6px;font-size:11px;color:var(--texto2);">Ya tiene sustento. Sube una nueva imagen para reemplazarlo.</p>
-    </div>
     <div style="display:flex;gap:10px;margin-top:8px;">
       <button onclick="cajaHideModal()" style="flex:1;padding:12px;background:var(--gris);border:none;border-radius:10px;font-weight:700;cursor:pointer;">Cancelar</button>
       <button class="btn-main" onclick="cajaGuardar()" id="caja-btn-guardar" style="flex:1;padding:12px;">Guardar</button>
@@ -714,7 +728,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
           ${tieneVoucher}
         </div>
         <div class="cliente-acciones">
-          ${linkWA ? `<button class="btn-wa" onclick="enviarWA('${linkWAMovil}','${linkWA}')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="16" height="16" fill="white"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.736 5.472 2.027 7.774L0 32l8.454-2.01A15.938 15.938 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.333a13.27 13.27 0 01-6.748-1.833l-.484-.287-5.02 1.194 1.271-4.874-.317-.502A13.267 13.267 0 012.667 16C2.667 8.636 8.636 2.667 16 2.667S29.333 8.636 29.333 16 23.364 29.333 16 29.333zm7.27-9.862c-.398-.199-2.354-1.162-2.72-1.294-.365-.133-.631-.199-.897.199-.266.398-1.029 1.294-1.262 1.56-.232.266-.465.299-.863.1-.398-.2-1.681-.619-3.203-1.977-1.184-1.057-1.983-2.362-2.215-2.76-.232-.398-.025-.613.174-.811.179-.178.398-.465.598-.698.199-.232.265-.398.398-.664.133-.266.066-.498-.033-.697-.1-.2-.897-2.162-1.229-2.96-.324-.777-.653-.672-.897-.684l-.764-.013c-.266 0-.697.1-1.063.498-.365.398-1.395 1.362-1.395 3.323s1.428 3.854 1.627 4.12c.2.266 2.81 4.287 6.808 6.014.951.41 1.694.656 2.273.839.955.304 1.824.261 2.511.158.766-.114 2.354-.962 2.687-1.891.332-.929.332-1.726.232-1.891-.099-.166-.365-.266-.763-.465z"/></svg> WhatsApp</button>` : '<button class="btn-wa" disabled style="opacity:0.4">Sin mensaje</button>'}
+          ${linkWA ? `<button class="btn-wa" onclick="enviarWA('${linkWAMovil}','${linkWA}')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="16" height="16" fill="white"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.736 5.472 2.027 7.774L0 32l8.454-2.01A15.938 15.938 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.333a13.27 13.27 0 01-6.748-1.833l-.484-.287-5.02 1.194 1.271-4.874-.317-.502A13.267 13.267 0 012.667 16C2.667 8.636 8.636 2.667 16 2.667S29.333 8.636 29.333 16 23.364 29.333 16 29.333zm7.27-9.862c-.398-.199-2.354-1.162-2.72-1.294-.365-.133-.631-.199-.897.199-.266.398-1.029 1.294-1.262 1.56-.232.266-.465.299-.863.1-.398-.2-1.681-.619-3.203-1.977-1.184-1.057-1.983-2.362-2.215-2.76-.232-.398-.025-.613.174-.811.179-.178.398-.465.598-.698.199-.232.265-.398.398-.664.133-.266.066-.498-.033-.697-.1-.2-.897-2.162-1.229-2.96-.324-.777-.653-.672-.897-.684l-.764-.013c-.266 0-.697.1-1.063.498-.365.398-1.395 1.362-1.395 3.323s1.428 3.854 1.627 4.12c.2.266 2.81 4.287 6.808 6.014.951.41 1.694.656 2.273.839.955.304 1.824.261 2.511.158.766-.114 2.354-.962 2.687-1.891.332-.929.332-1.726.232-1.891-.099-.166-.365-.266-.763-.465z"/></svg> WhatsApp</button>` : '<button class="btn-wa" disabled style="opacity:0.4"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="16" height="16" fill="white"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.736 5.472 2.027 7.774L0 32l8.454-2.01A15.938 15.938 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.333a13.27 13.27 0 01-6.748-1.833l-.484-.287-5.02 1.194 1.271-4.874-.317-.502A13.267 13.267 0 012.667 16C2.667 8.636 8.636 2.667 16 2.667S29.333 8.636 29.333 16 23.364 29.333 16 29.333zm7.27-9.862c-.398-.199-2.354-1.162-2.72-1.294-.365-.133-.631-.199-.897.199-.266.398-1.029 1.294-1.262 1.56-.232.266-.465.299-.863.1-.398-.2-1.681-.619-3.203-1.977-1.184-1.057-1.983-2.362-2.215-2.76-.232-.398-.025-.613.174-.811.179-.178.398-.465.598-.698.199-.232.265-.398.398-.664.133-.266.066-.498-.033-.697-.1-.2-.897-2.162-1.229-2.96-.324-.777-.653-.672-.897-.684l-.764-.013c-.266 0-.697.1-1.063.498-.365.398-1.395 1.362-1.395 3.323s1.428 3.854 1.627 4.12c.2.266 2.81 4.287 6.808 6.014.951.41 1.694.656 2.273.839.955.304 1.824.261 2.511.158.766-.114 2.354-.962 2.687-1.891.332-.929.332-1.726.232-1.891-.099-.166-.365-.266-.763-.465z"/></svg> Sin mensaje</button>'}
           <button class="btn-token" onclick="regenToken(${c.fila},'${c.nombre}')">🔑 Token</button>
         </div>
       </div>`;
@@ -921,43 +935,42 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   }
 
 
-  function cajaSustentoPreview(input) {
-    if (input.files && input.files[0]) {
-      var reader = new FileReader();
-      reader.onload = function(e) {
-        document.getElementById('caja-sustento-img').src = e.target.result;
-        document.getElementById('caja-sustento-preview').style.display = 'block';
-      };
-      reader.readAsDataURL(input.files[0]);
+  function verSustento(url) {
+    const cont = document.getElementById('ms-contenido');
+    // Detectar tipo de archivo por URL
+    const urlLower = url.toLowerCase();
+    const esDrive = url.includes('drive.google.com') || url.includes('docs.google.com');
+    const esPdf = urlLower.includes('.pdf') || urlLower.includes('pdf');
+    const esImg = urlLower.match(/\.(jpg|jpeg|png|gif|webp)/);
+
+    if (esDrive) {
+      // Extraer ID de Google Drive y mostrar embed
+      const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+      if (match) {
+        const fileId = match[1];
+        // Intentar como imagen primero, con fallback a iframe
+        const imgUrl = 'https://drive.google.com/thumbnail?id=' + fileId + '&sz=w800';
+        const embedUrl = 'https://drive.google.com/file/d/' + fileId + '/preview';
+        cont.innerHTML =
+          '<img class="ms-img" src="' + imgUrl + '" ' +
+          'onerror="this.style.display=\'none\';document.getElementById(\'ms-iframe-fb\').style.display=\'block\';" />' +
+          '<iframe id="ms-iframe-fb" class="ms-pdf-embed" src="' + embedUrl + '" style="display:none;" allowfullscreen></iframe>';
+      } else {
+        cont.innerHTML = '<iframe class="ms-pdf-embed" src="' + url + '" allowfullscreen></iframe>';
+      }
+    } else if (esImg) {
+      cont.innerHTML = '<img class="ms-img" src="' + url + '" />';
+    } else if (esPdf) {
+      cont.innerHTML = '<iframe class="ms-pdf-embed" src="' + url + '" type="application/pdf"></iframe>';
+    } else {
+      cont.innerHTML = '<iframe class="ms-iframe" src="' + url + '"></iframe>';
     }
+    document.getElementById('modal-sustento').classList.add('show');
   }
 
-  function cajaSustentoLimpiar() {
-    var fi = document.getElementById('caja-sustento-file');
-    if (fi) fi.value = '';
-    var img = document.getElementById('caja-sustento-img');
-    if (img) img.src = '';
-    var prev = document.getElementById('caja-sustento-preview');
-    if (prev) prev.style.display = 'none';
-  }
-
-  function comprimirImagenCaja(file, maxWidth, calidad) {
-    return new Promise(function(resolve) {
-      var reader = new FileReader();
-      reader.onload = function(e) {
-        var img = new Image();
-        img.onload = function() {
-          var canvas = document.createElement('canvas');
-          var w = img.width, h = img.height;
-          if (w > maxWidth) { h = Math.round(h * maxWidth / w); w = maxWidth; }
-          canvas.width = w; canvas.height = h;
-          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-          resolve(canvas.toDataURL('image/jpeg', calidad));
-        };
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    });
+  function cerrarSustento() {
+    document.getElementById('modal-sustento').classList.remove('show');
+    document.getElementById('ms-contenido').innerHTML = '';
   }
 
   function showToast(msg) {
@@ -990,23 +1003,23 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   }
 
   async function cajaCargarDatos() {
-    var sel = document.getElementById('caja-sede-select');
-    var esPrimeraVez = sel.options.length === 0;
-    var sedeElegida = sel.value;
+    const sel = document.getElementById('caja-sede-select');
+    const esPrimeraVez = sel.options.length === 0;
+    const sedeElegida = sel.value;
     cajaSedeActual = sedeElegida;
     document.getElementById('caja-saldo').textContent = '...';
     document.getElementById('caja-ingresos').textContent = '...';
     document.getElementById('caja-egresos').textContent = '...';
     document.getElementById('caja-tabla-body').innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;">Cargando...</td></tr>';
     try {
-      var resp = await apiFetch({ admin: 'caja_datos', sede: sedeElegida, sedeContexto: sedeElegida });
-      if (!resp || resp.error) { showToast('Error cargando caja'); return; }
+      const resp = await apiFetch({ admin: 'caja_datos', sede: sedeElegida, sedeContexto: sedeElegida });
+      if (!resp || resp.error) { showToast('Error cargando caja: ' + (resp && resp.error ? resp.error : 'Sin respuesta')); return; }
       cajaDatos = resp; cajaSaldoTeorico = resp.saldo; cajaMovimientos = resp.movimientos || [];
       if (esPrimeraVez && resp.sedes && resp.sedes.length > 0) {
         sel.innerHTML = '';
-        var rol = sessionStorage.getItem('ge_rol') || 'asesor';
-        if (rol === 'admin') { var ot = document.createElement('option'); ot.value=''; ot.textContent='Todas las sedes'; sel.appendChild(ot); }
-        resp.sedes.forEach(function(s) { var o = document.createElement('option'); o.value=s; o.textContent=s; sel.appendChild(o); });
+        const rolActual = sessionStorage.getItem('ge_rol') || 'asesor';
+        if (rolActual === 'admin') { const o = document.createElement('option'); o.value=''; o.textContent='Todas las sedes'; sel.appendChild(o); }
+        resp.sedes.forEach(function(s) { const o = document.createElement('option'); o.value=s; o.textContent=s; sel.appendChild(o); });
         if (resp.sedeActiva && resp.sedeActiva !== '') { sel.value = resp.sedeActiva; cajaSedeActual = resp.sedeActiva; }
       } else if (!esPrimeraVez) { sel.value = sedeElegida; }
       cajaRenderResumen(resp); cajaRenderTabla(cajaMovimientos); cajaRenderCategorias(resp.categorias || []);
@@ -1029,45 +1042,27 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   }
 
   function cajaRenderTabla(movs) {
-    var tbody = document.getElementById('caja-tabla-body');
+    const tbody = document.getElementById('caja-tabla-body');
     if (!movs || movs.length === 0) {
       tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--texto2);">Sin movimientos</td></tr>';
       return;
     }
-    window._cajaMapa = {};
-    movs.forEach(function(m) { window._cajaMapa[String(m.id)] = m; });
     tbody.innerHTML = movs.map(function(m) {
-      var esIngreso = m.tipo === 'Ingreso';
-      var sid = String(m.id);
-      var tieneSustento = !!(m.sustentoUrl || m.sustento);
+      const esIngreso = m.tipo === 'Ingreso';
+      const mStr = JSON.stringify(m).replace(/'/g, "\'");
       return '<tr>' +
         '<td>' + m.fecha + '</td>' +
-        '<td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + m.descripcion + '">' + m.descripcion + '</td>' +
+        '<td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + m.descripcion + '">' + m.descripcion + '</td>' +
         '<td>' + m.categoria + '</td>' +
         '<td><span class="' + (esIngreso ? 'badge-ingreso' : 'badge-egreso') + '">' + m.tipo + '</span></td>' +
         '<td style="text-align:right;font-weight:700;color:' + (esIngreso ? 'var(--verde)' : 'var(--rojo)') + ';">' +
           (esIngreso ? '+' : '-') + ' S/. ' + m.monto.toLocaleString('es-PE', {minimumFractionDigits:2}) + '</td>' +
         '<td style="text-align:center;white-space:nowrap;">' +
-          '<button data-accion="editar" data-id="' + sid + '" style="background:none;border:none;cursor:pointer;color:var(--azul2);font-size:15px;padding:2px 4px;" title="Editar">&#9998;</button>' +
-          '<button data-accion="eliminar" data-id="' + sid + '" style="background:none;border:none;cursor:pointer;color:var(--rojo);font-size:15px;padding:2px 4px;" title="Eliminar">&#128465;</button>' +
-          (tieneSustento ? '<button data-accion="sustento" data-id="' + sid + '" style="background:none;border:none;cursor:pointer;color:var(--azul2);font-size:15px;padding:2px 4px;" title="Ver sustento">&#128206;</button>' : '') +
+          '<button onclick="cajaShowModal(' + mStr + ')" style="background:none;border:none;cursor:pointer;color:var(--azul2);font-size:14px;padding:2px 4px;" title="Editar">✏️</button>' +
+          '<button onclick="cajaEliminar(\'' + m.id + '\')" style="background:none;border:none;cursor:pointer;color:var(--rojo);font-size:14px;padding:2px 4px;" title="Eliminar">🗑</button>' +
+          (m.sustentoUrl ? '<button onclick="verSustento(\'' + m.sustentoUrl + '\')" style="background:none;border:none;cursor:pointer;color:var(--azul2);font-size:14px;padding:2px 4px;" title="Ver sustento">📎</button>' : '') +
         '</td></tr>';
     }).join('');
-    tbody.onclick = function(e) {
-      var btn = e.target.closest('button[data-accion]');
-      if (!btn) return;
-      var accion = btn.getAttribute('data-accion');
-      var id = btn.getAttribute('data-id');
-      var mov = window._cajaMapa && window._cajaMapa[id];
-      if (accion === 'editar') {
-        if (mov) cajaShowModal(mov); else showToast('Movimiento no encontrado');
-      } else if (accion === 'eliminar') {
-        cajaEliminar(id);
-      } else if (accion === 'sustento') {
-        var url = mov && (mov.sustentoUrl || mov.sustento);
-        if (url) verSustento(url); else showToast('Sin sustento disponible');
-      }
-    };
   }
 
   function cajaFiltrar() {
@@ -1088,21 +1083,16 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
   function cajaShowModal(editData) {
     document.getElementById('caja-edit-id').value = editData ? editData.id : '';
-    document.getElementById('modal-caja-titulo').textContent = editData ? 'Editar Movimiento' : 'Nuevo Movimiento';
-    var hoy = new Date().toISOString().split('T')[0];
-    cajaSustentoLimpiar();
-    document.getElementById('caja-sustento-existente').style.display = 'none';
+    document.getElementById('modal-caja-titulo').textContent = editData ? '✏️ Editar Movimiento' : '➕ Nuevo Movimiento';
+    const hoy = new Date();
+    document.getElementById('caja-fecha').value = hoy.toISOString().split('T')[0];
     if (editData) {
-      document.getElementById('caja-fecha').value = editData.fecha || hoy;
-      document.getElementById('caja-tipo').value = editData.tipo || '';
-      document.getElementById('caja-monto').value = editData.monto || '';
-      document.getElementById('caja-categoria').value = editData.categoria || '';
-      document.getElementById('caja-descripcion').value = editData.descripcion || '';
-      if (editData.sustentoUrl || editData.sustento) {
-        document.getElementById('caja-sustento-existente').style.display = 'block';
-      }
+      document.getElementById('caja-fecha').value = editData.fecha;
+      document.getElementById('caja-tipo').value = editData.tipo;
+      document.getElementById('caja-monto').value = editData.monto;
+      document.getElementById('caja-categoria').value = editData.categoria;
+      document.getElementById('caja-descripcion').value = editData.descripcion;
     } else {
-      document.getElementById('caja-fecha').value = hoy;
       document.getElementById('caja-tipo').value = '';
       document.getElementById('caja-monto').value = '';
       document.getElementById('caja-categoria').value = '';
@@ -1114,48 +1104,36 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   function cajaHideModal() { document.getElementById('modal-caja').classList.remove('show'); }
 
   async function cajaGuardar() {
-    var btn = document.getElementById('caja-btn-guardar');
-    var fecha = document.getElementById('caja-fecha').value;
-    var tipo = document.getElementById('caja-tipo').value;
-    var monto = document.getElementById('caja-monto').value;
-    var categoria = document.getElementById('caja-categoria').value;
-    var descripcion = document.getElementById('caja-descripcion').value;
-    var editId = document.getElementById('caja-edit-id').value;
+    const btn = document.getElementById('caja-btn-guardar');
+    const fecha = document.getElementById('caja-fecha').value;
+    const tipo = document.getElementById('caja-tipo').value;
+    const monto = document.getElementById('caja-monto').value;
+    const categoria = document.getElementById('caja-categoria').value;
+    const descripcion = document.getElementById('caja-descripcion').value;
+    const editId = document.getElementById('caja-edit-id').value;
+
     if (!fecha || !tipo || !monto || !categoria || !descripcion) {
-      showToast('Completa todos los campos'); return;
+      showToast('⚠️ Completa todos los campos'); return;
     }
-    if (parseFloat(monto) <= 0) { showToast('El monto debe ser mayor a 0'); return; }
-    btn.textContent = 'Guardando...'; btn.disabled = true;
+    if (parseFloat(monto) <= 0) { showToast('⚠️ El monto debe ser mayor a 0'); return; }
 
-    var archivoBase64 = '';
-    var fileInput = document.getElementById('caja-sustento-file');
-    if (fileInput && fileInput.files && fileInput.files[0]) {
-      var base64Full = await comprimirImagenCaja(fileInput.files[0], 800, 0.7);
-      archivoBase64 = base64Full.indexOf(',') > -1 ? base64Full.split(',')[1] : base64Full;
-    }
-
+    btn.textContent = '⏳ Guardando...'; btn.disabled = true;
     try {
-      var payload = {
+      const resp = await apiPost({
         _method: 'POST', cajaAction: 'guardar',
         fecha: fecha, tipo: tipo, monto: monto,
         categoria: categoria, descripcion: descripcion,
         edit_id: editId || '',
         sedeContexto: cajaSedeActual
-      };
-      if (archivoBase64) {
-        payload.archivoBase64 = archivoBase64;
-        payload.archivoMimeType = 'image/jpeg';
-        payload.archivoNombre = 'sustento_' + fecha + '.jpg';
-      }
-      var resp = await apiPost(payload);
+      });
       if (resp && resp.status === 'ok') {
-        showToast('Guardado correctamente');
+        showToast('✅ ' + resp.message);
         cajaHideModal();
         await cajaCargarDatos();
       } else {
-        showToast('Error: ' + (resp && resp.message ? resp.message : 'Intenta de nuevo'));
+        showToast('❌ ' + (resp && resp.message ? resp.message : 'Error'));
       }
-    } catch(e) { showToast('Error: ' + e.message); }
+    } catch(e) { showToast('❌ Error: ' + e.message); }
     btn.textContent = 'Guardar'; btn.disabled = false;
   }
 
