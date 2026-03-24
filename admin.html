@@ -858,13 +858,6 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     selFecha.innerHTML = '<option value="">Todas las fechas</option>';
     fechas.forEach(f => selFecha.innerHTML += `<option value="${f}">${f}</option>`);
 
-    // También poblar select de historial de asesores
-    const selHistAsesor = document.getElementById('filtro-hist-asesor');
-    const uniqueAsesores = [...new Set(historial.map(h => h.asesor))].filter(Boolean);
-    selHistAsesor.innerHTML = '<option value="">Todos los asesores</option>';
-    uniqueAsesores.forEach(a => {
-      selHistAsesor.innerHTML += `<option value="${a}">${a.split(' ')[0]}</option>`;
-    });
   }
 
   function renderHistorial() {
@@ -1049,10 +1042,11 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     }
     tbody.innerHTML = movs.map(function(m) {
       const esIngreso = m.tipo === 'Ingreso';
-      const mStr = JSON.stringify(m).replace(/'/g, "\'");
+      const mStr = JSON.stringify(m).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const sustentoUrlSafe = m.sustentoUrl ? m.sustentoUrl.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;') : '';
       return '<tr>' +
         '<td>' + m.fecha + '</td>' +
-        '<td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + m.descripcion + '">' + m.descripcion + '</td>' +
+        '<td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + m.descripcion.replace(/"/g, '&quot;') + '">' + m.descripcion + '</td>' +
         '<td>' + m.categoria + '</td>' +
         '<td><span class="' + (esIngreso ? 'badge-ingreso' : 'badge-egreso') + '">' + m.tipo + '</span></td>' +
         '<td style="text-align:right;font-weight:700;color:' + (esIngreso ? 'var(--verde)' : 'var(--rojo)') + ';">' +
@@ -1060,7 +1054,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         '<td style="text-align:center;white-space:nowrap;">' +
           '<button onclick="cajaShowModal(' + mStr + ')" style="background:none;border:none;cursor:pointer;color:var(--azul2);font-size:14px;padding:2px 4px;" title="Editar">✏️</button>' +
           '<button onclick="cajaEliminar(\'' + m.id + '\')" style="background:none;border:none;cursor:pointer;color:var(--rojo);font-size:14px;padding:2px 4px;" title="Eliminar">🗑</button>' +
-          (m.sustentoUrl ? '<button onclick="verSustento(\'' + m.sustentoUrl + '\')" style="background:none;border:none;cursor:pointer;color:var(--azul2);font-size:14px;padding:2px 4px;" title="Ver sustento">📎</button>' : '') +
+          (m.sustentoUrl ? '<button onclick="verSustento(\'' + sustentoUrlSafe + '\')" style="background:none;border:none;cursor:pointer;color:var(--azul2);font-size:14px;padding:2px 4px;" title="Ver sustento">📎</button>' : '') +
         '</td></tr>';
     }).join('');
   }
