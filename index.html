@@ -548,8 +548,8 @@
       <div class="upload-area" onclick="document.getElementById('voucher-file').click()">
         <div class="upload-icon">📎</div>
         <h3>Seleccionar comprobante</h3>
-        <p>Toca aquí para elegir una foto</p>
-        <input type="file" id="voucher-file" accept="image/*" style="display:none" onchange="previewVoucher(this)">
+        <p>Toca aquí para elegir una foto o PDF</p>
+        <input type="file" id="voucher-file" accept="image/*,application/pdf" style="display:none" onchange="previewVoucher(this)">
       </div>
       <div id="voucher-preview"><img id="preview-img"></div>
       <button class="btn-main" onclick="confirmarPago()">✅ Confirmar mi pago</button>
@@ -700,6 +700,14 @@
 
   function comprimirImagen(file, maxWidth, calidad) {
     return new Promise((resolve) => {
+      // Si es PDF, devolver el base64 sin comprimir
+      if (file.type === 'application/pdf') {
+        const reader = new FileReader();
+        reader.onload = e => resolve(e.target.result);
+        reader.readAsDataURL(file);
+        return;
+      }
+      
       const reader = new FileReader();
       reader.onload = function(e) {
         const img = new Image();
@@ -723,6 +731,17 @@
       showToast('⚠️ Por favor sube tu comprobante');
       return;
     }
+    
+    // Validar tipo de archivo
+    const file = fileInput.files[0];
+    const isImage = file.type.startsWith('image/');
+    const isPdf = file.type === 'application/pdf';
+    
+    if (!isImage && !isPdf) {
+      showToast('⚠️ Solo se permiten imágenes (JPG, PNG) o archivos PDF');
+      return;
+    }
+
     const btn = document.querySelector('#step-voucher .btn-main');
     btn.textContent = '⏳ Enviando...';
     btn.disabled = true;
