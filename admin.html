@@ -743,7 +743,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
   async function regenToken(fila, nombre) {
     try {
-      const data = await apiPost({ adminAction: 'regenToken', fila: fila });
+      const data = await apiPost({ adminAction: 'regenToken', fila: fila, nombre: nombre });
       if (data.success) {
         showToast('✅ Token regenerado para ' + nombre.split(' ')[0]);
         await cargarClientes();
