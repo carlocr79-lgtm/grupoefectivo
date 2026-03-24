@@ -432,6 +432,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     </div>
     <div class="form-caja-group"><label>Categoria</label><select id="caja-categoria"><option value="">Seleccionar...</option></select></div>
     <div class="form-caja-group"><label>Descripcion</label><input type="text" id="caja-descripcion" placeholder="Detalle"></div>
+    <div class="form-caja-group"><label>Comprobante (Opc.)</label><input type="file" id="caja-archivo" accept="image/*,application/pdf"></div>
     <div style="display:flex;gap:10px;margin-top:8px;">
       <button onclick="cajaHideModal()" style="flex:1;padding:12px;background:var(--gris);border:none;border-radius:10px;font-weight:700;cursor:pointer;">Cancelar</button>
       <button class="btn-main" onclick="cajaGuardar()" id="caja-btn-guardar" style="flex:1;padding:12px;">Guardar</button>
@@ -1080,6 +1081,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     document.getElementById('modal-caja-titulo').textContent = editData ? '✏️ Editar Movimiento' : '➕ Nuevo Movimiento';
     const hoy = new Date();
     document.getElementById('caja-fecha').value = hoy.toISOString().split('T')[0];
+    document.getElementById('caja-archivo').value = '';
     if (editData) {
       document.getElementById('caja-fecha').value = editData.fecha;
       document.getElementById('caja-tipo').value = editData.tipo;
@@ -1105,11 +1107,39 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     const categoria = document.getElementById('caja-categoria').value;
     const descripcion = document.getElementById('caja-descripcion').value;
     const editId = document.getElementById('caja-edit-id').value;
+    const archivoInput = document.getElementById('caja-archivo');
 
     if (!fecha || !tipo || !monto || !categoria || !descripcion) {
       showToast('⚠️ Completa todos los campos'); return;
     }
     if (parseFloat(monto) <= 0) { showToast('⚠️ El monto debe ser mayor a 0'); return; }
+
+    let archivoBase64 = null;
+    let archivoMimeType = null;
+    let archivoNombre = null;
+
+    if (archivoInput.files && archivoInput.files.length > 0) {
+      const file = archivoInput.files[0];
+      archivoMimeType = file.type;
+      archivoNombre = file.name;
+      if (file.size > 5 * 1024 * 1024) {
+        showToast('⚠️ El archivo es muy grande (Máx 5MB)'); return;
+      }
+      const getBase64 = (f) => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(f);
+        reader.onload = () => resolve(reader.result.split(',')[1]);
+        reader.onerror = error => reject(error);
+      });
+      try {
+        btn.textContent = '⏳ Cargando archivo...'; btn.disabled = true;
+        archivoBase64 = await getBase64(file);
+      } catch (e) {
+        showToast('❌ Error al leer el archivo');
+        btn.textContent = 'Guardar'; btn.disabled = false;
+        return;
+      }
+    }
 
     btn.textContent = '⏳ Guardando...'; btn.disabled = true;
     try {
@@ -1118,7 +1148,10 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         fecha: fecha, tipo: tipo, monto: monto,
         categoria: categoria, descripcion: descripcion,
         edit_id: editId || '',
-        sedeContexto: cajaSedeActual
+        sedeContexto: cajaSedeActual,
+        archivoBase64: archivoBase64 || '',
+        archivoMimeType: archivoMimeType || '',
+        archivoNombre: archivoNombre || ''
       });
       if (resp && resp.status === 'ok') {
         showToast('✅ ' + resp.message);
