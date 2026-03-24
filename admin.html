@@ -409,6 +409,15 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     </div>
     <div class="form-caja-group"><label>Categoria</label><select id="caja-categoria"><option value="">Seleccionar...</option></select></div>
     <div class="form-caja-group"><label>Descripcion</label><input type="text" id="caja-descripcion" placeholder="Detalle"></div>
+    <div class="form-caja-group">
+      <label>Sustento (foto opcional)</label>
+      <input type="file" id="caja-sustento-file" accept="image/*" onchange="cajaSustentoPreview(this)" style="width:100%;padding:8px;border:1.5px solid var(--gris2);border-radius:10px;font-size:13px;">
+      <div id="caja-sustento-preview" style="display:none;margin-top:8px;position:relative;">
+        <img id="caja-sustento-img" src="" style="width:100%;border-radius:10px;border:2px solid var(--gris2);">
+        <button onclick="cajaSustentoLimpiar()" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.6);color:white;border:none;border-radius:50%;width:26px;height:26px;cursor:pointer;font-size:13px;line-height:1;">x</button>
+      </div>
+      <p id="caja-sustento-existente" style="display:none;margin-top:6px;font-size:11px;color:var(--texto2);">Ya tiene sustento. Sube una nueva imagen para reemplazarlo.</p>
+    </div>
     <div style="display:flex;gap:10px;margin-top:8px;">
       <button onclick="cajaHideModal()" style="flex:1;padding:12px;background:var(--gris);border:none;border-radius:10px;font-weight:700;cursor:pointer;">Cancelar</button>
       <button class="btn-main" onclick="cajaGuardar()" id="caja-btn-guardar" style="flex:1;padding:12px;">Guardar</button>
@@ -911,6 +920,46 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     } catch(e) { return str; }
   }
 
+
+  function cajaSustentoPreview(input) {
+    if (input.files && input.files[0]) {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById('caja-sustento-img').src = e.target.result;
+        document.getElementById('caja-sustento-preview').style.display = 'block';
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+
+  function cajaSustentoLimpiar() {
+    var fi = document.getElementById('caja-sustento-file');
+    if (fi) fi.value = '';
+    var img = document.getElementById('caja-sustento-img');
+    if (img) img.src = '';
+    var prev = document.getElementById('caja-sustento-preview');
+    if (prev) prev.style.display = 'none';
+  }
+
+  function comprimirImagenCaja(file, maxWidth, calidad) {
+    return new Promise(function(resolve) {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var img = new Image();
+        img.onload = function() {
+          var canvas = document.createElement('canvas');
+          var w = img.width, h = img.height;
+          if (w > maxWidth) { h = Math.round(h * maxWidth / w); w = maxWidth; }
+          canvas.width = w; canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL('image/jpeg', calidad));
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
   function showToast(msg) {
     const t = document.getElementById('toast');
     t.textContent = msg; t.classList.add('show');
@@ -1041,12 +1090,17 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     document.getElementById('caja-edit-id').value = editData ? editData.id : '';
     document.getElementById('modal-caja-titulo').textContent = editData ? 'Editar Movimiento' : 'Nuevo Movimiento';
     var hoy = new Date().toISOString().split('T')[0];
+    cajaSustentoLimpiar();
+    document.getElementById('caja-sustento-existente').style.display = 'none';
     if (editData) {
       document.getElementById('caja-fecha').value = editData.fecha || hoy;
       document.getElementById('caja-tipo').value = editData.tipo || '';
       document.getElementById('caja-monto').value = editData.monto || '';
       document.getElementById('caja-categoria').value = editData.categoria || '';
       document.getElementById('caja-descripcion').value = editData.descripcion || '';
+      if (editData.sustentoUrl || editData.sustento) {
+        document.getElementById('caja-sustento-existente').style.display = 'block';
+      }
     } else {
       document.getElementById('caja-fecha').value = hoy;
       document.getElementById('caja-tipo').value = '';
@@ -1060,36 +1114,48 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   function cajaHideModal() { document.getElementById('modal-caja').classList.remove('show'); }
 
   async function cajaGuardar() {
-    const btn = document.getElementById('caja-btn-guardar');
-    const fecha = document.getElementById('caja-fecha').value;
-    const tipo = document.getElementById('caja-tipo').value;
-    const monto = document.getElementById('caja-monto').value;
-    const categoria = document.getElementById('caja-categoria').value;
-    const descripcion = document.getElementById('caja-descripcion').value;
-    const editId = document.getElementById('caja-edit-id').value;
-
+    var btn = document.getElementById('caja-btn-guardar');
+    var fecha = document.getElementById('caja-fecha').value;
+    var tipo = document.getElementById('caja-tipo').value;
+    var monto = document.getElementById('caja-monto').value;
+    var categoria = document.getElementById('caja-categoria').value;
+    var descripcion = document.getElementById('caja-descripcion').value;
+    var editId = document.getElementById('caja-edit-id').value;
     if (!fecha || !tipo || !monto || !categoria || !descripcion) {
-      showToast('⚠️ Completa todos los campos'); return;
+      showToast('Completa todos los campos'); return;
     }
-    if (parseFloat(monto) <= 0) { showToast('⚠️ El monto debe ser mayor a 0'); return; }
+    if (parseFloat(monto) <= 0) { showToast('El monto debe ser mayor a 0'); return; }
+    btn.textContent = 'Guardando...'; btn.disabled = true;
 
-    btn.textContent = '⏳ Guardando...'; btn.disabled = true;
+    var archivoBase64 = '';
+    var fileInput = document.getElementById('caja-sustento-file');
+    if (fileInput && fileInput.files && fileInput.files[0]) {
+      var base64Full = await comprimirImagenCaja(fileInput.files[0], 800, 0.7);
+      archivoBase64 = base64Full.indexOf(',') > -1 ? base64Full.split(',')[1] : base64Full;
+    }
+
     try {
-      const resp = await apiPost({
+      var payload = {
         _method: 'POST', cajaAction: 'guardar',
         fecha: fecha, tipo: tipo, monto: monto,
         categoria: categoria, descripcion: descripcion,
         edit_id: editId || '',
         sedeContexto: cajaSedeActual
-      });
+      };
+      if (archivoBase64) {
+        payload.archivoBase64 = archivoBase64;
+        payload.archivoMimeType = 'image/jpeg';
+        payload.archivoNombre = 'sustento_' + fecha + '.jpg';
+      }
+      var resp = await apiPost(payload);
       if (resp && resp.status === 'ok') {
-        showToast('✅ ' + resp.message);
+        showToast('Guardado correctamente');
         cajaHideModal();
         await cajaCargarDatos();
       } else {
-        showToast('❌ ' + (resp && resp.message ? resp.message : 'Error'));
+        showToast('Error: ' + (resp && resp.message ? resp.message : 'Intenta de nuevo'));
       }
-    } catch(e) { showToast('❌ Error: ' + e.message); }
+    } catch(e) { showToast('Error: ' + e.message); }
     btn.textContent = 'Guardar'; btn.disabled = false;
   }
 
