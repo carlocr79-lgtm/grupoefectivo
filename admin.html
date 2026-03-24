@@ -197,14 +197,14 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
 
 /* MODAL SUSTENTO */
-.modal-sustento { position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,0.82); z-index:1000; display:none; align-items:center; justify-content:center; padding:20px; }
+.modal-sustento { position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,0.85); z-index:1001; display:none; align-items:center; justify-content:center; padding:16px; }
 .modal-sustento.show { display:flex; }
-.modal-sustento-box { background:white; border-radius:20px; padding:20px; width:100%; max-width:520px; max-height:92vh; overflow-y:auto; position:relative; }
-.modal-sustento-box .ms-title { font-family:'Montserrat',sans-serif; font-weight:800; font-size:15px; color:var(--azul); margin-bottom:14px; display:flex; justify-content:space-between; align-items:center; }
-.modal-sustento-box .ms-title button { background:none; border:none; font-size:20px; cursor:pointer; color:var(--texto2); line-height:1; }
-.ms-img { width:100%; border-radius:12px; border:2px solid var(--gris2); margin-bottom:10px; }
-.ms-iframe { width:100%; height:420px; border:none; border-radius:12px; border:2px solid var(--gris2); margin-bottom:10px; }
-.ms-pdf-embed { width:100%; height:460px; border:none; border-radius:12px; border:2px solid var(--gris2); }
+.ms-box { background:white; border-radius:20px; padding:20px; width:100%; max-width:540px; max-height:92vh; overflow-y:auto; }
+.ms-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+.ms-header span { font-family:'Montserrat',sans-serif; font-weight:800; font-size:15px; color:var(--azul); }
+.ms-header button { background:none; border:none; font-size:22px; cursor:pointer; color:var(--texto2); line-height:1; }
+.ms-img { width:100%; border-radius:12px; border:2px solid var(--gris2); display:block; }
+.ms-error { text-align:center; padding:30px 20px; color:var(--texto2); font-size:13px; }
 
 /* TOAST */
 .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:var(--azul); color:white; padding:10px 20px; border-radius:30px; font-size:13px; font-weight:600; opacity:0; transition:opacity 0.3s; z-index:9999; pointer-events:none; white-space:nowrap; }
@@ -401,10 +401,10 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
 <!-- MODAL SUSTENTO -->
 <div class="modal-sustento" id="modal-sustento" onclick="if(event.target===this)cerrarSustento()">
-  <div class="modal-sustento-box">
-    <div class="ms-title">
-      <span>📎 Sustento</span>
-      <button onclick="cerrarSustento()">✕</button>
+  <div class="ms-box">
+    <div class="ms-header">
+      <span>&#128206; Sustento</span>
+      <button onclick="cerrarSustento()">&#x2715;</button>
     </div>
     <div id="ms-contenido"></div>
   </div>
@@ -432,6 +432,15 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     </div>
     <div class="form-caja-group"><label>Categoria</label><select id="caja-categoria"><option value="">Seleccionar...</option></select></div>
     <div class="form-caja-group"><label>Descripcion</label><input type="text" id="caja-descripcion" placeholder="Detalle"></div>
+    <div class="form-caja-group">
+      <label>Sustento (foto opcional)</label>
+      <input type="file" id="caja-sustento-file" accept="image/*" onchange="cajaSustentoPreview(this)" style="width:100%;padding:8px;border:1.5px solid var(--gris2);border-radius:10px;font-size:13px;">
+      <div id="caja-sustento-preview" style="display:none;margin-top:8px;position:relative;">
+        <img id="caja-sustento-img" src="" style="width:100%;border-radius:10px;border:2px solid var(--gris2);">
+        <button onclick="cajaSustentoLimpiar()" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.6);color:white;border:none;border-radius:50%;width:26px;height:26px;cursor:pointer;font-size:13px;">x</button>
+      </div>
+      <p id="caja-sustento-existente" style="display:none;margin-top:6px;font-size:11px;color:var(--texto2);">Ya tiene sustento. Sube una nueva imagen para reemplazarlo.</p>
+    </div>
     <div style="display:flex;gap:10px;margin-top:8px;">
       <button onclick="cajaHideModal()" style="flex:1;padding:12px;background:var(--gris);border:none;border-radius:10px;font-weight:700;cursor:pointer;">Cancelar</button>
       <button class="btn-main" onclick="cajaGuardar()" id="caja-btn-guardar" style="flex:1;padding:12px;">Guardar</button>
@@ -935,35 +944,72 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   }
 
 
-  function verSustento(url) {
-    const cont = document.getElementById('ms-contenido');
-    // Detectar tipo de archivo por URL
-    const urlLower = url.toLowerCase();
-    const esDrive = url.includes('drive.google.com') || url.includes('docs.google.com');
-    const esPdf = urlLower.includes('.pdf') || urlLower.includes('pdf');
-    const esImg = urlLower.match(/\.(jpg|jpeg|png|gif|webp)/);
+  function cajaSustentoPreview(input) {
+    if (input.files && input.files[0]) {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById('caja-sustento-img').src = e.target.result;
+        document.getElementById('caja-sustento-preview').style.display = 'block';
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
 
-    if (esDrive) {
-      // Extraer ID de Google Drive y mostrar embed
-      const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  function cajaSustentoLimpiar() {
+    var fi = document.getElementById('caja-sustento-file');
+    if (fi) fi.value = '';
+    var img = document.getElementById('caja-sustento-img');
+    if (img) img.src = '';
+    var prev = document.getElementById('caja-sustento-preview');
+    if (prev) prev.style.display = 'none';
+  }
+
+  function comprimirImagenCaja(file, maxWidth, calidad) {
+    return new Promise(function(resolve) {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var img = new Image();
+        img.onload = function() {
+          var canvas = document.createElement('canvas');
+          var w = img.width, h = img.height;
+          if (w > maxWidth) { h = Math.round(h * maxWidth / w); w = maxWidth; }
+          canvas.width = w; canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL('image/jpeg', calidad));
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function msSustentoError(msg) {
+    document.getElementById('ms-contenido').innerHTML = '<p class="ms-error">' + msg + '</p>';
+  }
+
+  function verSustento(url) {
+    if (!url) return;
+    var cont = document.getElementById('ms-contenido');
+    if (url.indexOf('drive.google.com') !== -1) {
+      var match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
       if (match) {
-        const fileId = match[1];
-        // Intentar como imagen primero, con fallback a iframe
-        const imgUrl = 'https://drive.google.com/thumbnail?id=' + fileId + '&sz=w800';
-        const embedUrl = 'https://drive.google.com/file/d/' + fileId + '/preview';
-        cont.innerHTML =
-          '<img class="ms-img" src="' + imgUrl + '" ' +
-          'onerror="this.style.display=\'none\';document.getElementById(\'ms-iframe-fb\').style.display=\'block\';" />' +
-          '<iframe id="ms-iframe-fb" class="ms-pdf-embed" src="' + embedUrl + '" style="display:none;" allowfullscreen></iframe>';
+        var thumb = 'https://lh3.googleusercontent.com/d/' + match[1];
+        var img = document.createElement('img');
+        img.className = 'ms-img';
+        img.src = thumb;
+        img.onerror = function() { msSustentoError('No se puede previsualizar este archivo de Drive.'); };
+        cont.innerHTML = '';
+        cont.appendChild(img);
       } else {
-        cont.innerHTML = '<iframe class="ms-pdf-embed" src="' + url + '" allowfullscreen></iframe>';
+        cont.innerHTML = '<p class="ms-error">No se puede previsualizar.</p>';
       }
-    } else if (esImg) {
-      cont.innerHTML = '<img class="ms-img" src="' + url + '" />';
-    } else if (esPdf) {
-      cont.innerHTML = '<iframe class="ms-pdf-embed" src="' + url + '" type="application/pdf"></iframe>';
     } else {
-      cont.innerHTML = '<iframe class="ms-iframe" src="' + url + '"></iframe>';
+      var img2 = document.createElement('img');
+      img2.className = 'ms-img';
+      img2.src = url;
+      img2.onerror = function() { msSustentoError('No se puede mostrar la imagen.'); };
+      cont.innerHTML = '';
+      cont.appendChild(img2);
     }
     document.getElementById('modal-sustento').classList.add('show');
   }
@@ -1003,23 +1049,23 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   }
 
   async function cajaCargarDatos() {
-    const sel = document.getElementById('caja-sede-select');
-    const esPrimeraVez = sel.options.length === 0;
-    const sedeElegida = sel.value;
+    var sel = document.getElementById('caja-sede-select');
+    var esPrimeraVez = sel.options.length === 0;
+    var sedeElegida = sel.value;
     cajaSedeActual = sedeElegida;
     document.getElementById('caja-saldo').textContent = '...';
     document.getElementById('caja-ingresos').textContent = '...';
     document.getElementById('caja-egresos').textContent = '...';
     document.getElementById('caja-tabla-body').innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;">Cargando...</td></tr>';
     try {
-      const resp = await apiFetch({ admin: 'caja_datos', sede: sedeElegida, sedeContexto: sedeElegida });
-      if (!resp || resp.error) { showToast('Error cargando caja: ' + (resp && resp.error ? resp.error : 'Sin respuesta')); return; }
+      var resp = await apiFetch({ admin: 'caja_datos', sede: sedeElegida, sedeContexto: sedeElegida });
+      if (!resp || resp.error) { showToast('Error cargando caja'); return; }
       cajaDatos = resp; cajaSaldoTeorico = resp.saldo; cajaMovimientos = resp.movimientos || [];
       if (esPrimeraVez && resp.sedes && resp.sedes.length > 0) {
         sel.innerHTML = '';
-        const rolActual = sessionStorage.getItem('ge_rol') || 'asesor';
-        if (rolActual === 'admin') { const o = document.createElement('option'); o.value=''; o.textContent='Todas las sedes'; sel.appendChild(o); }
-        resp.sedes.forEach(function(s) { const o = document.createElement('option'); o.value=s; o.textContent=s; sel.appendChild(o); });
+        var rol = sessionStorage.getItem('ge_rol') || 'asesor';
+        if (rol === 'admin') { var ot = document.createElement('option'); ot.value=''; ot.textContent='Todas las sedes'; sel.appendChild(ot); }
+        resp.sedes.forEach(function(s) { var o = document.createElement('option'); o.value=s; o.textContent=s; sel.appendChild(o); });
         if (resp.sedeActiva && resp.sedeActiva !== '') { sel.value = resp.sedeActiva; cajaSedeActual = resp.sedeActiva; }
       } else if (!esPrimeraVez) { sel.value = sedeElegida; }
       cajaRenderResumen(resp); cajaRenderTabla(cajaMovimientos); cajaRenderCategorias(resp.categorias || []);
@@ -1042,27 +1088,45 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   }
 
   function cajaRenderTabla(movs) {
-    const tbody = document.getElementById('caja-tabla-body');
+    var tbody = document.getElementById('caja-tabla-body');
     if (!movs || movs.length === 0) {
       tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--texto2);">Sin movimientos</td></tr>';
       return;
     }
+    window._cajaMapa = {};
+    movs.forEach(function(m) { window._cajaMapa[String(m.id)] = m; });
     tbody.innerHTML = movs.map(function(m) {
-      const esIngreso = m.tipo === 'Ingreso';
-      const mStr = JSON.stringify(m).replace(/'/g, "\'");
+      var esIngreso = m.tipo === 'Ingreso';
+      var sid = String(m.id);
+      var tieneSustento = !!(m.sustentoUrl || m.sustento);
       return '<tr>' +
         '<td>' + m.fecha + '</td>' +
-        '<td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + m.descripcion + '">' + m.descripcion + '</td>' +
+        '<td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + m.descripcion + '">' + m.descripcion + '</td>' +
         '<td>' + m.categoria + '</td>' +
         '<td><span class="' + (esIngreso ? 'badge-ingreso' : 'badge-egreso') + '">' + m.tipo + '</span></td>' +
         '<td style="text-align:right;font-weight:700;color:' + (esIngreso ? 'var(--verde)' : 'var(--rojo)') + ';">' +
           (esIngreso ? '+' : '-') + ' S/. ' + m.monto.toLocaleString('es-PE', {minimumFractionDigits:2}) + '</td>' +
         '<td style="text-align:center;white-space:nowrap;">' +
-          '<button onclick="cajaShowModal(' + mStr + ')" style="background:none;border:none;cursor:pointer;color:var(--azul2);font-size:14px;padding:2px 4px;" title="Editar">✏️</button>' +
-          '<button onclick="cajaEliminar(\'' + m.id + '\')" style="background:none;border:none;cursor:pointer;color:var(--rojo);font-size:14px;padding:2px 4px;" title="Eliminar">🗑</button>' +
-          (m.sustentoUrl ? '<button onclick="verSustento(\'' + m.sustentoUrl + '\')" style="background:none;border:none;cursor:pointer;color:var(--azul2);font-size:14px;padding:2px 4px;" title="Ver sustento">📎</button>' : '') +
+          '<button data-accion="editar" data-id="' + sid + '" style="background:none;border:none;cursor:pointer;color:var(--azul2);font-size:15px;padding:2px 4px;" title="Editar">&#9998;</button>' +
+          '<button data-accion="eliminar" data-id="' + sid + '" style="background:none;border:none;cursor:pointer;color:var(--rojo);font-size:15px;padding:2px 4px;" title="Eliminar">&#128465;</button>' +
+          (tieneSustento ? '<button data-accion="sustento" data-id="' + sid + '" style="background:none;border:none;cursor:pointer;color:var(--azul2);font-size:15px;padding:2px 4px;" title="Ver sustento">&#128206;</button>' : '') +
         '</td></tr>';
     }).join('');
+    tbody.onclick = function(e) {
+      var btn = e.target.closest('button[data-accion]');
+      if (!btn) return;
+      var accion = btn.getAttribute('data-accion');
+      var id = btn.getAttribute('data-id');
+      var mov = window._cajaMapa && window._cajaMapa[id];
+      if (accion === 'editar') {
+        if (mov) cajaShowModal(mov); else showToast('Movimiento no encontrado');
+      } else if (accion === 'eliminar') {
+        cajaEliminar(id);
+      } else if (accion === 'sustento') {
+        var url = mov && (mov.sustentoUrl || mov.sustento);
+        if (url) verSustento(url); else showToast('Sin sustento disponible');
+      }
+    };
   }
 
   function cajaFiltrar() {
@@ -1083,16 +1147,21 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
   function cajaShowModal(editData) {
     document.getElementById('caja-edit-id').value = editData ? editData.id : '';
-    document.getElementById('modal-caja-titulo').textContent = editData ? '✏️ Editar Movimiento' : '➕ Nuevo Movimiento';
-    const hoy = new Date();
-    document.getElementById('caja-fecha').value = hoy.toISOString().split('T')[0];
+    document.getElementById('modal-caja-titulo').textContent = editData ? 'Editar Movimiento' : 'Nuevo Movimiento';
+    var hoy = new Date().toISOString().split('T')[0];
+    cajaSustentoLimpiar();
+    document.getElementById('caja-sustento-existente').style.display = 'none';
     if (editData) {
-      document.getElementById('caja-fecha').value = editData.fecha;
-      document.getElementById('caja-tipo').value = editData.tipo;
-      document.getElementById('caja-monto').value = editData.monto;
-      document.getElementById('caja-categoria').value = editData.categoria;
-      document.getElementById('caja-descripcion').value = editData.descripcion;
+      document.getElementById('caja-fecha').value = editData.fecha || hoy;
+      document.getElementById('caja-tipo').value = editData.tipo || '';
+      document.getElementById('caja-monto').value = editData.monto || '';
+      document.getElementById('caja-categoria').value = editData.categoria || '';
+      document.getElementById('caja-descripcion').value = editData.descripcion || '';
+      if (editData.sustentoUrl || editData.sustento) {
+        document.getElementById('caja-sustento-existente').style.display = 'block';
+      }
     } else {
+      document.getElementById('caja-fecha').value = hoy;
       document.getElementById('caja-tipo').value = '';
       document.getElementById('caja-monto').value = '';
       document.getElementById('caja-categoria').value = '';
@@ -1104,36 +1173,36 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   function cajaHideModal() { document.getElementById('modal-caja').classList.remove('show'); }
 
   async function cajaGuardar() {
-    const btn = document.getElementById('caja-btn-guardar');
-    const fecha = document.getElementById('caja-fecha').value;
-    const tipo = document.getElementById('caja-tipo').value;
-    const monto = document.getElementById('caja-monto').value;
-    const categoria = document.getElementById('caja-categoria').value;
-    const descripcion = document.getElementById('caja-descripcion').value;
-    const editId = document.getElementById('caja-edit-id').value;
-
+    var btn = document.getElementById('caja-btn-guardar');
+    var fecha = document.getElementById('caja-fecha').value;
+    var tipo = document.getElementById('caja-tipo').value;
+    var monto = document.getElementById('caja-monto').value;
+    var categoria = document.getElementById('caja-categoria').value;
+    var descripcion = document.getElementById('caja-descripcion').value;
+    var editId = document.getElementById('caja-edit-id').value;
     if (!fecha || !tipo || !monto || !categoria || !descripcion) {
-      showToast('⚠️ Completa todos los campos'); return;
+      showToast('Completa todos los campos'); return;
     }
-    if (parseFloat(monto) <= 0) { showToast('⚠️ El monto debe ser mayor a 0'); return; }
-
-    btn.textContent = '⏳ Guardando...'; btn.disabled = true;
+    if (parseFloat(monto) <= 0) { showToast('El monto debe ser mayor a 0'); return; }
+    btn.textContent = 'Guardando...'; btn.disabled = true;
+    var sustentoBase64 = '';
+    var fileInput = document.getElementById('caja-sustento-file');
+    if (fileInput && fileInput.files && fileInput.files[0]) {
+      sustentoBase64 = await comprimirImagenCaja(fileInput.files[0], 800, 0.7);
+    }
     try {
-      const resp = await apiPost({
-        _method: 'POST', cajaAction: 'guardar',
-        fecha: fecha, tipo: tipo, monto: monto,
-        categoria: categoria, descripcion: descripcion,
-        edit_id: editId || '',
-        sedeContexto: cajaSedeActual
-      });
+      var payload = { _method: 'POST', cajaAction: 'guardar', fecha: fecha, tipo: tipo, monto: monto,
+        categoria: categoria, descripcion: descripcion, edit_id: editId || '', sedeContexto: cajaSedeActual };
+      if (sustentoBase64) payload.sustento = sustentoBase64;
+      var resp = await apiPost(payload);
       if (resp && resp.status === 'ok') {
-        showToast('✅ ' + resp.message);
+        showToast('Guardado correctamente');
         cajaHideModal();
         await cajaCargarDatos();
       } else {
-        showToast('❌ ' + (resp && resp.message ? resp.message : 'Error'));
+        showToast('Error: ' + (resp && resp.message ? resp.message : 'Intenta de nuevo'));
       }
-    } catch(e) { showToast('❌ Error: ' + e.message); }
+    } catch(e) { showToast('Error: ' + e.message); }
     btn.textContent = 'Guardar'; btn.disabled = false;
   }
 
