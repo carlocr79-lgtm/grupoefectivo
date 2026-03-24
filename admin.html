@@ -192,19 +192,20 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 .modal-caja-box h3 { font-family:'Montserrat',sans-serif; font-weight:800; font-size:16px; color:var(--azul); margin-bottom:16px; }
 .form-caja-group { margin-bottom:12px; }
 .form-caja-group label { font-size:11px; font-weight:600; color:var(--texto2); text-transform:uppercase; display:block; margin-bottom:5px; }
-.form-caja-group input, .form-caja-group select, .form-caja-group textarea { width:100%; padding:9px 12px; border:1.5px solid var(--gris2); border-radius:10px; font-size:13px; font-family:'DM Sans',sans-serif; outline:none; }
+.form-caja-group input:not([type=file]), .form-caja-group select, .form-caja-group textarea { width:100%; padding:9px 12px; border:1.5px solid var(--gris2); border-radius:10px; font-size:13px; font-family:'DM Sans',sans-serif; outline:none; }
 .form-caja-group input:focus, .form-caja-group select:focus { border-color:var(--azul2); }
 
 
 /* MODAL SUSTENTO */
-.modal-sustento { position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,0.82); z-index:1000; display:none; align-items:center; justify-content:center; padding:20px; }
+.modal-sustento { position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,0.85); z-index:1001; display:none; align-items:center; justify-content:center; padding:16px; }
 .modal-sustento.show { display:flex; }
-.modal-sustento-box { background:white; border-radius:20px; padding:20px; width:100%; max-width:520px; max-height:92vh; overflow-y:auto; position:relative; }
-.modal-sustento-box .ms-title { font-family:'Montserrat',sans-serif; font-weight:800; font-size:15px; color:var(--azul); margin-bottom:14px; display:flex; justify-content:space-between; align-items:center; }
-.modal-sustento-box .ms-title button { background:none; border:none; font-size:20px; cursor:pointer; color:var(--texto2); line-height:1; }
-.ms-img { width:100%; border-radius:12px; border:2px solid var(--gris2); margin-bottom:10px; }
-.ms-iframe { width:100%; height:420px; border:none; border-radius:12px; border:2px solid var(--gris2); margin-bottom:10px; }
-.ms-pdf-embed { width:100%; height:460px; border:none; border-radius:12px; border:2px solid var(--gris2); }
+.ms-box { background:white; border-radius:20px; padding:20px; width:100%; max-width:540px; max-height:92vh; overflow-y:auto; position:relative; }
+.ms-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+.ms-header span { font-family:'Montserrat',sans-serif; font-weight:800; font-size:15px; color:var(--azul); }
+.ms-header button { background:none; border:none; font-size:22px; cursor:pointer; color:var(--texto2); line-height:1; padding:0 4px; }
+.ms-img { width:100%; border-radius:12px; border:2px solid var(--gris2); display:block; }
+.ms-no-preview { text-align:center; padding:40px 20px; color:var(--texto2); }
+.ms-no-preview .icon { font-size:48px; margin-bottom:12px; }
 
 /* TOAST */
 .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:var(--azul); color:white; padding:10px 20px; border-radius:30px; font-size:13px; font-weight:600; opacity:0; transition:opacity 0.3s; z-index:9999; pointer-events:none; white-space:nowrap; }
@@ -401,8 +402,8 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
 <!-- MODAL SUSTENTO -->
 <div class="modal-sustento" id="modal-sustento" onclick="if(event.target===this)cerrarSustento()">
-  <div class="modal-sustento-box">
-    <div class="ms-title">
+  <div class="ms-box">
+    <div class="ms-header">
       <span>📎 Sustento</span>
       <button onclick="cerrarSustento()">✕</button>
     </div>
@@ -432,6 +433,15 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     </div>
     <div class="form-caja-group"><label>Categoria</label><select id="caja-categoria"><option value="">Seleccionar...</option></select></div>
     <div class="form-caja-group"><label>Descripcion</label><input type="text" id="caja-descripcion" placeholder="Detalle"></div>
+    <div class="form-caja-group">
+      <label>Sustento (imagen/foto)</label>
+      <input type="file" id="caja-sustento-file" accept="image/*" onchange="cajaSustentoPreview(this)" style="width:100%;padding:8px;border:1.5px solid var(--gris2);border-radius:10px;font-size:13px;">
+      <div id="caja-sustento-preview" style="display:none;margin-top:8px;position:relative;">
+        <img id="caja-sustento-img" src="" style="width:100%;border-radius:10px;border:2px solid var(--gris2);">
+        <button onclick="cajaSustentoLimpiar()" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.6);color:white;border:none;border-radius:50%;width:26px;height:26px;cursor:pointer;font-size:14px;">✕</button>
+      </div>
+      <div id="caja-sustento-existente" style="display:none;margin-top:6px;font-size:11px;color:var(--texto2);">📎 Ya tiene sustento guardado. Sube una nueva imagen para reemplazarlo.</div>
+    </div>
     <div style="display:flex;gap:10px;margin-top:8px;">
       <button onclick="cajaHideModal()" style="flex:1;padding:12px;background:var(--gris);border:none;border-radius:10px;font-weight:700;cursor:pointer;">Cancelar</button>
       <button class="btn-main" onclick="cajaGuardar()" id="caja-btn-guardar" style="flex:1;padding:12px;">Guardar</button>
@@ -935,35 +945,63 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   }
 
 
-  function verSustento(url) {
-    const cont = document.getElementById('ms-contenido');
-    // Detectar tipo de archivo por URL
-    const urlLower = url.toLowerCase();
-    const esDrive = url.includes('drive.google.com') || url.includes('docs.google.com');
-    const esPdf = urlLower.includes('.pdf') || urlLower.includes('pdf');
-    const esImg = urlLower.match(/\.(jpg|jpeg|png|gif|webp)/);
+  function cajaSustentoPreview(input) {
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById('caja-sustento-img').src = e.target.result;
+        document.getElementById('caja-sustento-preview').style.display = 'block';
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
 
-    if (esDrive) {
-      // Extraer ID de Google Drive y mostrar embed
+  function cajaSustentoLimpiar() {
+    const fi = document.getElementById('caja-sustento-file');
+    if (fi) fi.value = '';
+    document.getElementById('caja-sustento-img').src = '';
+    document.getElementById('caja-sustento-preview').style.display = 'none';
+  }
+
+  function comprimirImagenCaja(file, maxWidth, calidad) {
+    return new Promise(function(resolve) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          let w = img.width, h = img.height;
+          if (w > maxWidth) { h = Math.round(h * maxWidth / w); w = maxWidth; }
+          canvas.width = w; canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL('image/jpeg', calidad));
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function verSustento(url) {
+    if (!url) return;
+    const cont = document.getElementById('ms-contenido');
+    // Si es base64 o imagen directa
+    if (url.startsWith('data:image') || url.match(/\.(jpg|jpeg|png|gif|webp)/i)) {
+      cont.innerHTML = '<img class="ms-img" src="' + url + '" />';
+    } else if (url.includes('drive.google.com') || url.includes('docs.google.com')) {
+      // Google Drive: extraer ID y mostrar thumbnail
       const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
       if (match) {
         const fileId = match[1];
-        // Intentar como imagen primero, con fallback a iframe
-        const imgUrl = 'https://drive.google.com/thumbnail?id=' + fileId + '&sz=w800';
-        const embedUrl = 'https://drive.google.com/file/d/' + fileId + '/preview';
+        const thumb = 'https://lh3.googleusercontent.com/d/' + fileId;
         cont.innerHTML =
-          '<img class="ms-img" src="' + imgUrl + '" ' +
-          'onerror="this.style.display=\'none\';document.getElementById(\'ms-iframe-fb\').style.display=\'block\';" />' +
-          '<iframe id="ms-iframe-fb" class="ms-pdf-embed" src="' + embedUrl + '" style="display:none;" allowfullscreen></iframe>';
+          '<img class="ms-img" src="' + thumb + '" ' +
+          'onerror="this.outerHTML='<div class=ms-no-preview><div class=icon>📄</div><p>No se puede previsualizar este archivo.<br>El archivo puede ser privado.</p></div>'" />';
       } else {
-        cont.innerHTML = '<iframe class="ms-pdf-embed" src="' + url + '" allowfullscreen></iframe>';
+        cont.innerHTML = '<div class="ms-no-preview"><div class="icon">📄</div><p>No se puede previsualizar.</p></div>';
       }
-    } else if (esImg) {
-      cont.innerHTML = '<img class="ms-img" src="' + url + '" />';
-    } else if (esPdf) {
-      cont.innerHTML = '<iframe class="ms-pdf-embed" src="' + url + '" type="application/pdf"></iframe>';
     } else {
-      cont.innerHTML = '<iframe class="ms-iframe" src="' + url + '"></iframe>';
+      cont.innerHTML = '<img class="ms-img" src="' + url + '" onerror="this.outerHTML='<div class=ms-no-preview><div class=icon>📄</div><p>No se puede mostrar la imagen.</p></div>'" />';
     }
     document.getElementById('modal-sustento').classList.add('show');
   }
@@ -1047,22 +1085,33 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--texto2);">Sin movimientos</td></tr>';
       return;
     }
+    // Guardar movimientos en mapa global para acceso por id
+    window._cajaMapa = {};
+    movs.forEach(function(m) { window._cajaMapa[m.id] = m; });
+
     tbody.innerHTML = movs.map(function(m) {
       const esIngreso = m.tipo === 'Ingreso';
-      const mStr = JSON.stringify(m).replace(/'/g, "\'");
       return '<tr>' +
         '<td>' + m.fecha + '</td>' +
-        '<td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + m.descripcion + '">' + m.descripcion + '</td>' +
+        '<td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + m.descripcion + '">' + m.descripcion + '</td>' +
         '<td>' + m.categoria + '</td>' +
         '<td><span class="' + (esIngreso ? 'badge-ingreso' : 'badge-egreso') + '">' + m.tipo + '</span></td>' +
         '<td style="text-align:right;font-weight:700;color:' + (esIngreso ? 'var(--verde)' : 'var(--rojo)') + ';">' +
           (esIngreso ? '+' : '-') + ' S/. ' + m.monto.toLocaleString('es-PE', {minimumFractionDigits:2}) + '</td>' +
         '<td style="text-align:center;white-space:nowrap;">' +
-          '<button onclick="cajaShowModal(' + mStr + ')" style="background:none;border:none;cursor:pointer;color:var(--azul2);font-size:14px;padding:2px 4px;" title="Editar">✏️</button>' +
-          '<button onclick="cajaEliminar(\'' + m.id + '\')" style="background:none;border:none;cursor:pointer;color:var(--rojo);font-size:14px;padding:2px 4px;" title="Eliminar">🗑</button>' +
-          (m.sustentoUrl ? '<button onclick="verSustento(\'' + m.sustentoUrl + '\')" style="background:none;border:none;cursor:pointer;color:var(--azul2);font-size:14px;padding:2px 4px;" title="Ver sustento">📎</button>' : '') +
+          '<button onclick="cajaEditarMovimiento(' + JSON.stringify(m.id) + ')" style="background:none;border:none;cursor:pointer;color:var(--azul2);font-size:15px;padding:2px 5px;" title="Editar">✏️</button>' +
+          '<button onclick="cajaEliminar(' + JSON.stringify(m.id) + ')" style="background:none;border:none;cursor:pointer;color:var(--rojo);font-size:15px;padding:2px 5px;" title="Eliminar">🗑</button>' +
+          (m.sustentoUrl || m.sustento ?
+            '<button onclick="verSustento(' + JSON.stringify(m.sustentoUrl || m.sustento) + ')" style="background:none;border:none;cursor:pointer;color:var(--azul2);font-size:15px;padding:2px 5px;" title="Ver sustento">📎</button>'
+            : '') +
         '</td></tr>';
     }).join('');
+  }
+
+  function cajaEditarMovimiento(id) {
+    const m = window._cajaMapa && window._cajaMapa[id];
+    if (!m) { showToast('No se encontró el movimiento'); return; }
+    cajaShowModal(m);
   }
 
   function cajaFiltrar() {
@@ -1086,12 +1135,19 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     document.getElementById('modal-caja-titulo').textContent = editData ? '✏️ Editar Movimiento' : '➕ Nuevo Movimiento';
     const hoy = new Date();
     document.getElementById('caja-fecha').value = hoy.toISOString().split('T')[0];
+    // Limpiar sustento
+    cajaSustentoLimpiar();
+    document.getElementById('caja-sustento-existente').style.display = 'none';
     if (editData) {
-      document.getElementById('caja-fecha').value = editData.fecha;
-      document.getElementById('caja-tipo').value = editData.tipo;
-      document.getElementById('caja-monto').value = editData.monto;
-      document.getElementById('caja-categoria').value = editData.categoria;
-      document.getElementById('caja-descripcion').value = editData.descripcion;
+      document.getElementById('caja-fecha').value = editData.fecha || hoy.toISOString().split('T')[0];
+      document.getElementById('caja-tipo').value = editData.tipo || '';
+      document.getElementById('caja-monto').value = editData.monto || '';
+      document.getElementById('caja-categoria').value = editData.categoria || '';
+      document.getElementById('caja-descripcion').value = editData.descripcion || '';
+      // Mostrar aviso si ya tiene sustento
+      if (editData.sustentoUrl || editData.sustento) {
+        document.getElementById('caja-sustento-existente').style.display = 'block';
+      }
     } else {
       document.getElementById('caja-tipo').value = '';
       document.getElementById('caja-monto').value = '';
@@ -1118,14 +1174,24 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     if (parseFloat(monto) <= 0) { showToast('⚠️ El monto debe ser mayor a 0'); return; }
 
     btn.textContent = '⏳ Guardando...'; btn.disabled = true;
+
+    // Comprimir sustento si se subió uno nuevo
+    let sustentoBase64 = '';
+    const fileInput = document.getElementById('caja-sustento-file');
+    if (fileInput && fileInput.files && fileInput.files[0]) {
+      sustentoBase64 = await comprimirImagenCaja(fileInput.files[0], 800, 0.7);
+    }
+
     try {
-      const resp = await apiPost({
+      const payload = {
         _method: 'POST', cajaAction: 'guardar',
-        fecha: fecha, tipo: tipo, monto: monto,
-        categoria: categoria, descripcion: descripcion,
+        fecha, tipo, monto, categoria, descripcion,
         edit_id: editId || '',
         sedeContexto: cajaSedeActual
-      });
+      };
+      if (sustentoBase64) payload.sustento = sustentoBase64;
+
+      const resp = await apiPost(payload);
       if (resp && resp.status === 'ok') {
         showToast('✅ ' + resp.message);
         cajaHideModal();
