@@ -993,23 +993,24 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     cont.innerHTML = '';
     var img = document.createElement('img');
     img.className = 'ms-img';
-    // Si es link de Drive, usar thumbnail público de Google
-    if (url.indexOf('drive.google.com') !== -1) {
+    if (url.indexOf('drive.google.com') !== -1 || url.indexOf('docs.google.com') !== -1) {
+      // Extraer file ID y usar URL de descarga directa (funciona con "anyone with link")
       var match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+      if (!match) match = url.match(/id=([a-zA-Z0-9_-]+)/);
       if (match) {
-        // lh3 es el CDN público de Google Drive que no requiere login
-        img.src = 'https://lh3.googleusercontent.com/d/' + match[1];
+        img.src = 'https://drive.google.com/uc?export=view&id=' + match[1];
       } else {
         msSustentoError('No se puede previsualizar este archivo.');
         document.getElementById('modal-sustento').classList.add('show');
         return;
       }
     } else {
-      // base64 u otra URL directa
       img.src = url;
     }
     img.onerror = function() {
-      msSustentoError('No se puede mostrar la imagen. El archivo puede ser privado o no existir.');
+      // Fallback: abrir en Drive directamente
+      cont.innerHTML = '<p class="ms-error">No se puede mostrar la imagen directamente.' +
+        '<br><br><a href="' + url + '" target="_blank" style="color:var(--azul2);font-weight:700;">Abrir en Drive &#8599;</a></p>';
     };
     cont.appendChild(img);
     document.getElementById('modal-sustento').classList.add('show');
