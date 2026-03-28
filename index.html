@@ -577,7 +577,7 @@
 <div class="toast" id="toast">¡Copiado!</div>
 
 <script>
-  const API_URL = "https://script.google.com/macros/s/AKfycbxARZ0RKzgRWAdLl8SOLN-oeVJWEkdIvcaXE1tmWHRAllIJnYndrRgPHEMZ3_r4BV5wxA/exec";
+  const API_URL = "/api";
 
   // ─── BLOQUEO DE ZOOM (iOS Safari ignora user-scalable=no) ───
   document.addEventListener('touchstart', function(e) {
@@ -595,7 +595,7 @@
 
   // ─── DEBOUNCE: evita doble llamada al API ───
   let cargando = false;
-  let tokenActual = null;
+  let codActual = null;
   let nombreActual = '';
   let montoActual = '';
   let pasoActual = 0;
@@ -615,21 +615,17 @@
   }
 
   function irPaso(stepId, num) {
-    const steps = document.querySelectorAll('.step');
     const current = document.querySelector('.step.active');
     const next = document.getElementById(stepId);
     if (!next || next === current) return;
 
     const going_forward = num > pasoActual;
-    
-    if (going_forward) {
-      current.classList.add('prev');
-      current.classList.remove('active');
-    } else {
-      current.classList.remove('active');
-      next.classList.remove('prev');
-    }
-    
+
+    // Limpiar todos los estados antes de reasignar
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('active', 'prev'));
+
+    if (going_forward) current.classList.add('prev');
+
     next.classList.add('active');
     pasoActual = num;
 
@@ -648,7 +644,7 @@
     const monto = parseFloat(cliente.deuda) || 0;
     const cuota = parseFloat(cliente.cuota) || 0;
 
-    tokenActual = cliente.token;
+    codActual = cliente.cod;
     nombreActual = cliente.nombres;
     montoActual = monto;
 
@@ -747,10 +743,10 @@
     btn.disabled = true;
 
     try {
-      const base64 = await comprimirImagen(fileInput.files[0], 480, 0.4);
+      const base64 = await comprimirImagen(fileInput.files[0], 800, 0.7);
       const res = await fetch(API_URL, {
         method: 'POST',
-        body: JSON.stringify({ token: tokenActual, voucher: base64, nombre: nombreActual, monto: montoActual })
+        body: JSON.stringify({ cod: codActual, voucher: base64, nombre: nombreActual, monto: montoActual })
       });
       const data = await res.json();
       if (data.success) {
@@ -834,12 +830,12 @@
     if (cargando) return; // debounce - evita doble ejecución
     cargando = true;
     const params = new URLSearchParams(window.location.search);
-    const token = params.get('token');
+    const token = params.get('cod') || params.get('token');
     const cel = params.get('cel');
 
     if (token) {
       try {
-        const res = await fetch(API_URL + '?token=' + encodeURIComponent(token));
+        const res = await fetch(API_URL + '?cod=' + encodeURIComponent(token));
         const data = await res.json();
         if (data.expirado) {
           irPaso('step-expirado', 0);
@@ -848,7 +844,6 @@
         } else if (data.verificando) {
           irPaso('step-verificando', 0);
         } else if (data.encontrado) {
-          data.token = token; // pasar token para usarlo en el POST
           cargarDatos(data);
         } else {
           irPaso('step-aldia', 0);
