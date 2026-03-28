@@ -125,7 +125,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 .cliente-cod { font-size:10px; color:var(--texto2); margin-top:2px; }
 .cliente-monto { font-family:'Montserrat',sans-serif; font-weight:900; font-size:15px; color:var(--rojo); }
 .cliente-dias { font-size:10px; color:var(--texto2); text-align:right; }
-.cliente-info { padding:0 14px 10px; display:flex; gap:8px; flex-wrap:wrap; }
+.cliente-info { padding:0 14px 10px; display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
 .tag { padding:3px 8px; border-radius:20px; font-size:10px; font-weight:600; }
 .tag-asesor { background:var(--azul-claro); color:var(--azul); }
 .tag-tipo { background:#f0fff4; color:var(--verde); }
@@ -133,8 +133,14 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 .tag-vencido { background:#fff5e6; color:var(--naranja); }
 .tag-pendiente { background:#fff8e6; color:#cc8800; }
 .tag-verificado { background:#f0fff4; color:var(--verde); }
-.cliente-acciones { padding:10px 14px; border-top:1px solid var(--gris2); display:flex; gap:8px; }
-.btn-wa { flex:1; padding:9px; background:#25D366; color:white; border:none; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:5px; }
+.btn-wa {
+  width:32px; height:32px; border-radius:50%; background:#25D366; color:white;
+  border:none; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  flex-shrink:0; transition:transform 0.15s, box-shadow 0.15s; box-shadow:0 2px 6px rgba(37,211,102,0.3);
+}
+.btn-wa:hover { transform:scale(1.1); box-shadow:0 3px 10px rgba(37,211,102,0.4); }
+.btn-wa:disabled { opacity:0.3; cursor:default; box-shadow:none; }
+.btn-wa:disabled:hover { transform:none; }
 .btn-ver { flex:1; padding:9px; background:#f0f4ff; color:var(--azul2); border:none; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer; }
 .btn-verificar { flex:1; padding:9px; background:linear-gradient(135deg,var(--verde),#00cc55); color:white; border:none; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer; }
 
@@ -770,13 +776,16 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       return `
       <div class="cliente-card">
         <div class="cliente-header">
-          <div>
+          <div style="min-width:0;flex:1;">
             <div class="cliente-nombre">${c.nombre}</div>
             <div class="cliente-cod">Cód. ${c.cod} · ${c.celular}</div>
           </div>
-          <div>
-            <div class="cliente-monto">S/. ${parseFloat(c.deuda).toLocaleString('es-PE',{minimumFractionDigits:2})}</div>
-            <div class="cliente-dias">${c.cuotas} cuota${c.cuotas!==1?'s':''} vencida${c.cuotas!==1?'s':''}</div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="text-align:right;">
+              <div class="cliente-monto">S/. ${parseFloat(c.deuda).toLocaleString('es-PE',{minimumFractionDigits:2})}</div>
+              <div class="cliente-dias">${c.cuotas} cuota${c.cuotas!==1?'s':''} vencida${c.cuotas!==1?'s':''}</div>
+            </div>
+            ${linkWA ? `<button class="btn-wa" onclick="enviarWA('${linkWAMovil}','${linkWA}')" title="Enviar WhatsApp"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="16" height="16" fill="white"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.736 5.472 2.027 7.774L0 32l8.454-2.01A15.938 15.938 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.333a13.27 13.27 0 01-6.748-1.833l-.484-.287-5.02 1.194 1.271-4.874-.317-.502A13.267 13.267 0 012.667 16C2.667 8.636 8.636 2.667 16 2.667S29.333 8.636 29.333 16 23.364 29.333 16 29.333zm7.27-9.862c-.398-.199-2.354-1.162-2.72-1.294-.365-.133-.631-.199-.897.199-.266.398-1.029 1.294-1.262 1.56-.232.266-.465.299-.863.1-.398-.2-1.681-.619-3.203-1.977-1.184-1.057-1.983-2.362-2.215-2.76-.232-.398-.025-.613.174-.811.179-.178.398-.465.598-.698.199-.232.265-.398.398-.664.133-.266.066-.498-.033-.697-.1-.2-.897-2.162-1.229-2.96-.324-.777-.653-.672-.897-.684l-.764-.013c-.266 0-.697.1-1.063.498-.365.398-1.395 1.362-1.395 3.323s1.428 3.854 1.627 4.12c.2.266 2.81 4.287 6.808 6.014.951.41 1.694.656 2.273.839.955.304 1.824.261 2.511.158.766-.114 2.354-.962 2.687-1.891.332-.929.332-1.726.232-1.891-.099-.166-.365-.266-.763-.465z"/></svg></button>` : ''}
           </div>
         </div>
         <div class="cliente-info">
@@ -785,10 +794,6 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
           ${c.oficina ? '<span class="tag" style="background:#f0e8ff;color:#6600cc;"><span class="mi xs">location_on</span> ' + c.oficina + '</span>' : ''}
           ${diasTag}
           ${tieneVoucher}
-        </div>
-        <div class="cliente-acciones">
-          ${linkWA ? `<button class="btn-wa" onclick="enviarWA('${linkWAMovil}','${linkWA}')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="16" height="16" fill="white"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.736 5.472 2.027 7.774L0 32l8.454-2.01A15.938 15.938 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.333a13.27 13.27 0 01-6.748-1.833l-.484-.287-5.02 1.194 1.271-4.874-.317-.502A13.267 13.267 0 012.667 16C2.667 8.636 8.636 2.667 16 2.667S29.333 8.636 29.333 16 23.364 29.333 16 29.333zm7.27-9.862c-.398-.199-2.354-1.162-2.72-1.294-.365-.133-.631-.199-.897.199-.266.398-1.029 1.294-1.262 1.56-.232.266-.465.299-.863.1-.398-.2-1.681-.619-3.203-1.977-1.184-1.057-1.983-2.362-2.215-2.76-.232-.398-.025-.613.174-.811.179-.178.398-.465.598-.698.199-.232.265-.398.398-.664.133-.266.066-.498-.033-.697-.1-.2-.897-2.162-1.229-2.96-.324-.777-.653-.672-.897-.684l-.764-.013c-.266 0-.697.1-1.063.498-.365.398-1.395 1.362-1.395 3.323s1.428 3.854 1.627 4.12c.2.266 2.81 4.287 6.808 6.014.951.41 1.694.656 2.273.839.955.304 1.824.261 2.511.158.766-.114 2.354-.962 2.687-1.891.332-.929.332-1.726.232-1.891-.099-.166-.365-.266-.763-.465z"/></svg> WhatsApp</button>` : '<button class="btn-wa" disabled style="opacity:0.4"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="16" height="16" fill="white"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.736 5.472 2.027 7.774L0 32l8.454-2.01A15.938 15.938 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.333a13.27 13.27 0 01-6.748-1.833l-.484-.287-5.02 1.194 1.271-4.874-.317-.502A13.267 13.267 0 012.667 16C2.667 8.636 8.636 2.667 16 2.667S29.333 8.636 29.333 16 23.364 29.333 16 29.333zm7.27-9.862c-.398-.199-2.354-1.162-2.72-1.294-.365-.133-.631-.199-.897.199-.266.398-1.029 1.294-1.262 1.56-.232.266-.465.299-.863.1-.398-.2-1.681-.619-3.203-1.977-1.184-1.057-1.983-2.362-2.215-2.76-.232-.398-.025-.613.174-.811.179-.178.398-.465.598-.698.199-.232.265-.398.398-.664.133-.266.066-.498-.033-.697-.1-.2-.897-2.162-1.229-2.96-.324-.777-.653-.672-.897-.684l-.764-.013c-.266 0-.697.1-1.063.498-.365.398-1.395 1.362-1.395 3.323s1.428 3.854 1.627 4.12c.2.266 2.81 4.287 6.808 6.014.951.41 1.694.656 2.273.839.955.304 1.824.261 2.511.158.766-.114 2.354-.962 2.687-1.891.332-.929.332-1.726.232-1.891-.099-.166-.365-.266-.763-.465z"/></svg> Sin mensaje</button>'}
-          
         </div>
       </div>`;
     }).join('');
