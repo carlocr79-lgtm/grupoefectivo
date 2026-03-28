@@ -500,7 +500,14 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     </div>
     <div class="form-caja-group"><label>Categoria</label><select id="caja-categoria"><option value="">Seleccionar...</option></select></div>
     <div class="form-caja-group"><label>Descripcion</label><input type="text" id="caja-descripcion" placeholder="Detalle"></div>
-    <div class="form-caja-group"><label>Comprobante (Opc.)</label><input type="file" id="caja-archivo" accept="image/*,application/pdf"></div>
+    <div class="form-caja-group"><label>Comprobante (Opc.)</label>
+      <div id="caja-archivo-actual" style="display:none;margin-bottom:8px;">
+        <button onclick="verSustento(document.getElementById('caja-archivo-actual').dataset.url)" style="background:var(--azul-claro);color:var(--azul2);border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:4px;">
+          <span class="mi sm">visibility</span> Ver archivo actual
+        </button>
+      </div>
+      <input type="file" id="caja-archivo" accept="image/*,application/pdf">
+    </div>
     <div style="display:flex;gap:10px;margin-top:8px;">
       <button onclick="cajaHideModal()" style="flex:1;padding:12px;background:var(--gris);border:none;border-radius:10px;font-weight:700;cursor:pointer;">Cancelar</button>
       <button class="btn-main" onclick="cajaGuardar()" id="caja-btn-guardar" style="flex:1;padding:12px;">Guardar</button>
@@ -1260,11 +1267,20 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       document.getElementById('caja-monto').value = editData.monto;
       document.getElementById('caja-categoria').value = editData.categoria;
       document.getElementById('caja-descripcion').value = editData.descripcion;
+      // Mostrar botón de archivo existente
+      var archivoActualEl = document.getElementById('caja-archivo-actual');
+      if (editData.sustentoUrl) {
+        archivoActualEl.dataset.url = editData.sustentoUrl;
+        archivoActualEl.style.display = 'block';
+      } else {
+        archivoActualEl.style.display = 'none';
+      }
     } else {
       document.getElementById('caja-tipo').value = '';
       document.getElementById('caja-monto').value = '';
       document.getElementById('caja-categoria').value = '';
       document.getElementById('caja-descripcion').value = '';
+      document.getElementById('caja-archivo-actual').style.display = 'none';
     }
     document.getElementById('modal-caja').classList.add('show');
   }
