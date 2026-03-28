@@ -258,7 +258,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 .modal-sustento-box .ms-title { font-family:'Montserrat',sans-serif; font-weight:800; font-size:15px; color:var(--azul); margin-bottom:14px; display:flex; justify-content:space-between; align-items:center; }
 .modal-sustento-box .ms-title button { background:none; border:none; font-size:20px; cursor:pointer; color:var(--texto2); line-height:1; }
 .ms-img { width:100%; border-radius:12px; border:2px solid var(--gris2); margin-bottom:10px; }
-.ms-iframe { width:100%; height:420px; border:none; border-radius:12px; border:2px solid var(--gris2); margin-bottom:10px; }
+.ms-iframe { width:100%; height:420px; border-radius:12px; border:2px solid var(--gris2); margin-bottom:10px; }
 .ms-pdf-embed { width:100%; height:460px; border:none; border-radius:12px; border:2px solid var(--gris2); }
 
 /* TOAST */
@@ -461,7 +461,6 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     <div class="modal-info" id="modal-info"></div>
     <div class="modal-btns">
       <button class="btn-cerrar" onclick="cerrarModal()"><span class="mi sm">close</span> Cerrar</button>
-      <button class="btn-verificar" id="modal-btn-verificar" onclick="verificarDesdeModal()"><span class="mi sm">check_circle</span> Marcar verificado</button>
     </div>
   </div>
 </div>
@@ -649,6 +648,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     sessionStorage.removeItem('ge_session');
     sessionStorage.removeItem('ge_nombre');
     sessionStorage.removeItem('ge_rol');
+    sessionStorage.removeItem('ge_oficina');
     location.reload();
   }
 
@@ -857,16 +857,18 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         </div>
         <div class="cliente-acciones">
           <button class="btn-ver" onclick="verVoucher(${v.fila},'${v.nombre}',${v.monto},'${v.voucher}','${v.asesor}','${v.cod}')"><span class="mi sm">visibility</span> Ver voucher</button>
-          <button class="btn-verificar" onclick="verificarPago(${v.fila},'${v.nombre}',${v.monto})"><span class="mi sm">check_circle</span> Verificado</button>
         </div>
       </div>
     `).join('');
   }
 
+  let modalCodActual = '';
+
   function verVoucher(fila, nombre, monto, link, asesor, cod) {
     modalFilaActual = fila;
     modalNombreActual = nombre;
     modalMontoActual = monto;
+    modalCodActual = cod;
     
     // Convertir link de Drive a link directo de imagen
     let imgUrl = link;
@@ -887,17 +889,18 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   function cerrarModal() {
     document.getElementById('modal-voucher').classList.remove('show');
     modalFilaActual = null;
+    modalCodActual = '';
   }
 
   async function verificarDesdeModal() {
     if (!modalFilaActual) return;
-    await verificarPago(modalFilaActual, modalNombreActual, modalMontoActual);
+    await verificarPago(modalFilaActual, modalNombreActual, modalMontoActual, modalCodActual);
     cerrarModal();
   }
 
-  async function verificarPago(fila, nombre, monto) {
+  async function verificarPago(fila, nombre, monto, cod) {
     try {
-      const data = await apiPost({ adminAction: 'verificar', fila: fila, nombre: nombre, monto: monto });
+      const data = await apiPost({ adminAction: 'verificar', fila: fila, nombre: nombre, monto: monto, cod: cod });
       if (data.success) {
         showToast('✅ Pago verificado — ' + nombre.split(' ')[0]);
         await Promise.all([cargarVouchers(), cargarHistorial()]);
@@ -1198,20 +1201,24 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     }).join('');
   }
 
+  let _cajaMovMap = {};
+
   function cajaRenderTabla(movs) {
+    _cajaMovMap = {};
     const contenedor = document.getElementById('caja-tabla-body');
     if (!movs || movs.length === 0) {
       contenedor.innerHTML = '<div class="empty"><div class="icon">🔍</div>Sin movimientos</div>';
       return;
     }
+    movs.forEach(function(m) { _cajaMovMap['mov-' + m.id] = m; });
     contenedor.innerHTML = movs.map(function(m) {
       const esIngreso = m.tipo === 'Ingreso';
-      const mStr = JSON.stringify(m).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
       const sustentoUrlSafe = m.sustentoUrl ? m.sustentoUrl.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;') : '';
       
       const icon = esIngreso ? '↓' : '↑';
       const sign = esIngreso ? '+' : '-';
       
+      const mDataId = 'mov-' + m.id;
       return `
       <div class="mov-card">
         <div class="mov-left">
@@ -1230,7 +1237,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
             <div class="mov-fecha">${m.fecha}</div>
             <div class="mov-acciones">
               ${m.sustentoUrl ? `<button class="mov-btn" onclick="verSustento('${sustentoUrlSafe}')" title="Ver sustento"><span class="mi sm">attach_file</span></button>` : ''}
-              <button class="mov-btn" onclick="cajaShowModal(${mStr})" title="Editar"><span class="mi sm">edit</span></button>
+              <button class="mov-btn" data-movid="${mDataId}" onclick="cajaShowModalById(this.dataset.movid)" title="Editar"><span class="mi sm">edit</span></button>
               <button class="mov-btn delete" onclick="cajaEliminar('${m.id}')" title="Eliminar"><span class="mi sm">delete</span></button>
             </div>
           </div>
@@ -1253,6 +1260,11 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     cats.forEach(function(c) {
       sel.innerHTML += '<option value="' + c + '">' + c + '</option>';
     });
+  }
+
+  function cajaShowModalById(movId) {
+    const editData = _cajaMovMap[movId] || null;
+    cajaShowModal(editData);
   }
 
   function cajaShowModal(editData) {
