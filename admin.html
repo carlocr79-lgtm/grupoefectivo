@@ -407,40 +407,77 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     </div>
   </div>
   <div id="caja-sub-arqueo" style="display:none;">
-    <div style="background:white;border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 2px 10px rgba(0,48,135,0.07);">
-      <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
-        <div><div style="font-size:11px;color:var(--texto2);">Saldo Teorico</div><div style="font-size:18px;font-weight:800;color:var(--azul);" id="arq-teorico">S/. 0.00</div></div>
-        <div><div style="font-size:11px;color:var(--texto2);">Saldo Fisico</div><div style="font-size:18px;font-weight:800;color:var(--verde);" id="arq-fisico">S/. 0.00</div></div>
+
+    <!-- ── VISTA CAJERA: solo Cierre Diario ── -->
+    <div id="arq-vista-cajera" style="display:none;">
+      <div style="background:linear-gradient(135deg,var(--azul),var(--azul2));border-radius:14px;padding:14px;margin-bottom:12px;display:flex;justify-content:center;gap:30px;">
+        <div style="text-align:center;"><div style="font-size:10px;color:rgba(255,255,255,0.7);">Saldo Físico</div><div style="font-size:20px;font-weight:900;color:white;" id="arq-fisico-cajera">S/. 0.00</div></div>
       </div>
-      <div class="diff-card" id="arq-diff-card">
-        <div style="font-size:10px;font-weight:700;">Diferencia</div>
-        <div style="font-size:22px;font-weight:900;" id="arq-diferencia">S/. 0.00</div>
-        <div style="font-size:11px;" id="arq-msg">Ingresa el conteo</div>
+      <div class="diff-card" id="arq-diff-cajera" style="margin-bottom:12px;">
+        <div style="font-size:10px;font-weight:700;">Total contado</div>
+        <div style="font-size:22px;font-weight:900;" id="arq-total-cajera">S/. 0.00</div>
+        <div style="font-size:11px;" id="arq-msg-cajera">Ingresa el conteo</div>
+      </div>
+      <div class="arqueo-grid">
+        <div class="denom-section">
+          <h4>Billetes</h4>
+          <div class="denom-row"><span class="denom-label">S/ 200</span><input type="number" class="denom-input arq-input-cajera" data-val="200" placeholder="0" oninput="cajaCalcArqueoCajera()"><span class="denom-subtotal" id="sub-cajera-b200">0.00</span></div>
+          <div class="denom-row"><span class="denom-label">S/ 100</span><input type="number" class="denom-input arq-input-cajera" data-val="100" placeholder="0" oninput="cajaCalcArqueoCajera()"><span class="denom-subtotal" id="sub-cajera-b100">0.00</span></div>
+          <div class="denom-row"><span class="denom-label">S/ 50</span><input type="number" class="denom-input arq-input-cajera" data-val="50" placeholder="0" oninput="cajaCalcArqueoCajera()"><span class="denom-subtotal" id="sub-cajera-b50">0.00</span></div>
+          <div class="denom-row"><span class="denom-label">S/ 20</span><input type="number" class="denom-input arq-input-cajera" data-val="20" placeholder="0" oninput="cajaCalcArqueoCajera()"><span class="denom-subtotal" id="sub-cajera-b20">0.00</span></div>
+          <div class="denom-row"><span class="denom-label">S/ 10</span><input type="number" class="denom-input arq-input-cajera" data-val="10" placeholder="0" oninput="cajaCalcArqueoCajera()"><span class="denom-subtotal" id="sub-cajera-b10">0.00</span></div>
+        </div>
+        <div class="denom-section">
+          <h4>Monedas</h4>
+          <div class="denom-row"><span class="denom-label">S/ 5</span><input type="number" class="denom-input arq-input-cajera" data-val="5" placeholder="0" oninput="cajaCalcArqueoCajera()"><span class="denom-subtotal" id="sub-cajera-m5">0.00</span></div>
+          <div class="denom-row"><span class="denom-label">S/ 2</span><input type="number" class="denom-input arq-input-cajera" data-val="2" placeholder="0" oninput="cajaCalcArqueoCajera()"><span class="denom-subtotal" id="sub-cajera-m2">0.00</span></div>
+          <div class="denom-row"><span class="denom-label">S/ 1</span><input type="number" class="denom-input arq-input-cajera" data-val="1" placeholder="0" oninput="cajaCalcArqueoCajera()"><span class="denom-subtotal" id="sub-cajera-m1">0.00</span></div>
+          <div class="denom-row"><span class="denom-label">S/ 0.50</span><input type="number" class="denom-input arq-input-cajera" data-val="0.50" placeholder="0" oninput="cajaCalcArqueoCajera()"><span class="denom-subtotal" id="sub-cajera-m050">0.00</span></div>
+          <div class="denom-row"><span class="denom-label">S/ 0.20</span><input type="number" class="denom-input arq-input-cajera" data-val="0.20" placeholder="0" oninput="cajaCalcArqueoCajera()"><span class="denom-subtotal" id="sub-cajera-m020">0.00</span></div>
+          <div class="denom-row"><span class="denom-label">S/ 0.10</span><input type="number" class="denom-input arq-input-cajera" data-val="0.10" placeholder="0" oninput="cajaCalcArqueoCajera()"><span class="denom-subtotal" id="sub-cajera-m010">0.00</span></div>
+        </div>
+      </div>
+      <button class="btn-main" id="arq-btn-diario" onclick="cajaSubmitArqueo('Cierre Diario')" disabled style="width:100%;padding:12px;font-size:13px;margin-top:14px;">📋 Guardar Cierre Diario</button>
+    </div>
+
+    <!-- ── VISTA ADMIN: Arqueo Preventivo + Cierre de Mes ── -->
+    <div id="arq-vista-admin" style="display:none;">
+      <div style="background:white;border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 2px 10px rgba(0,48,135,0.07);">
+        <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+          <div><div style="font-size:11px;color:var(--texto2);">Saldo Teórico</div><div style="font-size:18px;font-weight:800;color:var(--azul);" id="arq-teorico">S/. 0.00</div></div>
+          <div><div style="font-size:11px;color:var(--texto2);">Saldo Físico</div><div style="font-size:18px;font-weight:800;color:var(--verde);" id="arq-fisico">S/. 0.00</div></div>
+        </div>
+        <div class="diff-card" id="arq-diff-card">
+          <div style="font-size:10px;font-weight:700;">Diferencia</div>
+          <div style="font-size:22px;font-weight:900;" id="arq-diferencia">S/. 0.00</div>
+          <div style="font-size:11px;" id="arq-msg">Ingresa el conteo</div>
+        </div>
+      </div>
+      <div class="arqueo-grid">
+        <div class="denom-section">
+          <h4>Billetes</h4>
+          <div class="denom-row"><span class="denom-label">S/ 200</span><input type="number" class="denom-input arq-input" id="arq-b200" data-val="200" placeholder="0" oninput="cajaCalcArqueo()"><span class="denom-subtotal" id="sub-b200">0.00</span></div>
+          <div class="denom-row"><span class="denom-label">S/ 100</span><input type="number" class="denom-input arq-input" id="arq-b100" data-val="100" placeholder="0" oninput="cajaCalcArqueo()"><span class="denom-subtotal" id="sub-b100">0.00</span></div>
+          <div class="denom-row"><span class="denom-label">S/ 50</span><input type="number" class="denom-input arq-input" id="arq-b50" data-val="50" placeholder="0" oninput="cajaCalcArqueo()"><span class="denom-subtotal" id="sub-b50">0.00</span></div>
+          <div class="denom-row"><span class="denom-label">S/ 20</span><input type="number" class="denom-input arq-input" id="arq-b20" data-val="20" placeholder="0" oninput="cajaCalcArqueo()"><span class="denom-subtotal" id="sub-b20">0.00</span></div>
+          <div class="denom-row"><span class="denom-label">S/ 10</span><input type="number" class="denom-input arq-input" id="arq-b10" data-val="10" placeholder="0" oninput="cajaCalcArqueo()"><span class="denom-subtotal" id="sub-b10">0.00</span></div>
+        </div>
+        <div class="denom-section">
+          <h4>Monedas</h4>
+          <div class="denom-row"><span class="denom-label">S/ 5</span><input type="number" class="denom-input arq-input" id="arq-m5" data-val="5" placeholder="0" oninput="cajaCalcArqueo()"><span class="denom-subtotal" id="sub-m5">0.00</span></div>
+          <div class="denom-row"><span class="denom-label">S/ 2</span><input type="number" class="denom-input arq-input" id="arq-m2" data-val="2" placeholder="0" oninput="cajaCalcArqueo()"><span class="denom-subtotal" id="sub-m2">0.00</span></div>
+          <div class="denom-row"><span class="denom-label">S/ 1</span><input type="number" class="denom-input arq-input" id="arq-m1" data-val="1" placeholder="0" oninput="cajaCalcArqueo()"><span class="denom-subtotal" id="sub-m1">0.00</span></div>
+          <div class="denom-row"><span class="denom-label">S/ 0.50</span><input type="number" class="denom-input arq-input" id="arq-m050" data-val="0.50" placeholder="0" oninput="cajaCalcArqueo()"><span class="denom-subtotal" id="sub-m050">0.00</span></div>
+          <div class="denom-row"><span class="denom-label">S/ 0.20</span><input type="number" class="denom-input arq-input" id="arq-m020" data-val="0.20" placeholder="0" oninput="cajaCalcArqueo()"><span class="denom-subtotal" id="sub-m020">0.00</span></div>
+          <div class="denom-row"><span class="denom-label">S/ 0.10</span><input type="number" class="denom-input arq-input" id="arq-m010" data-val="0.10" placeholder="0" oninput="cajaCalcArqueo()"><span class="denom-subtotal" id="sub-m010">0.00</span></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:14px;">
+        <button class="btn-main" id="arq-btn-preventivo" onclick="cajaSubmitArqueo('Arqueo Preventivo')" disabled style="flex:1;padding:12px;font-size:13px;background:linear-gradient(135deg,#ff8800,#ffaa00);">🔍 Arqueo Preventivo</button>
+        <button class="btn-main" id="arq-btn-mes" onclick="cajaSubmitArqueo('Cierre de Mes')" disabled style="flex:1;padding:12px;font-size:13px;background:linear-gradient(135deg,var(--rojo),#ff4444);">🔒 Cerrar Mes</button>
       </div>
     </div>
-    <div class="arqueo-grid">
-      <div class="denom-section">
-        <h4>Billetes</h4>
-        <div class="denom-row"><span class="denom-label">S/ 200</span><input type="number" class="denom-input arq-input" id="arq-b200" data-val="200" placeholder="0" oninput="cajaCalcArqueo()"><span class="denom-subtotal" id="sub-b200">0.00</span></div>
-        <div class="denom-row"><span class="denom-label">S/ 100</span><input type="number" class="denom-input arq-input" id="arq-b100" data-val="100" placeholder="0" oninput="cajaCalcArqueo()"><span class="denom-subtotal" id="sub-b100">0.00</span></div>
-        <div class="denom-row"><span class="denom-label">S/ 50</span><input type="number" class="denom-input arq-input" id="arq-b50" data-val="50" placeholder="0" oninput="cajaCalcArqueo()"><span class="denom-subtotal" id="sub-b50">0.00</span></div>
-        <div class="denom-row"><span class="denom-label">S/ 20</span><input type="number" class="denom-input arq-input" id="arq-b20" data-val="20" placeholder="0" oninput="cajaCalcArqueo()"><span class="denom-subtotal" id="sub-b20">0.00</span></div>
-        <div class="denom-row"><span class="denom-label">S/ 10</span><input type="number" class="denom-input arq-input" id="arq-b10" data-val="10" placeholder="0" oninput="cajaCalcArqueo()"><span class="denom-subtotal" id="sub-b10">0.00</span></div>
-      </div>
-      <div class="denom-section">
-        <h4>Monedas</h4>
-        <div class="denom-row"><span class="denom-label">S/ 5</span><input type="number" class="denom-input arq-input" id="arq-m5" data-val="5" placeholder="0" oninput="cajaCalcArqueo()"><span class="denom-subtotal" id="sub-m5">0.00</span></div>
-        <div class="denom-row"><span class="denom-label">S/ 2</span><input type="number" class="denom-input arq-input" id="arq-m2" data-val="2" placeholder="0" oninput="cajaCalcArqueo()"><span class="denom-subtotal" id="sub-m2">0.00</span></div>
-        <div class="denom-row"><span class="denom-label">S/ 1</span><input type="number" class="denom-input arq-input" id="arq-m1" data-val="1" placeholder="0" oninput="cajaCalcArqueo()"><span class="denom-subtotal" id="sub-m1">0.00</span></div>
-        <div class="denom-row"><span class="denom-label">S/ 0.50</span><input type="number" class="denom-input arq-input" id="arq-m050" data-val="0.50" placeholder="0" oninput="cajaCalcArqueo()"><span class="denom-subtotal" id="sub-m050">0.00</span></div>
-        <div class="denom-row"><span class="denom-label">S/ 0.20</span><input type="number" class="denom-input arq-input" id="arq-m020" data-val="0.20" placeholder="0" oninput="cajaCalcArqueo()"><span class="denom-subtotal" id="sub-m020">0.00</span></div>
-        <div class="denom-row"><span class="denom-label">S/ 0.10</span><input type="number" class="denom-input arq-input" id="arq-m010" data-val="0.10" placeholder="0" oninput="cajaCalcArqueo()"><span class="denom-subtotal" id="sub-m010">0.00</span></div>
-      </div>
-    </div>
-    <div style="display:flex;gap:10px;margin-top:14px;">
-      <button class="btn-main" id="arq-btn-diario" onclick="cajaSubmitArqueo('Cierre Diario')" disabled style="flex:1;padding:12px;font-size:13px;">Guardar Cierre</button>
-      <button class="btn-main" id="arq-btn-mes" onclick="cajaSubmitArqueo('Cierre de Mes')" disabled style="flex:1;padding:12px;font-size:13px;background:linear-gradient(135deg,var(--rojo),#ff4444);">Cerrar Mes</button>
-    </div>
+
   </div>
   <div id="caja-sub-historial-arq" style="display:none;">
     <div class="caja-table-wrap">
@@ -1398,44 +1435,108 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     const cuadre = Math.abs(diff) < 0.01;
     diffCard.className = 'diff-card ' + (cuadre ? 'cuadre' : diff > 0 ? 'sobrante' : 'faltante');
     msgEl.textContent = cuadre ? '✅ ¡CUADRE EXACTO!' : diff > 0 ? '⚠️ Sobrante' : '❌ Faltante';
-    document.getElementById('arq-btn-diario').disabled = !cuadre;
-    document.getElementById('arq-btn-mes').disabled = !cuadre;
+    const btnPrev = document.getElementById('arq-btn-preventivo');
+    const btnMes  = document.getElementById('arq-btn-mes');
+    if (btnPrev) btnPrev.disabled = !cuadre;
+    if (btnMes)  btnMes.disabled  = !cuadre;
     return {total: total, diff: diff, cuadre: cuadre};
   }
 
+  function cajaCalcArqueoCajera() {
+    let total = 0;
+    document.querySelectorAll('.arq-input-cajera').forEach(function(inp) {
+      const cant = parseFloat(inp.value) || 0;
+      const val  = parseFloat(inp.dataset.val) || 0;
+      const sub  = cant * val;
+      total += sub;
+      // Los subtotales de cajera usan IDs tipo sub-cajera-b200
+      const denom = inp.dataset.val === '200' ? 'b200' : inp.dataset.val === '100' ? 'b100' :
+                    inp.dataset.val === '50'  ? 'b50'  : inp.dataset.val === '20'  ? 'b20'  :
+                    inp.dataset.val === '10'  ? 'b10'  : inp.dataset.val === '5'   ? 'm5'   :
+                    inp.dataset.val === '2'   ? 'm2'   : inp.dataset.val === '1'   ? 'm1'   :
+                    inp.dataset.val === '0.5' ? 'm050' : inp.dataset.val === '0.2' ? 'm020' : 'm010';
+      const subEl = document.getElementById('sub-cajera-' + denom);
+      if (subEl) subEl.textContent = sub.toFixed(2);
+    });
+    total = Math.round(total * 100) / 100;
+    document.getElementById('arq-fisico-cajera').textContent = 'S/. ' + total.toLocaleString('es-PE', {minimumFractionDigits:2});
+    document.getElementById('arq-total-cajera').textContent  = 'S/. ' + total.toLocaleString('es-PE', {minimumFractionDigits:2});
+    const msgEl = document.getElementById('arq-msg-cajera');
+    const diffCard = document.getElementById('arq-diff-cajera');
+    const tieneConteo = total > 0;
+    diffCard.className = 'diff-card ' + (tieneConteo ? 'cuadre' : '');
+    msgEl.textContent = tieneConteo ? '✅ Conteo registrado' : 'Ingresa el conteo';
+    document.getElementById('arq-btn-diario').disabled = !tieneConteo;
+    return {total: total};
+  }
+
+  function cajaMostrarVistaArqueo() {
+    const rol = sessionStorage.getItem('ge_rol') || 'asesor';
+    const esAdmin = rol === 'admin';
+    document.getElementById('arq-vista-cajera').style.display = esAdmin ? 'none' : 'block';
+    document.getElementById('arq-vista-admin').style.display  = esAdmin ? 'block' : 'none';
+  }
+
   async function cajaLoadArqueo() {
-    // Mostrar el saldo teórico inmediatamente con los datos ya en memoria
-    document.getElementById('arq-teorico').textContent = 'S/. ' + cajaSaldoTeorico.toLocaleString('es-PE', {minimumFractionDigits:2});
-    document.querySelectorAll('.arq-input').forEach(function(i) { i.value = ''; });
-    cajaCalcArqueo();
-    // Luego refrescar del servidor en segundo plano para garantizar dato actualizado
+    cajaMostrarVistaArqueo();
+    const rol = sessionStorage.getItem('ge_rol') || 'asesor';
+    const esAdmin = rol === 'admin';
+
+    if (esAdmin) {
+      document.getElementById('arq-teorico').textContent = 'S/. ' + cajaSaldoTeorico.toLocaleString('es-PE', {minimumFractionDigits:2});
+      document.querySelectorAll('.arq-input').forEach(function(i) { i.value = ''; });
+      cajaCalcArqueo();
+    } else {
+      document.querySelectorAll('.arq-input-cajera').forEach(function(i) { i.value = ''; });
+      cajaCalcArqueoCajera();
+    }
+
+    // Refrescar saldo del servidor en segundo plano
     try {
       const resp = await apiFetch({ admin: 'caja_datos', sede: cajaSedeActual, sedeContexto: cajaSedeActual });
       if (resp && !resp.error) {
         cajaSaldoTeorico = resp.saldo;
         cajaMovimientos = resp.movimientos || [];
-        document.getElementById('arq-teorico').textContent = 'S/. ' + resp.saldo.toLocaleString('es-PE', {minimumFractionDigits:2});
-        cajaCalcArqueo();
+        if (esAdmin) {
+          document.getElementById('arq-teorico').textContent = 'S/. ' + resp.saldo.toLocaleString('es-PE', {minimumFractionDigits:2});
+          cajaCalcArqueo();
+        }
       }
-    } catch(e) { /* silencioso, ya se mostró el valor en memoria */ }
+    } catch(e) { /* silencioso */ }
   }
 
   async function cajaSubmitArqueo(tipoTexto) {
-    const calc = cajaCalcArqueo();
-    if (!calc.cuadre) { showToast('⚠️ Debe cuadrar la caja primero'); return; }
+    const esAdmin = (sessionStorage.getItem('ge_rol') || '') === 'admin';
+    let calc;
+
+    if (tipoTexto === 'Cierre Diario') {
+      calc = cajaCalcArqueoCajera();
+      if (!calc.total || calc.total <= 0) { showToast('⚠️ Ingresa el conteo primero'); return; }
+    } else {
+      calc = cajaCalcArqueo();
+      if (!calc.cuadre) { showToast('⚠️ Debe cuadrar la caja primero'); return; }
+    }
+
     if (!confirm('¿Confirmar ' + tipoTexto + '?')) return;
+
     const detalle = {};
-    document.querySelectorAll('.arq-input').forEach(function(inp) {
-      detalle[inp.id.replace('arq-','')] = parseFloat(inp.value) || 0;
+    const inputs = tipoTexto === 'Cierre Diario'
+      ? document.querySelectorAll('.arq-input-cajera')
+      : document.querySelectorAll('.arq-input');
+    inputs.forEach(function(inp) {
+      const key = inp.id ? inp.id.replace('arq-','') : 'val-' + inp.dataset.val;
+      detalle[key] = parseFloat(inp.value) || 0;
     });
+
     try {
       const resp = await apiPost({
         _method: 'POST', cajaAction: 'arqueo',
         tipoTexto: tipoTexto,
         esCierre: tipoTexto === 'Cierre de Mes',
+        esPreventivo: tipoTexto === 'Arqueo Preventivo',
         saldoTeorico: cajaSaldoTeorico,
         saldoFisico: calc.total,
-        diferencia: calc.diff,
+        diferencia: tipoTexto === 'Cierre Diario' ? 0 : calc.diff,
         detalle: JSON.stringify(detalle),
         sedeContexto: cajaSedeActual
       });
