@@ -77,6 +77,15 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 .tab-btn.active { color:var(--azul2); border-bottom-color:var(--azul2); }
 .tab-badge { display:inline-block; background:var(--rojo); color:white; border-radius:10px; font-size:9px; padding:1px 6px; margin-left:4px; font-weight:700; }
 
+/* SUB-TABS GESTIONES */
+.gestiones-subtabs { display:flex; gap:0; border-bottom:1px solid var(--gris2); background:var(--gris); margin:-14px -16px 14px -16px; padding:0 16px; overflow-x:auto; }
+.gestiones-subtab {
+  padding:10px 18px; background:none; border:none; border-bottom:2.5px solid transparent;
+  font-family:'DM Sans',sans-serif; font-size:12px; font-weight:600;
+  color:var(--texto2); cursor:pointer; transition:all 0.2s; white-space:nowrap;
+}
+.gestiones-subtab.active { color:var(--azul2); border-bottom-color:var(--azul2); font-weight:700; }
+
 /* CONTENIDO */
 .tab-content { display:none; padding:14px 16px; flex:1; overflow-y:auto; }
 .tab-content.active { display:block; min-height:200px; }
@@ -280,9 +289,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   </nav>
 
   <div class="tabs">
-    <button class="tab-btn active" onclick="cambiarTab('clientes',this)">📋 Clientes</button>
-    <button class="tab-btn" onclick="cambiarTab('vouchers',this)">🧾 Vouchers <span class="tab-badge" id="badge-vouchers">0</span></button>
-    <button class="tab-btn" onclick="cambiarTab('historial',this)">📊 Historial</button>
+    <button class="tab-btn active" onclick="cambiarTab('gestiones',this)">📋 Gestiones <span class="tab-badge" id="badge-vouchers">0</span></button>
     <button class="tab-btn" onclick="cambiarTab('caja',this)">💰 Caja Chica</button>
     <div style="display:flex;align-items:center;gap:6px;padding:0 12px;margin-left:auto;">
       <button id="btn-refresh" onclick="refrescarDatos()" title="Actualizar datos"
@@ -292,38 +299,47 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     </div>
   </div>
 
-  <!-- TAB CLIENTES -->
-  <div class="tab-content active" id="tab-clientes">
-    <div class="search-bar">
-      <span class="icon">🔍</span>
-      <input type="text" id="buscar-cliente" placeholder="Buscar por nombre o celular..." oninput="filtrarClientes()">
+  <!-- TAB GESTIONES (contiene Clientes, Vouchers, Historial) -->
+  <div class="tab-content active" id="tab-gestiones">
+    <div class="gestiones-subtabs">
+      <button class="gestiones-subtab active" onclick="gestionesSwitchSubtab('clientes',this)">📋 Clientes</button>
+      <button class="gestiones-subtab" onclick="gestionesSwitchSubtab('vouchers',this)">🧾 Vouchers <span class="tab-badge" id="badge-vouchers-sub">0</span></button>
+      <button class="gestiones-subtab" onclick="gestionesSwitchSubtab('historial',this)">📊 Historial</button>
     </div>
-    <div class="filtros" id="filtros-asesores">
-      <button class="filtro-btn active" onclick="setFiltroAsesor('',this)">Todos</button>
-    </div>
-    <div id="lista-clientes"><div class="loading"><div class="spinner-sm"></div>Cargando clientes...</div></div>
-  </div>
 
-  <!-- TAB VOUCHERS -->
-  <div class="tab-content" id="tab-vouchers">
-    <div id="lista-vouchers"><div class="loading"><div class="spinner-sm"></div>Cargando vouchers...</div></div>
-  </div>
+    <!-- SUB: CLIENTES -->
+    <div id="gestiones-sub-clientes">
+      <div class="search-bar">
+        <span class="icon">🔍</span>
+        <input type="text" id="buscar-cliente" placeholder="Buscar por nombre o celular..." oninput="filtrarClientes()">
+      </div>
+      <div class="filtros" id="filtros-asesores">
+        <button class="filtro-btn active" onclick="setFiltroAsesor('',this)">Todos</button>
+      </div>
+      <div id="lista-clientes"><div class="loading"><div class="spinner-sm"></div>Cargando clientes...</div></div>
+    </div>
 
-  <!-- TAB HISTORIAL -->
-  <div class="tab-content" id="tab-historial">
-    <div class="hist-filtros">
-      <select id="filtro-hist-asesor" onchange="renderHistorial()">
-        <option value="">Todos los asesores</option>
-      </select>
-      <select id="filtro-hist-fecha" onchange="renderHistorial()">
-        <option value="">Todas las fechas</option>
-      </select>
+    <!-- SUB: VOUCHERS -->
+    <div id="gestiones-sub-vouchers" style="display:none;">
+      <div id="lista-vouchers"><div class="loading"><div class="spinner-sm"></div>Cargando vouchers...</div></div>
     </div>
-    <div class="resumen-box" id="resumen-historial">
-      <div class="resumen-item"><div class="val" id="res-total">-</div><div class="lbl">Total recaudado</div></div>
-      <div class="resumen-item"><div class="val" id="res-count">-</div><div class="lbl">Pagos registrados</div></div>
+
+    <!-- SUB: HISTORIAL -->
+    <div id="gestiones-sub-historial" style="display:none;">
+      <div class="hist-filtros">
+        <select id="filtro-hist-asesor" onchange="renderHistorial()">
+          <option value="">Todos los asesores</option>
+        </select>
+        <select id="filtro-hist-fecha" onchange="renderHistorial()">
+          <option value="">Todas las fechas</option>
+        </select>
+      </div>
+      <div class="resumen-box" id="resumen-historial">
+        <div class="resumen-item"><div class="val" id="res-total">-</div><div class="lbl">Total recaudado</div></div>
+        <div class="resumen-item"><div class="val" id="res-count">-</div><div class="lbl">Pagos registrados</div></div>
+      </div>
+      <div id="lista-historial"><div class="loading"><div class="spinner-sm"></div>Cargando historial...</div></div>
     </div>
-    <div id="lista-historial"><div class="loading"><div class="spinner-sm"></div>Cargando historial...</div></div>
   </div>
 
   <!-- TAB CAJA CHICA -->
@@ -627,6 +643,18 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     if (tab === 'caja') cajaCargarDatos();
   }
 
+  // ── SUB-TABS GESTIONES ──
+  function gestionesSwitchSubtab(sub, btn) {
+    ['clientes','vouchers','historial'].forEach(function(t) {
+      var el = document.getElementById('gestiones-sub-' + t);
+      if (el) el.style.display = 'none';
+    });
+    document.querySelectorAll('.gestiones-subtab').forEach(function(b) { b.classList.remove('active'); });
+    var target = document.getElementById('gestiones-sub-' + sub);
+    if (target) target.style.display = 'block';
+    if (btn) btn.classList.add('active');
+  }
+
   // ── CARGA INICIAL ──
   async function cargarTodo() {
     await Promise.all([cargarClientes(), cargarVouchers(), cargarHistorial()]);
@@ -766,6 +794,8 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       const resp = await apiFetch({ admin: 'vouchers' });
       vouchers = Array.isArray(resp) ? resp : [];
       document.getElementById('badge-vouchers').textContent = vouchers.length;
+      var subBadge = document.getElementById('badge-vouchers-sub');
+      if (subBadge) subBadge.textContent = vouchers.length;
       renderVouchers();
     } catch(e) {
       document.getElementById('lista-vouchers').innerHTML = '<div class="empty"><div class="icon">⚠️</div>Error al cargar</div>';
