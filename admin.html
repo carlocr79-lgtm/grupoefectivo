@@ -1020,17 +1020,29 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       const resp = await apiFetch({ admin: 'caja_datos', sede: sedeElegida, sedeContexto: sedeElegida });
       if (!resp || resp.error) { showToast('Error cargando caja: ' + (resp && resp.error ? resp.error : 'Sin respuesta')); return; }
       cajaDatos = resp; cajaSaldoTeorico = resp.saldo; cajaMovimientos = resp.movimientos || [];
+
       if (esPrimeraVez && resp.sedes && resp.sedes.length > 0) {
+        // Poblar el selector de sedes
         sel.innerHTML = '';
         const rolActual = sessionStorage.getItem('ge_rol') || 'asesor';
         if (rolActual === 'admin') { const o = document.createElement('option'); o.value=''; o.textContent='Todas las sedes'; sel.appendChild(o); }
         resp.sedes.forEach(function(s) { const o = document.createElement('option'); o.value=s; o.textContent=s; sel.appendChild(o); });
+        // Seleccionar la sede activa del servidor
         if (resp.sedeActiva && resp.sedeActiva !== '') { sel.value = resp.sedeActiva; cajaSedeActual = resp.sedeActiva; }
+        // Si la sede activa es distinta a '' (global), relanzar con la sede correcta
+        if (cajaSedeActual !== '') {
+          await cajaCargarDatos();
+          return;
+        }
       }
+
       // Siempre respetar lo que el selector tiene en este momento
       cajaSedeActual = sel.value;
       cajaRenderResumen(resp); cajaRenderTabla(cajaMovimientos); cajaRenderCategorias(resp.categorias || []);
+      // Actualizar saldo teórico en arqueo de forma inmediata
+      cajaSaldoTeorico = resp.saldo;
       document.getElementById('arq-teorico').textContent = 'S/. ' + resp.saldo.toLocaleString('es-PE', {minimumFractionDigits:2});
+      cajaCalcArqueo();
     } catch(e) { showToast('Error: ' + e.message); }
   }
 
@@ -1231,9 +1243,20 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   }
 
   async function cajaLoadArqueo() {
-    await cajaCargarDatos();
+    // Mostrar el saldo teórico inmediatamente con los datos ya en memoria
+    document.getElementById('arq-teorico').textContent = 'S/. ' + cajaSaldoTeorico.toLocaleString('es-PE', {minimumFractionDigits:2});
     document.querySelectorAll('.arq-input').forEach(function(i) { i.value = ''; });
     cajaCalcArqueo();
+    // Luego refrescar del servidor en segundo plano para garantizar dato actualizado
+    try {
+      const resp = await apiFetch({ admin: 'caja_datos', sede: cajaSedeActual, sedeContexto: cajaSedeActual });
+      if (resp && !resp.error) {
+        cajaSaldoTeorico = resp.saldo;
+        cajaMovimientos = resp.movimientos || [];
+        document.getElementById('arq-teorico').textContent = 'S/. ' + resp.saldo.toLocaleString('es-PE', {minimumFractionDigits:2});
+        cajaCalcArqueo();
+      }
+    } catch(e) { /* silencioso, ya se mostró el valor en memoria */ }
   }
 
   async function cajaSubmitArqueo(tipoTexto) {
