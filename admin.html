@@ -334,7 +334,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     <button id="subtab-arqueo" onclick="cajaSwitchSubtab('arqueo',this)" style="padding:8px 16px;background:none;border:none;border-bottom:2px solid transparent;color:var(--texto2);font-weight:600;font-size:12px;cursor:pointer;">🔐 Arqueo</button>
     <button id="subtab-historial-arq" onclick="cajaSwitchSubtab('historial-arq',this)" style="padding:8px 16px;background:none;border:none;border-bottom:2px solid transparent;color:var(--texto2);font-weight:600;font-size:12px;cursor:pointer;">📅 Historial</button>
     <div style="margin-left:auto;display:flex;align-items:center;">
-      <select id="caja-sede-select" onchange="cajaCargarDatos()" style="padding:5px 10px;border:1px solid var(--gris2);border-radius:8px;font-size:11px;font-weight:600;color:var(--azul);"></select>
+      <select id="caja-sede-select" onchange="cajaOnChangeSede()" style="padding:5px 10px;border:1px solid var(--gris2);border-radius:8px;font-size:11px;font-weight:600;color:var(--azul);"></select>
     </div>
   </div>
   <div id="caja-sub-resumen">
@@ -989,6 +989,19 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   let cajaDatos = null;
   let cajaSedeActual = '';
   let cajaSaldoTeorico = 0;
+
+  // Al cambiar de sede: actualizar cajaSedeActual y recargar la subpestaña que está visible
+  function cajaOnChangeSede() {
+    cajaSedeActual = document.getElementById('caja-sede-select').value;
+    if (document.getElementById('caja-sub-historial-arq').style.display !== 'none') {
+      cajaLoadHistorial();
+    } else if (document.getElementById('caja-sub-arqueo').style.display !== 'none') {
+      cajaLoadArqueo();
+    } else {
+      // resumen y movimientos se recargan juntos
+      cajaCargarDatos();
+    }
+  }
 
   function cajaSwitchSubtab(tab, btn) {
     ['resumen','movimientos','arqueo','historial-arq'].forEach(function(t) {
