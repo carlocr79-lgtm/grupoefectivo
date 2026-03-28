@@ -59,12 +59,22 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   background:linear-gradient(135deg,var(--azul),var(--azul2));
   padding:10px 16px; display:flex; align-items:center;
   justify-content:space-between; position:sticky; top:0; z-index:100;
-  box-shadow:0 2px 20px rgba(0,48,135,0.3); height:54px;
+  box-shadow:0 2px 20px rgba(0,48,135,0.3); min-height:54px;
 }
-.navbar-brand { display:flex; align-items:center; gap:8px; }
-.navbar-title { color:white; font-family:'Montserrat',sans-serif; font-weight:800; font-size:13px; }
-.navbar-title span { display:block; font-size:9px; font-weight:400; opacity:0.7; }
-.btn-logout { background:rgba(255,255,255,0.15); border:none; color:white; padding:6px 12px; border-radius:8px; font-size:11px; font-weight:600; cursor:pointer; }
+.navbar-brand { display:flex; align-items:center; gap:10px; min-width:0; }
+.navbar-title { color:white; font-family:'Montserrat',sans-serif; font-weight:800; font-size:14px; line-height:1.2; }
+.navbar-meta { display:flex; align-items:center; gap:6px; margin-top:3px; flex-wrap:wrap; }
+.navbar-rol {
+  display:inline-flex; align-items:center; gap:3px;
+  background:rgba(255,255,255,0.18); color:white; padding:2px 8px;
+  border-radius:6px; font-size:10px; font-weight:700; letter-spacing:0.3px;
+  text-transform:uppercase; backdrop-filter:blur(4px);
+}
+.navbar-info { font-size:10px; color:rgba(255,255,255,0.75); font-weight:500; white-space:nowrap; }
+.navbar-user { font-size:10px; color:white; font-weight:700; white-space:nowrap; }
+.navbar-sep { color:rgba(255,255,255,0.35); font-size:10px; }
+.btn-logout { background:rgba(255,255,255,0.15); border:none; color:white; padding:6px 12px; border-radius:8px; font-size:11px; font-weight:600; cursor:pointer; flex-shrink:0; transition:background 0.2s; }
+.btn-logout:hover { background:rgba(255,255,255,0.25); }
 
 /* REFRESH */
 .refreshing { animation: rotate 1s linear infinite; display:inline-block; }
@@ -287,9 +297,19 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 <div id="app">
   <nav class="navbar">
     <div class="navbar-brand">
-      <div class="navbar-title">Grupo Efectivo <span>Panel de Operaciones</span></div>
+      <div>
+        <div class="navbar-title">Grupo Efectivo</div>
+        <div class="navbar-meta" id="navbar-meta">
+          <span class="navbar-rol" id="navbar-rol">Panel</span>
+          <span class="navbar-sep">·</span>
+          <span class="navbar-info" id="navbar-oficina">Operaciones</span>
+        </div>
+      </div>
     </div>
-    <button class="btn-logout" onclick="logout()">Salir</button>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span class="navbar-user" id="navbar-user"></span>
+      <button class="btn-logout" onclick="logout()"><span class="mi xs">logout</span> Salir</button>
+    </div>
   </nav>
 
   <div class="tabs">
@@ -553,9 +573,10 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         const app = document.getElementById('app');
         app.style.display = 'flex'; app.style.flexDirection = 'column';
         const rolLabel = data.rol === 'admin' ? 'Admin' : data.rol === 'cajero' ? 'Cajero' : 'Asesor';
-        const ofLabel = data.oficina && data.oficina !== 'TODOS' ? ' · ' + data.oficina : ' · Todas las oficinas';
-        document.querySelector('.navbar-title').innerHTML = 
-          'Grupo Efectivo <span>' + rolLabel + ofLabel + ' — ' + data.nombre.split(' ')[0] + '</span>';
+        const ofLabel = data.oficina && data.oficina !== 'TODOS' ? data.oficina : 'Todas las oficinas';
+        document.getElementById('navbar-rol').textContent = rolLabel;
+        document.getElementById('navbar-oficina').textContent = ofLabel;
+        document.getElementById('navbar-user').textContent = data.nombre.split(' ')[0];
         cargarTodo();
       } else {
         mostrarError('codigo-error', data.error || 'Código incorrecto');
@@ -1415,9 +1436,10 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         const rol = sessionStorage.getItem('ge_rol') || 'asesor';
         const oficina = sessionStorage.getItem('ge_oficina') || 'TODOS';
         const rolLabel = rol === 'admin' ? 'Admin' : rol === 'cajero' ? 'Cajero' : 'Asesor';
-        const ofLabel = oficina !== 'TODOS' ? ' · ' + oficina : ' · Todas las oficinas';
-        document.querySelector('.navbar-title').innerHTML = 
-          'Grupo Efectivo <span>' + rolLabel + ofLabel + ' — ' + nombre.split(' ')[0] + '</span>';
+        const ofLabel = oficina !== 'TODOS' ? oficina : 'Todas las oficinas';
+        document.getElementById('navbar-rol').textContent = rolLabel;
+        document.getElementById('navbar-oficina').textContent = ofLabel;
+        document.getElementById('navbar-user').textContent = nombre.split(' ')[0];
       }
       cargarTodo();
     }
