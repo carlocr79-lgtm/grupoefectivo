@@ -136,10 +136,16 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 .btn-wa {
   width:32px; height:32px; border-radius:50%; background:#25D366; color:white;
   border:none; cursor:pointer; display:flex; align-items:center; justify-content:center;
-  flex-shrink:0; transition:transform 0.15s, box-shadow 0.15s; box-shadow:0 2px 6px rgba(37,211,102,0.3);
+  flex-shrink:0; transition:transform 0.15s, box-shadow 0.15s;
+  box-shadow:0 2px 6px rgba(37,211,102,0.3);
+  animation: wa-pulse 2s ease-in-out infinite;
 }
-.btn-wa:hover { transform:scale(1.1); box-shadow:0 3px 10px rgba(37,211,102,0.4); }
-.btn-wa:disabled { opacity:0.3; cursor:default; box-shadow:none; }
+@keyframes wa-pulse {
+  0%, 100% { box-shadow:0 2px 6px rgba(37,211,102,0.3); }
+  50% { box-shadow:0 2px 14px rgba(37,211,102,0.6); }
+}
+.btn-wa:hover { transform:scale(1.1); box-shadow:0 3px 12px rgba(37,211,102,0.5); animation:none; }
+.btn-wa:disabled { opacity:0.3; cursor:default; box-shadow:none; animation:none; }
 .btn-wa:disabled:hover { transform:none; }
 .btn-ver { flex:1; padding:9px; background:#f0f4ff; color:var(--azul2); border:none; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer; }
 .btn-verificar { flex:1; padding:9px; background:linear-gradient(135deg,var(--verde),#00cc55); color:white; border:none; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer; }
