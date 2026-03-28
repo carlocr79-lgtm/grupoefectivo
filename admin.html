@@ -1000,8 +1000,11 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     const target = document.getElementById('caja-sub-' + tab);
     if (target) target.style.display = 'block';
     if (btn) { btn.style.borderBottomColor = 'var(--azul2)'; btn.style.color = 'var(--azul2)'; btn.style.fontWeight = '700'; }
+    // Sincronizar sede desde el selector antes de cargar cualquier subpestaña
+    cajaSedeActual = document.getElementById('caja-sede-select').value;
     if (tab === 'arqueo') cajaLoadArqueo();
-    if (tab === 'historial-arq') cajaLoadHistorial();
+    else if (tab === 'historial-arq') cajaLoadHistorial();
+    else cajaCargarDatos();
   }
 
   async function cajaCargarDatos() {
@@ -1012,7 +1015,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     document.getElementById('caja-saldo').textContent = '...';
     document.getElementById('caja-ingresos').textContent = '...';
     document.getElementById('caja-egresos').textContent = '...';
-    document.getElementById('caja-tabla-body').innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;">Cargando...</td></tr>';
+    document.getElementById('caja-tabla-body').innerHTML = '<div class="empty" style="padding:20px;"><div class="spinner-sm"></div>Cargando...</div>';
     try {
       const resp = await apiFetch({ admin: 'caja_datos', sede: sedeElegida, sedeContexto: sedeElegida });
       if (!resp || resp.error) { showToast('Error cargando caja: ' + (resp && resp.error ? resp.error : 'Sin respuesta')); return; }
@@ -1023,7 +1026,9 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         if (rolActual === 'admin') { const o = document.createElement('option'); o.value=''; o.textContent='Todas las sedes'; sel.appendChild(o); }
         resp.sedes.forEach(function(s) { const o = document.createElement('option'); o.value=s; o.textContent=s; sel.appendChild(o); });
         if (resp.sedeActiva && resp.sedeActiva !== '') { sel.value = resp.sedeActiva; cajaSedeActual = resp.sedeActiva; }
-      } else if (!esPrimeraVez) { sel.value = sedeElegida; }
+      }
+      // Siempre respetar lo que el selector tiene en este momento
+      cajaSedeActual = sel.value;
       cajaRenderResumen(resp); cajaRenderTabla(cajaMovimientos); cajaRenderCategorias(resp.categorias || []);
       document.getElementById('arq-teorico').textContent = 'S/. ' + resp.saldo.toLocaleString('es-PE', {minimumFractionDigits:2});
     } catch(e) { showToast('Error: ' + e.message); }
