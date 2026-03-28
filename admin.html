@@ -1004,6 +1004,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     cajaSedeActual = document.getElementById('caja-sede-select').value;
     if (tab === 'arqueo') cajaLoadArqueo();
     else if (tab === 'historial-arq') cajaLoadHistorial();
+    else if (tab === 'movimientos') cajaRenderTabla(cajaMovimientos); // usa datos en memoria, sin llamada al servidor
     else cajaCargarDatos();
   }
 
@@ -1287,8 +1288,9 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   }
 
   async function cajaLoadHistorial() {
-    const resp = await apiFetch({ admin: 'caja_arqueos', sedeContexto: cajaSedeActual });
     const tbody = document.getElementById('caja-hist-body');
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;"><div class="spinner-sm" style="margin:0 auto;"></div></td></tr>';
+    const resp = await apiFetch({ admin: 'caja_arqueos', sede: cajaSedeActual, sedeContexto: cajaSedeActual });
     if (!resp || !Array.isArray(resp) || resp.length === 0) {
       tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--texto2);">Sin historial</td></tr>';
       return;
