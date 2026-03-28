@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
 <style>
 :root {
   --azul: #003087; --azul2: #0052cc; --azul-claro: #e8f0ff;
@@ -16,6 +17,9 @@
   --gris: #f5f7fc; --gris2: #e0e6f0; --texto: #1a1a2e; --texto2: #5a6475;
 }
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+.mi { font-family:'Material Symbols Rounded'; font-size:18px; vertical-align:middle; font-weight:normal; font-style:normal; line-height:1; letter-spacing:normal; text-transform:none; display:inline-block; white-space:nowrap; word-wrap:normal; direction:ltr; -webkit-font-smoothing:antialiased; }
+.mi.sm { font-size:14px; }
+.mi.xs { font-size:12px; }
 html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris); color:var(--texto); overflow-y:auto; }
 
 /* ── LOGIN ── */
@@ -94,7 +98,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 .search-bar { position:relative; margin-bottom:14px; }
 .search-bar input { width:100%; padding:10px 14px 10px 36px; border:2px solid var(--gris2); border-radius:10px; font-size:13px; font-family:'DM Sans',sans-serif; outline:none; background:white; }
 .search-bar input:focus { border-color:var(--azul2); }
-.search-bar .icon { position:absolute; left:11px; top:50%; transform:translateY(-50%); font-size:15px; }
+.search-bar .icon { position:absolute; left:11px; top:50%; transform:translateY(-50%); font-size:18px; color:var(--texto2); }
 
 /* FILTRO ASESOR */
 .filtros { display:flex; gap:8px; margin-bottom:14px; overflow-x:auto; padding-bottom:4px; }
@@ -244,12 +248,12 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
 <!-- LOGIN -->
 <div id="login-screen">
-  <div class="login-logo">💼 Grupo Efectivo</div>
+  <div class="login-logo"><span class="mi" style="font-size:24px;vertical-align:middle;margin-right:4px;">work</span> Grupo Efectivo</div>
   <div class="login-sub">Panel de Administración</div>
 
   <!-- PASO 1: CORREO -->
   <div class="login-box" id="box-correo">
-    <h2>📧 Ingresa tu correo</h2>
+    <h2><span class="mi" style="font-size:20px;vertical-align:middle;margin-right:4px;">mail</span> Ingresa tu correo</h2>
     <div class="form-group">
       <label>Correo autorizado</label>
       <input type="email" id="inp-correo" placeholder="tucorreo@gmail.com" autocomplete="email"
@@ -257,12 +261,12 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     </div>
     <button class="btn-login" id="btn-solicitar" onclick="solicitarCodigo()">Enviar código →</button>
     <div class="login-error" id="login-error">Correo no autorizado</div>
-    <div class="login-success" id="login-ok">✅ Código enviado a tu correo</div>
+    <div class="login-success" id="login-ok"><span class="mi sm">check_circle</span> Código enviado a tu correo</div>
   </div>
 
   <!-- PASO 2: CÓDIGO -->
   <div class="login-box" id="box-codigo" style="display:none;">
-    <h2>🔢 Ingresa el código</h2>
+    <h2><span class="mi" style="font-size:20px;vertical-align:middle;margin-right:4px;">pin</span> Ingresa el código</h2>
     <div class="correo-display">Código enviado a <strong id="correo-display-txt"></strong></div>
     <div class="codigo-inputs">
       <input type="tel" maxlength="1" class="cod-input" id="c1" oninput="avanzarCodigo(this,'c2')">
@@ -289,12 +293,12 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   </nav>
 
   <div class="tabs">
-    <button class="tab-btn active" onclick="cambiarTab('gestiones',this)">📋 Gestiones <span class="tab-badge" id="badge-vouchers">0</span></button>
-    <button class="tab-btn" onclick="cambiarTab('caja',this)">💰 Caja Chica</button>
+    <button class="tab-btn active" onclick="cambiarTab('gestiones',this)"><span class="mi sm">folder_open</span> Gestiones <span class="tab-badge" id="badge-vouchers">0</span></button>
+    <button class="tab-btn" onclick="cambiarTab('caja',this)"><span class="mi sm">account_balance_wallet</span> Caja Chica</button>
     <div style="display:flex;align-items:center;gap:6px;padding:0 12px;margin-left:auto;">
       <button id="btn-refresh" onclick="refrescarDatos()" title="Actualizar datos"
-        style="background:none;border:none;cursor:pointer;color:var(--texto2);font-size:14px;padding:4px;border-radius:6px;transition:color 0.2s;"
-        onmouseover="this.style.color='var(--azul2)'" onmouseout="this.style.color='var(--texto2)'">⟳</button>
+        style="background:none;border:none;cursor:pointer;color:var(--texto2);padding:4px;border-radius:6px;transition:color 0.2s;"
+        onmouseover="this.style.color='var(--azul2)'" onmouseout="this.style.color='var(--texto2)'"><span class="mi" style="font-size:20px;">refresh</span></button>
       <span id="ultimo-refresh" style="font-size:10px;color:var(--texto2);white-space:nowrap;"></span>
     </div>
   </div>
@@ -302,15 +306,15 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   <!-- TAB GESTIONES (contiene Clientes, Vouchers, Historial) -->
   <div class="tab-content active" id="tab-gestiones">
     <div class="gestiones-subtabs">
-      <button class="gestiones-subtab active" onclick="gestionesSwitchSubtab('clientes',this)">📋 Clientes</button>
-      <button class="gestiones-subtab" onclick="gestionesSwitchSubtab('vouchers',this)">🧾 Vouchers <span class="tab-badge" id="badge-vouchers-sub">0</span></button>
-      <button class="gestiones-subtab" onclick="gestionesSwitchSubtab('historial',this)">📊 Historial</button>
+      <button class="gestiones-subtab active" onclick="gestionesSwitchSubtab('clientes',this)"><span class="mi sm">group</span> Clientes</button>
+      <button class="gestiones-subtab" onclick="gestionesSwitchSubtab('vouchers',this)"><span class="mi sm">receipt_long</span> Vouchers <span class="tab-badge" id="badge-vouchers-sub">0</span></button>
+      <button class="gestiones-subtab" onclick="gestionesSwitchSubtab('historial',this)"><span class="mi sm">bar_chart</span> Historial</button>
     </div>
 
     <!-- SUB: CLIENTES -->
     <div id="gestiones-sub-clientes">
       <div class="search-bar">
-        <span class="icon">🔍</span>
+        <span class="icon"><span class="mi" style="font-size:16px;">search</span></span>
         <input type="text" id="buscar-cliente" placeholder="Buscar por nombre o celular..." oninput="filtrarClientes()">
       </div>
       <div class="filtros" id="filtros-asesores">
@@ -345,10 +349,10 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   <!-- TAB CAJA CHICA -->
   <div class="tab-content" id="tab-caja">
   <div style="display:flex;gap:8px;margin-bottom:14px;border-bottom:1px solid var(--gris2);padding-bottom:0;">
-    <button id="subtab-resumen" onclick="cajaSwitchSubtab('resumen',this)" style="padding:8px 16px;background:none;border:none;border-bottom:2px solid var(--azul2);color:var(--azul2);font-weight:700;font-size:12px;cursor:pointer;">📊 Resumen</button>
-    <button id="subtab-movimientos" onclick="cajaSwitchSubtab('movimientos',this)" style="padding:8px 16px;background:none;border:none;border-bottom:2px solid transparent;color:var(--texto2);font-weight:600;font-size:12px;cursor:pointer;">📋 Movimientos</button>
-    <button id="subtab-arqueo" onclick="cajaSwitchSubtab('arqueo',this)" style="padding:8px 16px;background:none;border:none;border-bottom:2px solid transparent;color:var(--texto2);font-weight:600;font-size:12px;cursor:pointer;">🔐 Arqueo</button>
-    <button id="subtab-historial-arq" onclick="cajaSwitchSubtab('historial-arq',this)" style="padding:8px 16px;background:none;border:none;border-bottom:2px solid transparent;color:var(--texto2);font-weight:600;font-size:12px;cursor:pointer;">📅 Historial</button>
+    <button id="subtab-resumen" onclick="cajaSwitchSubtab('resumen',this)" style="padding:8px 16px;background:none;border:none;border-bottom:2px solid var(--azul2);color:var(--azul2);font-weight:700;font-size:12px;cursor:pointer;"><span class="mi sm">dashboard</span> Resumen</button>
+    <button id="subtab-movimientos" onclick="cajaSwitchSubtab('movimientos',this)" style="padding:8px 16px;background:none;border:none;border-bottom:2px solid transparent;color:var(--texto2);font-weight:600;font-size:12px;cursor:pointer;"><span class="mi sm">swap_vert</span> Movimientos</button>
+    <button id="subtab-arqueo" onclick="cajaSwitchSubtab('arqueo',this)" style="padding:8px 16px;background:none;border:none;border-bottom:2px solid transparent;color:var(--texto2);font-weight:600;font-size:12px;cursor:pointer;"><span class="mi sm">inventory</span> Arqueo</button>
+    <button id="subtab-historial-arq" onclick="cajaSwitchSubtab('historial-arq',this)" style="padding:8px 16px;background:none;border:none;border-bottom:2px solid transparent;color:var(--texto2);font-weight:600;font-size:12px;cursor:pointer;"><span class="mi sm">calendar_month</span> Historial</button>
     <div style="margin-left:auto;display:flex;align-items:center;">
       <select id="caja-sede-select" onchange="cajaOnChangeSede()" style="padding:5px 10px;border:1px solid var(--gris2);border-radius:8px;font-size:11px;font-weight:600;color:var(--azul);"></select>
     </div>
@@ -420,12 +424,12 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 <!-- MODAL VOUCHER -->
 <div class="modal-overlay" id="modal-voucher">
   <div class="modal-box">
-    <div class="modal-title">🧾 Comprobante de pago</div>
+    <div class="modal-title"><span class="mi" style="font-size:20px;margin-right:4px;">receipt_long</span> Comprobante de pago</div>
     <img class="modal-img" id="modal-img" src="" alt="voucher">
     <div class="modal-info" id="modal-info"></div>
     <div class="modal-btns">
-      <button class="btn-cerrar" onclick="cerrarModal()">✕ Cerrar</button>
-      <button class="btn-verificar" id="modal-btn-verificar" onclick="verificarDesdeModal()">✅ Marcar verificado</button>
+      <button class="btn-cerrar" onclick="cerrarModal()"><span class="mi sm">close</span> Cerrar</button>
+      <button class="btn-verificar" id="modal-btn-verificar" onclick="verificarDesdeModal()"><span class="mi sm">check_circle</span> Marcar verificado</button>
     </div>
   </div>
 </div>
@@ -435,7 +439,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 <div class="modal-sustento" id="modal-sustento" onclick="if(event.target===this)cerrarSustento()">
   <div class="modal-sustento-box">
     <div class="ms-title">
-      <span>📎 Sustento</span>
+      <span><span class="mi sm">attach_file</span> Sustento</span>
       <button onclick="cerrarSustento()">✕</button>
     </div>
     <div id="ms-contenido"></div>
@@ -548,11 +552,11 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         document.getElementById('login-screen').style.display = 'none';
         const app = document.getElementById('app');
         app.style.display = 'flex'; app.style.flexDirection = 'column';
-        const rolLabel = data.rol === 'admin' ? '👑 Admin' : data.rol === 'cajero' ? '💼 Cajero' : '👤 Asesor';
+        const rolLabel = data.rol === 'admin' ? 'Admin' : data.rol === 'cajero' ? 'Cajero' : 'Asesor';
         const ofLabel = data.oficina && data.oficina !== 'TODOS' ? ' · ' + data.oficina : ' · Todas las oficinas';
         document.querySelector('.navbar-title').innerHTML = 
           'Grupo Efectivo <span>' + rolLabel + ofLabel + ' — ' + data.nombre.split(' ')[0] + '</span>';
-        cargarTodo().then(function() { iniciarAutoRefresh(); });
+        cargarTodo();
       } else {
         mostrarError('codigo-error', data.error || 'Código incorrecto');
       }
@@ -608,21 +612,10 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     location.reload();
   }
 
-  // ── AUTO-REFRESH ──
-  let autoRefreshInterval = null;
-  let refreshCount = 0;
-
-  function iniciarAutoRefresh() {
-    if (autoRefreshInterval) clearInterval(autoRefreshInterval);
-    autoRefreshInterval = setInterval(function() {
-      refrescarDatos(true); // true = silencioso
-    }, 60000); // cada 60 segundos
-  }
-
-  async function refrescarDatos(silencioso) {
+  // ── REFRESH MANUAL ──
+  async function refrescarDatos() {
     const btn = document.getElementById('btn-refresh');
     btn.classList.add('refreshing');
-    if (!silencioso) showToast('🔄 Actualizando datos...');
     
     await cargarTodo();
     
@@ -631,7 +624,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     const h = String(ahora.getHours()).padStart(2,'0');
     const m = String(ahora.getMinutes()).padStart(2,'0');
     const s = String(ahora.getSeconds()).padStart(2,'0');
-    document.getElementById('ultimo-refresh').textContent = 'Actualizado ' + h + ':' + m + ':' + s;
+    document.getElementById('ultimo-refresh').textContent = h + ':' + m + ':' + s;
   }
 
   // ── TABS ──
@@ -736,7 +729,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     });
 
     if (lista.length === 0) {
-      document.getElementById('lista-clientes').innerHTML = '<div class="empty"><div class="icon">🔍</div>Sin resultados</div>';
+      document.getElementById('lista-clientes').innerHTML = '<div class="empty"><div class="icon"><span class="mi" style="font-size:40px;">search_off</span></div>Sin resultados</div>';
       return;
     }
 
@@ -744,10 +737,10 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     lista.sort((a, b) => b.dias - a.dias);
 
     document.getElementById('lista-clientes').innerHTML = lista.map(c => {
-      const diasTag = c.dias > 90 ? `<span class="tag tag-critico">🔴 ${c.dias} días</span>` :
-                      c.dias > 0  ? `<span class="tag tag-vencido">🟠 ${c.dias} días</span>` :
-                                    `<span class="tag tag-pendiente">🟡 Vence hoy</span>`;
-      const tieneVoucher = c.voucher ? `<span class="tag tag-pendiente">⏳ Voucher enviado</span>` : '';
+      const diasTag = c.dias > 90 ? `<span class="tag tag-critico"><span class="mi xs">error</span> ${c.dias} días</span>` :
+                      c.dias > 0  ? `<span class="tag tag-vencido"><span class="mi xs">warning</span> ${c.dias} días</span>` :
+                                    `<span class="tag tag-pendiente"><span class="mi xs">schedule</span> Vence hoy</span>`;
+      const tieneVoucher = c.voucher ? `<span class="tag tag-pendiente"><span class="mi xs">hourglass_top</span> Voucher enviado</span>` : '';
       const linkWA = c.telefono && c.mensaje ? 
         `https://web.whatsapp.com/send?phone=${c.telefono}&text=${encodeURIComponent(c.mensaje)}` : '';
       const linkWAMovil = c.telefono && c.mensaje ?
@@ -768,7 +761,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         <div class="cliente-info">
           <span class="tag tag-asesor">${c.asesor.split(' ')[0]}</span>
           <span class="tag tag-tipo">${c.tipo}</span>
-          ${c.oficina ? '<span class="tag" style="background:#f0e8ff;color:#6600cc;">📍 ' + c.oficina + '</span>' : ''}
+          ${c.oficina ? '<span class="tag" style="background:#f0e8ff;color:#6600cc;"><span class="mi xs">location_on</span> ' + c.oficina + '</span>' : ''}
           ${diasTag}
           ${tieneVoucher}
         </div>
@@ -798,13 +791,13 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       if (subBadge) subBadge.textContent = vouchers.length;
       renderVouchers();
     } catch(e) {
-      document.getElementById('lista-vouchers').innerHTML = '<div class="empty"><div class="icon">⚠️</div>Error al cargar</div>';
+      document.getElementById('lista-vouchers').innerHTML = '<div class="empty"><div class="icon"><span class="mi" style="font-size:40px;color:var(--naranja);">warning</span></div>Error al cargar</div>';
     }
   }
 
   function renderVouchers() {
     if (vouchers.length === 0) {
-      document.getElementById('lista-vouchers').innerHTML = '<div class="empty"><div class="icon">✅</div><strong>Sin vouchers pendientes</strong><br><small>Todos los pagos están verificados</small></div>';
+      document.getElementById('lista-vouchers').innerHTML = '<div class="empty"><div class="icon"><span class="mi" style="font-size:40px;color:var(--verde);">check_circle</span></div><strong>Sin vouchers pendientes</strong><br><small>Todos los pagos están verificados</small></div>';
       return;
     }
     document.getElementById('lista-vouchers').innerHTML = vouchers.map(v => `
@@ -821,11 +814,11 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         </div>
         <div class="cliente-info">
           <span class="tag tag-asesor">${v.asesor.split(' ')[0]}</span>
-          <span class="tag tag-pendiente">⏳ PENDIENTE</span>
+          <span class="tag tag-pendiente"><span class="mi xs">hourglass_top</span> PENDIENTE</span>
         </div>
         <div class="cliente-acciones">
-          <button class="btn-ver" onclick="verVoucher(${v.fila},'${v.nombre}',${v.monto},'${v.voucher}','${v.asesor}','${v.cod}')">👁 Ver voucher</button>
-          <button class="btn-verificar" onclick="verificarPago(${v.fila},'${v.nombre}',${v.monto})">✅ Verificado</button>
+          <button class="btn-ver" onclick="verVoucher(${v.fila},'${v.nombre}',${v.monto},'${v.voucher}','${v.asesor}','${v.cod}')"><span class="mi sm">visibility</span> Ver voucher</button>
+          <button class="btn-verificar" onclick="verificarPago(${v.fila},'${v.nombre}',${v.monto})"><span class="mi sm">check_circle</span> Verificado</button>
         </div>
       </div>
     `).join('');
@@ -881,7 +874,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       poblarFiltrosHistorial();
       renderHistorial();
     } catch(e) {
-      document.getElementById('lista-historial').innerHTML = '<div class="empty"><div class="icon">⚠️</div>Error al cargar historial</div>';
+      document.getElementById('lista-historial').innerHTML = '<div class="empty"><div class="icon"><span class="mi" style="font-size:40px;color:var(--naranja);">warning</span></div>Error al cargar historial</div>';
     }
   }
 
@@ -913,7 +906,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     document.getElementById('res-count').textContent = lista.length + ' pago' + (lista.length !== 1 ? 's' : '');
 
     if (lista.length === 0) {
-      document.getElementById('lista-historial').innerHTML = '<div class="empty"><div class="icon">📋</div>Sin registros</div>';
+      document.getElementById('lista-historial').innerHTML = '<div class="empty"><div class="icon"><span class="mi" style="font-size:40px;color:var(--texto2);">description</span></div>Sin registros</div>';
       return;
     }
 
@@ -1197,9 +1190,9 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
           <div style="display:flex; justify-content:flex-end; width:100%; align-items:center; gap:10px;">
             <div class="mov-fecha">${m.fecha}</div>
             <div class="mov-acciones">
-              ${m.sustentoUrl ? `<button class="mov-btn" onclick="verSustento('${sustentoUrlSafe}')" title="Ver sustento">📎</button>` : ''}
-              <button class="mov-btn" onclick="cajaShowModal(${mStr})" title="Editar">✏️</button>
-              <button class="mov-btn delete" onclick="cajaEliminar('${m.id}')" title="Eliminar">🗑</button>
+              ${m.sustentoUrl ? `<button class="mov-btn" onclick="verSustento('${sustentoUrlSafe}')" title="Ver sustento"><span class="mi sm">attach_file</span></button>` : ''}
+              <button class="mov-btn" onclick="cajaShowModal(${mStr})" title="Editar"><span class="mi sm">edit</span></button>
+              <button class="mov-btn delete" onclick="cajaEliminar('${m.id}')" title="Eliminar"><span class="mi sm">delete</span></button>
             </div>
           </div>
         </div>
@@ -1225,7 +1218,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
   function cajaShowModal(editData) {
     document.getElementById('caja-edit-id').value = editData ? editData.id : '';
-    document.getElementById('modal-caja-titulo').textContent = editData ? '✏️ Editar Movimiento' : '➕ Nuevo Movimiento';
+    document.getElementById('modal-caja-titulo').innerHTML = editData ? '<span class="mi" style="font-size:18px;vertical-align:middle;">edit</span> Editar Movimiento' : '<span class="mi" style="font-size:18px;vertical-align:middle;">add_circle</span> Nuevo Movimiento';
     const hoy = new Date();
     document.getElementById('caja-fecha').value = hoy.toISOString().split('T')[0];
     document.getElementById('caja-archivo').value = '';
@@ -1421,12 +1414,12 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       if (nombre) {
         const rol = sessionStorage.getItem('ge_rol') || 'asesor';
         const oficina = sessionStorage.getItem('ge_oficina') || 'TODOS';
-        const rolLabel = rol === 'admin' ? '👑 Admin' : rol === 'cajero' ? '💼 Cajero' : '👤 Asesor';
+        const rolLabel = rol === 'admin' ? 'Admin' : rol === 'cajero' ? 'Cajero' : 'Asesor';
         const ofLabel = oficina !== 'TODOS' ? ' · ' + oficina : ' · Todas las oficinas';
         document.querySelector('.navbar-title').innerHTML = 
           'Grupo Efectivo <span>' + rolLabel + ofLabel + ' — ' + nombre.split(' ')[0] + '</span>';
       }
-      cargarTodo().then(function() { iniciarAutoRefresh(); });
+      cargarTodo();
     }
 
     // Bloqueo zoom
