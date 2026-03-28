@@ -989,6 +989,30 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   let cajaDatos = null;
   let cajaSedeActual = '';
   let cajaSaldoTeorico = 0;
+  const CAJA_CACHE_TTL = 60000; // 60 segundos de cache válido
+
+  // ── CACHE HELPERS ──
+  function cajaCacheKey(sede) { return 'caja_cache_' + (sede || 'todas'); }
+
+  function cajaCacheGuardar(sede, data) {
+    try {
+      sessionStorage.setItem(cajaCacheKey(sede), JSON.stringify({ ts: Date.now(), data: data }));
+    } catch(e) { /* sessionStorage lleno, ignorar */ }
+  }
+
+  function cajaCacheLeer(sede) {
+    try {
+      const raw = sessionStorage.getItem(cajaCacheKey(sede));
+      if (!raw) return null;
+      const obj = JSON.parse(raw);
+      if (Date.now() - obj.ts > CAJA_CACHE_TTL) return null; // expirado
+      return obj.data;
+    } catch(e) { return null; }
+  }
+
+  function cajaCacheInvalidar(sede) {
+    try { sessionStorage.removeItem(cajaCacheKey(sede)); } catch(e) {}
+  }
 
   // Al cambiar de sede: actualizar cajaSedeActual y recargar la subpestaña que está visible
   function cajaOnChangeSede() {
@@ -998,7 +1022,6 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     } else if (document.getElementById('caja-sub-arqueo').style.display !== 'none') {
       cajaLoadArqueo();
     } else {
-      // resumen y movimientos se recargan juntos
       cajaCargarDatos();
     }
   }
@@ -1026,38 +1049,77 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     const esPrimeraVez = sel.options.length === 0;
     const sedeElegida = sel.value;
     cajaSedeActual = sedeElegida;
+
+    // ── TÉCNICA 1: Mostrar cache inmediatamente (stale-while-revalidate) ──
+    const cached = cajaCacheLeer(sedeElegida);
+    if (cached) {
+      cajaDatos = cached; cajaSaldoTeorico = cached.saldo; cajaMovimientos = cached.movimientos || [];
+      cajaRenderResumen(cached); cajaRenderTabla(cajaMovimientos); cajaRenderCategorias(cached.categorias || []);
+      cajaSaldoTeorico = cached.saldo;
+      document.getElementById('arq-teorico').textContent = 'S/. ' + cached.saldo.toLocaleString('es-PE', {minimumFractionDigits:2});
+      // Refrescar en segundo plano sin bloquear la UI
+      cajaRefrescarSilencioso(sedeElegida);
+      return;
+    }
+
+    // Sin cache: mostrar spinner y esperar
     document.getElementById('caja-saldo').textContent = '...';
     document.getElementById('caja-ingresos').textContent = '...';
     document.getElementById('caja-egresos').textContent = '...';
     document.getElementById('caja-tabla-body').innerHTML = '<div class="empty" style="padding:20px;"><div class="spinner-sm"></div>Cargando...</div>';
+
     try {
+      // ── TÉCNICA 2: Primera carga sin sede para obtener lista de sedes,
+      //    luego aplicar sedeActiva SIN hacer segunda llamada ──
       const resp = await apiFetch({ admin: 'caja_datos', sede: sedeElegida, sedeContexto: sedeElegida });
       if (!resp || resp.error) { showToast('Error cargando caja: ' + (resp && resp.error ? resp.error : 'Sin respuesta')); return; }
-      cajaDatos = resp; cajaSaldoTeorico = resp.saldo; cajaMovimientos = resp.movimientos || [];
 
       if (esPrimeraVez && resp.sedes && resp.sedes.length > 0) {
-        // Poblar el selector de sedes
         sel.innerHTML = '';
         const rolActual = sessionStorage.getItem('ge_rol') || 'asesor';
         if (rolActual === 'admin') { const o = document.createElement('option'); o.value=''; o.textContent='Todas las sedes'; sel.appendChild(o); }
         resp.sedes.forEach(function(s) { const o = document.createElement('option'); o.value=s; o.textContent=s; sel.appendChild(o); });
-        // Seleccionar la sede activa del servidor
-        if (resp.sedeActiva && resp.sedeActiva !== '') { sel.value = resp.sedeActiva; cajaSedeActual = resp.sedeActiva; }
-        // Si la sede activa es distinta a '' (global), relanzar con la sede correcta
-        if (cajaSedeActual !== '') {
+        if (resp.sedeActiva && resp.sedeActiva !== '') {
+          sel.value = resp.sedeActiva;
+          cajaSedeActual = resp.sedeActiva;
+          // Si el servidor ya devolvió datos de sedeActiva, usarlos directamente — sin segunda llamada
+          if (resp.sedeActiva === sedeElegida || sedeElegida === '') {
+            cajaCacheGuardar(resp.sedeActiva, resp);
+            cajaDatos = resp; cajaSaldoTeorico = resp.saldo; cajaMovimientos = resp.movimientos || [];
+            cajaRenderResumen(resp); cajaRenderTabla(cajaMovimientos); cajaRenderCategorias(resp.categorias || []);
+            document.getElementById('arq-teorico').textContent = 'S/. ' + resp.saldo.toLocaleString('es-PE', {minimumFractionDigits:2});
+            cajaCalcArqueo();
+            return;
+          }
+          // Solo relanzar si la sede activa difiere de lo que ya cargamos
           await cajaCargarDatos();
           return;
         }
       }
 
-      // Siempre respetar lo que el selector tiene en este momento
       cajaSedeActual = sel.value;
+      cajaCacheGuardar(cajaSedeActual, resp);
+      cajaDatos = resp; cajaSaldoTeorico = resp.saldo; cajaMovimientos = resp.movimientos || [];
       cajaRenderResumen(resp); cajaRenderTabla(cajaMovimientos); cajaRenderCategorias(resp.categorias || []);
-      // Actualizar saldo teórico en arqueo de forma inmediata
       cajaSaldoTeorico = resp.saldo;
       document.getElementById('arq-teorico').textContent = 'S/. ' + resp.saldo.toLocaleString('es-PE', {minimumFractionDigits:2});
       cajaCalcArqueo();
     } catch(e) { showToast('Error: ' + e.message); }
+  }
+
+  // Refresca datos del servidor en segundo plano y actualiza la UI si cambiaron
+  async function cajaRefrescarSilencioso(sede) {
+    try {
+      const resp = await apiFetch({ admin: 'caja_datos', sede: sede, sedeContexto: sede });
+      if (!resp || resp.error) return;
+      cajaCacheGuardar(sede, resp);
+      // Solo re-renderizar si la sede no cambió mientras esperábamos
+      if (cajaSedeActual !== sede) return;
+      cajaDatos = resp; cajaSaldoTeorico = resp.saldo; cajaMovimientos = resp.movimientos || [];
+      cajaRenderResumen(resp); cajaRenderTabla(cajaMovimientos); cajaRenderCategorias(resp.categorias || []);
+      document.getElementById('arq-teorico').textContent = 'S/. ' + resp.saldo.toLocaleString('es-PE', {minimumFractionDigits:2});
+      cajaCalcArqueo();
+    } catch(e) { /* silencioso */ }
   }
 
   function cajaRenderResumen(data) {
@@ -1211,6 +1273,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       if (resp && resp.status === 'ok') {
         showToast('✅ ' + resp.message);
         cajaHideModal();
+        cajaCacheInvalidar(cajaSedeActual);
         await cajaCargarDatos();
       } else {
         showToast('❌ ' + (resp && resp.message ? resp.message : 'Error'));
@@ -1225,6 +1288,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       const resp = await apiPost({ _method: 'POST', cajaAction: 'eliminar', id: id });
       if (resp && resp.status === 'ok') {
         showToast('✅ ' + resp.message);
+        cajaCacheInvalidar(cajaSedeActual);
         await cajaCargarDatos();
       } else { showToast('❌ ' + (resp && resp.message ? resp.message : 'Error')); }
     } catch(e) { showToast('❌ Error: ' + e.message); }
