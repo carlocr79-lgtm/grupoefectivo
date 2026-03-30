@@ -738,7 +738,37 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
   // ── CARGA INICIAL ──
   async function cargarTodo() {
-    await Promise.all([cargarClientes(), cargarVouchers(), cargarHistorial()]);
+    try {
+      const resp = await apiFetch({ admin: 'dashboard' });
+      if (!resp || resp.error) {
+        console.error('Dashboard error:', resp);
+        // Fallback: cargar por separado si dashboard falla
+        await Promise.all([cargarClientes(), cargarVouchers(), cargarHistorial()]);
+        return;
+      }
+      // Distribuir datos del endpoint unificado
+      if (Array.isArray(resp.clientes)) {
+        clientes = resp.clientes;
+        renderAsesoresFiltros();
+        renderClientes();
+      }
+      if (Array.isArray(resp.vouchers)) {
+        vouchers = resp.vouchers;
+        document.getElementById('badge-vouchers').textContent = vouchers.length;
+        var subBadge = document.getElementById('badge-vouchers-sub');
+        if (subBadge) subBadge.textContent = vouchers.length;
+        renderVouchers();
+      }
+      if (Array.isArray(resp.historial)) {
+        historial = resp.historial;
+        poblarFiltrosHistorial();
+        renderHistorial();
+      }
+    } catch(e) {
+      console.error('Error cargando dashboard:', e);
+      // Fallback silencioso
+      try { await Promise.all([cargarClientes(), cargarVouchers(), cargarHistorial()]); } catch(e2) {}
+    }
   }
 
   function getSession() { return sessionStorage.getItem('ge_session'); }
