@@ -249,6 +249,9 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 .form-caja-group label { font-size:11px; font-weight:600; color:var(--texto2); text-transform:uppercase; display:block; margin-bottom:5px; }
 .form-caja-group input, .form-caja-group select, .form-caja-group textarea { width:100%; padding:9px 12px; border:1.5px solid var(--gris2); border-radius:10px; font-size:13px; font-family:'DM Sans',sans-serif; outline:none; }
 .form-caja-group input:focus, .form-caja-group select:focus { border-color:var(--azul2); }
+.btn-main { padding:12px; background:linear-gradient(135deg,var(--azul),var(--azul2)); color:white; border:none; border-radius:10px; font-family:'Montserrat',sans-serif; font-weight:700; font-size:13px; cursor:pointer; transition:transform 0.15s; }
+.btn-main:active { transform:scale(0.98); }
+.cliente-acciones { padding:8px 14px 12px; display:flex; gap:8px; }
 
 
 /* MODAL SUSTENTO */
@@ -259,7 +262,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 .modal-sustento-box .ms-title button { background:none; border:none; font-size:20px; cursor:pointer; color:var(--texto2); line-height:1; }
 .ms-img { width:100%; border-radius:12px; border:2px solid var(--gris2); margin-bottom:10px; }
 .ms-iframe { width:100%; height:420px; border-radius:12px; border:2px solid var(--gris2); margin-bottom:10px; }
-.ms-pdf-embed { width:100%; height:460px; border:none; border-radius:12px; border:2px solid var(--gris2); }
+.ms-pdf-embed { width:100%; height:460px; border-radius:12px; border:2px solid var(--gris2); }
 
 /* TOAST */
 .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:var(--azul); color:white; padding:10px 20px; border-radius:30px; font-size:13px; font-weight:600; opacity:0; transition:opacity 0.3s; z-index:9999; pointer-events:none; white-space:nowrap; }
@@ -498,6 +501,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     <div class="modal-info" id="modal-info"></div>
     <div class="modal-btns">
       <button class="btn-cerrar" onclick="cerrarModal()"><span class="mi sm">close</span> Cerrar</button>
+      <button class="btn-verificar" onclick="verificarDesdeModal()"><span class="mi sm">check_circle</span> Verificar pago</button>
     </div>
   </div>
 </div>
@@ -731,6 +735,11 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   }
 
   function getSession() { return sessionStorage.getItem('ge_session'); }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
 
   async function apiFetch(params) {
     // Usamos POST para todo — evita CORS en Apps Script
@@ -1450,11 +1459,12 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       const sub  = cant * val;
       total += sub;
       // Los subtotales de cajera usan IDs tipo sub-cajera-b200
-      const denom = inp.dataset.val === '200' ? 'b200' : inp.dataset.val === '100' ? 'b100' :
-                    inp.dataset.val === '50'  ? 'b50'  : inp.dataset.val === '20'  ? 'b20'  :
-                    inp.dataset.val === '10'  ? 'b10'  : inp.dataset.val === '5'   ? 'm5'   :
-                    inp.dataset.val === '2'   ? 'm2'   : inp.dataset.val === '1'   ? 'm1'   :
-                    inp.dataset.val === '0.5' ? 'm050' : inp.dataset.val === '0.2' ? 'm020' : 'm010';
+      const valNum = parseFloat(inp.dataset.val) || 0;
+      const denom = valNum === 200 ? 'b200' : valNum === 100 ? 'b100' :
+                    valNum === 50  ? 'b50'  : valNum === 20  ? 'b20'  :
+                    valNum === 10  ? 'b10'  : valNum === 5   ? 'm5'   :
+                    valNum === 2   ? 'm2'   : valNum === 1   ? 'm1'   :
+                    valNum === 0.5 ? 'm050' : valNum === 0.2 ? 'm020' : 'm010';
       const subEl = document.getElementById('sub-cajera-' + denom);
       if (subEl) subEl.textContent = sub.toFixed(2);
     });
@@ -1551,17 +1561,21 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   async function cajaLoadHistorial() {
     const tbody = document.getElementById('caja-hist-body');
     tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;"><div class="spinner-sm" style="margin:0 auto;"></div></td></tr>';
-    const resp = await apiFetch({ admin: 'caja_arqueos', sede: cajaSedeActual, sedeContexto: cajaSedeActual });
-    if (!resp || !Array.isArray(resp) || resp.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--texto2);">Sin historial</td></tr>';
-      return;
+    try {
+      const resp = await apiFetch({ admin: 'caja_arqueos', sede: cajaSedeActual, sedeContexto: cajaSedeActual });
+      if (!resp || !Array.isArray(resp) || resp.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--texto2);">Sin historial</td></tr>';
+        return;
+      }
+      tbody.innerHTML = resp.map(function(r) {
+        const diffColor = Math.abs(r.diferencia) < 0.01 ? 'var(--verde)' : r.diferencia > 0 ? '#cc8800' : 'var(--rojo)';
+        return '<tr><td>' + r.fecha + '</td><td>' + (r.usuario || '').split('@')[0] + '</td>' +
+          '<td><span style="background:var(--azul-claro);color:var(--azul);border-radius:20px;padding:2px 8px;font-size:10px;font-weight:700;">' + r.tipo + '</span></td>' +
+          '<td style="text-align:right;font-weight:700;color:' + diffColor + ';">S/. ' + (r.diferencia || 0).toFixed(2) + '</td></tr>';
+      }).join('');
+    } catch(e) {
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--rojo);"><span class="mi" style="font-size:24px;">warning</span><br>Error al cargar historial</td></tr>';
     }
-    tbody.innerHTML = resp.map(function(r) {
-      const diffColor = Math.abs(r.diferencia) < 0.01 ? 'var(--verde)' : r.diferencia > 0 ? '#cc8800' : 'var(--rojo)';
-      return '<tr><td>' + r.fecha + '</td><td>' + (r.usuario || '').split('@')[0] + '</td>' +
-        '<td><span style="background:var(--azul-claro);color:var(--azul);border-radius:20px;padding:2px 8px;font-size:10px;font-weight:700;">' + r.tipo + '</span></td>' +
-        '<td style="text-align:right;font-weight:700;color:' + diffColor + ';">S/. ' + (r.diferencia || 0).toFixed(2) + '</td></tr>';
-    }).join('');
   }
 
   // ── INIT ──
