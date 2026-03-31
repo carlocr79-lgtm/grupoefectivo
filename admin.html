@@ -1304,6 +1304,20 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       const sign = esIngreso ? '+' : '-';
       
       const mDataId = 'mov-' + m.id;
+      
+      // Determine if the movement is from a previous month
+      let isPastMonth = false;
+      if (typeof m.fecha === 'string') {
+        const parts = m.fecha.split('-');
+        if (parts.length === 3) {
+          const movDate = new Date(parts[0], parts[1] - 1, parts[2]);
+          const now = new Date();
+          isPastMonth = movDate.getFullYear() < now.getFullYear() || 
+                        (movDate.getFullYear() === now.getFullYear() && movDate.getMonth() < now.getMonth());
+        }
+      }
+      const itemReadOnly = readOnly || isPastMonth;
+
       return `
       <div class="mov-card">
         <div class="mov-left">
@@ -1322,8 +1336,8 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
             <div class="mov-fecha">${m.fecha}</div>
             <div class="mov-acciones">
               ${m.sustentoUrl ? `<button class="mov-btn" onclick="verSustento('${sustentoUrlSafe}')" title="Ver sustento"><span class="mi sm">attach_file</span></button>` : ''}
-              ${readOnly ? '' : `<button class="mov-btn" data-movid="${mDataId}" onclick="cajaShowModalById(this.dataset.movid)" title="Editar"><span class="mi sm">edit</span></button>`}
-              ${readOnly ? '' : `<button class="mov-btn delete" onclick="cajaEliminar('${m.id}')" title="Eliminar"><span class="mi sm">delete</span></button>`}
+              ${itemReadOnly ? '' : `<button class="mov-btn" data-movid="${mDataId}" onclick="cajaShowModalById(this.dataset.movid)" title="Editar"><span class="mi sm">edit</span></button>`}
+              ${itemReadOnly ? '' : `<button class="mov-btn delete" onclick="cajaEliminar('${m.id}')" title="Eliminar"><span class="mi sm">delete</span></button>`}
             </div>
           </div>
         </div>
