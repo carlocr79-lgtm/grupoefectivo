@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,600,1,0&display=optional" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet" />
 <style>
   :root {
     --azul: #003087;
@@ -232,6 +232,10 @@
     --b-shadow: 0 4px 16px rgba(0,48,135,0.1);
   }
   
+  @font-face {
+    font-family: 'Material Symbols Rounded';
+    font-display: swap;
+  }
   .mi { font-family: 'Material Symbols Rounded'; font-variation-settings: 'FILL' 1, 'wght' 600; font-style: normal; display: inline-block; vertical-align: middle; line-height: 1; text-transform: none; letter-spacing: normal; word-wrap: normal; white-space: nowrap; direction: ltr; -webkit-font-smoothing: antialiased; }
   .mi.sm { font-size: 18px; }
   .mi.xs { font-size: 14px; }
@@ -969,6 +973,14 @@
       if (pct > 55 && step === 1) { cambiarMsg(mensajes[2]); step = 2; }
       if (pct > 85 && step === 2) { cambiarMsg(mensajes[3]); step = 3; }
     }, 120);
+
+    // Watchdog: si en 6s el splash sigue abierto, cerrarlo forzosamente
+    setTimeout(function() {
+      if (!splashCerrado) {
+        cerrarSplash();
+        irPaso('step-aldia', 0);
+      }
+    }, 6000);
   }
 
   let splashCerrado = false;
