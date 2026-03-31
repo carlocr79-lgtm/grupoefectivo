@@ -1006,9 +1006,9 @@
         } catch(e) { localStorage.removeItem(cacheKey); }
       }
 
-      // ── Fetch en paralelo con timeout de 8 segundos ──
+      // ── Fetch en paralelo con timeout de 15 segundos ──
       try {
-        const res = await fetchConTimeout(API_URL + '?cod=' + encodeURIComponent(token), 8000);
+        const res = await fetchConTimeout(API_URL + '?cod=' + encodeURIComponent(token), 15000);
         const data = await res.json();
         localStorage.setItem(cacheKey, JSON.stringify(data)); // guardar para próxima vez
         if (!cached) {
@@ -1026,7 +1026,7 @@
       }
     } else if (cel) {
       try {
-        const res = await fetchConTimeout(API_URL + '?q=' + encodeURIComponent(cel.replace(/\s/g,'')), 8000);
+        const res = await fetchConTimeout(API_URL + '?q=' + encodeURIComponent(cel.replace(/\s/g,'')), 15000);
         const data = await res.json();
         if (data && data.length > 0) {
           cargarDatos(data[0]);
