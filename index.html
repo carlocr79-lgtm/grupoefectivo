@@ -845,19 +845,21 @@
     }
   }
 
-  // ─── APLICAR DATOS (caché o frescos) ───
+  // ─── APLICAR DATOS (espera fuentes antes de mostrar) ───
   function aplicarRespuesta(data) {
-    if (data.expirado) {
-      irPaso('step-expirado', 0);
-    } else if (data.alDia) {
-      irPaso('step-aldia', 0);
-    } else if (data.verificando) {
-      irPaso('step-verificando', 0);
-    } else if (data.encontrado) {
-      cargarDatos(data);
-    } else {
-      irPaso('step-aldia', 0);
-    }
+    document.fonts.ready.then(function() {
+      if (data.expirado) {
+        irPaso('step-expirado', 0);
+      } else if (data.alDia) {
+        irPaso('step-aldia', 0);
+      } else if (data.verificando) {
+        irPaso('step-verificando', 0);
+      } else if (data.encontrado) {
+        cargarDatos(data);
+      } else {
+        irPaso('step-aldia', 0);
+      }
+    });
   }
 
   // INICIO - verificar token (DOMContentLoaded = no espera fuentes ni imágenes)
