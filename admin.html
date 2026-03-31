@@ -562,6 +562,21 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   </div>
 </div>
 
+<!-- MODAL DETALLE ARQUEO -->
+<div class="modal-caja" id="modal-detalle-arqueo">
+  <div class="modal-caja-box">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h3 style="display:flex;align-items:center;gap:6px;"><span class="mi">info</span> Detalle de Arqueo</h3>
+      <button onclick="document.getElementById('modal-detalle-arqueo').classList.remove('show')" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button>
+    </div>
+    <div id="detalle-arqueo-contenido" style="font-size:14px; color:var(--texto);">
+      <!-- Table populated by JS -->
+    </div>
+    <div style="margin-top:20px;">
+      <button class="btn-main" onclick="document.getElementById('modal-detalle-arqueo').classList.remove('show')" style="width:100%;padding:12px;border-radius:10px;font-weight:700;">Cerrar</button>
+    </div>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -570,6 +585,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   let clientes = [];
   let vouchers = [];
   let historial = [];
+  let cajaArqueosData = []; // Store loaded arqueos for details
   let filtroAsesor = '';
   let modalFilaActual = null;
   let modalNombreActual = '';
@@ -1697,7 +1713,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         return;
       }
 
-      const html = dataArr.map(function(r) {
+      const html = dataArr.map(function(r, i) {
         const diffColorClass = Math.abs(r.diferencia) < 0.01 ? 'ingreso' : (r.diferencia > 0 ? 'pendiente' : 'egreso');
         const esSobrante = r.diferencia > 0;
         const colorMonto = Math.abs(r.diferencia) < 0.01 ? 'color:var(--verde)' : (esSobrante ? 'color:#cc8800' : 'color:var(--rojo)');
@@ -1708,7 +1724,9 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
           if (r.tipo.includes('Diario')) icono = 'today';
         }
 
-        return `<div class="mov-card">
+        const gIndex = cajaArqueosOffset + i;
+
+        return `<div class="mov-card" style="cursor:pointer;" onclick="cajaShowArqueoDetalle(${gIndex})">
           <div class="mov-left">
             <div class="mov-icon" style="background:var(--gris2); color:var(--texto2);"><span class="mi">${icono}</span></div>
             <div class="mov-info">
@@ -1728,8 +1746,10 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       }).join('');
 
       if (!append) {
+        cajaArqueosData = dataArr;
         contenedor.innerHTML = html;
       } else {
+        cajaArqueosData = cajaArqueosData.concat(dataArr);
         contenedor.innerHTML += html;
         btnMas.innerHTML = '<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">expand_more</span> Ver más arqueos';
         btnMas.disabled = false;
@@ -1753,6 +1773,52 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         btnMas.disabled = false;
       }
     }
+  }
+
+  function cajaShowArqueoDetalle(index) {
+    const arq = cajaArqueosData[index];
+    if (!arq || !arq.detalle) return;
+    const d = arq.detalle;
+    
+    // Generar tabla HTML del detalle
+    let html = `
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+        <div>
+          <h4 style="border-bottom:2px solid var(--gris2); padding-bottom:5px; margin-bottom:10px;"><span class="mi sm">payments</span> Billetes</h4>
+          <table style="width:100%; border-collapse:collapse; text-align:right;">
+            <tr><td style="text-align:left; color:var(--texto2);">S/ 200</td><td>${d.b200||0}</td></tr>
+            <tr><td style="text-align:left; color:var(--texto2);">S/ 100</td><td>${d.b100||0}</td></tr>
+            <tr><td style="text-align:left; color:var(--texto2);">S/ 50</td><td>${d.b50||0}</td></tr>
+            <tr><td style="text-align:left; color:var(--texto2);">S/ 20</td><td>${d.b20||0}</td></tr>
+            <tr><td style="text-align:left; color:var(--texto2);">S/ 10</td><td>${d.b10||0}</td></tr>
+          </table>
+        </div>
+        <div>
+          <h4 style="border-bottom:2px solid var(--gris2); padding-bottom:5px; margin-bottom:10px;"><span class="mi sm">monetization_on</span> Monedas</h4>
+          <table style="width:100%; border-collapse:collapse; text-align:right;">
+            <tr><td style="text-align:left; color:var(--texto2);">S/ 5</td><td>${d.m5||0}</td></tr>
+            <tr><td style="text-align:left; color:var(--texto2);">S/ 2</td><td>${d.m2||0}</td></tr>
+            <tr><td style="text-align:left; color:var(--texto2);">S/ 1</td><td>${d.m1||0}</td></tr>
+            <tr><td style="text-align:left; color:var(--texto2);">S/ 0.50</td><td>${d.m050||0}</td></tr>
+            <tr><td style="text-align:left; color:var(--texto2);">S/ 0.20</td><td>${d.m020||0}</td></tr>
+            <tr><td style="text-align:left; color:var(--texto2);">S/ 0.10</td><td>${d.m010||0}</td></tr>
+          </table>
+        </div>
+      </div>
+      <div style="background:var(--gris2); padding:12px; border-radius:10px; margin-top:20px;">
+        <div style="display:flex;justify-content:space-between; margin-bottom:4px;">
+          <span style="font-weight:600; font-size:12px; color:var(--texto2);">Total Físico Contado:</span>
+          <span style="font-weight:800; color:var(--verde);">S/. ${(parseFloat(arq.fisico)||0).toLocaleString('es-PE', {minimumFractionDigits: 2})}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;">
+          <span style="font-weight:600; font-size:12px; color:var(--texto2);">Saldo Teórico Sistema:</span>
+          <span style="font-weight:800; color:var(--azul);">S/. ${(parseFloat(arq.teorico)||0).toLocaleString('es-PE', {minimumFractionDigits: 2})}</span>
+        </div>
+      </div>
+    `;
+    
+    document.getElementById('detalle-arqueo-contenido').innerHTML = html;
+    document.getElementById('modal-detalle-arqueo').classList.add('show');
   }
 
   // ── INIT ──
