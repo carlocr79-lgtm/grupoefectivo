@@ -68,6 +68,64 @@
   .step.active { transform: translateX(0) translateZ(0); }
   .step.prev { transform: translateX(-100%); }
 
+  /* ── SPLASH SCREEN ── */
+  #splash {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(160deg, #002070 0%, #003087 50%, #0052cc 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    transition: opacity 0.5s ease;
+  }
+  #splash.oculto {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .splash-logo-wrap {
+    width: 110px; height: 110px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 28px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 28px;
+    animation: splashPulse 1.8s ease-in-out infinite;
+    border: 1.5px solid rgba(255,255,255,0.15);
+  }
+  @keyframes splashPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.15); transform: scale(1); }
+    50% { box-shadow: 0 0 0 18px rgba(255,255,255,0); transform: scale(1.04); }
+  }
+  .splash-logo { width: 72px; height: auto; }
+  .splash-brand {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900; font-size: 22px;
+    color: white; letter-spacing: 1px; margin-bottom: 4px;
+  }
+  .splash-sub {
+    font-size: 11px; color: rgba(255,255,255,0.6);
+    letter-spacing: 2px; text-transform: uppercase;
+    margin-bottom: 44px;
+  }
+  .splash-progress-wrap {
+    width: 220px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 99px; height: 4px;
+    overflow: hidden; margin-bottom: 16px;
+  }
+  .splash-progress-bar {
+    height: 100%; width: 0%;
+    background: linear-gradient(90deg, #7eb8ff, #ffffff);
+    border-radius: 99px;
+    transition: width 0.3s ease;
+  }
+  .splash-msg {
+    font-size: 12px; color: rgba(255,255,255,0.65);
+    font-weight: 500; letter-spacing: 0.3px;
+    min-height: 18px;
+  }
+
   /* STEP CARGANDO */
   #step-cargando {
     background: linear-gradient(135deg, var(--azul) 0%, var(--azul2) 100%);
@@ -399,6 +457,19 @@
 
 
 <div class="wizard">
+
+  <!-- SPLASH SCREEN -->
+  <div id="splash">
+    <div class="splash-logo-wrap">
+      <img class="splash-logo" src="data:image/png;base64,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" alt="GE">
+    </div>
+    <div class="splash-brand">GRUPO EFECTIVO</div>
+    <div class="splash-sub">Portal de Pagos</div>
+    <div class="splash-progress-wrap">
+      <div class="splash-progress-bar" id="splash-bar"></div>
+    </div>
+    <div class="splash-msg" id="splash-msg">Verificando tu crédito...</div>
+  </div>
 
   <!-- CARGANDO -->
   <div class="step active" id="step-cargando" style="display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#003087,#0052cc);">
@@ -831,6 +902,39 @@
     setTimeout(() => t.classList.remove('show'), 2500);
   }
 
+  // ─── SPLASH PROGRESS ───
+  const mensajes = [
+    'Verificando tu crédito...',
+    'Cargando información...',
+    'Casi listo...'
+  ];
+  let splashInterval = null;
+
+  function iniciarSplash() {
+    const bar = document.getElementById('splash-bar');
+    const msg = document.getElementById('splash-msg');
+    let pct = 0, step = 0;
+    splashInterval = setInterval(function() {
+      // Avanza rápido hasta 85%, luego frena para esperar respuesta real
+      const incremento = pct < 60 ? 4 : pct < 85 ? 1.2 : 0.3;
+      pct = Math.min(pct + incremento, 92);
+      bar.style.width = pct + '%';
+      if (pct > 30 && step === 0) { msg.textContent = mensajes[1]; step = 1; }
+      if (pct > 70 && step === 1) { msg.textContent = mensajes[2]; step = 2; }
+    }, 120);
+  }
+
+  function cerrarSplash() {
+    clearInterval(splashInterval);
+    const bar = document.getElementById('splash-bar');
+    const splash = document.getElementById('splash');
+    bar.style.width = '100%';
+    setTimeout(function() {
+      splash.classList.add('oculto');
+      setTimeout(function() { splash.style.display = 'none'; }, 500);
+    }, 250);
+  }
+
   // ─── FETCH CON TIMEOUT (AbortController) ───
   async function fetchConTimeout(url, ms) {
     const ctrl = new AbortController();
@@ -848,6 +952,7 @@
   // ─── APLICAR DATOS (espera fuentes antes de mostrar) ───
   function aplicarRespuesta(data) {
     document.fonts.ready.then(function() {
+      cerrarSplash();
       if (data.expirado) {
         irPaso('step-expirado', 0);
       } else if (data.alDia) {
@@ -866,6 +971,7 @@
   document.addEventListener('DOMContentLoaded', async function() {
     if (cargando) return;
     cargando = true;
+    iniciarSplash();
     const params = new URLSearchParams(window.location.search);
     const token = params.get('cod') || params.get('token');
     const cel = params.get('cel');
