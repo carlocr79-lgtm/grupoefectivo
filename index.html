@@ -1027,66 +1027,92 @@
     }
   }
 
-  // INICIO - verificar token (DOMContentLoaded = no espera fuentes ni imágenes)
+  // ─── INICIO — verificar token ───
   document.addEventListener('DOMContentLoaded', async function() {
     if (cargando) return;
     cargando = true;
     iniciarSplash();
+
     const params = new URLSearchParams(window.location.search);
-    const token = params.get('cod') || params.get('token');
-    const cel = params.get('cel');
+    const token  = params.get('cod') || params.get('token');
+    const cel    = params.get('cel');
 
     try {
-    if (token) {
-      // ── Mostrar caché instantáneamente si existe ──
-      const cacheKey = 'ge_cache_' + token;
-      const cached = localStorage.getItem(cacheKey);
-      if (cached) {
+
+      // ══ FLUJO POR TOKEN (cod= o token=) ══
+      if (token) {
+        const cacheKey = 'ge_cache_' + token;
+        let cachedData = null;
+
+        // Mostrar caché al instante si existe
         try {
-          const cachedData = JSON.parse(cached);
-          aplicarRespuesta(cachedData); // muestra datos al instante
-        } catch(e) { localStorage.removeItem(cacheKey); }
+          const raw = localStorage.getItem(cacheKey);
+          if (raw) {
+            cachedData = JSON.parse(raw);
+            aplicarRespuesta(cachedData);
+          }
+        } catch(e) { localStorage.removeItem(cacheKey); cachedData = null; }
+
+        // Fetch real en paralelo
+        try {
+          const res  = await fetchConTimeout(API_URL + '?cod=' + encodeURIComponent(token), 8000);
+          const data = await res.json();
+          localStorage.setItem(cacheKey, JSON.stringify(data));
+
+          // Sin caché previa → aplicar siempre
+          if (!cachedData) {
+            aplicarRespuesta(data);
+            return;
+          }
+
+          // Con caché: las 3 pantallas posibles:
+          // 1. deuda activa  → encontrado:true
+          // 2. en revisión   → verificando:true
+          // 3. al día / no aparece → alDia:true o fallback
+          if (data.encontrado) {
+            cerrarSplash();
+            cargarDatos(data);
+          } else if (data.verificando || data.alDia || data.expirado) {
+            aplicarRespuesta(data);
+          } else {
+            cerrarSplash();
+          }
+
+        } catch(fetchErr) {
+          // Fetch falló (sin red, timeout)
+          cerrarSplash();
+          if (!cachedData) {
+            showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">wifi_off</span> Sin conexión — intenta de nuevo');
+            irPaso('step-aldia', 0);
+          }
+          // Con caché: ya se mostró el paso correcto, no mostrar toast
+        }
+
+      // ══ FLUJO POR CELULAR (cel=) ══
+      } else if (cel) {
+        try {
+          const res  = await fetchConTimeout(API_URL + '?q=' + encodeURIComponent(cel.replace(/\s/g, '')), 8000);
+          const data = await res.json();
+          if (data && data.length > 0) {
+            cargarDatos(data[0]);
+          } else {
+            cerrarSplash();
+            irPaso('step-aldia', 0);
+          }
+        } catch(fetchErr) {
+          cerrarSplash();
+          showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">wifi_off</span> Sin conexión — intenta de nuevo');
+          irPaso('step-aldia', 0);
+        }
+
+      // ══ SIN PARÁMETROS ══
+      } else {
+        cerrarSplash();
+        irPaso('step-aldia', 0);
       }
 
-      // ── Fetch en paralelo con timeout de 8 segundos ──
-      try {
-        const res = await fetchConTimeout(API_URL + '?cod=' + encodeURIComponent(token), 8000);
-        const data = await res.json();
-        localStorage.setItem(cacheKey, JSON.stringify(data)); // guardar para próxima vez
-        if (!cached) {
-          aplicarRespuesta(data); // sin caché: aplicar normalmente
-        } else if (data.verificando || data.alDia || data.expirado) {
-          aplicarRespuesta(data); // estado cambió → override del caché
-        } else if (data.encontrado) {
-          cerrarSplash(); // asegurar cierre
-          cargarDatos(data); // mismo estado: actualizar datos
-        } else {
-          cerrarSplash(); // respuesta inesperada, cerrar igual
-        }
-      } catch(err) {
-        cerrarSplash(); // siempre cerrar el splash aunque falle
-        if (!cached) {
-          showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> Error de conexión');
-          irPaso('step-aldia', 0);
-        }
-      }
-    } else if (cel) {
-      try {
-        const res = await fetchConTimeout(API_URL + '?q=' + encodeURIComponent(cel.replace(/\s/g,'')), 8000);
-        const data = await res.json();
-        if (data && data.length > 0) {
-          cargarDatos(data[0]);
-        } else {
-          irPaso('step-aldia', 0);
-        }
-      } catch(err) {
-        showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> Error de conexión');
-      }
-    } else {
-      irPaso('step-aldia', 0);
-    }
     } finally {
-      cargando = false; // siempre liberar al terminar, incluso si hay excepciones
+      cargando = false;
     }
   });
 </script>
