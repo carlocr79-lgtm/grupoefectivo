@@ -425,21 +425,10 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   </div>
   <div id="caja-sub-arqueo" style="display:none;">
 
-    <!-- BANNER ÚLTIMO ARQUEO -->
-    <div id="banner-ultimo-arqueo" style="background:#f0f4ff; border-radius:12px; padding:12px 14px; margin-bottom:14px; display:none; align-items:center; justify-content:space-between; border-left:4px solid var(--azul);">
-      <div style="display:flex; align-items:center; gap:8px;">
-        <span class="mi" style="color:var(--azul);">history</span>
-        <div>
-          <div style="font-size:11px; color:var(--texto2); font-weight:600;">ÚLTIMO ARQUEO:</div>
-          <div style="font-size:13px; font-weight:800; color:var(--azul);" id="lbl-ultimo-arqueo-tipo">-</div>
-        </div>
-      </div>
-      <div style="font-size:12px; font-weight:700; color:var(--texto);" id="lbl-ultimo-arqueo-fecha">-</div>
-    </div>
-
     <!-- ── VISTA CAJERA: solo Cierre Diario ── -->
     <div id="arq-vista-cajera" style="display:none;">
-      <div style="background:linear-gradient(135deg,var(--azul),var(--azul2));border-radius:14px;padding:14px;margin-bottom:12px;display:flex;justify-content:center;gap:30px;">
+      <div style="background:linear-gradient(135deg,var(--azul),var(--azul2));border-radius:14px;padding:14px;margin-bottom:12px;display:flex;flex-direction:column;align-items:center;gap:6px;">
+        <span id="badge-arq-cajera" style="display:none; background:rgba(255,255,255,0.2); color:white; font-size:10px; font-weight:700; padding:3px 10px; border-radius:12px;"><span class="mi" style="font-size:12px;vertical-align:text-bottom;margin-right:4px;">history</span>Último: <span id="lbl-arq-cajera"></span></span>
         <div style="text-align:center;"><div style="font-size:10px;color:rgba(255,255,255,0.7);">Saldo Físico</div><div style="font-size:20px;font-weight:900;color:white;" id="arq-fisico-cajera">S/. 0.00</div></div>
       </div>
       <div class="diff-card" id="arq-diff-cajera" style="margin-bottom:12px;">
@@ -473,8 +462,11 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     <div id="arq-vista-admin" style="display:none;">
       <div style="background:white;border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 2px 10px rgba(0,48,135,0.07);">
         <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
-          <div><div style="font-size:11px;color:var(--texto2);">Saldo Teórico</div><div style="font-size:18px;font-weight:800;color:var(--azul);" id="arq-teorico">S/. 0.00</div></div>
-          <div><div style="font-size:11px;color:var(--texto2);">Saldo Físico</div><div style="font-size:18px;font-weight:800;color:var(--verde);" id="arq-fisico">S/. 0.00</div></div>
+          <div>
+            <div style="font-size:11px;color:var(--texto2);display:flex;align-items:center;gap:6px;">Saldo Teórico <span id="badge-arq-admin" style="display:none;background:var(--azul-claro);color:var(--azul);padding:2px 6px;border-radius:6px;font-size:9px;font-weight:700;"><span class="mi" style="font-size:10px;vertical-align:text-bottom;margin-right:2px;">history</span>Último: <span id="lbl-arq-admin"></span></span></div>
+            <div style="font-size:18px;font-weight:800;color:var(--azul);" id="arq-teorico">S/. 0.00</div>
+          </div>
+          <div><div style="font-size:11px;color:var(--texto2);text-align:right;">Saldo Físico</div><div style="font-size:18px;font-weight:800;color:var(--verde);text-align:right;" id="arq-fisico">S/. 0.00</div></div>
         </div>
         <div class="diff-card" id="arq-diff-card">
           <div style="font-size:10px;font-weight:700;">Diferencia</div>
@@ -1316,13 +1308,22 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   }
 
   function cajaRenderArqueoBanner(resp) {
-    const banner = document.getElementById('banner-ultimo-arqueo');
+    const bCajera = document.getElementById('badge-arq-cajera');
+    const bAdmin = document.getElementById('badge-arq-admin');
+    
     if (resp && resp.ultimoArqueo) {
-      banner.style.display = 'flex';
-      document.getElementById('lbl-ultimo-arqueo-tipo').textContent = resp.ultimoArqueo.tipo || 'Arqueo';
-      document.getElementById('lbl-ultimo-arqueo-fecha').textContent = resp.ultimoArqueo.fecha || '';
+      const txt = (resp.ultimoArqueo.tipo || 'Arqueo') + ' - ' + (resp.ultimoArqueo.fecha || '');
+      if (bCajera) {
+        bCajera.style.display = 'inline-block';
+        document.getElementById('lbl-arq-cajera').textContent = txt;
+      }
+      if (bAdmin) {
+        bAdmin.style.display = 'inline-block';
+        document.getElementById('lbl-arq-admin').textContent = txt;
+      }
     } else {
-      banner.style.display = 'none';
+      if (bCajera) bCajera.style.display = 'none';
+      if (bAdmin) bAdmin.style.display = 'none';
     }
   }
 
