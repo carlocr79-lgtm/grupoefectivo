@@ -1033,8 +1033,13 @@
         const res = await fetchConTimeout(API_URL + '?cod=' + encodeURIComponent(token), 8000);
         const data = await res.json();
         localStorage.setItem(cacheKey, JSON.stringify(data)); // guardar para próxima vez
-        if (!cached) aplicarRespuesta(data); // si no había caché, aplicar ahora
-        else if (data.encontrado) cargarDatos(data); // actualizar datos en pantalla silenciosamente
+        if (!cached) {
+          aplicarRespuesta(data); // sin caché: aplicar normalmente
+        } else if (data.verificando || data.alDia || data.expirado) {
+          aplicarRespuesta(data); // estado cambió (ej: ya pagó) → override del caché
+        } else if (data.encontrado) {
+          cargarDatos(data); // mismo estado: actualizar datos silenciosamente
+        }
       } catch(err) {
         if (!cached) {
           showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> Error de conexión');
