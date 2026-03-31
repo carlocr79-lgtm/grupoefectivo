@@ -490,11 +490,11 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
   </div>
   <div id="caja-sub-historial-arq" style="display:none;">
-    <div class="caja-table-wrap">
-      <table class="caja-table">
-        <thead><tr><th>Fecha</th><th>Usuario</th><th>Tipo</th><th style="text-align:right;">Diferencia</th></tr></thead>
-        <tbody id="caja-hist-body"><tr><td colspan="4" style="text-align:center;padding:20px;">Cargando...</td></tr></tbody>
-      </table>
+    <div class="movimientos-list" id="caja-hist-body">
+      <div class="empty" style="padding:20px;"><div class="spinner-sm"></div>Cargando historial...</div>
+    </div>
+    <div style="text-align:center; margin-top:14px; display:none;" id="caja-hist-mas-container">
+      <button class="btn-main" id="btn-arqueos-mas" onclick="cajaLoadHistorial(true)" style="background:white; color:var(--azul2); border:1.5px solid var(--azul2); width:auto; padding:8px 24px; border-radius:30px; font-size:13px; font-weight:700;"><span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">expand_more</span> Ver más arqueos</button>
     </div>
   </div>
   </div>
@@ -1668,23 +1668,90 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     } catch(e) { showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> Error: ' + e.message); }
   }
 
-  async function cajaLoadHistorial() {
-    const tbody = document.getElementById('caja-hist-body');
-    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;"><div class="spinner-sm" style="margin:0 auto;"></div></td></tr>';
+  let cajaArqueosOffset = 0;
+  const CAJA_ARQUEOS_LIMIT = 10;
+
+  async function cajaLoadHistorial(append = false) {
+    const contenedor = document.getElementById('caja-hist-body');
+    const btnMasCont = document.getElementById('caja-hist-mas-container');
+    const btnMas = document.getElementById('btn-arqueos-mas');
+
+    if (!append) {
+      cajaArqueosOffset = 0;
+      contenedor.innerHTML = '<div class="empty" style="padding:20px;"><div class="spinner-sm" style="margin:0 auto;"></div>Cargando historial...</div>';
+      btnMasCont.style.display = 'none';
+    } else {
+      btnMas.innerHTML = '<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">hourglass_top</span> Cargando...';
+      btnMas.disabled = true;
+    }
+
     try {
-      const resp = await apiFetch({ admin: 'caja_arqueos', sede: cajaSedeActual, sedeContexto: cajaSedeActual });
-      if (!resp || !Array.isArray(resp) || resp.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--texto2);">Sin historial</td></tr>';
+      const resp = await apiFetch({ admin: 'caja_arqueos', sede: cajaSedeActual, sedeContexto: cajaSedeActual, offset: cajaArqueosOffset, limit: CAJA_ARQUEOS_LIMIT });
+      
+      const dataArr = (resp && resp.data) ? resp.data : (Array.isArray(resp) ? resp : []);
+      const total = (resp && resp.total !== undefined) ? resp.total : dataArr.length;
+
+      if (dataArr.length === 0 && !append) {
+        contenedor.innerHTML = '<div class="empty"><div class="icon"><span class="mi" style="font-size:40px;color:var(--texto2);">history_toggle_off</span></div>Sin historial de arqueos</div>';
+        btnMasCont.style.display = 'none';
         return;
       }
-      tbody.innerHTML = resp.map(function(r) {
-        const diffColor = Math.abs(r.diferencia) < 0.01 ? 'var(--verde)' : r.diferencia > 0 ? '#cc8800' : 'var(--rojo)';
-        return '<tr><td>' + r.fecha + '</td><td>' + (r.usuario || '').split('@')[0] + '</td>' +
-          '<td><span style="background:var(--azul-claro);color:var(--azul);border-radius:20px;padding:2px 8px;font-size:10px;font-weight:700;">' + r.tipo + '</span></td>' +
-          '<td style="text-align:right;font-weight:700;color:' + diffColor + ';">S/. ' + (r.diferencia || 0).toFixed(2) + '</td></tr>';
+
+      const html = dataArr.map(function(r) {
+        const diffColorClass = Math.abs(r.diferencia) < 0.01 ? 'ingreso' : (r.diferencia > 0 ? 'pendiente' : 'egreso');
+        const esSobrante = r.diferencia > 0;
+        const colorMonto = Math.abs(r.diferencia) < 0.01 ? 'color:var(--verde)' : (esSobrante ? 'color:#cc8800' : 'color:var(--rojo)');
+        
+        let icono = 'inventory_2';
+        if (typeof r.tipo === 'string') {
+          if (r.tipo.includes('Preventivo')) icono = 'search';
+          if (r.tipo.includes('Diario')) icono = 'today';
+        }
+
+        return `<div class="mov-card">
+          <div class="mov-left">
+            <div class="mov-icon" style="background:var(--gris2); color:var(--texto2);"><span class="mi">${icono}</span></div>
+            <div class="mov-info">
+              <div class="mov-desc">${r.tipo || 'Arqueo'}</div>
+              <div class="mov-cat">
+                <span style="background:var(--azul-claro);color:var(--azul);padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;">${r.usuario ? String(r.usuario).split('@')[0] : 'S/U'}</span>
+              </div>
+            </div>
+          </div>
+          <div class="mov-right">
+            <div class="mov-monto" style="${colorMonto}">S/. ${(parseFloat(r.diferencia) || 0).toLocaleString('es-PE', {minimumFractionDigits: 2})}</div>
+            <div style="display:flex; justify-content:flex-end; width:100%; align-items:center; gap:10px;">
+              <div class="mov-fecha">${r.fecha || ''}</div>
+            </div>
+          </div>
+        </div>`;
       }).join('');
+
+      if (!append) {
+        contenedor.innerHTML = html;
+      } else {
+        contenedor.innerHTML += html;
+        btnMas.innerHTML = '<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">expand_more</span> Ver más arqueos';
+        btnMas.disabled = false;
+      }
+
+      cajaArqueosOffset += dataArr.length;
+      
+      // Mostrar botón "Ver más" si todavía hay items
+      if (cajaArqueosOffset < total) {
+        btnMasCont.style.display = 'block';
+      } else {
+        btnMasCont.style.display = 'none';
+      }
+      
     } catch(e) {
-      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--rojo);"><span class="mi" style="font-size:24px;">warning</span><br>Error al cargar historial</td></tr>';
+      if (!append) {
+        contenedor.innerHTML = '<div class="empty"><div class="icon"><span class="mi" style="font-size:40px;color:var(--rojo);">warning</span></div>Error al cargar historial</div>';
+      } else {
+        showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> Error al cargar más');
+        btnMas.innerHTML = '<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">expand_more</span> Ver más arqueos';
+        btnMas.disabled = false;
+      }
     }
   }
 
