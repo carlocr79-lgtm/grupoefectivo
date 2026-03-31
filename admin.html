@@ -425,6 +425,18 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   </div>
   <div id="caja-sub-arqueo" style="display:none;">
 
+    <!-- BANNER ÚLTIMO ARQUEO -->
+    <div id="banner-ultimo-arqueo" style="background:#f0f4ff; border-radius:12px; padding:12px 14px; margin-bottom:14px; display:none; align-items:center; justify-content:space-between; border-left:4px solid var(--azul);">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span class="mi" style="color:var(--azul);">history</span>
+        <div>
+          <div style="font-size:11px; color:var(--texto2); font-weight:600;">ÚLTIMO ARQUEO:</div>
+          <div style="font-size:13px; font-weight:800; color:var(--azul);" id="lbl-ultimo-arqueo-tipo">-</div>
+        </div>
+      </div>
+      <div style="font-size:12px; font-weight:700; color:var(--texto);" id="lbl-ultimo-arqueo-fecha">-</div>
+    </div>
+
     <!-- ── VISTA CAJERA: solo Cierre Diario ── -->
     <div id="arq-vista-cajera" style="display:none;">
       <div style="background:linear-gradient(135deg,var(--azul),var(--azul2));border-radius:14px;padding:14px;margin-bottom:12px;display:flex;justify-content:center;gap:30px;">
@@ -1282,6 +1294,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
             cajaDatos = resp; cajaSaldoTeorico = resp.saldo; cajaMovimientos = resp.movimientos || [];
             cajaRenderResumen(resp); cajaRenderTabla(cajaMovimientos); cajaRenderCategorias(resp.categorias || []);
             document.getElementById('arq-teorico').textContent = 'S/. ' + resp.saldo.toLocaleString('es-PE', {minimumFractionDigits:2});
+            cajaRenderArqueoBanner(resp);
             cajaCalcArqueo();
             return;
           }
@@ -1297,8 +1310,20 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       cajaRenderResumen(resp); cajaRenderTabla(cajaMovimientos); cajaRenderCategorias(resp.categorias || []);
       cajaSaldoTeorico = resp.saldo;
       document.getElementById('arq-teorico').textContent = 'S/. ' + resp.saldo.toLocaleString('es-PE', {minimumFractionDigits:2});
+      cajaRenderArqueoBanner(resp);
       cajaCalcArqueo();
     } catch(e) { showToast('Error: ' + e.message); }
+  }
+
+  function cajaRenderArqueoBanner(resp) {
+    const banner = document.getElementById('banner-ultimo-arqueo');
+    if (resp && resp.ultimoArqueo) {
+      banner.style.display = 'flex';
+      document.getElementById('lbl-ultimo-arqueo-tipo').textContent = resp.ultimoArqueo.tipo || 'Arqueo';
+      document.getElementById('lbl-ultimo-arqueo-fecha').textContent = resp.ultimoArqueo.fecha || '';
+    } else {
+      banner.style.display = 'none';
+    }
   }
 
   // Refresca datos del servidor en segundo plano y actualiza la UI si cambiaron
@@ -1312,6 +1337,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       cajaDatos = resp; cajaSaldoTeorico = resp.saldo; cajaMovimientos = resp.movimientos || [];
       cajaRenderResumen(resp); cajaRenderTabla(cajaMovimientos); cajaRenderCategorias(resp.categorias || []);
       document.getElementById('arq-teorico').textContent = 'S/. ' + resp.saldo.toLocaleString('es-PE', {minimumFractionDigits:2});
+      cajaRenderArqueoBanner(resp);
       cajaCalcArqueo();
     } catch(e) { /* silencioso */ }
   }
