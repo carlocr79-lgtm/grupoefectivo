@@ -718,7 +718,8 @@
 
   function getTipo(tipo) {
     if (!tipo) return '-';
-    return tipo.replace(/MENSUAL|SEMANAL|QUINCENAL|DIARIO x \d+/gi, '').trim() || tipo;
+    const limpio = tipo.replace(/\b(MENSUAL|SEMANAL|QUINCENAL|DIARIO(\s+x\s+\d+)?)\b/gi, '').trim();
+    return limpio || '-';
   }
 
   function irPaso(stepId, num) {
@@ -731,7 +732,7 @@
     // Limpiar todos los estados antes de reasignar
     document.querySelectorAll('.step').forEach(s => s.classList.remove('active', 'prev'));
 
-    if (going_forward) current.classList.add('prev');
+    if (going_forward && current) current.classList.add('prev');
 
     next.classList.add('active');
     pasoActual = num;
@@ -802,18 +803,21 @@
   }
 
   function comprimirImagen(file, maxWidth, calidad) {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       // Si es PDF, devolver el base64 sin comprimir
       if (file.type === 'application/pdf') {
         const reader = new FileReader();
+        reader.onerror = () => reject(new Error('No se pudo leer el archivo PDF'));
         reader.onload = e => resolve(e.target.result);
         reader.readAsDataURL(file);
         return;
       }
       
       const reader = new FileReader();
+      reader.onerror = () => reject(new Error('No se pudo leer el archivo'));
       reader.onload = function(e) {
         const img = new Image();
+        img.onerror = () => reject(new Error('No se pudo cargar la imagen'));
         img.onload = function() {
           const canvas = document.createElement('canvas');
           let width = img.width, height = img.height;
@@ -853,6 +857,7 @@
       const base64 = await comprimirImagen(fileInput.files[0], 800, 0.7);
       const res = await fetch(API_URL, {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ cod: codActual, voucher: base64, nombre: nombreActual, monto: montoActual })
       });
       const data = await res.json();
@@ -864,9 +869,10 @@
       }
     } catch(err) {
       showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> Error de conexión.');
+    } finally {
+      btn.innerHTML = '<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">check_circle</span> Confirmar mi pago';
+      btn.disabled = false;
     }
-    btn.innerHTML = '<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">check_circle</span> Confirmar mi pago';
-    btn.disabled = false;
   }
 
   function lanzarConfetti() {
@@ -1018,6 +1024,7 @@
     const token = params.get('cod') || params.get('token');
     const cel = params.get('cel');
 
+    try {
     if (token) {
       // ── Mostrar caché instantáneamente si existe ──
       const cacheKey = 'ge_cache_' + token;
@@ -1065,6 +1072,9 @@
       }
     } else {
       irPaso('step-aldia', 0);
+    }
+    } finally {
+      cargando = false; // siempre liberar al terminar, incluso si hay excepciones
     }
   });
 </script>
