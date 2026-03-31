@@ -98,15 +98,11 @@
     0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.2), 0 8px 32px rgba(0,0,0,0.15); transform: scale(1) translateY(0); }
     50% { box-shadow: 0 0 0 20px rgba(255,255,255,0), 0 12px 40px rgba(0,0,0,0.2); transform: scale(1.02) translateY(-4px); }
   }
-  .splash-spinner {
-    width: 52px; height: 52px;
-    border: 4px solid rgba(255, 255, 255, 0.15);
-    border-top-color: #ffffff;
-    border-radius: 50%;
-    animation: splashRadSpin 1s linear infinite;
+  .splash-spinner-ios {
+    width: 56px; height: 56px;
+    animation: splashRadPulse 1s steps(12, end) infinite;
   }
-  @keyframes splashRadSpin {
-    0% { transform: rotate(0deg); }
+  @keyframes splashRadPulse {
     100% { transform: rotate(360deg); }
   }
   .splash-logo { width: 72px; height: auto; }
@@ -489,7 +485,22 @@
   <!-- SPLASH SCREEN -->
   <div id="splash">
     <div class="splash-logo-wrap">
-      <div class="splash-spinner"></div>
+      <svg class="splash-spinner-ios" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <g transform="translate(50 50)">
+          <g transform="rotate(0)"><rect x="-3.5" y="-40" width="7" height="24" rx="3.5" fill="rgba(255,255,255,1)"/></g>
+          <g transform="rotate(30)"><rect x="-3.5" y="-40" width="7" height="24" rx="3.5" fill="rgba(255,255,255,0.85)"/></g>
+          <g transform="rotate(60)"><rect x="-3.5" y="-40" width="7" height="24" rx="3.5" fill="rgba(255,255,255,0.7)"/></g>
+          <g transform="rotate(90)"><rect x="-3.5" y="-40" width="7" height="24" rx="3.5" fill="rgba(255,255,255,0.55)"/></g>
+          <g transform="rotate(120)"><rect x="-3.5" y="-40" width="7" height="24" rx="3.5" fill="rgba(255,255,255,0.4)"/></g>
+          <g transform="rotate(150)"><rect x="-3.5" y="-40" width="7" height="24" rx="3.5" fill="rgba(255,255,255,0.25)"/></g>
+          <g transform="rotate(180)"><rect x="-3.5" y="-40" width="7" height="24" rx="3.5" fill="rgba(255,255,255,0.15)"/></g>
+          <g transform="rotate(210)"><rect x="-3.5" y="-40" width="7" height="24" rx="3.5" fill="rgba(255,255,255,0.1)"/></g>
+          <g transform="rotate(240)"><rect x="-3.5" y="-40" width="7" height="24" rx="3.5" fill="rgba(255,255,255,0.1)"/></g>
+          <g transform="rotate(270)"><rect x="-3.5" y="-40" width="7" height="24" rx="3.5" fill="rgba(255,255,255,0.1)"/></g>
+          <g transform="rotate(300)"><rect x="-3.5" y="-40" width="7" height="24" rx="3.5" fill="rgba(255,255,255,0.1)"/></g>
+          <g transform="rotate(330)"><rect x="-3.5" y="-40" width="7" height="24" rx="3.5" fill="rgba(255,255,255,0.1)"/></g>
+        </g>
+      </svg>
     </div>
     <div class="splash-brand">GRUPO EFECTIVO</div>
     <div class="splash-sub">Portal de Pagos</div>
