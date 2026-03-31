@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,600,1,0&display=optional" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
 <style>
   :root {
     --azul: #003087;
@@ -159,15 +159,26 @@
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* STEP ALDIA */
-  #step-aldia {
-    background: linear-gradient(135deg, #00aa44 0%, #00cc55 100%);
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    color: white;
-    padding: 30px;
+  /* STEP ALDIA & VERIFICANDO (COMMONS) */
+  #step-aldia, #step-verificando {
+    background: var(--gris); align-items: center; justify-content: center; padding: 24px; display: flex; flex-direction: column;
   }
+  .status-card {
+    background: white; border-radius: 20px; padding: 32px 24px; width: 100%; max-width: 340px;
+    box-shadow: 0 10px 30px rgba(0,48,135,0.06); text-align: center;
+  }
+  .status-icon-wrap {
+    width: 72px; height: 72px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;
+  }
+  .status-icon-wrap.naranja { background: #fff3e0; color: #ff8800; animation: pulse-soft-or 2s infinite; }
+  .status-icon-wrap.verde { background: #e8f5e9; color: #00aa44; animation: pulse-soft-gr 2s infinite; }
+  @keyframes pulse-soft-or { 0% { box-shadow: 0 0 0 0 rgba(255,136,0,0.2); } 70% { box-shadow: 0 0 0 15px rgba(255,136,0,0); } 100% { box-shadow: 0 0 0 0 rgba(255,136,0,0); } }
+  @keyframes pulse-soft-gr { 0% { box-shadow: 0 0 0 0 rgba(0,170,68,0.2); } 70% { box-shadow: 0 0 0 15px rgba(0,170,68,0); } 100% { box-shadow: 0 0 0 0 rgba(0,170,68,0); } }
+  .status-title { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 20px; color: var(--texto); margin-bottom: 8px; }
+  .status-msg { font-size: 13px; color: var(--texto2); line-height: 1.5; margin-bottom: 20px; }
+  .status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 10px 16px; border-radius: 12px; font-size: 12px; font-weight: 700; justify-content: center; }
+  .status-badge.naranja { background: #fff8f0; color: #cc6600; border: 1.5px solid #ffe0b2; }
+
 
   /* STEP EXPIRADO */
   #step-expirado {
@@ -331,47 +342,7 @@
   .oficina-dir { font-size: 12px; color: #444; }
   .oficina-hora { font-size: 11px; color: #888; margin-top: 3px; }
 
-  /* STEP VERIFICANDO */
-  #step-verificando {
-    background: linear-gradient(135deg, #ff8800 0%, #ffaa00 100%);
-    align-items: center; justify-content: center;
-    text-align: center; padding: 30px; color: white;
-  }
-  .verif-box {
-    background: white; border-radius: 24px;
-    padding: 36px 24px; width: 100%;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-    position: relative; overflow: hidden;
-  }
-  .verif-box::before {
-    content: '';
-    position: absolute; top: 0; left: 0; right: 0; height: 5px;
-    background: linear-gradient(90deg, #ff8800, #ffcc00, #ff8800);
-    background-size: 200% 100%;
-    animation: shimmer 2s linear infinite;
-  }
-  .verif-icon-wrap {
-    width: 90px; height: 90px; border-radius: 50%;
-    background: linear-gradient(135deg, #ff8800, #ffcc00);
-    display: flex; align-items: center; justify-content: center;
-    margin: 0 auto 18px;
-    animation: pulse-orange 1.8s ease-in-out infinite;
-  }
-  @keyframes pulse-orange {
-    0%   { box-shadow: 0 0 0 0 rgba(255,136,0,0.5); }
-    70%  { box-shadow: 0 0 0 20px rgba(255,136,0,0); }
-    100% { box-shadow: 0 0 0 0 rgba(255,136,0,0); }
-  }
-  .verif-icon { font-size: 46px; line-height: 1; }
-  .verif-title { font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 22px; color: #cc6600; margin-bottom: 6px; }
-  .verif-sub { font-size: 12px; font-weight: 700; color: #ff8800; margin-bottom: 16px; letter-spacing: 0.5px; }
-  .verif-msg { font-size: 13px; color: var(--texto2); line-height: 1.7; margin-bottom: 18px; }
-  .verif-badge {
-    background: #fff8f0; border: 1.5px solid #ffaa00;
-    border-radius: 12px; padding: 12px 16px;
-    font-size: 12px; color: #cc6600; font-weight: 700;
-    display: flex; align-items: center; gap: 8px; justify-content: center;
-  }
+  /* Layout adjustments */
 
   /* STEP VOUCHER */
   #step-voucher { background: var(--gris); }
@@ -509,10 +480,14 @@
   </div>
 
   <!-- AL DIA -->
-  <div class="step" id="step-aldia" style="display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#00aa44,#00cc55);padding:30px;">
-    <div style="font-size:72px;margin-bottom:20px;color:white;"><span class="mi" style="font-size:72px;">check_circle</span></div>
-    <div style="font-family:Montserrat,sans-serif;font-weight:900;font-size:24px;color:white;margin-bottom:10px;">¡Estás al día!</div>
-    <div style="font-size:14px;color:rgba(255,255,255,0.9);line-height:1.6;text-align:center;">No tienes pagos pendientes.<br>¡Gracias por tu puntualidad!</div>
+  <div class="step" id="step-aldia">
+    <div class="status-card">
+      <div class="status-icon-wrap verde">
+        <span class="mi" style="font-size:36px;">check_circle</span>
+      </div>
+      <div class="status-title">¡Estás al día!</div>
+      <div class="status-msg">No tienes pagos pendientes.<br>Gracias por tu puntualidad.</div>
+    </div>
   </div>
 
   <!-- EXPIRADO -->
@@ -524,13 +499,16 @@
 
 
   <!-- STEP VERIFICANDO -->
-  <div class="step" id="step-verificando" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;">
-    <div class="verif-box">
-      <div class="verif-icon-wrap"><div class="verif-icon" style="color:var(--naranja);"><span class="mi" style="font-size:32px;">hourglass_top</span></div></div>
-      <div class="verif-title">Tu voucher está en revisión</div>
-      <div class="verif-sub">COMPROBANTE RECIBIDO</div>
-      <div class="verif-msg">Ya recibimos tu comprobante de pago.<br>Un asesor lo está revisando e ingresará el pago al sistema en breve.<br><br>Una vez ingresado, tu estado se actualizará automáticamente.</div>
-      <div class="verif-badge"><span class="mi xs" style="vertical-align:text-bottom;">schedule</span> Tiempo estimado: 1-2 horas hábiles</div>
+  <div class="step" id="step-verificando">
+    <div class="status-card">
+      <div class="status-icon-wrap naranja">
+        <span class="mi" style="font-size:36px;">hourglass_empty</span>
+      </div>
+      <div class="status-title">Pago en revisión</div>
+      <div class="status-msg">Estamos validando tu comprobante.<br>Te notificaremos al confirmar.</div>
+      <div class="status-badge naranja">
+        <span class="mi xs" style="vertical-align:text-top;">schedule</span> 1 a 2 horas hábiles
+      </div>
     </div>
   </div>
 
@@ -684,7 +662,7 @@
 <div class="toast" id="toast">¡Copiado!</div>
 
 <script>
-  const API_URL = "https://script.google.com/macros/s/AKfycbxARZ0RKzgRWAdLl8SOLN-oeVJWEkdIvcaXE1tmWHRAllIJnYndrRgPHEMZ3_r4BV5wxA/exec";
+  const API_URL = "/api";
 
   // ─── BLOQUEO DE ZOOM (iOS Safari ignora user-scalable=no) ───
   document.addEventListener('touchstart', function(e) {
@@ -965,10 +943,7 @@
     }, 120);
   }
 
-  let splashCerrado = false;
   function cerrarSplash() {
-    if (splashCerrado) return;
-    splashCerrado = true;
     clearInterval(splashInterval);
     const bar = document.getElementById('splash-bar');
     const splash = document.getElementById('splash');
@@ -993,20 +968,22 @@
     }
   }
 
-  // ─── APLICAR DATOS ───
+  // ─── APLICAR DATOS (espera fuentes antes de mostrar) ───
   function aplicarRespuesta(data) {
-    cerrarSplash();
-    if (data.expirado) {
-      irPaso('step-expirado', 0);
-    } else if (data.alDia) {
-      irPaso('step-aldia', 0);
-    } else if (data.verificando) {
-      irPaso('step-verificando', 0);
-    } else if (data.encontrado) {
-      cargarDatos(data);
-    } else {
-      irPaso('step-aldia', 0);
-    }
+    document.fonts.ready.then(function() {
+      cerrarSplash();
+      if (data.expirado) {
+        irPaso('step-expirado', 0);
+      } else if (data.alDia) {
+        irPaso('step-aldia', 0);
+      } else if (data.verificando) {
+        irPaso('step-verificando', 0);
+      } else if (data.encontrado) {
+        cargarDatos(data);
+      } else {
+        irPaso('step-aldia', 0);
+      }
+    });
   }
 
   // INICIO - verificar token (DOMContentLoaded = no espera fuentes ni imágenes)
@@ -1037,15 +1014,11 @@
         if (!cached) {
           aplicarRespuesta(data); // sin caché: aplicar normalmente
         } else if (data.verificando || data.alDia || data.expirado) {
-          aplicarRespuesta(data); // estado cambió → override del caché
+          aplicarRespuesta(data); // estado cambió (ej: ya pagó) → override del caché
         } else if (data.encontrado) {
-          cerrarSplash(); // asegurar cierre
-          cargarDatos(data); // mismo estado: actualizar datos
-        } else {
-          cerrarSplash(); // respuesta inesperada, cerrar igual
+          cargarDatos(data); // mismo estado: actualizar datos silenciosamente
         }
       } catch(err) {
-        cerrarSplash(); // siempre cerrar el splash aunque falle
         if (!cached) {
           showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> Error de conexión');
           irPaso('step-aldia', 0);
