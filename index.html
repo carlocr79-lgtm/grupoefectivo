@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=optional" rel="stylesheet" />
 <style>
   :root {
     --azul: #003087;
@@ -831,37 +831,70 @@
     setTimeout(() => t.classList.remove('show'), 2500);
   }
 
-  // INICIO - verificar token
-  window.addEventListener('load', async function() {
-    if (cargando) return; // debounce - evita doble ejecución
+  // ─── FETCH CON TIMEOUT (AbortController) ───
+  async function fetchConTimeout(url, ms) {
+    const ctrl = new AbortController();
+    const tid = setTimeout(() => ctrl.abort(), ms);
+    try {
+      const res = await fetch(url, { signal: ctrl.signal });
+      clearTimeout(tid);
+      return res;
+    } catch(e) {
+      clearTimeout(tid);
+      throw e;
+    }
+  }
+
+  // ─── APLICAR DATOS (caché o frescos) ───
+  function aplicarRespuesta(data) {
+    if (data.expirado) {
+      irPaso('step-expirado', 0);
+    } else if (data.alDia) {
+      irPaso('step-aldia', 0);
+    } else if (data.verificando) {
+      irPaso('step-verificando', 0);
+    } else if (data.encontrado) {
+      cargarDatos(data);
+    } else {
+      irPaso('step-aldia', 0);
+    }
+  }
+
+  // INICIO - verificar token (DOMContentLoaded = no espera fuentes ni imágenes)
+  document.addEventListener('DOMContentLoaded', async function() {
+    if (cargando) return;
     cargando = true;
     const params = new URLSearchParams(window.location.search);
     const token = params.get('cod') || params.get('token');
     const cel = params.get('cel');
 
     if (token) {
+      // ── Mostrar caché instantáneamente si existe ──
+      const cacheKey = 'ge_cache_' + token;
+      const cached = localStorage.getItem(cacheKey);
+      if (cached) {
+        try {
+          const cachedData = JSON.parse(cached);
+          aplicarRespuesta(cachedData); // muestra datos al instante
+        } catch(e) { localStorage.removeItem(cacheKey); }
+      }
+
+      // ── Fetch en paralelo con timeout de 8 segundos ──
       try {
-        const res = await fetch(API_URL + '?cod=' + encodeURIComponent(token));
+        const res = await fetchConTimeout(API_URL + '?cod=' + encodeURIComponent(token), 8000);
         const data = await res.json();
-        if (data.expirado) {
-          irPaso('step-expirado', 0);
-        } else if (data.alDia) {
-          irPaso('step-aldia', 0);
-        } else if (data.verificando) {
-          irPaso('step-verificando', 0);
-        } else if (data.encontrado) {
-          cargarDatos(data);
-        } else {
+        localStorage.setItem(cacheKey, JSON.stringify(data)); // guardar para próxima vez
+        if (!cached) aplicarRespuesta(data); // si no había caché, aplicar ahora
+        else if (data.encontrado) cargarDatos(data); // actualizar datos en pantalla silenciosamente
+      } catch(err) {
+        if (!cached) {
+          showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> Error de conexión');
           irPaso('step-aldia', 0);
         }
-      } catch(err) {
-        showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> Error de conexión');
-        irPaso('step-aldia', 0);
       }
     } else if (cel) {
-      // Fallback: buscar por celular
       try {
-        const res = await fetch(API_URL + '?q=' + encodeURIComponent(cel.replace(/\s/g,'')));
+        const res = await fetchConTimeout(API_URL + '?q=' + encodeURIComponent(cel.replace(/\s/g,'')), 8000);
         const data = await res.json();
         if (data && data.length > 0) {
           cargarDatos(data[0]);
