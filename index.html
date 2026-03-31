@@ -965,7 +965,10 @@
     }, 120);
   }
 
+  let splashCerrado = false;
   function cerrarSplash() {
+    if (splashCerrado) return;
+    splashCerrado = true;
     clearInterval(splashInterval);
     const bar = document.getElementById('splash-bar');
     const splash = document.getElementById('splash');
@@ -1034,11 +1037,15 @@
         if (!cached) {
           aplicarRespuesta(data); // sin caché: aplicar normalmente
         } else if (data.verificando || data.alDia || data.expirado) {
-          aplicarRespuesta(data); // estado cambió (ej: ya pagó) → override del caché
+          aplicarRespuesta(data); // estado cambió → override del caché
         } else if (data.encontrado) {
-          cargarDatos(data); // mismo estado: actualizar datos silenciosamente
+          cerrarSplash(); // asegurar cierre
+          cargarDatos(data); // mismo estado: actualizar datos
+        } else {
+          cerrarSplash(); // respuesta inesperada, cerrar igual
         }
       } catch(err) {
+        cerrarSplash(); // siempre cerrar el splash aunque falle
         if (!cached) {
           showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> Error de conexión');
           irPaso('step-aldia', 0);
