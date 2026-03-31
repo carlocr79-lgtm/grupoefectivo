@@ -248,6 +248,13 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 .form-caja-group { margin-bottom:12px; }
 .form-caja-group label { font-size:11px; font-weight:600; color:var(--texto2); text-transform:uppercase; display:block; margin-bottom:5px; }
 .form-caja-group input, .form-caja-group select, .form-caja-group textarea { width:100%; padding:9px 12px; border:1.5px solid var(--gris2); border-radius:10px; font-size:13px; font-family:'DM Sans',sans-serif; outline:none; }
+
+.file-upload-wrapper { position:relative; width:100%; border:2px dashed var(--gris2); border-radius:12px; background:var(--gris); text-align:center; transition:all 0.2s; cursor:pointer; }
+.file-upload-wrapper:hover { border-color:var(--azul2); background:var(--azul-claro); }
+.file-upload-label { display:flex; flex-direction:column; align-items:center; gap:4px; padding:20px 10px; cursor:pointer; color:var(--texto2); font-weight:600; font-size:12px; }
+.file-upload-label .mi { font-size:32px; color:var(--azul2); }
+.file-upload-label.has-file { color:var(--verde); border-color:var(--verde); background:#f0fff4; border-radius:12px; }
+.file-upload-label.has-file .mi { color:var(--verde); }
 .form-caja-group input:focus, .form-caja-group select:focus { border-color:var(--azul2); }
 .btn-main { padding:12px; background:linear-gradient(135deg,var(--azul),var(--azul2)); color:white; border:none; border-radius:10px; font-family:'Montserrat',sans-serif; font-weight:700; font-size:13px; cursor:pointer; transition:transform 0.15s; }
 .btn-main:active { transform:scale(0.98); }
@@ -553,7 +560,28 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
           <span class="mi sm">visibility</span> Ver archivo actual
         </button>
       </div>
-      <input type="file" id="caja-archivo" accept="image/*,application/pdf">
+      <div class="file-upload-wrapper">
+        <label for="caja-archivo" class="file-upload-label" id="file-upload-label">
+          <span class="mi" id="file-upload-icon">cloud_upload</span>
+          <span id="file-upload-text">Subir comprobante (Opcional)</span>
+        </label>
+        <input type="file" id="caja-archivo" accept="image/*,application/pdf" style="display:none;" onchange="
+          const fT = document.getElementById('file-upload-text');
+          const fI = document.getElementById('file-upload-icon');
+          const fL = document.getElementById('file-upload-label');
+          if(this.files.length > 0) {
+            fT.innerText = this.files[0].name;
+            fI.innerText = 'check_circle';
+            fL.classList.add('has-file');
+            fL.parentElement.style.borderColor = 'var(--verde)';
+          } else {
+            fT.innerText = 'Subir comprobante (Opcional)';
+            fI.innerText = 'cloud_upload';
+            fL.classList.remove('has-file');
+            fL.parentElement.style.borderColor = '';
+          }
+        ">
+      </div>
     </div>
     <div style="display:flex;gap:10px;margin-top:8px;">
       <button onclick="cajaHideModal()" style="flex:1;padding:12px;background:var(--gris);border:none;border-radius:10px;font-weight:700;cursor:pointer;">Cancelar</button>
@@ -1441,6 +1469,10 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     const hoy = new Date();
     document.getElementById('caja-fecha').value = hoy.toISOString().split('T')[0];
     document.getElementById('caja-archivo').value = '';
+    document.getElementById('file-upload-text').innerText = 'Subir comprobante (Opcional)';
+    document.getElementById('file-upload-icon').innerText = 'cloud_upload';
+    document.getElementById('file-upload-label').classList.remove('has-file');
+    document.getElementById('file-upload-label').parentElement.style.borderColor = '';
     if (editData) {
       document.getElementById('caja-fecha').value = editData.fecha;
       document.getElementById('caja-tipo').value = editData.tipo;
