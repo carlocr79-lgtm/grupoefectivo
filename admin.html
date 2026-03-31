@@ -454,7 +454,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
           <div class="denom-row"><span class="denom-label">S/ 0.10</span><input type="number" class="denom-input arq-input-cajera" data-val="0.10" placeholder="0" oninput="cajaCalcArqueoCajera()"><span class="denom-subtotal" id="sub-cajera-m010">0.00</span></div>
         </div>
       </div>
-      <button class="btn-main" id="arq-btn-diario" onclick="cajaSubmitArqueo('Cierre Diario')" disabled style="width:100%;padding:12px;font-size:13px;margin-top:14px;">📋 Guardar Cierre Diario</button>
+      <button class="btn-main" id="arq-btn-diario" onclick="cajaSubmitArqueo('Cierre Diario')" disabled style="width:100%;padding:12px;font-size:13px;margin-top:14px;"><span class="mi sm" style="vertical-align:text-bottom;margin-right:4px;">fact_check</span> Guardar Cierre Diario</button>
     </div>
 
     <!-- ── VISTA ADMIN: Arqueo Preventivo + Cierre de Mes ── -->
@@ -490,8 +490,8 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         </div>
       </div>
       <div style="display:flex;gap:10px;margin-top:14px;">
-        <button class="btn-main" id="arq-btn-preventivo" onclick="cajaSubmitArqueo('Arqueo Preventivo')" disabled style="flex:1;padding:12px;font-size:13px;background:linear-gradient(135deg,#ff8800,#ffaa00);">🔍 Arqueo Preventivo</button>
-        <button class="btn-main" id="arq-btn-mes" onclick="cajaSubmitArqueo('Cierre de Mes')" disabled style="flex:1;padding:12px;font-size:13px;background:linear-gradient(135deg,var(--rojo),#ff4444);">🔒 Cerrar Mes</button>
+        <button class="btn-main" id="arq-btn-preventivo" onclick="cajaSubmitArqueo('Arqueo Preventivo')" disabled style="flex:1;padding:12px;font-size:13px;background:linear-gradient(135deg,#ff8800,#ffaa00);"><span class="mi sm" style="vertical-align:text-bottom;margin-right:4px;">search</span> Arqueo Preventivo</button>
+        <button class="btn-main" id="arq-btn-mes" onclick="cajaSubmitArqueo('Cierre de Mes')" disabled style="flex:1;padding:12px;font-size:13px;background:linear-gradient(135deg,var(--rojo),#ff4444);"><span class="mi sm" style="vertical-align:text-bottom;margin-right:4px;">lock</span> Cerrar Mes</button>
       </div>
     </div>
 
