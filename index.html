@@ -525,18 +525,18 @@
       <!-- DETALLE EFECTIVO -->
       <div class="metodo-detalle" id="det-efectivo">
         <div class="oficina-box">
-          <div class="oficina-ciudad">📍 Chanchamayo</div>
+          <div class="oficina-ciudad"><span class="mi sm" style="vertical-align:text-bottom;">location_on</span> Chanchamayo</div>
           <div class="oficina-dir">Jr. Dos de Mayo Nro. 267, Junín</div>
           <div class="oficina-hora">Lun - Sáb: 8:00 AM - 6:00 PM</div>
         </div>
         <div class="oficina-box">
-          <div class="oficina-ciudad">📍 Pichanaqui</div>
+          <div class="oficina-ciudad"><span class="mi sm" style="vertical-align:text-bottom;">location_on</span> Pichanaqui</div>
           <div class="oficina-dir">Av. Micaela Bastidas Mza. D-1 Lote 02B3</div>
           <div class="oficina-hora">Lun - Sáb: 8:00 AM - 6:00 PM</div>
         </div>
       </div>
 
-      <button class="btn-main" id="btn-ya-pague" onclick="irPaso('step-voucher', 3)" style="display:none;">✅ Ya realicé mi pago →</button>
+      <button class="btn-main" id="btn-ya-pague" onclick="irPaso('step-voucher', 3)" style="display:none;"><span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">check_circle</span> Ya realicé mi pago →</button>
       <button class="btn-sec" onclick="irPaso('step-deuda', 1)">← Volver</button>
     </div>
   </div>
@@ -552,15 +552,15 @@
     </div>
     <div class="voucher-body">
       <div class="upload-area" onclick="document.getElementById('voucher-file').click()">
-        <div class="upload-icon">📎</div>
+        <div class="upload-icon"><span class="mi">attach_file</span></div>
         <h3>Seleccionar comprobante</h3>
         <p>Toca aquí para elegir una foto o PDF</p>
         <input type="file" id="voucher-file" accept="image/*,application/pdf" style="display:none" onchange="previewVoucher(this)">
       </div>
       <div id="voucher-preview"><img id="preview-img"></div>
-      <button class="btn-main" onclick="confirmarPago()">✅ Confirmar mi pago</button>
+      <button class="btn-main" onclick="confirmarPago()"><span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">check_circle</span> Confirmar mi pago</button>
       <button class="btn-sec" onclick="irPaso('step-metodo', 2)">← Volver</button>
-      <div class="alerta-box"><strong>⚠️ Importante:</strong> Todo pago debe efectuarse a nombre de <strong>GRUPO EFECTIVO SOCIEDAD ANÓNIMA CERRADA</strong>. RUC: 20607071447</div>
+      <div class="alerta-box"><strong><span class="mi xs" style="vertical-align:text-bottom;">warning</span> Importante:</strong> Todo pago debe efectuarse a nombre de <strong>GRUPO EFECTIVO SOCIEDAD ANÓNIMA CERRADA</strong>. RUC: 20607071447</div>
     </div>
   </div>
 
@@ -568,13 +568,13 @@
   <div class="step" id="step-exito" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;">
     <div class="exito-box">
       <div class="exito-icon-wrap">
-        <div class="exito-icon">✅</div>
+        <div class="exito-icon"><span class="mi" style="font-size:inherit;">check</span></div>
       </div>
       <div class="exito-title">¡Pago Registrado!</div>
       <div class="exito-subtitle">COMPROBANTE RECIBIDO</div>
       <div class="exito-msg">Tu voucher fue enviado correctamente.<br>Un asesor verificará tu pago y actualizará tu estado en breve.</div>
-      <div class="exito-badge">⏱️ Tiempo de verificación: 1-2 horas hábiles</div>
-      <div class="exito-gracias">🙌 ¡Gracias por tu pago, Grupo Efectivo!</div>
+      <div class="exito-badge"><span class="mi sm" style="vertical-align:text-bottom;">timer</span> Tiempo de verificación: 1-2 horas hábiles</div>
+      <div class="exito-gracias"><span class="mi sm" style="vertical-align:text-bottom;">celebration</span> ¡Gracias por tu pago, Grupo Efectivo!</div>
     </div>
   </div>
 
@@ -666,9 +666,9 @@
     document.getElementById('info-deuda').textContent = 'S/. ' + monto.toLocaleString('es-PE', {minimumFractionDigits:2});
 
     const badge = document.getElementById('estado-badge');
-    if (dias > 90) { badge.textContent = '🔴 CRÍTICO'; badge.className = 'estado-badge estado-critico'; }
-    else if (dias > 0) { badge.textContent = '🟠 VENCIDO'; badge.className = 'estado-badge estado-vencido'; }
-    else { badge.textContent = '🟡 VENCE HOY'; badge.className = 'estado-badge estado-hoy'; }
+    if (dias > 90) { badge.innerHTML = '<span class="mi xs" style="vertical-align:text-bottom;margin-right:2px;">error</span> CRÍTICO'; badge.className = 'estado-badge estado-critico'; }
+    else if (dias > 0) { badge.innerHTML = '<span class="mi xs" style="vertical-align:text-bottom;margin-right:2px;">warning</span> VENCIDO'; badge.className = 'estado-badge estado-vencido'; }
+    else { badge.innerHTML = '<span class="mi xs" style="vertical-align:text-bottom;margin-right:2px;">info</span> VENCE HOY'; badge.className = 'estado-badge estado-hoy'; }
 
     // Actualizar banner monto
     document.getElementById('banner-monto').textContent = 'S/. ' + monto.toLocaleString('es-PE', {minimumFractionDigits:2});
@@ -686,7 +686,7 @@
   }
 
   function copiar(texto) {
-    navigator.clipboard.writeText(texto).then(() => showToast('✅ Número copiado'));
+    navigator.clipboard.writeText(texto).then(() => showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">check_circle</span> Número copiado'));
   }
 
   function previewVoucher(input) {
