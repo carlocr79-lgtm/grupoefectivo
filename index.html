@@ -87,11 +87,14 @@
   .splash-logo-wrap {
     width: 110px; height: 110px;
     background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     border-radius: 28px;
     display: flex; align-items: center; justify-content: center;
     margin-bottom: 28px;
     animation: splashPulse 1.8s ease-in-out infinite;
     border: 1.5px solid rgba(255,255,255,0.15);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   }
   @keyframes splashPulse {
     0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.15); transform: scale(1); }
@@ -119,11 +122,24 @@
     background: linear-gradient(90deg, #7eb8ff, #ffffff);
     border-radius: 99px;
     transition: width 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .splash-progress-bar::after {
+    content: '';
+    position: absolute; top: 0; left: 0; bottom: 0; right: 0;
+    background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.8) 50%, rgba(255,255,255,0) 100%);
+    transform: translateX(-100%);
+    animation: splashShimmer 1.5s infinite ease-in-out;
+  }
+  @keyframes splashShimmer {
+    100% { transform: translateX(100%); }
   }
   .splash-msg {
     font-size: 12px; color: rgba(255,255,255,0.65);
     font-weight: 500; letter-spacing: 0.3px;
     min-height: 18px;
+    transition: opacity 0.2s ease;
   }
 
   /* STEP CARGANDO */
@@ -904,23 +920,32 @@
 
   // ─── SPLASH PROGRESS ───
   const mensajes = [
-    'Verificando tu crédito...',
-    'Cargando información...',
-    'Casi listo...'
+    'Conectando de forma segura...',
+    'Buscando tu información...',
+    'Cálculos finales...',
+    '¡Casi listo!'
   ];
   let splashInterval = null;
 
   function iniciarSplash() {
     const bar = document.getElementById('splash-bar');
     const msg = document.getElementById('splash-msg');
+    msg.textContent = mensajes[0];
     let pct = 0, step = 0;
     splashInterval = setInterval(function() {
       // Avanza rápido hasta 85%, luego frena para esperar respuesta real
-      const incremento = pct < 60 ? 4 : pct < 85 ? 1.2 : 0.3;
-      pct = Math.min(pct + incremento, 92);
+      const incremento = pct < 60 ? 4 : pct < 85 ? 1.2 : 0.2;
+      pct = Math.min(pct + incremento, 95);
       bar.style.width = pct + '%';
-      if (pct > 30 && step === 0) { msg.textContent = mensajes[1]; step = 1; }
-      if (pct > 70 && step === 1) { msg.textContent = mensajes[2]; step = 2; }
+      
+      const cambiarMsg = (txt) => {
+        msg.style.opacity = 0;
+        setTimeout(() => { msg.textContent = txt; msg.style.opacity = 1; }, 200);
+      };
+
+      if (pct > 25 && step === 0) { cambiarMsg(mensajes[1]); step = 1; }
+      if (pct > 55 && step === 1) { cambiarMsg(mensajes[2]); step = 2; }
+      if (pct > 85 && step === 2) { cambiarMsg(mensajes[3]); step = 3; }
     }, 120);
   }
 
