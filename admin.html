@@ -260,6 +260,27 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 .btn-main:active { transform:scale(0.98); }
 .cliente-acciones { padding:8px 14px 12px; display:flex; gap:8px; }
 
+/* DETALLE EXPANDIBLE CLIENTE */
+.cliente-detalle {
+  max-height:0; overflow:hidden; transition:max-height 0.35s ease, padding 0.35s ease;
+  padding:0 14px; background:var(--gris); border-top:1px solid var(--gris2);
+}
+.cliente-detalle.open { max-height:400px; padding:12px 14px; }
+.detalle-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px 16px; }
+.detalle-item { display:flex; flex-direction:column; gap:2px; }
+.detalle-item .lbl { font-size:10px; font-weight:700; color:var(--texto2); text-transform:uppercase; letter-spacing:0.3px; }
+.detalle-item .val { font-size:13px; font-weight:600; color:var(--texto); }
+.detalle-item .val.monto { font-family:'Montserrat',sans-serif; font-weight:800; color:var(--rojo); }
+.detalle-item .val.cuota-val { font-family:'Montserrat',sans-serif; font-weight:800; color:var(--azul); }
+.detalle-obs { grid-column:1/-1; background:white; border-radius:8px; padding:8px 10px; font-size:12px; color:var(--texto2); margin-top:4px; }
+.btn-detalle {
+  flex:1; padding:8px; background:var(--azul-claro); color:var(--azul2); border:none;
+  border-radius:10px; font-size:11px; font-weight:700; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; gap:4px; transition:all 0.2s;
+}
+.btn-detalle:hover { background:#d0e0ff; }
+.btn-detalle .mi { transition:transform 0.3s; }
+.btn-detalle.open .mi { transform:rotate(180deg); }
 
 /* MODAL SUSTENTO */
 .modal-sustento { position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,0.82); z-index:1000; display:none; align-items:center; justify-content:center; padding:20px; }
@@ -907,7 +928,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     // Ordenar por días de atraso desc
     lista.sort((a, b) => b.dias - a.dias);
 
-    document.getElementById('lista-clientes').innerHTML = lista.map(c => {
+    document.getElementById('lista-clientes').innerHTML = lista.map((c, idx) => {
       const diasTag = c.dias > 90 ? `<span class="tag tag-critico"><span class="mi xs">error</span> ${c.dias} días</span>` :
                       c.dias > 0  ? `<span class="tag tag-vencido"><span class="mi xs">warning</span> ${c.dias} días</span>` :
                                     `<span class="tag tag-pendiente"><span class="mi xs">schedule</span> Vence hoy</span>`;
@@ -917,30 +938,57 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       const linkWAMovil = c.telefono && c.mensaje ?
         `https://api.whatsapp.com/send?phone=${c.telefono}&text=${encodeURIComponent(c.mensaje)}` : '';
 
+      const cuotaFmt = c.cuota ? 'S/. ' + parseFloat(c.cuota).toLocaleString('es-PE',{minimumFractionDigits:2}) : '-';
+      const deudaFmt = 'S/. ' + parseFloat(c.deuda).toLocaleString('es-PE',{minimumFractionDigits:2});
+      const detId = 'det-' + idx;
+
       return `
       <div class="cliente-card">
         <div class="cliente-header">
           <div style="min-width:0;flex:1;">
-            <div class="cliente-nombre">${c.nombre}</div>
-            <div class="cliente-cod">Cód. ${c.cod} · ${c.celular}</div>
+            <div class="cliente-nombre">${escapeHtml(c.nombre)}</div>
+            <div class="cliente-cod">Cód. ${escapeHtml(c.cod)} · ${escapeHtml(c.celular)}</div>
           </div>
           <div style="display:flex;align-items:center;gap:10px;">
             <div style="text-align:right;">
-              <div class="cliente-monto">S/. ${parseFloat(c.deuda).toLocaleString('es-PE',{minimumFractionDigits:2})}</div>
+              <div class="cliente-monto">${deudaFmt}</div>
               <div class="cliente-dias">${c.cuotas} cuota${c.cuotas!==1?'s':''} vencida${c.cuotas!==1?'s':''}</div>
             </div>
             ${linkWA ? `<button class="btn-wa" onclick="enviarWA('${linkWAMovil}','${linkWA}')" title="Enviar WhatsApp"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="16" height="16" fill="white"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.736 5.472 2.027 7.774L0 32l8.454-2.01A15.938 15.938 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.333a13.27 13.27 0 01-6.748-1.833l-.484-.287-5.02 1.194 1.271-4.874-.317-.502A13.267 13.267 0 012.667 16C2.667 8.636 8.636 2.667 16 2.667S29.333 8.636 29.333 16 23.364 29.333 16 29.333zm7.27-9.862c-.398-.199-2.354-1.162-2.72-1.294-.365-.133-.631-.199-.897.199-.266.398-1.029 1.294-1.262 1.56-.232.266-.465.299-.863.1-.398-.2-1.681-.619-3.203-1.977-1.184-1.057-1.983-2.362-2.215-2.76-.232-.398-.025-.613.174-.811.179-.178.398-.465.598-.698.199-.232.265-.398.398-.664.133-.266.066-.498-.033-.697-.1-.2-.897-2.162-1.229-2.96-.324-.777-.653-.672-.897-.684l-.764-.013c-.266 0-.697.1-1.063.498-.365.398-1.395 1.362-1.395 3.323s1.428 3.854 1.627 4.12c.2.266 2.81 4.287 6.808 6.014.951.41 1.694.656 2.273.839.955.304 1.824.261 2.511.158.766-.114 2.354-.962 2.687-1.891.332-.929.332-1.726.232-1.891-.099-.166-.365-.266-.763-.465z"/></svg></button>` : ''}
           </div>
         </div>
         <div class="cliente-info">
-          <span class="tag tag-asesor">${c.asesor.split(' ')[0]}</span>
-          <span class="tag tag-tipo">${c.tipo}</span>
-          ${c.oficina ? '<span class="tag" style="background:#f0e8ff;color:#6600cc;"><span class="mi xs">location_on</span> ' + c.oficina + '</span>' : ''}
+          <span class="tag tag-asesor">${escapeHtml(c.asesor.split(' ')[0])}</span>
+          <span class="tag tag-tipo">${escapeHtml(c.tipo)}</span>
+          ${c.oficina ? '<span class="tag" style="background:#f0e8ff;color:#6600cc;"><span class="mi xs">location_on</span> ' + escapeHtml(c.oficina) + '</span>' : ''}
           ${diasTag}
           ${tieneVoucher}
         </div>
+        <div class="cliente-acciones">
+          <button class="btn-detalle" onclick="toggleDetalle('${detId}',this)"><span class="mi sm">expand_more</span> Ver detalle</button>
+        </div>
+        <div class="cliente-detalle" id="${detId}">
+          <div class="detalle-grid">
+            <div class="detalle-item"><span class="lbl">Cuota mensual</span><span class="val cuota-val">${cuotaFmt}</span></div>
+            <div class="detalle-item"><span class="lbl">Deuda total</span><span class="val monto">${deudaFmt}</span></div>
+            <div class="detalle-item"><span class="lbl">Vencimiento</span><span class="val">${c.vencimiento || '-'}</span></div>
+            <div class="detalle-item"><span class="lbl">Días de atraso</span><span class="val">${c.dias} días</span></div>
+            <div class="detalle-item"><span class="lbl">Cuotas vencidas</span><span class="val">${c.cuotas}</span></div>
+            <div class="detalle-item"><span class="lbl">Tipo</span><span class="val">${escapeHtml(c.tipo)}</span></div>
+            ${c.direccion ? '<div class="detalle-item" style="grid-column:1/-1;"><span class="lbl">Dirección</span><span class="val">' + escapeHtml(c.direccion) + '</span></div>' : ''}
+            ${c.obs ? '<div class="detalle-obs"><span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">info</span>' + escapeHtml(c.obs) + '</div>' : ''}
+          </div>
+        </div>
       </div>`;
     }).join('');
+  }
+
+  function toggleDetalle(id, btn) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.toggle('open');
+    btn.classList.toggle('open');
+    btn.querySelector('span:last-child').textContent = el.classList.contains('open') ? 'Ocultar detalle' : 'Ver detalle';
   }
 
   function enviarWA(linkMovil, linkWeb) {
