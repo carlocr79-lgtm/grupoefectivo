@@ -970,12 +970,17 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       document.getElementById('lista-vouchers').innerHTML = '<div class="empty"><div class="icon"><span class="mi" style="font-size:40px;color:var(--verde);">check_circle</span></div><strong>Sin vouchers pendientes</strong><br><small>Todos los pagos están verificados</small></div>';
       return;
     }
-    document.getElementById('lista-vouchers').innerHTML = vouchers.map(v => `
+    document.getElementById('lista-vouchers').innerHTML = vouchers.map((v, vi) => {
+      const safeNombre = escapeHtml(v.nombre);
+      const safeAsesor = escapeHtml(v.asesor);
+      const safeCod = escapeHtml(v.cod);
+      const safeVoucher = escapeHtml(v.voucher);
+      return `
       <div class="cliente-card">
         <div class="cliente-header">
           <div>
-            <div class="cliente-nombre">${v.nombre}</div>
-            <div class="cliente-cod">Cód. ${v.cod} · ${v.celular}</div>
+            <div class="cliente-nombre">${safeNombre}</div>
+            <div class="cliente-cod">Cód. ${safeCod}</div>
           </div>
           <div>
             <div class="cliente-monto">S/. ${parseFloat(v.monto).toLocaleString('es-PE',{minimumFractionDigits:2})}</div>
@@ -983,17 +988,23 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
           </div>
         </div>
         <div class="cliente-info">
-          <span class="tag tag-asesor">${v.asesor.split(' ')[0]}</span>
+          <span class="tag tag-asesor">${safeAsesor.split(' ')[0]}</span>
           <span class="tag tag-pendiente"><span class="mi xs">hourglass_top</span> PENDIENTE</span>
         </div>
         <div class="cliente-acciones">
-          <button class="btn-ver" onclick="verVoucher(${v.fila},'${v.nombre}',${v.monto},'${v.voucher}','${v.asesor}','${v.cod}')"><span class="mi sm">visibility</span> Ver voucher</button>
+          <button class="btn-ver" data-vi="${vi}" onclick="verVoucherByIndex(this.dataset.vi)"><span class="mi sm">visibility</span> Ver voucher</button>
         </div>
-      </div>
-    `).join('');
+      </div>`;
+    }).join('');
   }
 
   let modalCodActual = '';
+
+  function verVoucherByIndex(idx) {
+    const v = vouchers[parseInt(idx)];
+    if (!v) return;
+    verVoucher(v.fila, v.nombre, v.monto, v.voucher, v.asesor, v.cod);
+  }
 
   function verVoucher(fila, nombre, monto, link, asesor, cod) {
     modalFilaActual = fila;
@@ -1117,18 +1128,18 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   function formatFechaSolo(str) {
     if (!str) return '-';
     try {
-      // Si ya es formato dd/mm/yyyy o yyyy-mm-dd limpio, mostrarlo directo
+      // Si ya viene en formato dd/MM/yyyy, retornarlo directo
+      if (typeof str === 'string' && str.match(/^\d{2}\/\d{2}\/\d{4}$/)) return str;
+      // Si ya es formato yyyy-mm-dd limpio, convertirlo
       if (typeof str === 'string' && str.match(/^\d{4}-\d{2}-\d{2}$/)) {
         const [y,m,d] = str.split('-');
         return d + '/' + m + '/' + y;
       }
       const d = new Date(str);
       if (isNaN(d.getTime())) return str;
-      // Ajustar timezone para evitar desfase de un día
-      const local = new Date(d.getTime() + d.getTimezoneOffset() * -60000);
-      return String(local.getDate()).padStart(2,'0') + '/' + 
-             String(local.getMonth()+1).padStart(2,'0') + '/' + 
-             local.getFullYear();
+      return String(d.getDate()).padStart(2,'0') + '/' + 
+             String(d.getMonth()+1).padStart(2,'0') + '/' + 
+             d.getFullYear();
     } catch(e) { return str; }
   }
 
@@ -1290,8 +1301,12 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
             cajaCalcArqueo();
             return;
           }
-          // Solo relanzar si la sede activa difiere de lo que ya cargamos
-          await cajaCargarDatos();
+          // Solo relanzar UNA VEZ si la sede activa difiere
+          if (!cajaCargarDatos._recursionGuard) {
+            cajaCargarDatos._recursionGuard = true;
+            await cajaCargarDatos();
+            cajaCargarDatos._recursionGuard = false;
+          }
           return;
         }
       }
@@ -1783,9 +1798,9 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
           if (r.tipo.includes('Diario')) icono = 'today';
         }
 
-        const gIndex = cajaArqueosOffset + i;
+        const gIndex = cajaArqueosData.length + i;
 
-        return `<div class="mov-card" style="cursor:pointer;" onclick="cajaShowArqueoDetalle(${gIndex})">
+        return `<div class="mov-card" style="cursor:pointer;" onclick="cajaShowArqueoDetalle(${append ? gIndex : i})">
           <div class="mov-left">
             <div class="mov-icon" style="background:var(--gris2); color:var(--texto2);"><span class="mi">${icono}</span></div>
             <div class="mov-info">
