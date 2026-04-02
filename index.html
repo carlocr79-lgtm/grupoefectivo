@@ -240,7 +240,7 @@
   .detalle-card {
     background: white; border-radius: 14px;
     overflow: hidden; margin-bottom: 14px;
-    --b-shadow: 0 4px 16px rgba(0,48,135,0.1);
+    box-shadow: 0 4px 16px rgba(0,48,135,0.1);
   }
   
   .mi { font-family: 'Material Symbols Rounded'; font-variation-settings: 'FILL' 1, 'wght' 600; font-style: normal; display: inline-block; vertical-align: middle; line-height: 1; text-transform: none; letter-spacing: normal; word-wrap: normal; white-space: nowrap; direction: ltr; -webkit-font-smoothing: antialiased; }
@@ -823,12 +823,26 @@
       return;
     }
 
+    if (file.size > 5 * 1024 * 1024) {
+      showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">warning</span> El archivo es muy grande (máx 5MB)');
+      return;
+    }
+
     const btn = document.querySelector('#step-voucher .btn-main');
     btn.innerHTML = '<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">hourglass_top</span> Enviando...';
     btn.disabled = true;
 
     try {
-      const base64 = await comprimirImagen(fileInput.files[0], 800, 0.7);
+      let base64;
+      if (isPdf) {
+        base64 = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (e) => resolve(e.target.result);
+          reader.readAsDataURL(file);
+        });
+      } else {
+        base64 = await comprimirImagen(file, 800, 0.7);
+      }
       const res = await fetch(API_URL, {
         method: 'POST',
         body: JSON.stringify({ cod: codActual, voucher: base64, nombre: nombreActual, monto: montoActual })
@@ -992,7 +1006,7 @@
     cargando = true;
     iniciarSplash();
     const params = new URLSearchParams(window.location.search);
-    const token = params.get('cod') || params.get('token');
+    const token = params.get('cod');
     const cel = params.get('cel');
 
     if (token) {
@@ -1020,6 +1034,7 @@
         }
       } catch(err) {
         if (!cached) {
+          cerrarSplash();
           showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> Error de conexión');
           irPaso('step-aldia', 0);
         }
@@ -1031,12 +1046,15 @@
         if (data && data.length > 0) {
           cargarDatos(data[0]);
         } else {
+          cerrarSplash();
           irPaso('step-aldia', 0);
         }
       } catch(err) {
+        cerrarSplash();
         showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> Error de conexión');
       }
     } else {
+      cerrarSplash();
       irPaso('step-aldia', 0);
     }
   });
