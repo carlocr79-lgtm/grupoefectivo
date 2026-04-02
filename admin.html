@@ -965,7 +965,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
           ${tieneVoucher}
         </div>
         <div class="cliente-acciones">
-          <button class="btn-detalle" onclick="toggleDetalle('${detId}',this)"><span class="mi sm">expand_more</span> Ver detalle</button>
+          <button class="btn-detalle" onclick="toggleDetalle('${detId}',this)"><span class="mi sm">expand_more</span><span>Ver detalle</span></button>
         </div>
         <div class="cliente-detalle" id="${detId}">
           <div class="detalle-grid">
@@ -988,7 +988,8 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     if (!el) return;
     el.classList.toggle('open');
     btn.classList.toggle('open');
-    btn.querySelector('span:last-child').textContent = el.classList.contains('open') ? 'Ocultar detalle' : 'Ver detalle';
+    const txtSpan = btn.querySelectorAll('span')[1];
+    if (txtSpan) txtSpan.textContent = el.classList.contains('open') ? 'Ocultar detalle' : 'Ver detalle';
   }
 
   function enviarWA(linkMovil, linkWeb) {
