@@ -1288,7 +1288,8 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         const rolActual = sessionStorage.getItem('ge_rol') || 'asesor';
         if (rolActual === 'admin') { const o = document.createElement('option'); o.value=''; o.textContent='Todas las sedes'; sel.appendChild(o); }
         resp.sedes.forEach(function(s) { const o = document.createElement('option'); o.value=s; o.textContent=s; sel.appendChild(o); });
-        if (resp.sedeActiva && resp.sedeActiva !== '') {
+        // sedeActiva puede ser '' (todas las sedes) o un nombre de sede específico
+        if (resp.sedeActiva !== undefined && resp.sedeActiva !== null) {
           sel.value = resp.sedeActiva;
           cajaSedeActual = resp.sedeActiva;
           // Si el servidor ya devolvió datos de sedeActiva, usarlos directamente — sin segunda llamada
