@@ -970,11 +970,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         <div class="cliente-detalle" id="${detId}">
           <div class="detalle-grid">
             <div class="detalle-item"><span class="lbl">Cuota mensual</span><span class="val cuota-val">${cuotaFmt}</span></div>
-            <div class="detalle-item"><span class="lbl">Deuda total</span><span class="val monto">${deudaFmt}</span></div>
             <div class="detalle-item"><span class="lbl">Vencimiento</span><span class="val">${c.vencimiento || '-'}</span></div>
-            <div class="detalle-item"><span class="lbl">Días de atraso</span><span class="val">${c.dias} días</span></div>
-            <div class="detalle-item"><span class="lbl">Cuotas vencidas</span><span class="val">${c.cuotas}</span></div>
-            <div class="detalle-item"><span class="lbl">Tipo</span><span class="val">${escapeHtml(c.tipo)}</span></div>
             ${c.direccion ? '<div class="detalle-item" style="grid-column:1/-1;"><span class="lbl">Dirección</span><span class="val">' + escapeHtml(c.direccion) + '</span></div>' : ''}
             ${c.obs ? '<div class="detalle-obs"><span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">info</span>' + escapeHtml(c.obs) + '</div>' : ''}
           </div>
