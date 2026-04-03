@@ -336,11 +336,20 @@
   .qr-grid { display: grid; gap: 10px; justify-items: center; }
   .qr-grid.cols-1 { grid-template-columns: 1fr; max-width: 220px; margin: 0 auto; }
   .qr-grid.cols-2 { grid-template-columns: 1fr 1fr; }
-  .qr-card { background: var(--gris); border-radius: 10px; padding: 12px; text-align: center; width: 100%; display: flex; flex-direction: column; justify-content: space-between; }
-  .qr-card .nombre { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 13px; margin-bottom: 4px; }
-  .qr-card .numero { font-family: 'Courier New', monospace; font-size: 12px; color: var(--texto); margin-bottom: 8px; }
-  .qr-card img { width: 100%; max-width: 140px; height: auto; border-radius: 8px; border: 2px solid var(--gris2); margin: auto auto 0 auto; }
-  .qr-card p { font-size: 10px; color: var(--texto2); margin-top: 6px; }
+  .qr-card { border-radius: 14px; padding: 14px 10px; text-align: center; width: 100%; display: flex; flex-direction: column; justify-content: space-between; color: white; position: relative; overflow: hidden; }
+  .qr-card.yape { background: linear-gradient(135deg, #742284 0%, #4a1555 100%); box-shadow: 0 4px 12px rgba(116, 34, 132, 0.2); }
+  .qr-card.plin { background: linear-gradient(135deg, #00adee 0%, #0075a3 100%); box-shadow: 0 4px 12px rgba(0, 173, 238, 0.2); }
+  .qr-card .nombre { font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 14px; margin-bottom: 2px; letter-spacing: 0.5px; }
+  .qr-card .numero { font-family: 'Courier New', monospace; font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.9); margin-bottom: 12px; }
+  .qr-card img { width: 100%; max-width: 130px; height: auto; border-radius: 8px; border: 3px solid white; margin: auto auto 0 auto; }
+  .qr-card p { font-size: 10px; color: rgba(255,255,255,0.8); margin-top: 6px; margin-bottom: 8px; }
+  .btn-download-qr {
+    background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);
+    color: white; border-radius: 20px; padding: 6px 12px; font-size: 11px; font-weight: 600;
+    cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+    text-decoration: none; transition: background 0.2s; align-self: center; width: auto; margin-top: auto;
+  }
+  .btn-download-qr:active { background: rgba(255,255,255,0.3); }
 
   .oficina-box { background: var(--gris); border-radius: 10px; padding: 12px; margin-bottom: 8px; border-left: 3px solid var(--azul2); }
   .oficina-ciudad { font-weight: 700; font-size: 12px; color: var(--azul); margin-bottom: 3px; }
@@ -791,20 +800,27 @@
       var cardCount = 0;
       var cardsHtml = '';
       if (cliente.cuentas.yape_num || cliente.cuentas.yape_qr) {
-        cardsHtml += '<div class="qr-card"><div><div class="nombre" style="color:#6b21a8;">YAPE</div>';
+        cardsHtml += '<div class="qr-card yape"><div><div class="nombre">YAPE</div>';
         if (cliente.cuentas.yape_num) cardsHtml += '<div class="numero">' + cliente.cuentas.yape_num + '</div>';
-        cardsHtml += '</div><div>';
-        if (cliente.cuentas.yape_qr) cardsHtml += '<img src="' + convertDriveLink(cliente.cuentas.yape_qr) + '" alt="QR Yape"><p>Escanea con Yape</p>';
+        cardsHtml += '</div><div style="display:flex;flex-direction:column;align-items:center;">';
+        if (cliente.cuentas.yape_qr) {
+          let qrUrl = convertDriveLink(cliente.cuentas.yape_qr);
+          cardsHtml += '<img src="' + qrUrl + '" alt="QR Yape"><p>Escanea para pagar</p>';
+          cardsHtml += '<a href="' + qrUrl + '" download="QR_Yape.jpg" target="_blank" class="btn-download-qr"><span class="mi xs" style="margin-right:4px;">download</span> Guardar QR</a>';
+        }
         cardsHtml += '</div></div>';
         cardCount++;
       }
       if (cliente.cuentas.plin_num || cliente.cuentas.plin_qr) {
-        cardsHtml += '<div class="qr-card"><div><div class="nombre" style="color:#00adee;">PLIN</div>';
+        cardsHtml += '<div class="qr-card plin"><div><div class="nombre">PLIN</div>';
         if (cliente.cuentas.plin_num) cardsHtml += '<div class="numero">' + cliente.cuentas.plin_num + '</div>';
-        cardsHtml += '</div><div>';
-        if (cliente.cuentas.plin_qr) cardsHtml += '<img src="' + convertDriveLink(cliente.cuentas.plin_qr) + '" alt="QR Plin"><p>Escanea con Plin</p>';
+        cardsHtml += '</div><div style="display:flex;flex-direction:column;align-items:center;">';
+        if (cliente.cuentas.plin_qr) {
+          let qrUrl = convertDriveLink(cliente.cuentas.plin_qr);
+          cardsHtml += '<img src="' + qrUrl + '" alt="QR Plin"><p>Escanea para pagar</p>';
+          cardsHtml += '<a href="' + qrUrl + '" download="QR_Plin.jpg" target="_blank" class="btn-download-qr"><span class="mi xs" style="margin-right:4px;">download</span> Guardar QR</a>';
+        }
         cardsHtml += '</div></div>';
-
         cardCount++;
       }
       var htmlBilletera;
