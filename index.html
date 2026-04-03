@@ -28,14 +28,14 @@
   html, body { height: 100%; overflow: hidden; }
   body { font-family: 'DM Sans', sans-serif; background: var(--azul); color: var(--texto); -webkit-font-smoothing: antialiased; }
 
-  /* FOOTER TEXT */
   .footer-text {
     position: fixed;
-    bottom: 6px; left: 0; right: 0;
+    bottom: 0px; left: 0; right: 0;
     text-align: center;
     font-size: 9px; font-weight: 500;
     color: var(--texto2); opacity: 0.8;
     pointer-events: none; z-index: 1000;
+    padding-bottom: env(safe-area-inset-bottom, 6px);
   }
 
   /* WIZARD CONTAINER */
@@ -230,7 +230,7 @@
     color: #ffcccc; line-height: 1;
   }
 
-  .deuda-body { padding: 14px 16px; flex: 1; }
+  .deuda-body { padding: 14px 16px 40px 16px; flex: 1; }
 
   .detalle-card {
     background: white; border-radius: 14px;
@@ -290,7 +290,7 @@
   }
   .step-header p { font-size: 12px; color: rgba(255,255,255,0.7); }
 
-  .metodo-body { padding: 14px 16px; flex: 1; overflow-y: auto; }
+  .metodo-body { padding: 14px 16px 40px 16px; flex: 1; overflow-y: auto; }
 
   .metodo-btn {
     width: 100%; padding: 12px 8px;
@@ -360,7 +360,7 @@
 
   /* STEP VOUCHER */
   #step-voucher { background: var(--gris); }
-  .voucher-body { padding: 14px 16px; flex: 1; overflow-y: auto; }
+  .voucher-body { padding: 14px 16px 40px 16px; flex: 1; overflow-y: auto; }
   .upload-area {
     border: 2px dashed var(--gris2); border-radius: 14px;
     padding: 30px 16px; text-align: center; cursor: pointer;
