@@ -337,10 +337,10 @@
   .qr-grid { display: grid; gap: 10px; justify-items: center; }
   .qr-grid.cols-1 { grid-template-columns: 1fr; max-width: 220px; margin: 0 auto; }
   .qr-grid.cols-2 { grid-template-columns: 1fr 1fr; }
-  .qr-card { background: var(--gris); border-radius: 10px; padding: 12px; text-align: center; width: 100%; }
+  .qr-card { background: var(--gris); border-radius: 10px; padding: 12px; text-align: center; width: 100%; display: flex; flex-direction: column; justify-content: space-between; }
   .qr-card .nombre { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 13px; margin-bottom: 4px; }
   .qr-card .numero { font-family: 'Courier New', monospace; font-size: 12px; color: var(--texto); margin-bottom: 8px; }
-  .qr-card img { width: 100%; max-width: 140px; height: auto; border-radius: 8px; border: 2px solid var(--gris2); }
+  .qr-card img { width: 100%; max-width: 140px; height: auto; border-radius: 8px; border: 2px solid var(--gris2); margin: auto auto 0 auto; }
   .qr-card p { font-size: 10px; color: var(--texto2); margin-top: 6px; }
 
   .oficina-box { background: var(--gris); border-radius: 10px; padding: 12px; margin-bottom: 8px; border-left: 3px solid var(--azul2); }
@@ -567,7 +567,6 @@
         <div class="detalle-row"><span class="lbl">Días de atraso</span><span class="val rojo" id="stat-dias">-</span></div>
         <div class="detalle-row"><span class="lbl">Cuotas vencidas</span><span class="val rojo" id="stat-cuotas">-</span></div>
         <div class="detalle-row"><span class="lbl">Monto por cuota</span><span class="val" id="info-cuota">-</span></div>
-        <div class="detalle-row" style="background:#fffcf5;"><span class="lbl" style="color:#d97706;font-weight:700;">Total a regularizar</span><span class="val rojo" style="font-size:18px;" id="info-deuda">-</span></div>
       </div>
       <button class="btn-main pulse-glow" onclick="irPaso('step-metodo', 2)"><span class="mi sm" style="vertical-align:text-bottom;margin-right:4px;">payment</span> PAGAR AHORA →</button>
     </div>
@@ -798,17 +797,20 @@
       var cardCount = 0;
       var cardsHtml = '';
       if (cliente.cuentas.yape_num || cliente.cuentas.yape_qr) {
-        cardsHtml += '<div class="qr-card"><div class="nombre" style="color:#6b21a8;">YAPE</div>';
+        cardsHtml += '<div class="qr-card"><div><div class="nombre" style="color:#6b21a8;">YAPE</div>';
         if (cliente.cuentas.yape_num) cardsHtml += '<div class="numero">' + cliente.cuentas.yape_num + '</div>';
+        cardsHtml += '</div><div>';
         if (cliente.cuentas.yape_qr) cardsHtml += '<img src="' + convertDriveLink(cliente.cuentas.yape_qr) + '" alt="QR Yape"><p>Escanea con Yape</p>';
-        cardsHtml += '</div>';
+        cardsHtml += '</div></div>';
         cardCount++;
       }
       if (cliente.cuentas.plin_num || cliente.cuentas.plin_qr) {
-        cardsHtml += '<div class="qr-card"><div class="nombre" style="color:#00adee;">PLIN</div>';
+        cardsHtml += '<div class="qr-card"><div><div class="nombre" style="color:#00adee;">PLIN</div>';
         if (cliente.cuentas.plin_num) cardsHtml += '<div class="numero">' + cliente.cuentas.plin_num + '</div>';
+        cardsHtml += '</div><div>';
         if (cliente.cuentas.plin_qr) cardsHtml += '<img src="' + convertDriveLink(cliente.cuentas.plin_qr) + '" alt="QR Plin"><p>Escanea con Plin</p>';
-        cardsHtml += '</div>';
+        cardsHtml += '</div></div>';
+
         cardCount++;
       }
       var htmlBilletera;
