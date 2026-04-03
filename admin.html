@@ -1813,6 +1813,10 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
     if (!confirm('¿Confirmar ' + tipoTexto + '?')) return;
 
+    showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">hourglass_empty</span> Procesando ' + tipoTexto + '...');
+    const tabCaja = document.getElementById('tab-caja');
+    if (tabCaja) { tabCaja.style.opacity = '0.6'; tabCaja.style.pointerEvents = 'none'; }
+
     const detalle = {};
     const inputs = tipoTexto === 'Cierre Diario'
       ? document.querySelectorAll('.arq-input-cajera')
@@ -1839,7 +1843,11 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         await cajaCargarDatos();
         cajaSwitchSubtab('resumen', document.getElementById('subtab-resumen'));
       } else { showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> ' + (resp && resp.message ? resp.message : 'Error')); }
-    } catch(e) { showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> Error: ' + e.message); }
+    } catch(e) { 
+      showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> Error: ' + e.message); 
+    } finally {
+      if (tabCaja) { tabCaja.style.opacity = ''; tabCaja.style.pointerEvents = ''; }
+    }
   }
 
   let cajaArqueosOffset = 0;
