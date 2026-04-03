@@ -699,7 +699,7 @@
     next.scrollTop = 0;
   }
 
-  function cargarDatos(cliente) {
+  function cargarDatos(cliente, silencioso) {
     const dias = parseFloat(cliente.diasAtraso) || 0;
     const cuotas = parseFloat(cliente.cuotasVencidas) || 0;
     const monto = parseFloat(cliente.deuda) || 0;
@@ -750,7 +750,7 @@
         if(!url) return '';
         if(url.includes('drive.google.com/file/d/')) {
           const id = url.split('/d/')[1].split('/')[0];
-          return 'https://drive.google.com/uc?export=view&id=' + id;
+          return 'https://lh3.googleusercontent.com/d/' + id;
         }
         return url;
       };
@@ -773,7 +773,7 @@
       document.getElementById('det-billetera').innerHTML = htmlBilletera;
     }
 
-    irPaso('step-deuda', 1);
+    if (!silencioso) irPaso('step-deuda', 1);
   }
 
   function seleccionarMetodo(metodo, el) {
@@ -1051,7 +1051,7 @@
         } else if (data.verificando || data.alDia || data.expirado) {
           aplicarRespuesta(data); // estado cambió (ej: ya pagó) → override del caché
         } else if (data.encontrado) {
-          cargarDatos(data); // mismo estado: actualizar datos silenciosamente
+          cargarDatos(data, true); // mismo estado: actualizar datos silenciosamente
         }
       } catch(err) {
         if (!cached) {
