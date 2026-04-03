@@ -1841,7 +1841,9 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       if (resp && resp.status === 'ok') {
         showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">check_circle</span> ' + resp.message);
         await cajaCargarDatos();
-        cajaSwitchSubtab('resumen', document.getElementById('subtab-resumen'));
+        document.querySelectorAll('.arq-input, .arq-input-cajera').forEach(function(i) { i.value = ''; });
+        cajaCalcArqueoCajera();
+        cajaCalcArqueo();
       } else { showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> ' + (resp && resp.message ? resp.message : 'Error')); }
     } catch(e) { 
       showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> Error: ' + e.message); 
