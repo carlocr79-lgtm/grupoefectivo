@@ -806,7 +806,7 @@
         if (cliente.cuentas.yape_qr) {
           let qrUrl = convertDriveLink(cliente.cuentas.yape_qr);
           cardsHtml += '<img src="' + qrUrl + '" alt="QR Yape"><p>Escanea para pagar</p>';
-          cardsHtml += '<a href="' + qrUrl + '" download="QR_Yape.jpg" target="_blank" class="btn-download-qr"><span class="mi xs" style="margin-right:4px;">download</span> Guardar QR</a>';
+          cardsHtml += '<button type="button" onclick="descargarQR(\'' + qrUrl + '\', \'QR_Yape.jpg\')" class="btn-download-qr"><span class="mi xs" style="margin-right:4px;">download</span> Guardar QR</button>';
         }
         cardsHtml += '</div></div>';
         cardCount++;
@@ -818,7 +818,7 @@
         if (cliente.cuentas.plin_qr) {
           let qrUrl = convertDriveLink(cliente.cuentas.plin_qr);
           cardsHtml += '<img src="' + qrUrl + '" alt="QR Plin"><p>Escanea para pagar</p>';
-          cardsHtml += '<a href="' + qrUrl + '" download="QR_Plin.jpg" target="_blank" class="btn-download-qr"><span class="mi xs" style="margin-right:4px;">download</span> Guardar QR</a>';
+          cardsHtml += '<button type="button" onclick="descargarQR(\'' + qrUrl + '\', \'QR_Plin.jpg\')" class="btn-download-qr"><span class="mi xs" style="margin-right:4px;">download</span> Guardar QR</button>';
         }
         cardsHtml += '</div></div>';
         cardCount++;
@@ -885,6 +885,25 @@
 
   function copiar(texto) {
     navigator.clipboard.writeText(texto).then(() => showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">check_circle</span> Número copiado'));
+  }
+
+  async function descargarQR(url, filename) {
+    showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">hourglass_empty</span> Preparando...');
+    try {
+      const resp = await fetch(url);
+      const blob = await resp.blob();
+      const objUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = objUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(objUrl); }, 100);
+      setTimeout(() => showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">check_circle</span> Guardado en galería'), 500);
+    } catch (e) {
+      window.open(url, '_blank');
+    }
   }
 
   function previewVoucher(input) {
