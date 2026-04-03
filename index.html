@@ -28,18 +28,15 @@
   html, body { height: 100%; overflow: hidden; }
   body { font-family: 'DM Sans', sans-serif; background: var(--azul); color: var(--texto); -webkit-font-smoothing: antialiased; }
 
-  /* FOOTER GLOBAL */
-  .footer-global {
+  /* FOOTER TEXT */
+  .footer-text {
     position: fixed;
-    bottom: 0; left: 0; right: 0; height: 32px;
-    background: white; border-top: 1px solid var(--gris2);
-    padding: 0 16px;
-    display: flex; justify-content: space-between; align-items: center;
-    z-index: 100;
+    bottom: 6px; left: 0; right: 0;
+    text-align: center;
+    font-size: 9px; font-weight: 500;
+    color: var(--texto2); opacity: 0.8;
+    pointer-events: none; z-index: 1000;
   }
-  .footer-empresa { font-size: 10px; font-weight: 700; color: var(--texto2); }
-  .footer-empresa span { font-weight: 500; margin-left: 4px; opacity: 0.8; }
-  .footer-steps { font-size: 10px; font-weight: 700; color: var(--azul); }
 
   /* WIZARD CONTAINER */
   .wizard {
@@ -53,7 +50,7 @@
     will-change: transform;
     -webkit-overflow-scrolling: touch;
     position: absolute;
-    top: 0; left: 0; right: 0; bottom: 32px;
+    top: 0; left: 0; right: 0; bottom: 0;
     display: flex;
     flex-direction: column;
     transform: translateX(100%);
@@ -458,14 +455,12 @@
     background: white; border-radius: 50%; padding: 0px;
     color: var(--verde); display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   }
-  .footer-global { background: #f4f4f4; padding: 20px; text-align: center; border-top: 1px solid #ddd; }
-  .footer-empresa { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 14px; color: #333; margin-bottom: 8px; }
-  .footer-empresa span { font-weight: 400; font-size: 12px; color: #666; display: block; }
 </style>
 </head>
 <body>
 
-
+<div class="footer-text">© 2023 Grupo Efectivo SAC – RUC: 20607071447 – Todos los Derechos Reservados</div>
+<div id="nav-steps" style="display:none;"></div>
 
 <div class="wizard">
 
