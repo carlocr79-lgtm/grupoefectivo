@@ -728,7 +728,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         const ofLabel = data.oficina && data.oficina !== 'TODOS' ? data.oficina : 'Todas las oficinas';
         document.getElementById('navbar-rol').textContent = rolLabel;
         document.getElementById('navbar-oficina').textContent = ofLabel;
-        document.getElementById('navbar-user').textContent = data.nombre.split(' ')[0];
+        document.getElementById('navbar-user').textContent = data.nombre;
         cargarTodo();
       } else {
         mostrarError('codigo-error', data.error || 'Código incorrecto');
@@ -1993,7 +1993,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         const ofLabel = oficina !== 'TODOS' ? oficina : 'Todas las oficinas';
         document.getElementById('navbar-rol').textContent = rolLabel;
         document.getElementById('navbar-oficina').textContent = ofLabel;
-        document.getElementById('navbar-user').textContent = nombre.split(' ')[0];
+        document.getElementById('navbar-user').textContent = nombre;
       }
       cargarTodo();
     }
