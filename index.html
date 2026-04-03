@@ -613,16 +613,6 @@
 
       <!-- DETALLE EFECTIVO -->
       <div class="metodo-detalle" id="det-efectivo">
-        <div class="oficina-box">
-          <div class="oficina-ciudad"><span class="mi sm" style="vertical-align:text-bottom;">location_on</span> Chanchamayo</div>
-          <div class="oficina-dir">Jr. Dos de Mayo Nro. 267, Junín</div>
-          <div class="oficina-hora">Lun - Sáb: 8:00 AM - 6:00 PM</div>
-        </div>
-        <div class="oficina-box">
-          <div class="oficina-ciudad"><span class="mi sm" style="vertical-align:text-bottom;">location_on</span> Pichanaqui</div>
-          <div class="oficina-dir">Av. Micaela Bastidas Mza. D-1 Lote 02B3</div>
-          <div class="oficina-hora">Lun - Sáb: 8:00 AM - 6:00 PM</div>
-        </div>
       </div>
 
       <button class="btn-main fade-in-up" id="btn-ya-pague" onclick="irPaso('step-voucher', 3)" style="display:none;margin-top:8px;"><span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">check_circle</span> Ya realicé mi pago →</button>
@@ -819,6 +809,46 @@
         htmlBilletera = '<p style="text-align:center;color:#666;font-size:13px;padding:20px;">No hay billeteras configuradas.</p>';
       }
       document.getElementById('det-billetera').innerHTML = htmlBilletera;
+      
+      // Renderizado dinámico de Efectivo (Horarios)
+      function getHorarioStatus() {
+        const now = new Date(new Date().toLocaleString("en-US", {timeZone: "America/Lima"}));
+        const day = now.getDay();
+        const hour = now.getHours();
+        const minutes = now.getMinutes();
+
+        if (day === 0) return { color: '#ef4444', text: 'Cerrado' };
+
+        let endHour = (day === 6) ? 13 : 18;
+        let startHour = 9;
+
+        let totalMins = hour * 60 + minutes;
+        let startMins = startHour * 60;
+        let endMins = endHour * 60;
+
+        if (totalMins < startMins || totalMins >= endMins) {
+          return { color: '#ef4444', text: 'Cerrado' };
+        } else if (endMins - totalMins <= 10) {
+          return { color: '#f59e0b', text: 'Cierra pronto' };
+        } else {
+          return { color: '#10b981', text: 'Abierto' };
+        }
+      }
+
+      const s = getHorarioStatus();
+      const st = `<span style="background:${s.color}15; color:${s.color}; border: 1px solid ${s.color}40; padding:2px 8px; border-radius:12px; font-size:9px; font-weight:800; text-transform:uppercase;">${s.text}</span>`;
+      document.getElementById('det-efectivo').innerHTML = `
+        <div class="oficina-box">
+          <div class="oficina-ciudad" style="display:flex; justify-content:space-between;"><span><span class="mi sm" style="vertical-align:text-bottom;">location_on</span> Chanchamayo</span> ${st}</div>
+          <div class="oficina-dir">Jr. Dos de Mayo Nro. 267, Junín</div>
+          <div class="oficina-hora" style="margin-top:6px;line-height:1.4;">Lunes a Viernes: 9:00 AM - 6:00 PM<br>Sábados: 9:00 AM - 1:00 PM</div>
+        </div>
+        <div class="oficina-box">
+          <div class="oficina-ciudad" style="display:flex; justify-content:space-between;"><span><span class="mi sm" style="vertical-align:text-bottom;">location_on</span> Pichanaqui</span> ${st}</div>
+          <div class="oficina-dir">Av. Micaela Bastidas Mza. D-1 Lote 02B3</div>
+          <div class="oficina-hora" style="margin-top:6px;line-height:1.4;">Lunes a Viernes: 9:00 AM - 6:00 PM<br>Sábados: 9:00 AM - 1:00 PM</div>
+        </div>
+      `;
     }
 
     if (!silencioso) irPaso('step-deuda', 1);
