@@ -314,11 +314,15 @@
 
   .metodo-detalle {
     background: white; border-radius: 14px;
-    padding: 14px; margin-bottom: 14px;
-    box-shadow: 0 2px 12px rgba(0,48,135,0.08);
-    display: none;
+    padding: 0 14px; margin-bottom: 0;
+    box-shadow: 0 4px 16px rgba(0,48,135,0.06);
+    max-height: 0; opacity: 0; overflow: hidden;
+    transition: all 0.3s ease;
   }
-  .metodo-detalle.show { display: block; }
+  .metodo-detalle.show {
+    padding: 14px; margin-bottom: 14px;
+    max-height: 500px; opacity: 1; overflow: visible;
+  }
 
   .banco-box { background: var(--gris); border-radius: 10px; padding: 12px; margin-bottom: 10px; }
   .banco-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; margin-bottom: 8px; }
@@ -430,6 +434,32 @@
   /* PROGRESS BAR */
   .progress-bar { height: 3px; background: rgba(255,255,255,0.2); position: relative; }
   .progress-fill { height: 100%; background: white; transition: width 0.3s; }
+
+  /* ANIMACIONES Y UX EXTRAS */
+  @keyframes pulseGlow {
+    0% { box-shadow: 0 0 0 0 rgba(0, 170, 68, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(0, 170, 68, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(0, 170, 68, 0); }
+  }
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes shakeX {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-4px); }
+    40%, 80% { transform: translateX(4px); }
+  }
+
+  .pulse-glow { animation: pulseGlow 2s infinite; }
+  .fade-in-up { animation: fadeInUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+  .shake-error { animation: shakeX 0.4s ease; border-color: var(--rojo) !important; background-color: #fff0f0 !important; }
+  
+  .check-overlay {
+    position: absolute; top: -14px; right: -14px;
+    background: white; border-radius: 50%; padding: 0px;
+    color: var(--verde); display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
 </style>
 </head>
 <body>
@@ -527,16 +557,19 @@
     </div>
     <div class="deuda-body">
       <div class="detalle-card">
-        <div class="detalle-title"><span class="mi xs" style="margin-right:4px;">content_copy</span> Detalle del crédito</div>
+        <div class="detalle-title"><span class="mi xs" style="margin-right:4px;">info</span> Estructura del Préstamo</div>
         <div class="detalle-row"><span class="lbl">Asesor</span><span class="val" id="info-asesor">-</span></div>
         <div class="detalle-row"><span class="lbl">Tipo</span><span class="val" id="info-tipo">-</span></div>
         <div class="detalle-row"><span class="lbl">Frecuencia</span><span class="val" id="info-frecuencia">-</span></div>
+      </div>
+      <div class="detalle-card">
+        <div class="detalle-title" style="background:#fff0f0;color:var(--rojo);"><span class="mi xs" style="margin-right:4px;">warning</span> Estado de Deuda</div>
         <div class="detalle-row"><span class="lbl">Días de atraso</span><span class="val rojo" id="stat-dias">-</span></div>
         <div class="detalle-row"><span class="lbl">Cuotas vencidas</span><span class="val rojo" id="stat-cuotas">-</span></div>
         <div class="detalle-row"><span class="lbl">Monto por cuota</span><span class="val" id="info-cuota">-</span></div>
-        <div class="detalle-row"><span class="lbl">Total a regularizar</span><span class="val rojo" id="info-deuda">-</span></div>
+        <div class="detalle-row" style="background:#fffcf5;"><span class="lbl" style="color:#d97706;font-weight:700;">Total a regularizar</span><span class="val rojo" style="font-size:18px;" id="info-deuda">-</span></div>
       </div>
-      <button class="btn-main" onclick="irPaso('step-metodo', 2)"><span class="mi sm" style="vertical-align:text-bottom;margin-right:4px;">payment</span> PAGAR AHORA →</button>
+      <button class="btn-main pulse-glow" onclick="irPaso('step-metodo', 2)"><span class="mi sm" style="vertical-align:text-bottom;margin-right:4px;">payment</span> PAGAR AHORA →</button>
     </div>
   </div>
 
@@ -593,7 +626,7 @@
         </div>
       </div>
 
-      <button class="btn-main" id="btn-ya-pague" onclick="irPaso('step-voucher', 3)" style="display:none;"><span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">check_circle</span> Ya realicé mi pago →</button>
+      <button class="btn-main fade-in-up" id="btn-ya-pague" onclick="irPaso('step-voucher', 3)" style="display:none;margin-top:8px;"><span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">check_circle</span> Ya realicé mi pago →</button>
       <button class="btn-sec" onclick="irPaso('step-deuda', 1)">← Volver</button>
     </div>
   </div>
@@ -608,16 +641,21 @@
       </div>
     </div>
     <div class="voucher-body">
-      <div class="upload-area" onclick="document.getElementById('voucher-file').click()">
+      <div class="alerta-box" style="margin-top:0;margin-bottom:14px;background:#e8f0ff;border-color:var(--azul2);color:var(--azul);">
+        <strong><span class="mi xs" style="vertical-align:text-bottom;">security</span> Seguro e importante:</strong> Todo pago debe efectuarse a nombre de <strong>GRUPO EFECTIVO S.A.C.</strong> RUC: 20607071447
+      </div>
+      <div class="upload-area" id="upload-area" onclick="document.getElementById('voucher-file').click()">
         <div class="upload-icon"><span class="mi">attach_file</span></div>
         <h3>Seleccionar comprobante</h3>
-        <p>Toca aquí para elegir una foto o PDF</p>
+        <p id="upload-msg">Toca aquí para elegir una foto o PDF</p>
         <input type="file" id="voucher-file" accept="image/*,application/pdf" style="display:none" onchange="previewVoucher(this)">
       </div>
-      <div id="voucher-preview"><img id="preview-img"></div>
-      <button class="btn-main" onclick="confirmarPago()"><span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">check_circle</span> Confirmar mi pago</button>
+      <div id="voucher-preview" style="position:relative;display:none;margin-bottom:14px;box-shadow:0 4px 12px rgba(0,0,0,0.1);border-radius:12px;">
+        <img id="preview-img">
+        <div id="preview-check" class="check-overlay"><span class="mi" style="font-size:32px;background:white;border-radius:50%;">check_circle</span></div>
+      </div>
+      <button class="btn-main pulse-glow" onclick="confirmarPago()"><span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">check_circle</span> Confirmar mi pago</button>
       <button class="btn-sec" onclick="irPaso('step-metodo', 2)">← Volver</button>
-      <div class="alerta-box"><strong><span class="mi xs" style="vertical-align:text-bottom;">warning</span> Importante:</strong> Todo pago debe efectuarse a nombre de <strong>GRUPO EFECTIVO SOCIEDAD ANÓNIMA CERRADA</strong>. RUC: 20607071447</div>
     </div>
   </div>
 
@@ -804,6 +842,13 @@
       reader.onload = e => {
         document.getElementById('preview-img').src = e.target.result;
         document.getElementById('voucher-preview').style.display = 'block';
+        document.getElementById('preview-check').style.display = 'block';
+        
+        // Reset valid state
+        const uploadArea = document.getElementById('upload-area');
+        uploadArea.classList.remove('shake-error');
+        document.getElementById('upload-msg').style.color = 'var(--texto2)';
+        document.getElementById('upload-msg').innerHTML = '<strong>' + input.files[0].name.substring(0, 20) + '...</strong> listo para enviar';
       };
       reader.readAsDataURL(input.files[0]);
     }
@@ -838,8 +883,16 @@
 
   async function confirmarPago() {
     const fileInput = document.getElementById('voucher-file');
+    const uploadArea = document.getElementById('upload-area');
+    const uploadMsg = document.getElementById('upload-msg');
+    
     if (!fileInput.files || !fileInput.files[0]) {
       showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">warning</span> Por favor sube tu comprobante');
+      uploadArea.classList.remove('shake-error');
+      void uploadArea.offsetWidth; // Trigger reflow to restart animation
+      uploadArea.classList.add('shake-error');
+      uploadMsg.style.color = 'var(--rojo)';
+      uploadMsg.textContent = '¡Falta adjuntar tu foto!';
       return;
     }
     
