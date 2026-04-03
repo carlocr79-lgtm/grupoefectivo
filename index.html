@@ -222,9 +222,11 @@
     border-radius: 20px; font-size: 11px; font-weight: 700;
     font-family: 'Montserrat', sans-serif; margin-bottom: 14px;
   }
-  .estado-critico { background: #ff4444; color: white; }
-  .estado-vencido { background: #ff8800; color: white; }
-  .estado-hoy { background: #ffaa00; color: white; }
+  .estado-normal { background: #00aa44; color: white; }
+  .estado-cpp { background: #ffbb00; color: #1a1a2e; }
+  .estado-deficiente { background: #ff8800; color: white; }
+  .estado-dudoso { background: #cc0000; color: white; }
+  .estado-perdida { background: #1a1a2e; color: white; }
 
   .monto-box {
     background: rgba(255,255,255,0.15);
@@ -752,9 +754,22 @@
     document.getElementById('info-cuota').textContent = 'S/. ' + cuota.toLocaleString('es-PE', {minimumFractionDigits:2});
 
     const badge = document.getElementById('estado-badge');
-    if (dias > 90) { badge.innerHTML = '<span class="mi xs" style="vertical-align:text-bottom;margin-right:2px;">error</span> CRÍTICO'; badge.className = 'estado-badge estado-critico'; }
-    else if (dias > 0) { badge.innerHTML = '<span class="mi xs" style="vertical-align:text-bottom;margin-right:2px;">warning</span> VENCIDO'; badge.className = 'estado-badge estado-vencido'; }
-    else { badge.innerHTML = '<span class="mi xs" style="vertical-align:text-bottom;margin-right:2px;">info</span> VENCE HOY'; badge.className = 'estado-badge estado-hoy'; }
+    if (dias > 120) {
+      badge.innerHTML = '<span class="mi xs" style="vertical-align:text-bottom;margin-right:2px;">sentiment_dissatisfied</span> PÉRDIDA';
+      badge.className = 'estado-badge estado-perdida';
+    } else if (dias >= 61) {
+      badge.innerHTML = '<span class="mi xs" style="vertical-align:text-bottom;margin-right:2px;">error</span> DUDOSO';
+      badge.className = 'estado-badge estado-dudoso';
+    } else if (dias >= 31) {
+      badge.innerHTML = '<span class="mi xs" style="vertical-align:text-bottom;margin-right:2px;">warning</span> DEFICIENTE';
+      badge.className = 'estado-badge estado-deficiente';
+    } else if (dias >= 9) {
+      badge.innerHTML = '<span class="mi xs" style="vertical-align:text-bottom;margin-right:2px;">info</span> CPP';
+      badge.className = 'estado-badge estado-cpp';
+    } else {
+      badge.innerHTML = '<span class="mi xs" style="vertical-align:text-bottom;margin-right:2px;">check_circle</span> NORMAL';
+      badge.className = 'estado-badge estado-normal';
+    }
 
     // Actualizar banner monto
     document.getElementById('banner-monto').textContent = 'S/. ' + monto.toLocaleString('es-PE', {minimumFractionDigits:2});
