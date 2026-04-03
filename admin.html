@@ -261,7 +261,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 /* MODAL CAJA */
 .modal-caja { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:999; display:none; align-items:center; justify-content:center; padding:20px; }
 .modal-caja.show { display:flex; }
-.modal-caja-box { background:white; border-radius:20px; padding:24px; width:100%; max-width:440px; max-height:90vh; overflow-y:auto; }
+.modal-caja-box { background:white; border-radius:20px; padding:24px; width:100%; max-width:440px; max-height:90vh; overflow-y:auto; position:relative; }
 .modal-caja-box h3 { font-family:'Montserrat',sans-serif; font-weight:800; font-size:16px; color:var(--azul); margin-bottom:16px; }
 .form-caja-group { margin-bottom:12px; }
 .form-caja-group label { font-size:11px; font-weight:600; color:var(--texto2); text-transform:uppercase; display:block; margin-bottom:5px; }
@@ -629,6 +629,11 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     <div style="display:flex;gap:10px;margin-top:8px;">
       <button onclick="cajaHideModal()" style="flex:1;padding:12px;background:var(--gris);border:none;border-radius:10px;font-weight:700;cursor:pointer;">Cancelar</button>
       <button class="btn-main" onclick="cajaGuardar()" id="caja-btn-guardar" style="flex:1;padding:12px;">Guardar</button>
+    </div>
+    <div id="caja-saving-overlay" style="display:none;position:absolute;inset:0;background:rgba(255,255,255,0.92);border-radius:14px;z-index:10;flex-direction:column;align-items:center;justify-content:center;gap:12px;">
+      <div class="spinner-sm" style="width:32px;height:32px;border-width:3px;"></div>
+      <div id="caja-saving-msg" style="font-family:Montserrat,sans-serif;font-weight:700;font-size:13px;color:var(--azul);text-align:center;">Guardando...</div>
+      <div id="caja-saving-sub" style="font-size:11px;color:var(--texto2);text-align:center;">Esto puede tomar unos segundos</div>
     </div>
   </div>
 </div>
@@ -1625,6 +1630,16 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
   function cajaHideModal() { document.getElementById('modal-caja').classList.remove('show'); }
 
+  function cajaShowSavingOverlay(msg, sub) {
+    const ov = document.getElementById('caja-saving-overlay');
+    document.getElementById('caja-saving-msg').textContent = msg || 'Guardando...';
+    document.getElementById('caja-saving-sub').textContent = sub || 'Esto puede tomar unos segundos';
+    ov.style.display = 'flex';
+  }
+  function cajaHideSavingOverlay() {
+    document.getElementById('caja-saving-overlay').style.display = 'none';
+  }
+
   async function cajaGuardar() {
     const btn = document.getElementById('caja-btn-guardar');
     const fecha = document.getElementById('caja-fecha').value;
@@ -1643,8 +1658,9 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     let archivoBase64 = null;
     let archivoMimeType = null;
     let archivoNombre = null;
+    const tieneArchivo = archivoInput.files && archivoInput.files.length > 0;
 
-    if (archivoInput.files && archivoInput.files.length > 0) {
+    if (tieneArchivo) {
       const file = archivoInput.files[0];
       archivoMimeType = file.type;
       archivoNombre = file.name;
@@ -1658,16 +1674,23 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         reader.onerror = error => reject(error);
       });
       try {
-        btn.innerHTML = '<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">hourglass_top</span> Cargando archivo...'; btn.disabled = true;
+        cajaShowSavingOverlay('Leyendo archivo...', archivoNombre);
+        btn.disabled = true;
         archivoBase64 = await getBase64(file);
       } catch (e) {
+        cajaHideSavingOverlay();
         showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> Error al leer el archivo');
-        btn.textContent = 'Guardar'; btn.disabled = false;
+        btn.disabled = false;
         return;
       }
     }
     
-    btn.innerHTML = '<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">hourglass_top</span> Guardando...'; btn.disabled = true;
+    btn.disabled = true;
+    cajaShowSavingOverlay(
+      tieneArchivo ? 'Subiendo archivo y guardando...' : 'Guardando movimiento...',
+      tieneArchivo ? 'El archivo se está subiendo a Drive' : 'Registrando en el sistema'
+    );
+
     try {
       const resp = await apiPost({
         _method: 'POST', cajaAction: 'guardar',
@@ -1679,6 +1702,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         archivoMimeType: archivoMimeType || '',
         archivoNombre: archivoNombre || ''
       });
+      cajaHideSavingOverlay();
       if (resp && resp.status === 'ok') {
         showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">check_circle</span> ' + resp.message);
         cajaHideModal();
@@ -1687,7 +1711,10 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       } else {
         showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> ' + (resp && resp.message ? resp.message : 'Error'));
       }
-    } catch(e) { showToast('❌ Error: ' + e.message); }
+    } catch(e) { 
+      cajaHideSavingOverlay();
+      showToast('❌ Error: ' + e.message); 
+    }
     btn.textContent = 'Guardar'; btn.disabled = false;
   }
 
