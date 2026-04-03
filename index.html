@@ -757,7 +757,6 @@
     document.getElementById('stat-dias').textContent = dias + (dias === 1 ? ' día' : ' días');
     document.getElementById('stat-cuotas').textContent = cuotas;
     document.getElementById('info-cuota').textContent = 'S/. ' + cuota.toLocaleString('es-PE', {minimumFractionDigits:2});
-    document.getElementById('info-deuda').textContent = 'S/. ' + monto.toLocaleString('es-PE', {minimumFractionDigits:2});
 
     const badge = document.getElementById('estado-badge');
     if (dias > 90) { badge.innerHTML = '<span class="mi xs" style="vertical-align:text-bottom;margin-right:2px;">error</span> CRÍTICO'; badge.className = 'estado-badge estado-critico'; }
