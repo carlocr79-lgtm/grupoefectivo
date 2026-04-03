@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -578,7 +578,7 @@
       </div>
 
       <!-- DETALLE EFECTIVO -->
-      
+      <div class="metodo-detalle" id="det-efectivo">
         <div class="oficina-box">
           <div class="oficina-ciudad"><span class="mi sm" style="vertical-align:text-bottom;">location_on</span> Chanchamayo</div>
           <div class="oficina-dir">Jr. Dos de Mayo Nro. 267, Junín</div>
@@ -750,7 +750,7 @@
         if(!url) return '';
         if(url.includes('drive.google.com/file/d/')) {
           const id = url.split('/d/')[1].split('/')[0];
-          return 'https://drive.google.com/uc?id=' + id;
+          return 'https://drive.google.com/uc?export=view&id=' + id;
         }
         return url;
       };
