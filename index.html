@@ -439,9 +439,38 @@
   .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--azul); color: white; padding: 10px 20px; border-radius: 30px; font-size: 13px; font-weight: 600; opacity: 0; transition: opacity 0.3s; z-index: 9999; pointer-events: none; white-space: nowrap; }
   .toast.show { opacity: 1; }
 
-  /* PROGRESS BAR */
-  .progress-bar { height: 3px; background: rgba(255,255,255,0.2); position: relative; }
-  .progress-fill { height: 100%; background: white; transition: width 0.3s; }
+  /* WIZARD TIMELINE TOPBAR */
+  .wizard-timeline {
+    position: fixed; top: 0; left: 0; right: 0; height: 75px;
+    background: white; z-index: 100;
+    display: none; align-items: center; justify-content: center;
+    border-bottom: 1px solid var(--gris2);
+  }
+  .wt-container {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    width: 100%; max-width: 380px; position: relative; padding: 15px 40px 0 40px;
+  }
+  .wt-line {
+    position: absolute; top: 28px; left: 60px; right: 60px;
+    height: 2px; background: var(--gris2); z-index: 1;
+  }
+  .wt-line-fill { height: 100%; background: var(--azul); width: 0%; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+  .wt-step {
+    display: flex; flex-direction: column; align-items: center; z-index: 2;
+  }
+  .wt-circle {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--gris2); color: var(--texto2);
+    font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 13px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.3s; margin-bottom: 6px;
+  }
+  .wt-label {
+    font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 9px; letter-spacing: 0.5px;
+    color: var(--texto2); text-transform: uppercase; transition: all 0.3s;
+  }
+  .wt-step.active .wt-circle { background: var(--azul); color: white; }
+  .wt-step.active .wt-label { color: var(--azul); }
 
   /* ANIMACIONES Y UX EXTRAS */
   @keyframes pulseGlow {
@@ -476,6 +505,16 @@
 <div id="nav-steps" style="display:none;"></div>
 
 <div class="wizard">
+
+  <!-- TIMELINE TOPBAR -->
+  <div class="wizard-timeline" id="wizard-timeline">
+    <div class="wt-container">
+      <div class="wt-line"><div class="wt-line-fill" id="wt-line-fill"></div></div>
+      <div class="wt-step" id="wt-1"><div class="wt-circle">1</div><div class="wt-label">Verificar</div></div>
+      <div class="wt-step" id="wt-2"><div class="wt-circle">2</div><div class="wt-label">Pagar</div></div>
+      <div class="wt-step" id="wt-3"><div class="wt-circle">3</div><div class="wt-label">Confirmar</div></div>
+    </div>
+  </div>
 
   <!-- SPLASH SCREEN -->
   <div id="splash">
@@ -576,8 +615,7 @@
   <!-- PASO 2: METODO -->
   <div class="step" id="step-metodo">
     <div class="step-header">
-      <div class="progress-bar"><div class="progress-fill" style="width:50%"></div></div>
-      <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:flex-end;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;">
         <div>
           <h2>¿Cómo vas a pagar?</h2>
           <p>Selecciona tu método</p>
@@ -624,8 +662,7 @@
   <!-- PASO 3: VOUCHER -->
   <div class="step" id="step-voucher">
     <div class="step-header">
-      <div class="progress-bar"><div class="progress-fill" style="width:75%"></div></div>
-      <div style="margin-top:12px;">
+      <div>
         <h2>Sube tu comprobante</h2>
         <p>Foto o captura de tu pago</p>
       </div>
@@ -720,12 +757,19 @@
     next.classList.add('active');
     pasoActual = num;
 
-    const navSteps = document.getElementById('nav-steps');
     if (num >= 1 && num <= 3) {
-      navSteps.textContent = 'Paso ' + num + ' de 3';
+      document.getElementById('wizard-timeline').style.display = 'flex';
+      document.getElementById('wt-1').className = 'wt-step ' + (num >= 1 ? 'active' : '');
+      document.getElementById('wt-2').className = 'wt-step ' + (num >= 2 ? 'active' : '');
+      document.getElementById('wt-3').className = 'wt-step ' + (num >= 3 ? 'active' : '');
+      document.getElementById('wt-line-fill').style.width = ((num - 1) * 50) + '%';
+      document.querySelectorAll('.step').forEach(s => s.style.top = '75px');
     } else {
-      navSteps.textContent = '';
+      const wt = document.getElementById('wizard-timeline');
+      if(wt) wt.style.display = 'none';
+      document.querySelectorAll('.step').forEach(s => s.style.top = '0px');
     }
+
     next.scrollTop = 0;
   }
 
