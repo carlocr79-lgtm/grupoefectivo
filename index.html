@@ -353,10 +353,10 @@
   }
   .btn-download-qr:active { background: rgba(255,255,255,0.3); }
 
-  .oficina-box { background: var(--gris); border-radius: 10px; padding: 12px; margin-bottom: 8px; border-left: 3px solid var(--azul2); }
-  .oficina-ciudad { font-weight: 700; font-size: 12px; color: var(--azul); margin-bottom: 3px; }
-  .oficina-dir { font-size: 12px; color: #444; }
-  .oficina-hora { font-size: 11px; color: #888; margin-top: 3px; }
+  .oficina-box { background: var(--gris); border-radius: 10px; padding: 10px; margin-bottom: 6px; border-left: 3px solid var(--azul2); position: relative; }
+  .oficina-ciudad { font-weight: 700; font-size: 12px; color: var(--azul); margin-bottom: 2px; }
+  .oficina-dir { font-size: 11px; color: #444; line-height: 1.2; }
+  .oficina-hora { font-size: 10px; color: #888; margin-top: 2px; }
 
   /* Layout adjustments */
 
@@ -494,15 +494,16 @@
   .fade-in-up { animation: fadeInUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
   .shake-error { animation: shakeX 0.4s ease; border-color: var(--rojo) !important; background-color: #fff0f0 !important; }
 
-  .btn-call {
-    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-    width: 100%; margin-top: 10px; padding: 10px;
-    background: var(--azul-claro); color: var(--azul);
-    border: 1px solid var(--azul2); border-radius: 10px;
-    font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 13px;
-    text-decoration: none; transition: all 0.2s;
+  .btn-call-sm {
+    position: absolute; top: 10px; right: 10px;
+    width: 34px; height: 34px; border-radius: 50%;
+    background: white; border: 1.5px solid var(--azul2);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--azul); text-decoration: none;
+    box-shadow: 0 4px 10px rgba(0,48,135,0.1);
+    transition: all 0.2s;
   }
-  .btn-call:active { background: var(--azul); color: white; transform: scale(0.98); }
+  .btn-call-sm:active { background: var(--azul); color: white; transform: scale(0.9); }
   
   .check-overlay {
     position: absolute; top: -14px; right: -14px;
@@ -910,24 +911,24 @@
       }
 
       const s = getHorarioStatus();
-      const st = `<span style="background:${s.color}15; color:${s.color}; border: 1px solid ${s.color}40; padding:2px 8px; border-radius:12px; font-size:9px; font-weight:800; text-transform:uppercase;">${s.text}</span>`;
+      const st = `<span style="background:${s.color}15; color:${s.color}; border: 1px solid ${s.color}40; padding:1px 6px; border-radius:12px; font-size:8px; font-weight:800; text-transform:uppercase; margin-left:4px;">${s.text}</span>`;
       
       let htmlEfectivo = `
         <div class="oficina-box">
-          <div class="oficina-ciudad" style="display:flex; justify-content:space-between;"><span><span class="mi sm" style="vertical-align:text-bottom;">location_on</span> Chanchamayo</span> ${st}</div>
-          <div class="oficina-dir">Jr. Dos de Mayo Nro. 267, Junín</div>
-          <div class="oficina-hora" style="margin-top:6px;line-height:1.4;">Lunes a Viernes: 9:00 AM - 6:00 PM<br>Sábados: 9:00 AM - 1:00 PM</div>
+          <div class="oficina-ciudad"><span><span class="mi sm" style="vertical-align:text-bottom;">location_on</span> Chanchamayo</span>${st}</div>
+          <div class="oficina-dir" style="max-width:80%;">Jr. Dos de Mayo Nro. 267, Junín</div>
+          <div class="oficina-hora">L-V: 9 AM-6 PM | S: 9 AM-1 PM</div>
       `;
       if (cliente.cuentas.tel_chanchamayo) {
-        htmlEfectivo += `<a href="tel:${cliente.cuentas.tel_chanchamayo.replace(/\s/g,'')}" class="btn-call"><span class="mi xs">call</span> Llamar a Oficina</a>`;
+        htmlEfectivo += `<a href="tel:${cliente.cuentas.tel_chanchamayo.replace(/\s/g,'')}" class="btn-call-sm"><span class="mi sm">call</span></a>`;
       }
       htmlEfectivo += `</div><div class="oficina-box">
-          <div class="oficina-ciudad" style="display:flex; justify-content:space-between;"><span><span class="mi sm" style="vertical-align:text-bottom;">location_on</span> Pichanaqui</span> ${st}</div>
-          <div class="oficina-dir">Av. Micaela Bastidas Mza. D-1 Lote 02B3</div>
-          <div class="oficina-hora" style="margin-top:6px;line-height:1.4;">Lunes a Viernes: 9:00 AM - 6:00 PM<br>Sábados: 9:00 AM - 1:00 PM</div>
+          <div class="oficina-ciudad"><span><span class="mi sm" style="vertical-align:text-bottom;">location_on</span> Pichanaqui</span>${st}</div>
+          <div class="oficina-dir" style="max-width:80%;">Av. Micaela Bastidas Mza. D-1 Lote 02B3</div>
+          <div class="oficina-hora">L-V: 9 AM-6 PM | S: 9 AM-1 PM</div>
       `;
       if (cliente.cuentas.tel_pichanaqui) {
-        htmlEfectivo += `<a href="tel:${cliente.cuentas.tel_pichanaqui.replace(/\s/g,'')}" class="btn-call"><span class="mi xs">call</span> Llamar a Oficina</a>`;
+        htmlEfectivo += `<a href="tel:${cliente.cuentas.tel_pichanaqui.replace(/\s/g,'')}" class="btn-call-sm"><span class="mi sm">call</span></a>`;
       }
       htmlEfectivo += `</div>`;
       
