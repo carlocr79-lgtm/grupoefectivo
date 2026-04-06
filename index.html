@@ -9,6 +9,8 @@
 <title>Portal de Pagos - Grupo Efectivo SAC</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://script.google.com">
+<link rel="preconnect" href="https://script.googleusercontent.com">
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
 <style>
@@ -1176,10 +1178,10 @@
     }
   }
 
-  // ─── APLICAR DATOS (espera fuentes antes de mostrar) ───
+  // ─── APLICAR DATOS (sin bloquear por fuentes) ───
   function aplicarRespuesta(data) {
-    document.fonts.ready.then(function() {
-      cerrarSplash();
+    cerrarSplash();
+    requestAnimationFrame(function() {
       if (data.expirado) {
         irPaso('step-expirado', 0);
       } else if (data.alDia) {
@@ -1199,6 +1201,15 @@
     if (cargando) return;
     cargando = true;
     iniciarSplash();
+
+    // ─── Timeout de seguridad: cierra splash si el servidor no responde en 12s ───
+    var splashTimeout = setTimeout(function() {
+      if (document.getElementById('splash') && !document.getElementById('splash').classList.contains('oculto')) {
+        cerrarSplash();
+        showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">signal_wifi_off</span> Conexión lenta. Reintenta.');
+        irPaso('step-aldia', 0);
+      }
+    }, 12000);
     const params = new URLSearchParams(window.location.search);
     const token = params.get('cod');
     const cel = params.get('cel');
@@ -1219,6 +1230,7 @@
         const res = await fetchConTimeout(API_URL + '?cod=' + encodeURIComponent(token), 15000);
         const data = await res.json();
         localStorage.setItem(cacheKey, JSON.stringify(data)); // guardar para próxima vez
+        clearTimeout(splashTimeout);
         if (!cached) {
           aplicarRespuesta(data); // sin caché: aplicar normalmente
         } else if (data.verificando || data.alDia || data.expirado) {
@@ -1237,6 +1249,7 @@
       try {
         const res = await fetchConTimeout(API_URL + '?q=' + encodeURIComponent(cel.replace(/\s/g,'')), 15000);
         const data = await res.json();
+        clearTimeout(splashTimeout);
         if (data && data.length > 0) {
           cargarDatos(data[0]);
         } else {
