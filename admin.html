@@ -2092,7 +2092,6 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         const ahora = Date.now();
         if (ahora - _lastRefresh >= 30000) {
           _lastRefresh = ahora;
-          showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">sync</span> Actualizando datos...');
           const btnTxt = document.getElementById('btn-refresh-text');
           const btnRefresh = document.getElementById('btn-refresh');
           if (btnRefresh) btnRefresh.classList.add('is-refreshing');
