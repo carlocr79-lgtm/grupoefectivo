@@ -916,16 +916,16 @@
       let htmlEfectivo = `
         <div class="oficina-box">
           <div class="oficina-ciudad"><span><span class="mi sm" style="vertical-align:text-bottom;">location_on</span> Chanchamayo</span>${st}</div>
-          <div class="oficina-dir" style="max-width:80%;">Jr. Dos de Mayo Nro. 267, Junín</div>
-          <div class="oficina-hora">L-V: 9 AM-6 PM | S: 9 AM-1 PM</div>
+          <div class="oficina-dir" style="max-width:85%;">Jr. Dos de Mayo Nro. 267, Junín</div>
+          <div class="oficina-hora">Lunes a Viernes: 9:00 AM - 6:00 PM<br>Sábados: 9:00 AM - 1:00 PM</div>
       `;
       if (cliente.cuentas.tel_chanchamayo) {
         htmlEfectivo += `<a href="tel:${cliente.cuentas.tel_chanchamayo.replace(/\s/g,'')}" class="btn-call-sm"><span class="mi sm">call</span></a>`;
       }
       htmlEfectivo += `</div><div class="oficina-box">
           <div class="oficina-ciudad"><span><span class="mi sm" style="vertical-align:text-bottom;">location_on</span> Pichanaqui</span>${st}</div>
-          <div class="oficina-dir" style="max-width:80%;">Av. Micaela Bastidas Mza. D-1 Lote 02B3</div>
-          <div class="oficina-hora">L-V: 9 AM-6 PM | S: 9 AM-1 PM</div>
+          <div class="oficina-dir" style="max-width:85%;">Av. Micaela Bastidas Mza. D-1 Lote 02B3</div>
+          <div class="oficina-hora">Lunes a Viernes: 9:00 AM - 6:00 PM<br>Sábados: 9:00 AM - 1:00 PM</div>
       `;
       if (cliente.cuentas.tel_pichanaqui) {
         htmlEfectivo += `<a href="tel:${cliente.cuentas.tel_pichanaqui.replace(/\s/g,'')}" class="btn-call-sm"><span class="mi sm">call</span></a>`;
