@@ -872,7 +872,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
   async function apiFetch(params) {
     // Usamos POST para todo — evita CORS en Apps Script
-    const body = {...params, sessionToken: getSession(), _method: 'GET'};
+    const body = {...params, sessionToken: getSession(), _method: 'GET', _t: Date.now()};
     const res = await fetch(API_URL, {
       method: 'POST',
       body: JSON.stringify(body)
@@ -889,7 +889,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     // Apps Script acepta POST sin Content-Type header para evitar CORS preflight
     const res = await fetch(API_URL, {
       method: 'POST',
-      body: JSON.stringify({...body, sessionToken: getSession()})
+      body: JSON.stringify({...body, sessionToken: getSession(), _t: Date.now()})
     });
     const text = await res.text();
     let data;
@@ -2081,7 +2081,14 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         const ahora = Date.now();
         if (ahora - _lastRefresh >= 30000) {
           _lastRefresh = ahora;
-          cargarTodo();
+          showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">sync</span> Actualizando datos...');
+          cargarTodo().then(function() {
+            const h = String(new Date().getHours()).padStart(2,'0');
+            const m = String(new Date().getMinutes()).padStart(2,'0');
+            const s = String(new Date().getSeconds()).padStart(2,'0');
+            const refreshEl = document.getElementById('ultimo-refresh');
+            if (refreshEl) refreshEl.textContent = h + ':' + m + ':' + s;
+          });
         }
       }
     });
