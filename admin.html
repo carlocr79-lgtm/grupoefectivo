@@ -167,6 +167,16 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 .btn-call:hover { transform:scale(1.1); box-shadow:0 3px 12px rgba(0,82,204,0.5); }
 .btn-ver { flex:1; padding:9px; background:#f0f4ff; color:var(--azul2); border:none; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer; }
 .btn-verificar { flex:1; padding:9px; background:linear-gradient(135deg,var(--verde),#00cc55); color:white; border:none; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer; }
+.btn-refresh {
+  background:var(--gris); color:var(--texto); border:none; padding:6px 12px; border-radius:8px;
+  font-family:'DM Sans', sans-serif; font-size:11px; font-weight:700; cursor:pointer;
+  display:flex; align-items:center; gap:4px; transition:background 0.2s;
+}
+.btn-refresh:hover { background:var(--gris2); }
+.btn-refresh .sync-icon { margin:0; display:inline-block; }
+.btn-refresh.refreshing { pointer-events:none; opacity:0.7; }
+.btn-refresh.refreshing .sync-icon { animation: rotate-sync 1s linear infinite; }
+@keyframes rotate-sync { 100% { transform: rotate(360deg); } }
 
 /* VOUCHER MODAL */
 .modal-overlay { position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,0.75); z-index:999; display:none; align-items:center; justify-content:center; padding:20px; }
@@ -377,9 +387,9 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     <button class="tab-btn active" onclick="cambiarTab('gestiones',this)"><span class="mi sm">folder_open</span> Gestiones <span class="tab-badge" id="badge-vouchers">0</span></button>
     <button class="tab-btn" onclick="cambiarTab('caja',this)"><span class="mi sm">account_balance_wallet</span> Caja Chica</button>
     <div style="display:flex;align-items:center;gap:6px;padding:0 12px;margin-left:auto;">
-      <button id="btn-refresh" onclick="refrescarDatos()" title="Actualizar datos"
-        style="background:none;border:none;cursor:pointer;color:var(--texto2);padding:4px;border-radius:6px;transition:color 0.2s;"
-        onmouseover="this.style.color='var(--azul2)'" onmouseout="this.style.color='var(--texto2)'"><span class="mi" style="font-size:20px;">refresh</span></button>
+      <button id="btn-refresh" class="btn-refresh" onclick="refrescarDatos()" title="Actualizar datos">
+        <span class="mi sm sync-icon">sync</span> Actualizar
+      </button>
       <span id="ultimo-refresh" style="font-size:10px;color:var(--texto2);white-space:nowrap;"></span>
     </div>
   </div>
