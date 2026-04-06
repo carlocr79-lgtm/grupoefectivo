@@ -493,6 +493,16 @@
   .pulse-glow { animation: pulseGlow 2s infinite; }
   .fade-in-up { animation: fadeInUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
   .shake-error { animation: shakeX 0.4s ease; border-color: var(--rojo) !important; background-color: #fff0f0 !important; }
+
+  .btn-call {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    width: 100%; margin-top: 10px; padding: 10px;
+    background: var(--azul-claro); color: var(--azul);
+    border: 1px solid var(--azul2); border-radius: 10px;
+    font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 13px;
+    text-decoration: none; transition: all 0.2s;
+  }
+  .btn-call:active { background: var(--azul); color: white; transform: scale(0.98); }
   
   .check-overlay {
     position: absolute; top: -14px; right: -14px;
@@ -901,18 +911,27 @@
 
       const s = getHorarioStatus();
       const st = `<span style="background:${s.color}15; color:${s.color}; border: 1px solid ${s.color}40; padding:2px 8px; border-radius:12px; font-size:9px; font-weight:800; text-transform:uppercase;">${s.text}</span>`;
-      document.getElementById('det-efectivo').innerHTML = `
+      
+      let htmlEfectivo = `
         <div class="oficina-box">
           <div class="oficina-ciudad" style="display:flex; justify-content:space-between;"><span><span class="mi sm" style="vertical-align:text-bottom;">location_on</span> Chanchamayo</span> ${st}</div>
           <div class="oficina-dir">Jr. Dos de Mayo Nro. 267, Junín</div>
           <div class="oficina-hora" style="margin-top:6px;line-height:1.4;">Lunes a Viernes: 9:00 AM - 6:00 PM<br>Sábados: 9:00 AM - 1:00 PM</div>
-        </div>
-        <div class="oficina-box">
+      `;
+      if (cliente.cuentas.tel_chanchamayo) {
+        htmlEfectivo += `<a href="tel:${cliente.cuentas.tel_chanchamayo.replace(/\s/g,'')}" class="btn-call"><span class="mi xs">call</span> Llamar a Oficina</a>`;
+      }
+      htmlEfectivo += `</div><div class="oficina-box">
           <div class="oficina-ciudad" style="display:flex; justify-content:space-between;"><span><span class="mi sm" style="vertical-align:text-bottom;">location_on</span> Pichanaqui</span> ${st}</div>
           <div class="oficina-dir">Av. Micaela Bastidas Mza. D-1 Lote 02B3</div>
           <div class="oficina-hora" style="margin-top:6px;line-height:1.4;">Lunes a Viernes: 9:00 AM - 6:00 PM<br>Sábados: 9:00 AM - 1:00 PM</div>
-        </div>
       `;
+      if (cliente.cuentas.tel_pichanaqui) {
+        htmlEfectivo += `<a href="tel:${cliente.cuentas.tel_pichanaqui.replace(/\s/g,'')}" class="btn-call"><span class="mi xs">call</span> Llamar a Oficina</a>`;
+      }
+      htmlEfectivo += `</div>`;
+      
+      document.getElementById('det-efectivo').innerHTML = htmlEfectivo;
     }
 
     if (!silencioso) irPaso('step-deuda', 1);
