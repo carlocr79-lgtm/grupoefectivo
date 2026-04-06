@@ -170,13 +170,13 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 .btn-refresh {
   background:var(--gris); color:var(--texto); border:none; padding:6px 12px; border-radius:8px;
   font-family:'DM Sans', sans-serif; font-size:11px; font-weight:700; cursor:pointer;
-  display:flex; align-items:center; gap:4px; transition:background 0.2s;
+  display:flex; align-items:center; gap:6px; transition:background 0.2s;
 }
 .btn-refresh:hover { background:var(--gris2); }
-.btn-refresh .sync-icon { margin:0; display:inline-block; }
-.btn-refresh.refreshing { pointer-events:none; opacity:0.7; }
+.btn-refresh .sync-icon { margin:0; display:flex; align-items:center; justify-content:center; transform-origin:center; }
+.btn-refresh.refreshing { pointer-events:none; opacity:0.8; }
 .btn-refresh.refreshing .sync-icon { animation: rotate-sync 1s linear infinite; }
-@keyframes rotate-sync { 100% { transform: rotate(360deg); } }
+@keyframes rotate-sync { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
 /* VOUCHER MODAL */
 .modal-overlay { position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,0.75); z-index:999; display:none; align-items:center; justify-content:center; padding:20px; }
@@ -388,9 +388,8 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     <button class="tab-btn" onclick="cambiarTab('caja',this)"><span class="mi sm">account_balance_wallet</span> Caja Chica</button>
     <div style="display:flex;align-items:center;gap:6px;padding:0 12px;margin-left:auto;">
       <button id="btn-refresh" class="btn-refresh" onclick="refrescarDatos()" title="Actualizar datos">
-        <span class="mi sm sync-icon">sync</span> Actualizar
+        <span class="mi sm sync-icon">sync</span> <span id="btn-refresh-text">Actualizar</span>
       </button>
-      <span id="ultimo-refresh" style="font-size:10px;color:var(--texto2);white-space:nowrap;"></span>
     </div>
   </div>
 
@@ -805,7 +804,9 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   // ── REFRESH MANUAL ──
   async function refrescarDatos() {
     const btn = document.getElementById('btn-refresh');
+    const txt = document.getElementById('btn-refresh-text');
     btn.classList.add('refreshing');
+    txt.textContent = 'Actualizando...';
     
     await cargarTodo();
     
@@ -814,7 +815,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     const h = String(ahora.getHours()).padStart(2,'0');
     const m = String(ahora.getMinutes()).padStart(2,'0');
     const s = String(ahora.getSeconds()).padStart(2,'0');
-    document.getElementById('ultimo-refresh').textContent = h + ':' + m + ':' + s;
+    txt.textContent = 'Actualizado ' + h + ':' + m;
   }
 
   // ── TABS ──
@@ -2092,12 +2093,16 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         if (ahora - _lastRefresh >= 30000) {
           _lastRefresh = ahora;
           showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">sync</span> Actualizando datos...');
+          const btnTxt = document.getElementById('btn-refresh-text');
+          const btnRefresh = document.getElementById('btn-refresh');
+          if (btnRefresh) btnRefresh.classList.add('refreshing');
+          if (btnTxt) btnTxt.textContent = 'Actualizando...';
+          
           cargarTodo().then(function() {
+            if (btnRefresh) btnRefresh.classList.remove('refreshing');
             const h = String(new Date().getHours()).padStart(2,'0');
             const m = String(new Date().getMinutes()).padStart(2,'0');
-            const s = String(new Date().getSeconds()).padStart(2,'0');
-            const refreshEl = document.getElementById('ultimo-refresh');
-            if (refreshEl) refreshEl.textContent = h + ':' + m + ':' + s;
+            if (btnTxt) btnTxt.textContent = 'Actualizado ' + h + ':' + m;
           });
         }
       }
