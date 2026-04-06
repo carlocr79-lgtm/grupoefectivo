@@ -1992,6 +1992,20 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     
     // Generar tabla HTML del detalle
     let html = `
+      <div style="background:var(--azul); color:white; padding:12px; border-radius:12px; margin-bottom:16px; font-size:13px;">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+          <span class="mi sm">account_circle</span>
+          <span><strong>Encargado:</strong> ${arq.usuario || 'S/U'}</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+          <span class="mi sm">category</span>
+          <span><strong>Tipo:</strong> ${arq.tipo || 'Arqueo'}</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span class="mi sm">calendar_today</span>
+          <span><strong>Fecha:</strong> ${arq.fecha || '-'}</span>
+        </div>
+      </div>
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
         <div>
           <h4 style="border-bottom:2px solid var(--gris2); padding-bottom:5px; margin-bottom:10px;"><span class="mi sm">payments</span> Billetes</h4>
