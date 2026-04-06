@@ -681,71 +681,80 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
 <!-- MODAL KASNET -->
 <div class="modal-caja" id="modal-kasnet">
-  <div class="modal-caja-box">
+  <div class="modal-caja-box" style="max-width:750px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
       <h3 id="modal-kasnet-titulo"><span class="mi" style="font-size:18px;vertical-align:middle;">point_of_sale</span> Registro Diario POS</h3>
       <button onclick="kasnetHideModal()" style="background:none;border:none;font-size:18px;cursor:pointer;">x</button>
     </div>
     <input type="hidden" id="kasnet-edit-id">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-      <div class="form-caja-group"><label>Fecha</label><input type="date" id="kasnet-fecha"></div>
-      <div class="form-caja-group"><label>N° Operaciones</label><input type="number" id="kasnet-num-ops" placeholder="0" min="0" step="1"></div>
-    </div>
-    
-    <div style="background:#f4f7fa; padding:12px; border-radius:12px; margin-bottom:14px;">
-      <h4 style="font-size:11px; margin-bottom:10px; color:var(--azul);">Saldos Virtuales</h4>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-        <div class="form-caja-group"><label>POS KASNET</label><input type="number" id="kasnet-pos-virt" placeholder="0.00" step="0.01" oninput="kasnetCalcTotal()"></div>
-        <div class="form-caja-group"><label>PAGAYA virtual</label><input type="number" id="kasnet-pagaya-virt" placeholder="0.00" step="0.01" oninput="kasnetCalcTotal()"></div>
-      </div>
-    </div>
 
-    <div style="background:white; border:1px solid var(--gris2); padding:12px; border-radius:12px; margin-bottom:14px;">
-      <h4 style="font-size:11px; margin-bottom:10px; color:var(--azul);">Efectivo Físico</h4>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-        <!-- Billetes -->
-        <div>
-          <div style="font-size:9px; font-weight:700; color:var(--texto2); margin-bottom:6px;">BILLETES</div>
-          <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;"><span style="width:40px; font-size:11px;">S/ 200</span><input type="number" id="k-b200" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="width:100%; border:1px solid var(--gris); border-radius:6px; padding:4px 8px;"></div>
-          <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;"><span style="width:40px; font-size:11px;">S/ 100</span><input type="number" id="k-b100" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="width:100%; border:1px solid var(--gris); border-radius:6px; padding:4px 8px;"></div>
-          <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;"><span style="width:40px; font-size:11px;">S/ 50</span><input type="number" id="k-b50" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="width:100%; border:1px solid var(--gris); border-radius:6px; padding:4px 8px;"></div>
-          <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;"><span style="width:40px; font-size:11px;">S/ 20</span><input type="number" id="k-b20" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="width:100%; border:1px solid var(--gris); border-radius:6px; padding:4px 8px;"></div>
-          <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;"><span style="width:40px; font-size:11px;">S/ 10</span><input type="number" id="k-b10" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="width:100%; border:1px solid var(--gris); border-radius:6px; padding:4px 8px;"></div>
+    <div style="display:grid; grid-template-columns: 1fr 1.2fr; gap:20px;">
+      <!-- COLUMNA IZQUIERDA -->
+      <div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px; margin-bottom:14px;">
+          <div class="form-caja-group"><label>Fecha</label><input type="date" id="kasnet-fecha"></div>
+          <div class="form-caja-group"><label>N° Operaciones</label><input type="number" id="kasnet-num-ops" placeholder="0" min="0" step="1"></div>
         </div>
-        <!-- Monedas -->
-        <div>
-          <div style="font-size:9px; font-weight:700; color:var(--texto2); margin-bottom:6px;">MONEDAS</div>
-          <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;"><span style="width:40px; font-size:11px;">S/ 5</span><input type="number" id="k-m5" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="width:100%; border:1px solid var(--gris); border-radius:6px; padding:4px 8px;"></div>
-          <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;"><span style="width:40px; font-size:11px;">S/ 2</span><input type="number" id="k-m2" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="width:100%; border:1px solid var(--gris); border-radius:6px; padding:4px 8px;"></div>
-          <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;"><span style="width:40px; font-size:11px;">S/ 1</span><input type="number" id="k-m1" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="width:100%; border:1px solid var(--gris); border-radius:6px; padding:4px 8px;"></div>
-          <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;"><span style="width:40px; font-size:11px;">S/ 0.50</span><input type="number" id="k-m050" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="width:100%; border:1px solid var(--gris); border-radius:6px; padding:4px 8px;"></div>
-          <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;"><span style="width:40px; font-size:11px;">S/ 0.20</span><input type="number" id="k-m020" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="width:100%; border:1px solid var(--gris); border-radius:6px; padding:4px 8px;"></div>
-          <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;"><span style="width:40px; font-size:11px;">S/ 0.10</span><input type="number" id="k-m010" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="width:100%; border:1px solid var(--gris); border-radius:6px; padding:4px 8px;"></div>
+        
+        <div style="background:#f4f7fa; padding:12px; border-radius:12px; margin-bottom:14px;">
+          <h4 style="font-size:11px; margin-bottom:10px; color:var(--azul);">Saldos Virtuales</h4>
+          <div style="display:grid;grid-template-columns:1fr;gap:10px;">
+            <div class="form-caja-group"><label>POS KASNET</label><input type="number" id="kasnet-pos-virt" placeholder="0.00" step="0.01" oninput="kasnetCalcTotal()"></div>
+            <div class="form-caja-group"><label>PAGAYA virtual</label><input type="number" id="kasnet-pagaya-virt" placeholder="0.00" step="0.01" oninput="kasnetCalcTotal()"></div>
+          </div>
+        </div>
+
+        <div style="background:white; border:1px solid var(--gris2); padding:12px; border-radius:12px; margin-bottom:14px;">
+          <h4 style="font-size:11px; margin-bottom:10px; color:var(--azul);">Comprobante de Cierre (Opcional)</h4>
+          <input type="file" id="kasnet-file" accept="image/*,application/pdf" style="font-size:11px; width:100%;">
+          <div id="kasnet-file-link" style="font-size:11px; margin-top:6px; display:none;"></div>
+          <div style="font-size:10px; color:var(--texto2); margin-top:6px;">Máximo 3MB. Formatos: JPG, PNG, PDF.</div>
         </div>
       </div>
-      <div style="margin-top:10px; font-size:13px; font-weight:700; color:var(--texto);">Total Físico: <span id="kasnet-total-fisico" style="color:var(--verde);">S/. 0.00</span></div>
-    </div>
-    
-    <div class="diff-card" id="kasnet-cuadre-diff" style="margin-bottom:14px; padding:12px;">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-        <span style="font-size:11px; font-weight:700;">Total Declarado:</span>
-        <span style="font-size:16px; font-weight:800;" id="kasnet-total-declarado">S/. 0.00</span>
+
+      <!-- COLUMNA DERECHA -->
+      <div>
+        <div style="background:white; border:1px solid var(--gris2); padding:12px; border-radius:12px; margin-bottom:14px;">
+          <h4 style="font-size:11px; margin-bottom:10px; color:var(--azul);">Efectivo Físico</h4>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;">
+            <!-- Billetes -->
+            <div>
+              <div style="font-size:9px; font-weight:700; color:var(--texto2); margin-bottom:6px;">BILLETES</div>
+              <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;"><span style="width:40px; font-size:11px;">S/ 200</span><input type="number" id="k-b200" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="width:100%; border:1px solid var(--gris); border-radius:6px; padding:4px 8px;"></div>
+              <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;"><span style="width:40px; font-size:11px;">S/ 100</span><input type="number" id="k-b100" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="width:100%; border:1px solid var(--gris); border-radius:6px; padding:4px 8px;"></div>
+              <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;"><span style="width:40px; font-size:11px;">S/ 50</span><input type="number" id="k-b50" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="width:100%; border:1px solid var(--gris); border-radius:6px; padding:4px 8px;"></div>
+              <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;"><span style="width:40px; font-size:11px;">S/ 20</span><input type="number" id="k-b20" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="width:100%; border:1px solid var(--gris); border-radius:6px; padding:4px 8px;"></div>
+              <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;"><span style="width:40px; font-size:11px;">S/ 10</span><input type="number" id="k-b10" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="width:100%; border:1px solid var(--gris); border-radius:6px; padding:4px 8px;"></div>
+            </div>
+            <!-- Monedas -->
+            <div>
+              <div style="font-size:9px; font-weight:700; color:var(--texto2); margin-bottom:6px;">MONEDAS</div>
+              <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;"><span style="width:40px; font-size:11px;">S/ 5</span><input type="number" id="k-m5" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="width:100%; border:1px solid var(--gris); border-radius:6px; padding:4px 8px;"></div>
+              <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;"><span style="width:40px; font-size:11px;">S/ 2</span><input type="number" id="k-m2" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="width:100%; border:1px solid var(--gris); border-radius:6px; padding:4px 8px;"></div>
+              <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;"><span style="width:40px; font-size:11px;">S/ 1</span><input type="number" id="k-m1" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="width:100%; border:1px solid var(--gris); border-radius:6px; padding:4px 8px;"></div>
+              <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;"><span style="width:40px; font-size:11px;">S/ 0.50</span><input type="number" id="k-m050" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="width:100%; border:1px solid var(--gris); border-radius:6px; padding:4px 8px;"></div>
+              <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;"><span style="width:40px; font-size:11px;">S/ 0.20</span><input type="number" id="k-m020" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="width:100%; border:1px solid var(--gris); border-radius:6px; padding:4px 8px;"></div>
+              <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;"><span style="width:40px; font-size:11px;">S/ 0.10</span><input type="number" id="k-m010" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="width:100%; border:1px solid var(--gris); border-radius:6px; padding:4px 8px;"></div>
+            </div>
+          </div>
+          <div style="margin-top:10px; font-size:13px; font-weight:700; color:var(--texto);">Total Físico: <span id="kasnet-total-fisico" style="color:var(--verde);">S/. 0.00</span></div>
+        </div>
+        
+        <div class="diff-card" id="kasnet-cuadre-diff" style="padding:12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <span style="font-size:11px; font-weight:700;">Total Declarado:</span>
+            <span style="font-size:16px; font-weight:800;" id="kasnet-total-declarado">S/. 0.00</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:11px; font-weight:700;">Diferencia vs Base:</span>
+            <span style="font-size:16px; font-weight:800;" id="kasnet-diferencia-total">S/. 0.00</span>
+          </div>
+          <div style="font-size:11px; margin-top:8px; text-align:center;" id="kasnet-cuadre-msg">Completa saldos y efectivo</div>
+        </div>
       </div>
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <span style="font-size:11px; font-weight:700;">Diferencia vs Base:</span>
-        <span style="font-size:16px; font-weight:800;" id="kasnet-diferencia-total">S/. 0.00</span>
-      </div>
-      <div style="font-size:11px; margin-top:8px; text-align:center;" id="kasnet-cuadre-msg">Completa saldos y efectivo</div>
     </div>
 
-    <div style="background:white; border:1px solid var(--gris2); padding:12px; border-radius:12px; margin-bottom:14px;">
-      <h4 style="font-size:11px; margin-bottom:10px; color:var(--azul);">Comprobante de Cierre (Opcional)</h4>
-      <input type="file" id="kasnet-file" accept="image/*,application/pdf" style="font-size:11px; width:100%;">
-      <div id="kasnet-file-link" style="font-size:11px; margin-top:6px; display:none;"></div>
-      <div style="font-size:10px; color:var(--texto2); margin-top:6px;">Máximo 3MB. Formatos: JPG, PNG, PDF.</div>
-    </div>
-
-    <div style="display:flex;gap:10px;margin-top:8px;">
+    <div style="display:flex;gap:10px;margin-top:16px;">
       <button onclick="kasnetHideModal()" style="flex:1;padding:12px;background:var(--gris);border:none;border-radius:10px;font-weight:700;cursor:pointer;">Cancelar</button>
       <button class="btn-main" onclick="kasnetGuardar()" id="kasnet-btn-guardar" style="flex:1;padding:12px;" disabled>Guardar Registro</button>
     </div>
@@ -2284,9 +2293,18 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       document.getElementById('kasnet-num-ops').value = editData.numOps;
       document.getElementById('kasnet-pos-virt').value = editData.posVirtual || '';
       document.getElementById('kasnet-pagaya-virt').value = editData.pagayaVirtual || '';
-      // No tenemos el desglose de monedas guardado en sheets para re-popular,
-      // así que el usuario deberá recalcular efectivo si quiere editar, o lo dejamos en 0.
-      kasnetCalcTotal(); // Calcula con lo actual (efectivo será 0 inicialmente en edición)
+
+      if (editData.desglose) {
+        try {
+          const desg = JSON.parse(editData.desglose);
+          Object.keys(desg).forEach(k => {
+            if (document.getElementById('k-'+k)) {
+              document.getElementById('k-'+k).value = desg[k];
+            }
+          });
+        } catch(e) {}
+      }
+      kasnetCalcTotal(); 
     } else {
       const hoy = new Date();
       document.getElementById('kasnet-fecha').value = hoy.toISOString().split('T')[0];
@@ -2393,12 +2411,28 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
     btn.disabled = true;
     btn.textContent = (base64Data ? 'Subiendo archivo...' : 'Guardando...');
+
+    const desgloseObj = {
+      b200: document.getElementById('k-b200').value,
+      b100: document.getElementById('k-b100').value,
+      b50: document.getElementById('k-b50').value,
+      b20: document.getElementById('k-b20').value,
+      b10: document.getElementById('k-b10').value,
+      m5: document.getElementById('k-m5').value,
+      m2: document.getElementById('k-m2').value,
+      m1: document.getElementById('k-m1').value,
+      m050: document.getElementById('k-m050').value,
+      m020: document.getElementById('k-m020').value,
+      m010: document.getElementById('k-m010').value
+    };
+
     try {
       const resp = await apiPost({
         _method: 'POST', kasnetAction: 'guardar',
         fecha: fecha, numOps: numOps,
         posVirtual: posVirt, pagayaVirtual: pagayaVirt,
         efectivoFisico: efecFis,
+        desglose: JSON.stringify(desgloseObj),
         comprobante_base64: base64Data,
         edit_id: editId || '',
         sedeContexto: cajaSedeActual
