@@ -560,37 +560,16 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   <!-- SUB: KASNET -->
   <div id="caja-sub-kasnet" style="display:none;">
     <div class="caja-grid">
-      <div class="caja-card"><div class="caja-card-title">Saldo KASNET</div><div class="caja-monto azul" id="kasnet-saldo">S/. 0.00</div></div>
-      <div class="caja-card"><div class="caja-card-title">Operaciones</div><div class="caja-monto" id="kasnet-ops" style="color:var(--texto);">0</div></div>
-      <div class="caja-card"><div class="caja-card-title">Comisiones</div><div class="caja-monto verde" id="kasnet-comisiones">S/. 0.00</div></div>
+      <div class="caja-card"><div class="caja-card-title">Declarado Hoy</div><div class="caja-monto azul" id="kasnet-total-hoy">S/. 0.00</div></div>
+      <div class="caja-card"><div class="caja-card-title">Diferencia vs S/3000</div><div class="caja-monto" id="kasnet-diff-hoy" style="color:var(--texto);">S/. 0.00</div></div>
+      <div class="caja-card"><div class="caja-card-title">Registros Mes</div><div class="caja-monto verde" id="kasnet-ops-mes">0</div></div>
     </div>
     <div class="caja-toolbar">
-      <button class="btn-main" onclick="kasnetShowModal()" style="width:auto;padding:9px 16px;font-size:13px;">+ Nueva Operación</button>
-      <input type="text" id="kasnet-buscar" placeholder="Buscar operación..." oninput="kasnetFiltrar()" style="flex:1;padding:8px 12px;border:1.5px solid var(--gris2);border-radius:10px;font-size:13px;max-width:300px;">
+      <button class="btn-main" onclick="kasnetShowModal()" style="width:auto;padding:9px 16px;font-size:13px;">+ Nuevo Registro Diario</button>
+      <input type="text" id="kasnet-buscar" placeholder="Buscar fecha..." oninput="kasnetFiltrar()" style="flex:1;padding:8px 12px;border:1.5px solid var(--gris2);border-radius:10px;font-size:13px;max-width:300px;">
     </div>
     <div class="movimientos-list" id="kasnet-lista">
-      <div class="empty" style="padding:20px;"><div class="spinner-sm"></div>Cargando operaciones...</div>
-    </div>
-    <div style="margin-top:20px;">
-      <h4 style="font-family:'Montserrat',sans-serif;font-weight:800;font-size:13px;color:var(--azul);margin-bottom:12px;display:flex;align-items:center;gap:6px;"><span class="mi sm">fact_check</span> Cuadre de KASNET</h4>
-      <div style="background:white;border-radius:14px;padding:16px;box-shadow:0 2px 10px rgba(0,48,135,0.07);">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
-          <div>
-            <div style="font-size:10px;font-weight:700;color:var(--texto2);text-transform:uppercase;margin-bottom:4px;">Saldo según Sistema</div>
-            <div style="font-size:18px;font-weight:800;color:var(--azul);" id="kasnet-cuadre-sistema">S/. 0.00</div>
-          </div>
-          <div>
-            <div style="font-size:10px;font-weight:700;color:var(--texto2);text-transform:uppercase;margin-bottom:4px;">Saldo según POS</div>
-            <input type="number" id="kasnet-cuadre-pos" placeholder="0.00" step="0.01" oninput="kasnetCalcCuadre()" style="width:100%;padding:8px 12px;border:1.5px solid var(--gris2);border-radius:10px;font-size:16px;font-weight:800;color:var(--verde);font-family:'Montserrat',sans-serif;">
-          </div>
-        </div>
-        <div class="diff-card" id="kasnet-cuadre-diff">
-          <div style="font-size:10px;font-weight:700;">Diferencia</div>
-          <div style="font-size:22px;font-weight:900;" id="kasnet-cuadre-diferencia">S/. 0.00</div>
-          <div style="font-size:11px;" id="kasnet-cuadre-msg">Ingresa el saldo del POS</div>
-        </div>
-        <button class="btn-main" id="kasnet-btn-cuadre" onclick="kasnetSubmitCuadre()" disabled style="width:100%;padding:12px;font-size:13px;margin-top:12px;"><span class="mi sm" style="vertical-align:text-bottom;margin-right:4px;">fact_check</span> Guardar Cuadre KASNET</button>
-      </div>
+      <div class="empty" style="padding:20px;"><div class="spinner-sm"></div>Cargando registros...</div>
     </div>
   </div>
   </div>
@@ -704,28 +683,64 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 <div class="modal-caja" id="modal-kasnet">
   <div class="modal-caja-box">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-      <h3 id="modal-kasnet-titulo"><span class="mi" style="font-size:18px;vertical-align:middle;">point_of_sale</span> Nueva Operación</h3>
+      <h3 id="modal-kasnet-titulo"><span class="mi" style="font-size:18px;vertical-align:middle;">point_of_sale</span> Registro Diario POS</h3>
       <button onclick="kasnetHideModal()" style="background:none;border:none;font-size:18px;cursor:pointer;">x</button>
     </div>
     <input type="hidden" id="kasnet-edit-id">
-    <div class="form-caja-group"><label>Fecha</label><input type="date" id="kasnet-fecha"></div>
-    <div class="form-caja-group"><label>Tipo de Operación</label>
-      <select id="kasnet-tipo">
-        <option value="">Seleccionar...</option>
-        <option value="Depósito">Depósito (cliente deposita)</option>
-        <option value="Retiro">Retiro (cliente retira)</option>
-        <option value="Pago de Servicio">Pago de Servicio</option>
-        <option value="Carga de Saldo">Carga de Saldo (recarga POS)</option>
-      </select>
-    </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-      <div class="form-caja-group"><label>Monto (S/.)</label><input type="number" id="kasnet-monto" placeholder="0.00" step="0.01"></div>
-      <div class="form-caja-group"><label>Comisión (S/.)</label><input type="number" id="kasnet-comision" placeholder="0.00" step="0.01"></div>
+      <div class="form-caja-group"><label>Fecha</label><input type="date" id="kasnet-fecha"></div>
+      <div class="form-caja-group"><label>N° Operaciones</label><input type="number" id="kasnet-num-ops" placeholder="0" min="0" step="1"></div>
     </div>
-    <div class="form-caja-group"><label>Descripción</label><input type="text" id="kasnet-descripcion" placeholder="Detalle de la operación"></div>
+    
+    <div style="background:#f4f7fa; padding:12px; border-radius:12px; margin-bottom:14px;">
+      <h4 style="font-size:11px; margin-bottom:10px; color:var(--azul);">Saldos Virtuales</h4>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div class="form-caja-group"><label>POS KASNET</label><input type="number" id="kasnet-pos-virt" placeholder="0.00" step="0.01" oninput="kasnetCalcTotal()"></div>
+        <div class="form-caja-group"><label>PAGAYA virtual</label><input type="number" id="kasnet-pagaya-virt" placeholder="0.00" step="0.01" oninput="kasnetCalcTotal()"></div>
+      </div>
+    </div>
+
+    <div style="background:white; border:1px solid var(--gris2); padding:12px; border-radius:12px; margin-bottom:14px;">
+      <h4 style="font-size:11px; margin-bottom:10px; color:var(--azul);">Efectivo Físico</h4>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <!-- Billetes -->
+        <div>
+          <div style="font-size:9px; font-weight:700; color:var(--texto2); margin-bottom:6px;">BILLETES</div>
+          <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;"><span style="width:40px; font-size:11px;">S/ 200</span><input type="number" id="k-b200" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="width:100%; border:1px solid var(--gris); border-radius:6px; padding:4px 8px;"></div>
+          <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;"><span style="width:40px; font-size:11px;">S/ 100</span><input type="number" id="k-b100" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="width:100%; border:1px solid var(--gris); border-radius:6px; padding:4px 8px;"></div>
+          <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;"><span style="width:40px; font-size:11px;">S/ 50</span><input type="number" id="k-b50" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="width:100%; border:1px solid var(--gris); border-radius:6px; padding:4px 8px;"></div>
+          <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;"><span style="width:40px; font-size:11px;">S/ 20</span><input type="number" id="k-b20" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="width:100%; border:1px solid var(--gris); border-radius:6px; padding:4px 8px;"></div>
+          <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;"><span style="width:40px; font-size:11px;">S/ 10</span><input type="number" id="k-b10" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="width:100%; border:1px solid var(--gris); border-radius:6px; padding:4px 8px;"></div>
+        </div>
+        <!-- Monedas -->
+        <div>
+          <div style="font-size:9px; font-weight:700; color:var(--texto2); margin-bottom:6px;">MONEDAS</div>
+          <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;"><span style="width:40px; font-size:11px;">S/ 5</span><input type="number" id="k-m5" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="width:100%; border:1px solid var(--gris); border-radius:6px; padding:4px 8px;"></div>
+          <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;"><span style="width:40px; font-size:11px;">S/ 2</span><input type="number" id="k-m2" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="width:100%; border:1px solid var(--gris); border-radius:6px; padding:4px 8px;"></div>
+          <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;"><span style="width:40px; font-size:11px;">S/ 1</span><input type="number" id="k-m1" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="width:100%; border:1px solid var(--gris); border-radius:6px; padding:4px 8px;"></div>
+          <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;"><span style="width:40px; font-size:11px;">S/ 0.50</span><input type="number" id="k-m050" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="width:100%; border:1px solid var(--gris); border-radius:6px; padding:4px 8px;"></div>
+          <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;"><span style="width:40px; font-size:11px;">S/ 0.20</span><input type="number" id="k-m020" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="width:100%; border:1px solid var(--gris); border-radius:6px; padding:4px 8px;"></div>
+          <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;"><span style="width:40px; font-size:11px;">S/ 0.10</span><input type="number" id="k-m010" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="width:100%; border:1px solid var(--gris); border-radius:6px; padding:4px 8px;"></div>
+        </div>
+      </div>
+      <div style="margin-top:10px; font-size:13px; font-weight:700; color:var(--texto);">Total Físico: <span id="kasnet-total-fisico" style="color:var(--verde);">S/. 0.00</span></div>
+    </div>
+    
+    <div class="diff-card" id="kasnet-cuadre-diff" style="margin-bottom:14px; padding:12px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+        <span style="font-size:11px; font-weight:700;">Total Declarado:</span>
+        <span style="font-size:16px; font-weight:800;" id="kasnet-total-declarado">S/. 0.00</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-size:11px; font-weight:700;">Diferencia vs Base:</span>
+        <span style="font-size:16px; font-weight:800;" id="kasnet-diferencia-total">S/. 0.00</span>
+      </div>
+      <div style="font-size:11px; margin-top:8px; text-align:center;" id="kasnet-cuadre-msg">Completa saldos y efectivo</div>
+    </div>
+
     <div style="display:flex;gap:10px;margin-top:8px;">
       <button onclick="kasnetHideModal()" style="flex:1;padding:12px;background:var(--gris);border:none;border-radius:10px;font-weight:700;cursor:pointer;">Cancelar</button>
-      <button class="btn-main" onclick="kasnetGuardar()" id="kasnet-btn-guardar" style="flex:1;padding:12px;">Guardar</button>
+      <button class="btn-main" onclick="kasnetGuardar()" id="kasnet-btn-guardar" style="flex:1;padding:12px;" disabled>Guardar Registro</button>
     </div>
   </div>
 </div>
@@ -2136,9 +2151,9 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   // ──── MÓDULO KASNET JS ────────────
   // ════════════════════════════════════
 
-  let kasnetOperaciones = [];
-  let kasnetSaldo = 0;
-  let _kasnetOpMap = {};
+  let kasnetRegistros = [];
+  let _kasnetRegMap = {};
+  const KASNET_BASE_DEFAULT = 3000; // Podría venir de config en el futuro
 
   async function kasnetCargarDatos() {
     try {
@@ -2147,54 +2162,71 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         showToast('Error cargando KASNET: ' + (resp && resp.error ? resp.error : 'Sin respuesta'));
         return;
       }
-      kasnetOperaciones = resp.operaciones || [];
-      kasnetSaldo = resp.saldo || 0;
-      kasnetRenderResumen(resp);
-      kasnetRenderOperaciones(kasnetOperaciones);
-      document.getElementById('kasnet-cuadre-sistema').textContent = 'S/. ' + kasnetSaldo.toLocaleString('es-PE', {minimumFractionDigits:2});
-      kasnetCalcCuadre();
-    } catch(e) {
-      showToast('Error: ' + e.message);
+      kasnetRegistros = resp.registros || [];
+      kasnetRenderResumen(kasnetRegistros);
+      kasnetRenderOperaciones(kasnetRegistros);
+    } catch(e) { showToast('Error: ' + e.message); }
+  }
+
+  function kasnetRenderResumen(regs) {
+    let mesActualOps = 0;
+    const mesActualStr = new Date().toISOString().substring(0, 7); // yyyy-MM
+    let ultimoTotal = 0;
+    let ultimaDiff = 0;
+    let fontColor = 'var(--texto)';
+
+    if (regs.length > 0) {
+      const u = regs[0]; // el más reciente por fecha (asumiendo sort desc desde backend)
+      ultimoTotal = u.total;
+      ultimaDiff = u.diferencia;
+      if (ultimaDiff > 0) fontColor = 'var(--verde)';
+      else if (ultimaDiff < 0) fontColor = 'var(--rojo)';
+      else fontColor = 'var(--texto)';
+      
+      regs.forEach(r => {
+        if (r.fecha && r.fecha.startsWith(mesActualStr)) mesActualOps++;
+      });
     }
+
+    document.getElementById('kasnet-total-hoy').textContent = 'S/. ' + ultimoTotal.toLocaleString('es-PE', {minimumFractionDigits:2});
+    const elDiff = document.getElementById('kasnet-diff-hoy');
+    elDiff.textContent = (ultimaDiff > 0 ? '+' : '') + 'S/. ' + ultimaDiff.toLocaleString('es-PE', {minimumFractionDigits:2});
+    elDiff.style.color = fontColor;
+    document.getElementById('kasnet-ops-mes').textContent = mesActualOps;
   }
 
-  function kasnetRenderResumen(data) {
-    document.getElementById('kasnet-saldo').textContent = 'S/. ' + (data.saldo || 0).toLocaleString('es-PE', {minimumFractionDigits:2});
-    document.getElementById('kasnet-ops').textContent = data.totalOps || 0;
-    document.getElementById('kasnet-comisiones').textContent = 'S/. ' + (data.totalComisiones || 0).toLocaleString('es-PE', {minimumFractionDigits:2});
-  }
-
-  function kasnetRenderOperaciones(ops) {
-    _kasnetOpMap = {};
+  function kasnetRenderOperaciones(regs) {
+    _kasnetRegMap = {};
     const contenedor = document.getElementById('kasnet-lista');
-    if (!ops || ops.length === 0) {
-      contenedor.innerHTML = '<div class="empty"><div class="icon"><span class="mi" style="font-size:40px;color:var(--texto2);">point_of_sale</span></div>Sin operaciones registradas</div>';
+    if (!regs || regs.length === 0) {
+      contenedor.innerHTML = '<div class="empty"><div class="icon"><span class="mi" style="font-size:40px;color:var(--texto2);">account_balance_wallet</span></div>Sin registros de cuadre</div>';
       return;
     }
-    ops.forEach(function(m) { _kasnetOpMap['kop-' + m.id] = m; });
-    contenedor.innerHTML = ops.map(function(m) {
-      const esPositivo = m.tipo === 'Retiro' || m.tipo === 'Carga de Saldo';
-      const icon = esPositivo ? '\u2191' : '\u2193';
-      const sign = esPositivo ? '+' : '-';
-      const iconBg = esPositivo ? 'ingreso' : 'egreso';
-      const montoClass = esPositivo ? 'ingreso' : 'egreso';
-      const mDataId = 'kop-' + m.id;
+    regs.forEach(function(m) { _kasnetRegMap['kreg-' + m.id] = m; });
+    
+    contenedor.innerHTML = regs.map(function(m) {
+      const iconBg = m.estado === 'SOBRANTE' ? 'ingreso' : m.estado === 'FALTANTE' ? 'egreso' : 'neutro';
+      const mDataId = 'kreg-' + m.id;
+      const sign = m.diferencia > 0 ? '+' : '';
 
       return '<div class="mov-card">' +
         '<div class="mov-left">' +
-          '<div class="mov-icon ' + iconBg + '">' + icon + '</div>' +
+          '<div class="mov-icon ' + iconBg + '"><span class="mi sm">receipt_long</span></div>' +
           '<div class="mov-info">' +
-            '<div class="mov-desc" title="' + escapeHtml(m.descripcion) + '">' + escapeHtml(m.tipo) + '</div>' +
+            '<div class="mov-desc" style="font-weight:700;">Registro ' + escapeHtml(m.fecha) + '</div>' +
             '<div class="mov-cat">' +
-              (m.descripcion ? '<span style="background:var(--gris);padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;">' + escapeHtml(m.descripcion) + '</span>' : '') +
-              (m.comision > 0 ? '<span style="color:var(--verde);background:#f0fff4;padding:3px 8px;border-radius:6px;font-weight:700;font-size:10px;">Com. S/.' + m.comision.toFixed(2) + '</span>' : '') +
+              '<span style="background:var(--gris);padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;">Ops: ' + m.numOps + '</span>' +
+              '<span style="background:var(--gris);padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;">Virtual: S/. ' + (m.posVirtual + m.pagayaVirtual).toFixed(2) + '</span>' +
+              '<span style="background:var(--gris);padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;">Físico: S/. ' + m.efectivoFisico.toFixed(2) + '</span>' +
             '</div>' +
           '</div>' +
         '</div>' +
-        '<div class="mov-right">' +
-          '<div class="mov-monto ' + montoClass + '">' + sign + ' S/. ' + m.monto.toLocaleString('es-PE', {minimumFractionDigits:2}) + '</div>' +
-          '<div style="display:flex; justify-content:flex-end; width:100%; align-items:center; gap:10px;">' +
-            '<div class="mov-fecha">' + m.fecha + (m.hora ? ' ' + m.hora : '') + '</div>' +
+        '<div class="mov-right" style="text-align:right;">' +
+          '<div class="mov-monto">Total: S/. ' + m.total.toLocaleString('es-PE', {minimumFractionDigits:2}) + '</div>' +
+          '<div style="font-size:11px; font-weight:700; color:' + (m.estado === 'SOBRANTE' ? 'var(--verde)' : m.estado === 'FALTANTE' ? 'var(--rojo)' : 'var(--texto2)') + ';">' + 
+             m.estado + ' (' + sign + 'S/. ' + m.diferencia.toFixed(2) + ')' +
+          '</div>' +
+          '<div style="display:flex; justify-content:flex-end; width:100%; align-items:center; gap:10px; margin-top:4px;">' +
             '<div class="mov-acciones">' +
               '<button class="mov-btn" data-movid="' + mDataId + '" onclick="kasnetShowModalById(this.dataset.movid)" title="Editar"><span class="mi sm">edit</span></button>' +
               '<button class="mov-btn delete" onclick="kasnetEliminar(\'' + m.id + '\')" title="Eliminar"><span class="mi sm">delete</span></button>' +
@@ -2207,62 +2239,135 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
   function kasnetFiltrar() {
     const q = (document.getElementById('kasnet-buscar').value || '').toLowerCase();
-    const filtrados = kasnetOperaciones.filter(function(m) {
-      return m.tipo.toLowerCase().includes(q) || m.descripcion.toLowerCase().includes(q);
+    const filtrados = kasnetRegistros.filter(function(m) {
+      return m.fecha.includes(q);
     });
     kasnetRenderOperaciones(filtrados);
   }
 
   function kasnetShowModalById(movId) {
-    const editData = _kasnetOpMap[movId] || null;
+    const editData = _kasnetRegMap[movId] || null;
     kasnetShowModal(editData);
   }
 
   function kasnetShowModal(editData) {
     document.getElementById('kasnet-edit-id').value = editData ? editData.id : '';
     document.getElementById('modal-kasnet-titulo').innerHTML = editData ?
-      '<span class="mi" style="font-size:18px;vertical-align:middle;">edit</span> Editar Operaci\u00f3n' :
-      '<span class="mi" style="font-size:18px;vertical-align:middle;">point_of_sale</span> Nueva Operaci\u00f3n';
-    const hoy = new Date();
-    document.getElementById('kasnet-fecha').value = hoy.toISOString().split('T')[0];
+      '<span class="mi" style="font-size:18px;vertical-align:middle;">edit</span> Editar Registro' :
+      '<span class="mi" style="font-size:18px;vertical-align:middle;">point_of_sale</span> Nuevo Registro Diario';
+    
+    // Limpiar campos
+    document.getElementById('kasnet-num-ops').value = '';
+    document.getElementById('kasnet-pos-virt').value = '';
+    document.getElementById('kasnet-pagaya-virt').value = '';
+    ['b200','b100','b50','b20','b10','m5','m2','m1','m050','m020','m010'].forEach(id => {
+      document.getElementById('k-' + id).value = '';
+    });
+    
     if (editData) {
       document.getElementById('kasnet-fecha').value = editData.fecha;
-      document.getElementById('kasnet-tipo').value = editData.tipo;
-      document.getElementById('kasnet-monto').value = editData.monto;
-      document.getElementById('kasnet-comision').value = editData.comision;
-      document.getElementById('kasnet-descripcion').value = editData.descripcion;
+      document.getElementById('kasnet-num-ops').value = editData.numOps;
+      document.getElementById('kasnet-pos-virt').value = editData.posVirtual || '';
+      document.getElementById('kasnet-pagaya-virt').value = editData.pagayaVirtual || '';
+      // No tenemos el desglose de monedas guardado en sheets para re-popular,
+      // así que el usuario deberá recalcular efectivo si quiere editar, o lo dejamos en 0.
+      kasnetCalcTotal(); // Calcula con lo actual (efectivo será 0 inicialmente en edición)
     } else {
-      document.getElementById('kasnet-tipo').value = '';
-      document.getElementById('kasnet-monto').value = '';
-      document.getElementById('kasnet-comision').value = '';
-      document.getElementById('kasnet-descripcion').value = '';
+      const hoy = new Date();
+      document.getElementById('kasnet-fecha').value = hoy.toISOString().split('T')[0];
+      kasnetCalcTotal();
     }
+    
     document.getElementById('modal-kasnet').classList.add('show');
   }
 
   function kasnetHideModal() { document.getElementById('modal-kasnet').classList.remove('show'); }
 
+  function kasnetCalcTotal() {
+    const posVirt = parseFloat(document.getElementById('kasnet-pos-virt').value) || 0;
+    const pagayaVirt = parseFloat(document.getElementById('kasnet-pagaya-virt').value) || 0;
+    
+    const efecFis = 
+      (parseInt(document.getElementById('k-b200').value)||0)*200 +
+      (parseInt(document.getElementById('k-b100').value)||0)*100 +
+      (parseInt(document.getElementById('k-b50').value)||0)*50 +
+      (parseInt(document.getElementById('k-b20').value)||0)*20 +
+      (parseInt(document.getElementById('k-b10').value)||0)*10 +
+      (parseInt(document.getElementById('k-m5').value)||0)*5 +
+      (parseInt(document.getElementById('k-m2').value)||0)*2 +
+      (parseInt(document.getElementById('k-m1').value)||0)*1 +
+      (parseInt(document.getElementById('k-m050').value)||0)*0.5 +
+      (parseInt(document.getElementById('k-m020').value)||0)*0.2 +
+      (parseInt(document.getElementById('k-m010').value)||0)*0.1;
+      
+    document.getElementById('kasnet-total-fisico').textContent = 'S/. ' + efecFis.toFixed(2);
+    
+    const total = posVirt + pagayaVirt + efecFis;
+    const diff = total - KASNET_BASE_DEFAULT;
+    
+    document.getElementById('kasnet-total-declarado').textContent = 'S/. ' + total.toLocaleString('es-PE', {minimumFractionDigits:2});
+    
+    const diffEl = document.getElementById('kasnet-diferencia-total');
+    const msgEl = document.getElementById('kasnet-cuadre-msg');
+    const diffCard = document.getElementById('kasnet-cuadre-diff');
+    const btnGuardar = document.getElementById('kasnet-btn-guardar');
+    
+    diffEl.textContent = (diff>0?'+':'') + 'S/. ' + diff.toLocaleString('es-PE', {minimumFractionDigits:2});
+    
+    const cuadre = Math.abs(diff) < 0.01;
+    const btnActivo = total > 0;
+    
+    diffCard.className = 'diff-card ' + (!btnActivo ? '' : cuadre ? 'cuadre' : diff > 0 ? 'sobrante' : 'faltante');
+    
+    if (!btnActivo) {
+      msgEl.innerHTML = 'Completa saldos y efectivo';
+      diffEl.style.color = 'var(--texto)';
+    } else if (cuadre) {
+      msgEl.innerHTML = '<span class="mi" style="vertical-align:text-bottom;margin-right:4px;">check_circle</span> \u00a1CUADRE EXACTO!';
+      diffEl.style.color = 'var(--verde)';
+    } else if (diff > 0) {
+      msgEl.innerHTML = '<span class="mi" style="vertical-align:text-bottom;margin-right:4px;">warning</span> Sobrante -> Crear\u00E1 un Ingreso en Caja Chica';
+      diffEl.style.color = 'var(--verde)';
+    } else {
+      msgEl.innerHTML = '<span class="mi" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> Faltante -> Lo asume el cajero';
+      diffEl.style.color = 'var(--rojo)';
+    }
+    
+    btnGuardar.disabled = !btnActivo;
+    
+    // Almacenar el total fisico calculado para enviarlo
+    document.getElementById('kasnet-btn-guardar').dataset.efec = efecFis.toFixed(2);
+  }
+
   async function kasnetGuardar() {
     const btn = document.getElementById('kasnet-btn-guardar');
     const fecha = document.getElementById('kasnet-fecha').value;
-    const tipo = document.getElementById('kasnet-tipo').value;
-    const monto = document.getElementById('kasnet-monto').value;
-    const comision = document.getElementById('kasnet-comision').value || '0';
-    const descripcion = document.getElementById('kasnet-descripcion').value;
+    const numOps = document.getElementById('kasnet-num-ops').value;
+    const posVirt = document.getElementById('kasnet-pos-virt').value || '0';
+    const pagayaVirt = document.getElementById('kasnet-pagaya-virt').value || '0';
+    const efecFis = btn.dataset.efec || '0';
     const editId = document.getElementById('kasnet-edit-id').value;
 
-    if (!fecha || !tipo || !monto) {
-      showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">warning</span> Completa fecha, tipo y monto'); return;
+    if (!fecha) {
+      showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">warning</span> Selecciona una fecha'); return;
     }
-    if (parseFloat(monto) <= 0) { showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">warning</span> El monto debe ser mayor a 0'); return; }
+    
+    const diffPreview = (parseFloat(posVirt) + parseFloat(pagayaVirt) + parseFloat(efecFis)) - KASNET_BASE_DEFAULT;
+    
+    if (!editId && diffPreview > 0) {
+      if (!confirm('Se registrar\u00E1 un SOBRANTE de S/. ' + diffPreview.toFixed(2) + '.\n\nEsto generar\u00E1 autom\u00E1ticamente un movimiento de "Ingreso" en la Caja Chica.\n\n\u00BFDeseas continuar?')) return;
+    } else if (!editId && diffPreview < 0) {
+      if (!confirm('Se registrar\u00E1 un FALTANTE de S/. ' + Math.abs(diffPreview).toFixed(2) + '.\n\nEste monto ser\u00E1 asumido por el cajero.\n\n\u00BFDeseas continuar?')) return;
+    }
 
     btn.disabled = true;
     btn.textContent = 'Guardando...';
     try {
       const resp = await apiPost({
         _method: 'POST', kasnetAction: 'guardar',
-        fecha: fecha, tipo: tipo, monto: monto,
-        comision: comision, descripcion: descripcion,
+        fecha: fecha, numOps: numOps,
+        posVirtual: posVirt, pagayaVirtual: pagayaVirt,
+        efectivoFisico: efecFis,
         edit_id: editId || '',
         sedeContexto: cajaSedeActual
       });
@@ -2270,74 +2375,23 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">check_circle</span> ' + resp.message);
         kasnetHideModal();
         await kasnetCargarDatos();
+        // Si hay un sobrante y se creo en caja, vale la pena recargar caja también si estamos viendola
+        if (!editId && diffPreview > 0) cajaCargarDatos(); 
       } else {
         showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> ' + (resp && resp.message ? resp.message : 'Error'));
       }
-    } catch(e) {
-      showToast('Error: ' + e.message);
-    }
-    btn.textContent = 'Guardar'; btn.disabled = false;
+    } catch(e) { showToast('Error: ' + e.message); }
+    btn.textContent = 'Guardar Registro'; btn.disabled = false;
   }
 
   async function kasnetEliminar(id) {
-    if (!confirm('\u00bfEliminar esta operaci\u00f3n?')) return;
+    if (!confirm('\u00bfEliminar este registro diario?\n\nSolo un administrador puede hacerlo. Si hubo un sobrante transferido a Caja, tendr\u00E1s que eliminarlo de la Caja manualmente.')) return;
     try {
       const resp = await apiPost({ _method: 'POST', kasnetAction: 'eliminar', id: id });
       if (resp && resp.status === 'ok') {
         showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">check_circle</span> ' + resp.message);
         await kasnetCargarDatos();
       } else { showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> ' + (resp && resp.message ? resp.message : 'Error')); }
-    } catch(e) { showToast('Error: ' + e.message); }
-  }
-
-  function kasnetCalcCuadre() {
-    const posInput = document.getElementById('kasnet-cuadre-pos');
-    const posVal = parseFloat(posInput.value) || 0;
-    const diff = Math.round((posVal - kasnetSaldo) * 100) / 100;
-    const diffCard = document.getElementById('kasnet-cuadre-diff');
-    const diffEl = document.getElementById('kasnet-cuadre-diferencia');
-    const msgEl = document.getElementById('kasnet-cuadre-msg');
-
-    diffEl.textContent = 'S/. ' + Math.abs(diff).toLocaleString('es-PE', {minimumFractionDigits:2});
-    const cuadre = Math.abs(diff) < 0.01;
-    const tieneInput = posInput.value !== '';
-
-    diffCard.className = 'diff-card ' + (!tieneInput ? '' : cuadre ? 'cuadre' : diff > 0 ? 'sobrante' : 'faltante');
-
-    if (!tieneInput) {
-      msgEl.innerHTML = 'Ingresa el saldo del POS';
-    } else if (cuadre) {
-      msgEl.innerHTML = '<span class="mi" style="vertical-align:text-bottom;margin-right:4px;">check_circle</span> \u00a1CUADRE EXACTO!';
-    } else if (diff > 0) {
-      msgEl.innerHTML = '<span class="mi" style="vertical-align:text-bottom;margin-right:4px;">warning</span> Sobrante en POS';
-    } else {
-      msgEl.innerHTML = '<span class="mi" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> Faltante en POS';
-    }
-
-    document.getElementById('kasnet-btn-cuadre').disabled = !tieneInput;
-  }
-
-  async function kasnetSubmitCuadre() {
-    const posVal = parseFloat(document.getElementById('kasnet-cuadre-pos').value) || 0;
-    const diff = Math.round((posVal - kasnetSaldo) * 100) / 100;
-
-    if (!confirm('\u00bfConfirmar cuadre KASNET?\n\nSaldo Sistema: S/. ' + kasnetSaldo.toFixed(2) + '\nSaldo POS: S/. ' + posVal.toFixed(2) + '\nDiferencia: S/. ' + diff.toFixed(2))) return;
-
-    try {
-      const resp = await apiPost({
-        _method: 'POST', kasnetAction: 'cuadre',
-        saldoSistema: kasnetSaldo,
-        saldoPos: posVal,
-        diferencia: diff,
-        sedeContexto: cajaSedeActual
-      });
-      if (resp && resp.status === 'ok') {
-        showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">check_circle</span> ' + resp.message);
-        document.getElementById('kasnet-cuadre-pos').value = '';
-        kasnetCalcCuadre();
-      } else {
-        showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> ' + (resp && resp.message ? resp.message : 'Error'));
-      }
     } catch(e) { showToast('Error: ' + e.message); }
   }
 
