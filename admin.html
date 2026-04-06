@@ -969,10 +969,10 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
                       c.dias > 0  ? `<span class="tag tag-vencido"><span class="mi xs">warning</span> ${c.dias} días</span>` :
                                     `<span class="tag tag-pendiente"><span class="mi xs">schedule</span> Vence hoy</span>`;
       const tieneVoucher = c.voucher ? `<span class="tag tag-pendiente"><span class="mi xs">hourglass_top</span> Voucher enviado</span>` : '';
-      const linkWA = c.telefono && c.mensaje ? 
-        `https://web.whatsapp.com/send?phone=${c.telefono}&text=${encodeURIComponent(c.mensaje)}` : '';
-      const linkWAMovil = c.telefono && c.mensaje ?
-        `https://api.whatsapp.com/send?phone=${c.telefono}&text=${encodeURIComponent(c.mensaje)}` : '';
+      const linkWA = c.telefono ? 
+        `https://web.whatsapp.com/send?phone=${c.telefono}${c.mensaje ? '&text=' + encodeURIComponent(c.mensaje) : ''}` : '';
+      const linkWAMovil = c.telefono ?
+        `https://api.whatsapp.com/send?phone=${c.telefono}${c.mensaje ? '&text=' + encodeURIComponent(c.mensaje) : ''}` : '';
 
       const cuotaFmt = c.cuota ? 'S/. ' + parseFloat(c.cuota).toLocaleString('es-PE',{minimumFractionDigits:2}) : '-';
       const deudaFmt = 'S/. ' + parseFloat(c.deuda).toLocaleString('es-PE',{minimumFractionDigits:2});
@@ -1148,7 +1148,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       const data = await apiPost({ adminAction: 'verificar', fila: fila, nombre: nombre, monto: monto, cod: cod });
       if (data.success) {
         showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">check_circle</span> Pago verificado — ' + nombre.split(' ')[0]);
-        await Promise.all([cargarVouchers(), cargarHistorial()]);
+        await cargarTodo();
       }
     } catch(e) { showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> Error al verificar'); }
   }
@@ -1200,18 +1200,18 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     document.getElementById('lista-historial').innerHTML = lista.map(h => `
       <div class="hist-card">
         <div class="hist-left">
-          <div class="nombre">${h.nombre || '-'}</div>
-          <div class="det">${h.asesor ? h.asesor.toString().split(' ')[0] : '-'} · ${h.tipo || '-'} · Cód. ${h.cod || '-'}</div>
+          <div class="nombre">${escapeHtml(h.nombre) || '-'}</div>
+          <div class="det">${h.asesor ? escapeHtml(h.asesor.toString().split(' ')[0]) : '-'} · ${escapeHtml(h.tipo) || '-'} · Cód. ${escapeHtml(h.cod) || '-'}</div>
           <div class="det" style="margin-top:3px;">
             <span class="tag ${h.estado && h.estado.toString().includes('VERIFICADO') ? 'tag-verificado' : 'tag-pendiente'}" style="display:inline-block;font-size:10px;">
-              ${h.estado || 'PENDIENTE'}
+              ${escapeHtml(h.estado) || 'PENDIENTE'}
             </span>
           </div>
         </div>
         <div class="hist-right">
           <div class="monto">S/. ${parseFloat(h.monto||0).toLocaleString('es-PE',{minimumFractionDigits:2})}</div>
-          <div class="fecha">${formatFechaSolo(h.fecha)} ${h.hora || ''}</div>
-          ${h.voucher ? `<a href="${h.voucher}" target="_blank">Ver voucher ↗</a>` : ''}
+          <div class="fecha">${formatFechaSolo(h.fecha)} ${escapeHtml(h.hora) || ''}</div>
+          ${h.voucher ? `<a href="${escapeHtml(h.voucher)}" target="_blank">Ver voucher ↗</a>` : ''}
         </div>
       </div>
     `).join('');
@@ -1876,7 +1876,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         esPreventivo: tipoTexto === 'Arqueo Preventivo',
         saldoTeorico: cajaSaldoTeorico,
         saldoFisico: calc.total,
-        diferencia: tipoTexto === 'Cierre Diario' ? 0 : calc.diff,
+        diferencia: tipoTexto === 'Cierre Diario' ? Math.round((calc.total - cajaSaldoTeorico) * 100) / 100 : calc.diff,
         detalle: JSON.stringify(detalle),
         sedeContexto: cajaSedeActual
       });
