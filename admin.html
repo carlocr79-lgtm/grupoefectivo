@@ -1995,7 +1995,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       <div style="background:var(--azul); color:white; padding:12px; border-radius:12px; margin-bottom:16px; font-size:13px;">
         <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
           <span class="mi sm">account_circle</span>
-          <span><strong>Encargado:</strong> ${arq.usuario || 'S/U'}</span>
+          <span><strong>Encargado:</strong> ${arq.usuario ? String(arq.usuario).split('@')[0] : 'S/U'}</span>
         </div>
         <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
           <span class="mi sm">category</span>
