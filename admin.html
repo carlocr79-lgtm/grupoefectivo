@@ -443,6 +443,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     <button id="subtab-movimientos" onclick="cajaSwitchSubtab('movimientos',this)" style="padding:8px 16px;background:none;border:none;border-bottom:2px solid transparent;color:var(--texto2);font-weight:600;font-size:12px;cursor:pointer;"><span class="mi sm">swap_vert</span> Movimientos</button>
     <button id="subtab-arqueo" onclick="cajaSwitchSubtab('arqueo',this)" style="padding:8px 16px;background:none;border:none;border-bottom:2px solid transparent;color:var(--texto2);font-weight:600;font-size:12px;cursor:pointer;"><span class="mi sm">inventory</span> Arqueo</button>
     <button id="subtab-historial-arq" onclick="cajaSwitchSubtab('historial-arq',this)" style="padding:8px 16px;background:none;border:none;border-bottom:2px solid transparent;color:var(--texto2);font-weight:600;font-size:12px;cursor:pointer;"><span class="mi sm">calendar_month</span> Historial</button>
+    <button id="subtab-kasnet" onclick="cajaSwitchSubtab('kasnet',this)" style="padding:8px 16px;background:none;border:none;border-bottom:2px solid transparent;color:var(--texto2);font-weight:600;font-size:12px;cursor:pointer;"><span class="mi sm">point_of_sale</span> KASNET</button>
     <div style="margin-left:auto;display:flex;align-items:center;">
       <select id="caja-sede-select" onchange="cajaOnChangeSede()" style="padding:5px 10px;border:1px solid var(--gris2);border-radius:8px;font-size:11px;font-weight:600;color:var(--azul);"></select>
     </div>
@@ -556,6 +557,42 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       <button class="btn-main" id="btn-arqueos-mas" onclick="cajaLoadHistorial(true)" style="background:white; color:var(--azul2); border:1.5px solid var(--azul2); width:auto; padding:8px 24px; border-radius:30px; font-size:13px; font-weight:700;"><span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">expand_more</span> Ver más arqueos</button>
     </div>
   </div>
+  <!-- SUB: KASNET -->
+  <div id="caja-sub-kasnet" style="display:none;">
+    <div class="caja-grid">
+      <div class="caja-card"><div class="caja-card-title">Saldo KASNET</div><div class="caja-monto azul" id="kasnet-saldo">S/. 0.00</div></div>
+      <div class="caja-card"><div class="caja-card-title">Operaciones</div><div class="caja-monto" id="kasnet-ops" style="color:var(--texto);">0</div></div>
+      <div class="caja-card"><div class="caja-card-title">Comisiones</div><div class="caja-monto verde" id="kasnet-comisiones">S/. 0.00</div></div>
+    </div>
+    <div class="caja-toolbar">
+      <button class="btn-main" onclick="kasnetShowModal()" style="width:auto;padding:9px 16px;font-size:13px;">+ Nueva Operación</button>
+      <input type="text" id="kasnet-buscar" placeholder="Buscar operación..." oninput="kasnetFiltrar()" style="flex:1;padding:8px 12px;border:1.5px solid var(--gris2);border-radius:10px;font-size:13px;max-width:300px;">
+    </div>
+    <div class="movimientos-list" id="kasnet-lista">
+      <div class="empty" style="padding:20px;"><div class="spinner-sm"></div>Cargando operaciones...</div>
+    </div>
+    <div style="margin-top:20px;">
+      <h4 style="font-family:'Montserrat',sans-serif;font-weight:800;font-size:13px;color:var(--azul);margin-bottom:12px;display:flex;align-items:center;gap:6px;"><span class="mi sm">fact_check</span> Cuadre de KASNET</h4>
+      <div style="background:white;border-radius:14px;padding:16px;box-shadow:0 2px 10px rgba(0,48,135,0.07);">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+          <div>
+            <div style="font-size:10px;font-weight:700;color:var(--texto2);text-transform:uppercase;margin-bottom:4px;">Saldo según Sistema</div>
+            <div style="font-size:18px;font-weight:800;color:var(--azul);" id="kasnet-cuadre-sistema">S/. 0.00</div>
+          </div>
+          <div>
+            <div style="font-size:10px;font-weight:700;color:var(--texto2);text-transform:uppercase;margin-bottom:4px;">Saldo según POS</div>
+            <input type="number" id="kasnet-cuadre-pos" placeholder="0.00" step="0.01" oninput="kasnetCalcCuadre()" style="width:100%;padding:8px 12px;border:1.5px solid var(--gris2);border-radius:10px;font-size:16px;font-weight:800;color:var(--verde);font-family:'Montserrat',sans-serif;">
+          </div>
+        </div>
+        <div class="diff-card" id="kasnet-cuadre-diff">
+          <div style="font-size:10px;font-weight:700;">Diferencia</div>
+          <div style="font-size:22px;font-weight:900;" id="kasnet-cuadre-diferencia">S/. 0.00</div>
+          <div style="font-size:11px;" id="kasnet-cuadre-msg">Ingresa el saldo del POS</div>
+        </div>
+        <button class="btn-main" id="kasnet-btn-cuadre" onclick="kasnetSubmitCuadre()" disabled style="width:100%;padding:12px;font-size:13px;margin-top:12px;"><span class="mi sm" style="vertical-align:text-bottom;margin-right:4px;">fact_check</span> Guardar Cuadre KASNET</button>
+      </div>
+    </div>
+  </div>
   </div>
 </div>
 
@@ -662,6 +699,37 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     </div>
   </div>
 </div>
+
+<!-- MODAL KASNET -->
+<div class="modal-caja" id="modal-kasnet">
+  <div class="modal-caja-box">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h3 id="modal-kasnet-titulo"><span class="mi" style="font-size:18px;vertical-align:middle;">point_of_sale</span> Nueva Operación</h3>
+      <button onclick="kasnetHideModal()" style="background:none;border:none;font-size:18px;cursor:pointer;">x</button>
+    </div>
+    <input type="hidden" id="kasnet-edit-id">
+    <div class="form-caja-group"><label>Fecha</label><input type="date" id="kasnet-fecha"></div>
+    <div class="form-caja-group"><label>Tipo de Operación</label>
+      <select id="kasnet-tipo">
+        <option value="">Seleccionar...</option>
+        <option value="Depósito">Depósito (cliente deposita)</option>
+        <option value="Retiro">Retiro (cliente retira)</option>
+        <option value="Pago de Servicio">Pago de Servicio</option>
+        <option value="Carga de Saldo">Carga de Saldo (recarga POS)</option>
+      </select>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div class="form-caja-group"><label>Monto (S/.)</label><input type="number" id="kasnet-monto" placeholder="0.00" step="0.01"></div>
+      <div class="form-caja-group"><label>Comisión (S/.)</label><input type="number" id="kasnet-comision" placeholder="0.00" step="0.01"></div>
+    </div>
+    <div class="form-caja-group"><label>Descripción</label><input type="text" id="kasnet-descripcion" placeholder="Detalle de la operación"></div>
+    <div style="display:flex;gap:10px;margin-top:8px;">
+      <button onclick="kasnetHideModal()" style="flex:1;padding:12px;background:var(--gris);border:none;border-radius:10px;font-weight:700;cursor:pointer;">Cancelar</button>
+      <button class="btn-main" onclick="kasnetGuardar()" id="kasnet-btn-guardar" style="flex:1;padding:12px;">Guardar</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -1341,7 +1409,9 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   // Al cambiar de sede: actualizar cajaSedeActual y recargar la subpestaña que está visible
   function cajaOnChangeSede() {
     cajaSedeActual = document.getElementById('caja-sede-select').value;
-    if (document.getElementById('caja-sub-historial-arq').style.display !== 'none') {
+    if (document.getElementById('caja-sub-kasnet').style.display !== 'none') {
+      kasnetCargarDatos();
+    } else if (document.getElementById('caja-sub-historial-arq').style.display !== 'none') {
       cajaLoadHistorial();
     } else if (document.getElementById('caja-sub-arqueo').style.display !== 'none') {
       cajaLoadArqueo();
@@ -1351,7 +1421,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   }
 
   function cajaSwitchSubtab(tab, btn) {
-    ['resumen','movimientos','arqueo','historial-arq'].forEach(function(t) {
+    ['resumen','movimientos','arqueo','historial-arq','kasnet'].forEach(function(t) {
       const el = document.getElementById('caja-sub-' + t);
       if (el) el.style.display = 'none';
       const b = document.getElementById('subtab-' + t);
@@ -1364,6 +1434,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     cajaSedeActual = document.getElementById('caja-sede-select').value;
     if (tab === 'arqueo') cajaLoadArqueo();
     else if (tab === 'historial-arq') cajaLoadHistorial();
+    else if (tab === 'kasnet') kasnetCargarDatos();
     else if (tab === 'movimientos') cajaRenderTabla(cajaVistaArchivo ? cajaMovArchivo : cajaMovimientos, cajaVistaArchivo);
     else cajaCargarDatos();
   }
@@ -2059,6 +2130,215 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     
     document.getElementById('detalle-arqueo-contenido').innerHTML = html;
     document.getElementById('modal-detalle-arqueo').classList.add('show');
+  }
+
+  // ════════════════════════════════════
+  // ──── MÓDULO KASNET JS ────────────
+  // ════════════════════════════════════
+
+  let kasnetOperaciones = [];
+  let kasnetSaldo = 0;
+  let _kasnetOpMap = {};
+
+  async function kasnetCargarDatos() {
+    try {
+      const resp = await apiFetch({ admin: 'kasnet_datos', sedeContexto: cajaSedeActual });
+      if (!resp || resp.error) {
+        showToast('Error cargando KASNET: ' + (resp && resp.error ? resp.error : 'Sin respuesta'));
+        return;
+      }
+      kasnetOperaciones = resp.operaciones || [];
+      kasnetSaldo = resp.saldo || 0;
+      kasnetRenderResumen(resp);
+      kasnetRenderOperaciones(kasnetOperaciones);
+      document.getElementById('kasnet-cuadre-sistema').textContent = 'S/. ' + kasnetSaldo.toLocaleString('es-PE', {minimumFractionDigits:2});
+      kasnetCalcCuadre();
+    } catch(e) {
+      showToast('Error: ' + e.message);
+    }
+  }
+
+  function kasnetRenderResumen(data) {
+    document.getElementById('kasnet-saldo').textContent = 'S/. ' + (data.saldo || 0).toLocaleString('es-PE', {minimumFractionDigits:2});
+    document.getElementById('kasnet-ops').textContent = data.totalOps || 0;
+    document.getElementById('kasnet-comisiones').textContent = 'S/. ' + (data.totalComisiones || 0).toLocaleString('es-PE', {minimumFractionDigits:2});
+  }
+
+  function kasnetRenderOperaciones(ops) {
+    _kasnetOpMap = {};
+    const contenedor = document.getElementById('kasnet-lista');
+    if (!ops || ops.length === 0) {
+      contenedor.innerHTML = '<div class="empty"><div class="icon"><span class="mi" style="font-size:40px;color:var(--texto2);">point_of_sale</span></div>Sin operaciones registradas</div>';
+      return;
+    }
+    ops.forEach(function(m) { _kasnetOpMap['kop-' + m.id] = m; });
+    contenedor.innerHTML = ops.map(function(m) {
+      const esPositivo = m.tipo === 'Retiro' || m.tipo === 'Carga de Saldo';
+      const icon = esPositivo ? '\u2191' : '\u2193';
+      const sign = esPositivo ? '+' : '-';
+      const iconBg = esPositivo ? 'ingreso' : 'egreso';
+      const montoClass = esPositivo ? 'ingreso' : 'egreso';
+      const mDataId = 'kop-' + m.id;
+
+      return '<div class="mov-card">' +
+        '<div class="mov-left">' +
+          '<div class="mov-icon ' + iconBg + '">' + icon + '</div>' +
+          '<div class="mov-info">' +
+            '<div class="mov-desc" title="' + escapeHtml(m.descripcion) + '">' + escapeHtml(m.tipo) + '</div>' +
+            '<div class="mov-cat">' +
+              (m.descripcion ? '<span style="background:var(--gris);padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;">' + escapeHtml(m.descripcion) + '</span>' : '') +
+              (m.comision > 0 ? '<span style="color:var(--verde);background:#f0fff4;padding:3px 8px;border-radius:6px;font-weight:700;font-size:10px;">Com. S/.' + m.comision.toFixed(2) + '</span>' : '') +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="mov-right">' +
+          '<div class="mov-monto ' + montoClass + '">' + sign + ' S/. ' + m.monto.toLocaleString('es-PE', {minimumFractionDigits:2}) + '</div>' +
+          '<div style="display:flex; justify-content:flex-end; width:100%; align-items:center; gap:10px;">' +
+            '<div class="mov-fecha">' + m.fecha + (m.hora ? ' ' + m.hora : '') + '</div>' +
+            '<div class="mov-acciones">' +
+              '<button class="mov-btn" data-movid="' + mDataId + '" onclick="kasnetShowModalById(this.dataset.movid)" title="Editar"><span class="mi sm">edit</span></button>' +
+              '<button class="mov-btn delete" onclick="kasnetEliminar(\'' + m.id + '\')" title="Eliminar"><span class="mi sm">delete</span></button>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  function kasnetFiltrar() {
+    const q = (document.getElementById('kasnet-buscar').value || '').toLowerCase();
+    const filtrados = kasnetOperaciones.filter(function(m) {
+      return m.tipo.toLowerCase().includes(q) || m.descripcion.toLowerCase().includes(q);
+    });
+    kasnetRenderOperaciones(filtrados);
+  }
+
+  function kasnetShowModalById(movId) {
+    const editData = _kasnetOpMap[movId] || null;
+    kasnetShowModal(editData);
+  }
+
+  function kasnetShowModal(editData) {
+    document.getElementById('kasnet-edit-id').value = editData ? editData.id : '';
+    document.getElementById('modal-kasnet-titulo').innerHTML = editData ?
+      '<span class="mi" style="font-size:18px;vertical-align:middle;">edit</span> Editar Operaci\u00f3n' :
+      '<span class="mi" style="font-size:18px;vertical-align:middle;">point_of_sale</span> Nueva Operaci\u00f3n';
+    const hoy = new Date();
+    document.getElementById('kasnet-fecha').value = hoy.toISOString().split('T')[0];
+    if (editData) {
+      document.getElementById('kasnet-fecha').value = editData.fecha;
+      document.getElementById('kasnet-tipo').value = editData.tipo;
+      document.getElementById('kasnet-monto').value = editData.monto;
+      document.getElementById('kasnet-comision').value = editData.comision;
+      document.getElementById('kasnet-descripcion').value = editData.descripcion;
+    } else {
+      document.getElementById('kasnet-tipo').value = '';
+      document.getElementById('kasnet-monto').value = '';
+      document.getElementById('kasnet-comision').value = '';
+      document.getElementById('kasnet-descripcion').value = '';
+    }
+    document.getElementById('modal-kasnet').classList.add('show');
+  }
+
+  function kasnetHideModal() { document.getElementById('modal-kasnet').classList.remove('show'); }
+
+  async function kasnetGuardar() {
+    const btn = document.getElementById('kasnet-btn-guardar');
+    const fecha = document.getElementById('kasnet-fecha').value;
+    const tipo = document.getElementById('kasnet-tipo').value;
+    const monto = document.getElementById('kasnet-monto').value;
+    const comision = document.getElementById('kasnet-comision').value || '0';
+    const descripcion = document.getElementById('kasnet-descripcion').value;
+    const editId = document.getElementById('kasnet-edit-id').value;
+
+    if (!fecha || !tipo || !monto) {
+      showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">warning</span> Completa fecha, tipo y monto'); return;
+    }
+    if (parseFloat(monto) <= 0) { showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">warning</span> El monto debe ser mayor a 0'); return; }
+
+    btn.disabled = true;
+    btn.textContent = 'Guardando...';
+    try {
+      const resp = await apiPost({
+        _method: 'POST', kasnetAction: 'guardar',
+        fecha: fecha, tipo: tipo, monto: monto,
+        comision: comision, descripcion: descripcion,
+        edit_id: editId || '',
+        sedeContexto: cajaSedeActual
+      });
+      if (resp && resp.status === 'ok') {
+        showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">check_circle</span> ' + resp.message);
+        kasnetHideModal();
+        await kasnetCargarDatos();
+      } else {
+        showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> ' + (resp && resp.message ? resp.message : 'Error'));
+      }
+    } catch(e) {
+      showToast('Error: ' + e.message);
+    }
+    btn.textContent = 'Guardar'; btn.disabled = false;
+  }
+
+  async function kasnetEliminar(id) {
+    if (!confirm('\u00bfEliminar esta operaci\u00f3n?')) return;
+    try {
+      const resp = await apiPost({ _method: 'POST', kasnetAction: 'eliminar', id: id });
+      if (resp && resp.status === 'ok') {
+        showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">check_circle</span> ' + resp.message);
+        await kasnetCargarDatos();
+      } else { showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> ' + (resp && resp.message ? resp.message : 'Error')); }
+    } catch(e) { showToast('Error: ' + e.message); }
+  }
+
+  function kasnetCalcCuadre() {
+    const posInput = document.getElementById('kasnet-cuadre-pos');
+    const posVal = parseFloat(posInput.value) || 0;
+    const diff = Math.round((posVal - kasnetSaldo) * 100) / 100;
+    const diffCard = document.getElementById('kasnet-cuadre-diff');
+    const diffEl = document.getElementById('kasnet-cuadre-diferencia');
+    const msgEl = document.getElementById('kasnet-cuadre-msg');
+
+    diffEl.textContent = 'S/. ' + Math.abs(diff).toLocaleString('es-PE', {minimumFractionDigits:2});
+    const cuadre = Math.abs(diff) < 0.01;
+    const tieneInput = posInput.value !== '';
+
+    diffCard.className = 'diff-card ' + (!tieneInput ? '' : cuadre ? 'cuadre' : diff > 0 ? 'sobrante' : 'faltante');
+
+    if (!tieneInput) {
+      msgEl.innerHTML = 'Ingresa el saldo del POS';
+    } else if (cuadre) {
+      msgEl.innerHTML = '<span class="mi" style="vertical-align:text-bottom;margin-right:4px;">check_circle</span> \u00a1CUADRE EXACTO!';
+    } else if (diff > 0) {
+      msgEl.innerHTML = '<span class="mi" style="vertical-align:text-bottom;margin-right:4px;">warning</span> Sobrante en POS';
+    } else {
+      msgEl.innerHTML = '<span class="mi" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> Faltante en POS';
+    }
+
+    document.getElementById('kasnet-btn-cuadre').disabled = !tieneInput;
+  }
+
+  async function kasnetSubmitCuadre() {
+    const posVal = parseFloat(document.getElementById('kasnet-cuadre-pos').value) || 0;
+    const diff = Math.round((posVal - kasnetSaldo) * 100) / 100;
+
+    if (!confirm('\u00bfConfirmar cuadre KASNET?\n\nSaldo Sistema: S/. ' + kasnetSaldo.toFixed(2) + '\nSaldo POS: S/. ' + posVal.toFixed(2) + '\nDiferencia: S/. ' + diff.toFixed(2))) return;
+
+    try {
+      const resp = await apiPost({
+        _method: 'POST', kasnetAction: 'cuadre',
+        saldoSistema: kasnetSaldo,
+        saldoPos: posVal,
+        diferencia: diff,
+        sedeContexto: cajaSedeActual
+      });
+      if (resp && resp.status === 'ok') {
+        showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">check_circle</span> ' + resp.message);
+        document.getElementById('kasnet-cuadre-pos').value = '';
+        kasnetCalcCuadre();
+      } else {
+        showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> ' + (resp && resp.message ? resp.message : 'Error'));
+      }
+    } catch(e) { showToast('Error: ' + e.message); }
   }
 
   // ── INIT ──
