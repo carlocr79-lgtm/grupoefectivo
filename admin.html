@@ -174,8 +174,8 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 }
 .btn-refresh:hover { background:var(--gris2); }
 .btn-refresh .sync-icon { margin:0; display:flex; align-items:center; justify-content:center; transform-origin:center; }
-.btn-refresh.refreshing { pointer-events:none; opacity:0.8; }
-.btn-refresh.refreshing .sync-icon { animation: rotate-sync 1s linear infinite; }
+.btn-refresh.is-refreshing { pointer-events:none; opacity:0.8; }
+.btn-refresh.is-refreshing .sync-icon { animation: rotate-sync 1s linear infinite; }
 @keyframes rotate-sync { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
 /* VOUCHER MODAL */
@@ -805,12 +805,12 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   async function refrescarDatos() {
     const btn = document.getElementById('btn-refresh');
     const txt = document.getElementById('btn-refresh-text');
-    btn.classList.add('refreshing');
+    btn.classList.add('is-refreshing');
     txt.textContent = 'Actualizando...';
     
     await cargarTodo();
     
-    btn.classList.remove('refreshing');
+    btn.classList.remove('is-refreshing');
     const ahora = new Date();
     const h = String(ahora.getHours()).padStart(2,'0');
     const m = String(ahora.getMinutes()).padStart(2,'0');
@@ -2095,11 +2095,11 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
           showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">sync</span> Actualizando datos...');
           const btnTxt = document.getElementById('btn-refresh-text');
           const btnRefresh = document.getElementById('btn-refresh');
-          if (btnRefresh) btnRefresh.classList.add('refreshing');
+          if (btnRefresh) btnRefresh.classList.add('is-refreshing');
           if (btnTxt) btnTxt.textContent = 'Actualizando...';
           
           cargarTodo().then(function() {
-            if (btnRefresh) btnRefresh.classList.remove('refreshing');
+            if (btnRefresh) btnRefresh.classList.remove('is-refreshing');
             const h = String(new Date().getHours()).padStart(2,'0');
             const m = String(new Date().getMinutes()).padStart(2,'0');
             if (btnTxt) btnTxt.textContent = 'Actualizado ' + h + ':' + m;
