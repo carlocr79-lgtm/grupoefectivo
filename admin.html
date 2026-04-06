@@ -2073,6 +2073,18 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     // Bloqueo zoom
     document.addEventListener('touchstart', e => { if(e.touches.length>1) e.preventDefault(); }, {passive:false});
     document.addEventListener('gesturestart', e => e.preventDefault(), {passive:false});
+
+    // Auto-refresh al volver a la pestaña (cooldown 30s)
+    let _lastRefresh = Date.now();
+    document.addEventListener('visibilitychange', function() {
+      if (document.visibilityState === 'visible' && sessionStorage.getItem('ge_session')) {
+        const ahora = Date.now();
+        if (ahora - _lastRefresh >= 30000) {
+          _lastRefresh = ahora;
+          cargarTodo();
+        }
+      }
+    });
   });
 </script>
 </body>
