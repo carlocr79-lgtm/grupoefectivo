@@ -1298,6 +1298,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   let cajaMovimientos = [];
   let cajaMovArchivo = [];
   let cajaVistaArchivo = false;
+  let _cajaMovRequestId = 0;
   let cajaDatos = null;
   let cajaSedeActual = '';
   let cajaSaldoTeorico = 0;
@@ -1352,7 +1353,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     cajaSedeActual = document.getElementById('caja-sede-select').value;
     if (tab === 'arqueo') cajaLoadArqueo();
     else if (tab === 'historial-arq') cajaLoadHistorial();
-    else if (tab === 'movimientos') cajaRenderTabla(cajaMovimientos); // usa datos en memoria, sin llamada al servidor
+    else if (tab === 'movimientos') cajaRenderTabla(cajaVistaArchivo ? cajaMovArchivo : cajaMovimientos, cajaVistaArchivo);
     else cajaCargarDatos();
   }
 
@@ -1455,7 +1456,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       // Solo re-renderizar si la sede no cambió mientras esperábamos
       if (cajaSedeActual !== sede) return;
       cajaDatos = resp; cajaSaldoTeorico = resp.saldo; cajaMovimientos = resp.movimientos || [];
-      cajaRenderResumen(resp); cajaRenderTabla(cajaMovimientos); cajaRenderCategorias(resp.categorias || []);
+      cajaRenderResumen(resp); if (!cajaVistaArchivo) cajaRenderTabla(cajaMovimientos); cajaRenderCategorias(resp.categorias || []);
       document.getElementById('arq-teorico').textContent = 'S/. ' + resp.saldo.toLocaleString('es-PE', {minimumFractionDigits:2});
       cajaRenderArqueoBanner(resp);
       cajaCalcArqueo();
@@ -1546,6 +1547,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   }
 
   function cajaMovToggle(vista) {
+    _cajaMovRequestId++;
     const btnActual  = document.getElementById('mov-tab-actual');
     const btnArchivo = document.getElementById('mov-tab-archivo');
     const toolActual  = document.getElementById('caja-toolbar-actual');
@@ -1579,8 +1581,10 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   async function cajaCargarArchivo() {
     const contenedor = document.getElementById('caja-tabla-body');
     contenedor.innerHTML = '<div class="empty" style="padding:20px;"><div class="spinner-sm"></div>Cargando historial de meses anteriores...</div>';
+    const myReqId = _cajaMovRequestId;
     try {
       const resp = await apiFetch({ admin: 'caja_archivo', sede: cajaSedeActual, sedeContexto: cajaSedeActual });
+      if (_cajaMovRequestId !== myReqId) return;
       if (!resp || resp.error) {
         contenedor.innerHTML = '<div class="empty"><span class="mi" style="font-size:40px;color:var(--texto2);">folder_off</span><br>Error al cargar archivo</div>';
         return;
@@ -1592,6 +1596,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       }
       cajaRenderTabla(cajaMovArchivo, true);
     } catch(e) {
+      if (_cajaMovRequestId !== myReqId) return;
       contenedor.innerHTML = '<div class="empty"><span class="mi" style="font-size:40px;color:var(--rojo);">warning</span><br>Error: ' + e.message + '</div>';
     }
   }
