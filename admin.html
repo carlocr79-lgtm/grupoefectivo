@@ -738,6 +738,13 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       <div style="font-size:11px; margin-top:8px; text-align:center;" id="kasnet-cuadre-msg">Completa saldos y efectivo</div>
     </div>
 
+    <div style="background:white; border:1px solid var(--gris2); padding:12px; border-radius:12px; margin-bottom:14px;">
+      <h4 style="font-size:11px; margin-bottom:10px; color:var(--azul);">Comprobante de Cierre (Opcional)</h4>
+      <input type="file" id="kasnet-file" accept="image/*,application/pdf" style="font-size:11px; width:100%;">
+      <div id="kasnet-file-link" style="font-size:11px; margin-top:6px; display:none;"></div>
+      <div style="font-size:10px; color:var(--texto2); margin-top:6px;">Máximo 3MB. Formatos: JPG, PNG, PDF.</div>
+    </div>
+
     <div style="display:flex;gap:10px;margin-top:8px;">
       <button onclick="kasnetHideModal()" style="flex:1;padding:12px;background:var(--gris);border:none;border-radius:10px;font-weight:700;cursor:pointer;">Cancelar</button>
       <button class="btn-main" onclick="kasnetGuardar()" id="kasnet-btn-guardar" style="flex:1;padding:12px;" disabled>Guardar Registro</button>
@@ -2211,7 +2218,8 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         '<div class="mov-left">' +
           '<div class="mov-icon ' + iconBg + '"><span class="mi sm">receipt_long</span></div>' +
           '<div class="mov-info">' +
-            '<div class="mov-desc" style="font-weight:700;">Registro ' + escapeHtml(m.fecha) + '</div>' +
+            '<div class="mov-desc" style="font-weight:700;">Registro ' + escapeHtml(m.fecha) + 
+            (m.comprobante ? ' <a href="' + escapeHtml(m.comprobante) + '" target="_blank" title="Ver comprobante" style="color:var(--azul);text-decoration:none;background:var(--gris);border-radius:50%;padding:2px 5px;font-size:10px;margin-left:4px;">📎</a>' : '') + '</div>' +
             '<div class="mov-cat">' +
               '<span style="background:var(--gris);padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;">Ops: ' + m.numOps + '</span>' +
               '<span style="background:var(--gris);padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;">Virtual: S/. ' + (m.posVirtual + m.pagayaVirtual).toFixed(2) + '</span>' +
@@ -2261,6 +2269,15 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     ['b200','b100','b50','b20','b10','m5','m2','m1','m050','m020','m010'].forEach(id => {
       document.getElementById('k-' + id).value = '';
     });
+    
+    document.getElementById('kasnet-file').value = '';
+    const fileLinkDiv = document.getElementById('kasnet-file-link');
+    if (editData && editData.comprobante) {
+      fileLinkDiv.style.display = 'block';
+      fileLinkDiv.innerHTML = '<a href="'+editData.comprobante+'" target="_blank" style="color:var(--azul); font-weight:700; text-decoration:none;">📎 Ver comprobante actual</a> <span style="color:var(--texto2);">(subir otro lo reemplazará)</span>';
+    } else {
+      fileLinkDiv.style.display = 'none';
+    }
     
     if (editData) {
       document.getElementById('kasnet-fecha').value = editData.fecha;
@@ -2358,14 +2375,31 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       if (!confirm('Se registrar\u00E1 un FALTANTE de S/. ' + Math.abs(diffPreview).toFixed(2) + '.\n\nEste monto ser\u00E1 asumido por el cajero.\n\n\u00BFDeseas continuar?')) return;
     }
 
+    const fileInput = document.getElementById('kasnet-file');
+    let base64Data = null;
+    
+    if (fileInput.files.length > 0) {
+      const file = fileInput.files[0];
+      if (file.size > 3 * 1024 * 1024) {
+        showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">warning</span> El archivo no debe superar los 3MB');
+        return;
+      }
+      base64Data = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target.result);
+        reader.readAsDataURL(file);
+      });
+    }
+
     btn.disabled = true;
-    btn.textContent = 'Guardando...';
+    btn.textContent = (base64Data ? 'Subiendo archivo...' : 'Guardando...');
     try {
       const resp = await apiPost({
         _method: 'POST', kasnetAction: 'guardar',
         fecha: fecha, numOps: numOps,
         posVirtual: posVirt, pagayaVirtual: pagayaVirt,
         efectivoFisico: efecFis,
+        comprobante_base64: base64Data,
         edit_id: editId || '',
         sedeContexto: cajaSedeActual
       });
