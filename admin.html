@@ -560,8 +560,8 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   <!-- SUB: KASNET -->
   <div id="caja-sub-kasnet" style="display:none;">
     <div class="caja-grid">
-      <div class="caja-card"><div class="caja-card-title">Declarado Hoy</div><div class="caja-monto azul" id="kasnet-total-hoy">S/. 0.00</div></div>
-      <div class="caja-card"><div class="caja-card-title">Diferencia vs S/3000</div><div class="caja-monto" id="kasnet-diff-hoy" style="color:var(--texto);">S/. 0.00</div></div>
+      <div class="caja-card"><div class="caja-card-title">Saldo Asignado (Base)</div><div class="caja-monto azul" id="kasnet-total-hoy">S/. 3,000.00</div></div>
+      <div class="caja-card"><div class="caja-card-title">Último Cierre (Diff)</div><div class="caja-monto" id="kasnet-diff-hoy" style="color:var(--texto);">S/. 0.00</div></div>
       <div class="caja-card"><div class="caja-card-title">Registros Mes</div><div class="caja-monto verde" id="kasnet-ops-mes">0</div></div>
     </div>
     <div class="caja-toolbar">
@@ -2171,13 +2171,11 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   function kasnetRenderResumen(regs) {
     let mesActualOps = 0;
     const mesActualStr = new Date().toISOString().substring(0, 7); // yyyy-MM
-    let ultimoTotal = 0;
     let ultimaDiff = 0;
     let fontColor = 'var(--texto)';
 
     if (regs.length > 0) {
       const u = regs[0]; // el más reciente por fecha (asumiendo sort desc desde backend)
-      ultimoTotal = u.total;
       ultimaDiff = u.diferencia;
       if (ultimaDiff > 0) fontColor = 'var(--verde)';
       else if (ultimaDiff < 0) fontColor = 'var(--rojo)';
@@ -2188,7 +2186,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       });
     }
 
-    document.getElementById('kasnet-total-hoy').textContent = 'S/. ' + ultimoTotal.toLocaleString('es-PE', {minimumFractionDigits:2});
+    document.getElementById('kasnet-total-hoy').textContent = 'S/. ' + KASNET_BASE_DEFAULT.toLocaleString('es-PE', {minimumFractionDigits:2});
     const elDiff = document.getElementById('kasnet-diff-hoy');
     elDiff.textContent = (ultimaDiff > 0 ? '+' : '') + 'S/. ' + ultimaDiff.toLocaleString('es-PE', {minimumFractionDigits:2});
     elDiff.style.color = fontColor;
