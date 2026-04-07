@@ -634,19 +634,19 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
           <span id="file-upload-text">Subir comprobante (Opcional)</span>
         </label>
         <input type="file" id="caja-archivo" accept="image/*,application/pdf" style="display:none;" onchange="
-          const fT = document.getElementById('file-upload-text');
-          const fI = document.getElementById('file-upload-icon');
-          const fL = document.getElementById('file-upload-label');
+          const caja_fT = document.getElementById('file-upload-text');
+          const caja_fI = document.getElementById('file-upload-icon');
+          const caja_fL = document.getElementById('file-upload-label');
           if(this.files.length > 0) {
-            fT.innerText = this.files[0].name;
-            fI.innerText = 'check_circle';
-            fL.classList.add('has-file');
-            fL.parentElement.style.borderColor = 'var(--verde)';
+            caja_fT.innerText = this.files[0].name;
+            caja_fI.innerText = 'check_circle';
+            caja_fL.classList.add('has-file');
+            caja_fL.parentElement.style.borderColor = 'var(--verde)';
           } else {
-            fT.innerText = 'Subir comprobante (Opcional)';
-            fI.innerText = 'cloud_upload';
-            fL.classList.remove('has-file');
-            fL.parentElement.style.borderColor = '';
+            caja_fT.innerText = 'Subir comprobante (Opcional)';
+            caja_fI.innerText = 'cloud_upload';
+            caja_fL.classList.remove('has-file');
+            caja_fL.parentElement.style.borderColor = '';
           }
         ">
       </div>
@@ -691,9 +691,12 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     <div style="display:grid; grid-template-columns: 1fr 1.2fr; gap:20px; align-items: start;">
       <!-- COLUMNA IZQUIERDA -->
       <div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px; margin-bottom:14px;">
-          <div class="form-caja-group"><label>Fecha</label><input type="date" id="kasnet-fecha"></div>
-          <div class="form-caja-group"><label>N° Operaciones</label><input type="number" id="kasnet-num-ops" placeholder="0" min="0" step="1"></div>
+        <div style="background:white; border:1px solid var(--gris2); padding:12px; border-radius:12px; margin-bottom:14px;">
+          <h4 style="font-size:11px; margin-bottom:10px; color:var(--azul);">Datos Generales</h4>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div class="form-caja-group"><label>Fecha</label><input type="date" id="kasnet-fecha"></div>
+            <div class="form-caja-group"><label>N° Operaciones</label><input type="number" id="kasnet-num-ops" placeholder="0" min="0" step="1"></div>
+          </div>
         </div>
         
         <div style="background:#f4f7fa; padding:12px; border-radius:12px; margin-bottom:14px;">
@@ -717,19 +720,19 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
               <span id="kasnet-file-upload-text">Subir comprobante (Opcional)</span>
             </label>
             <input type="file" id="kasnet-file" accept="image/*,application/pdf" style="display:none;" onchange="
-              const fT = document.getElementById('kasnet-file-upload-text');
-              const fI = document.getElementById('kasnet-file-upload-icon');
-              const fL = document.getElementById('kasnet-file-upload-label');
+              const kasnet_fT = document.getElementById('kasnet-file-upload-text');
+              const kasnet_fI = document.getElementById('kasnet-file-upload-icon');
+              const kasnet_fL = document.getElementById('kasnet-file-upload-label');
               if(this.files.length > 0) {
-                fT.innerText = this.files[0].name;
-                fI.innerText = 'check_circle';
-                fL.classList.add('has-file');
-                fL.parentElement.style.borderColor = 'var(--verde)';
+                kasnet_fT.innerText = this.files[0].name;
+                kasnet_fI.innerText = 'check_circle';
+                kasnet_fL.classList.add('has-file');
+                kasnet_fL.parentElement.style.borderColor = 'var(--verde)';
               } else {
-                fT.innerText = 'Subir comprobante (Opcional)';
-                fI.innerText = 'cloud_upload';
-                fL.classList.remove('has-file');
-                fL.parentElement.style.borderColor = '';
+                kasnet_fT.innerText = 'Subir comprobante (Opcional)';
+                kasnet_fI.innerText = 'cloud_upload';
+                kasnet_fL.classList.remove('has-file');
+                kasnet_fL.parentElement.style.borderColor = '';
               }
             ">
           </div>
