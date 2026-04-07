@@ -706,9 +706,34 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
         <div style="background:white; border:1px solid var(--gris2); padding:12px; border-radius:12px; margin-bottom:14px;">
           <h4 style="font-size:11px; margin-bottom:10px; color:var(--azul);">Comprobante de Cierre (Opcional)</h4>
-          <input type="file" id="kasnet-file" accept="image/*,application/pdf" style="font-size:11px; width:100%;">
-          <div id="kasnet-file-link" style="font-size:11px; margin-top:6px; display:none;"></div>
-          <div style="font-size:10px; color:var(--texto2); margin-top:6px;">Máximo 3MB. Formatos: JPG, PNG, PDF.</div>
+          <div id="kasnet-archivo-actual" style="display:none;margin-bottom:8px;">
+            <button type="button" onclick="verSustento(document.getElementById('kasnet-archivo-actual').dataset.url)" style="background:var(--azul-claro);color:var(--azul2);border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:4px;">
+              <span class="mi sm">visibility</span> Ver archivo actual
+            </button>
+          </div>
+          <div class="file-upload-wrapper">
+            <label for="kasnet-file" class="file-upload-label" id="kasnet-file-upload-label">
+              <span class="mi" id="kasnet-file-upload-icon">cloud_upload</span>
+              <span id="kasnet-file-upload-text">Subir comprobante (Opcional)</span>
+            </label>
+            <input type="file" id="kasnet-file" accept="image/*,application/pdf" style="display:none;" onchange="
+              const fT = document.getElementById('kasnet-file-upload-text');
+              const fI = document.getElementById('kasnet-file-upload-icon');
+              const fL = document.getElementById('kasnet-file-upload-label');
+              if(this.files.length > 0) {
+                fT.innerText = this.files[0].name;
+                fI.innerText = 'check_circle';
+                fL.classList.add('has-file');
+                fL.parentElement.style.borderColor = 'var(--verde)';
+              } else {
+                fT.innerText = 'Subir comprobante (Opcional)';
+                fI.innerText = 'cloud_upload';
+                fL.classList.remove('has-file');
+                fL.parentElement.style.borderColor = '';
+              }
+            ">
+          </div>
+          <div style="font-size:10px; color:var(--texto2); margin-top:6px; text-align:center;">Máximo 3MB. Formatos: JPG, PNG, PDF.</div>
         </div>
       </div>
 
@@ -2280,12 +2305,17 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     });
     
     document.getElementById('kasnet-file').value = '';
-    const fileLinkDiv = document.getElementById('kasnet-file-link');
+    document.getElementById('kasnet-file-upload-text').innerText = 'Subir comprobante (Opcional)';
+    document.getElementById('kasnet-file-upload-icon').innerText = 'cloud_upload';
+    document.getElementById('kasnet-file-upload-label').classList.remove('has-file');
+    document.getElementById('kasnet-file-upload-label').parentElement.style.borderColor = '';
+
+    const kasnetArchivoActualEl = document.getElementById('kasnet-archivo-actual');
     if (editData && editData.comprobante) {
-      fileLinkDiv.style.display = 'block';
-      fileLinkDiv.innerHTML = '<a href="'+editData.comprobante+'" target="_blank" style="color:var(--azul); font-weight:700; text-decoration:none;">📎 Ver comprobante actual</a> <span style="color:var(--texto2);">(subir otro lo reemplazará)</span>';
+      kasnetArchivoActualEl.dataset.url = editData.comprobante;
+      kasnetArchivoActualEl.style.display = 'block';
     } else {
-      fileLinkDiv.style.display = 'none';
+      kasnetArchivoActualEl.style.display = 'none';
     }
     
     if (editData) {
