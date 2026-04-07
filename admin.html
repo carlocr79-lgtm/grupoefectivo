@@ -698,7 +698,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         
         <div style="background:#f4f7fa; padding:12px; border-radius:12px; margin-bottom:14px;">
           <h4 style="font-size:11px; margin-bottom:10px; color:var(--azul);">Saldos Virtuales</h4>
-          <div style="display:grid;grid-template-columns:1fr;gap:10px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
             <div class="form-caja-group"><label>POS KASNET</label><input type="number" id="kasnet-pos-virt" placeholder="0.00" step="0.01" oninput="kasnetCalcTotal()"></div>
             <div class="form-caja-group"><label>PAGAYA virtual</label><input type="number" id="kasnet-pagaya-virt" placeholder="0.00" step="0.01" oninput="kasnetCalcTotal()"></div>
           </div>
@@ -712,7 +712,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
             </button>
           </div>
           <div class="file-upload-wrapper">
-            <label for="kasnet-file" class="file-upload-label" id="kasnet-file-upload-label">
+            <label for="kasnet-file" class="file-upload-label" id="kasnet-file-upload-label" style="padding:12px 10px;">
               <span class="mi" id="kasnet-file-upload-icon">cloud_upload</span>
               <span id="kasnet-file-upload-text">Subir comprobante (Opcional)</span>
             </label>
@@ -779,7 +779,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       </div>
     </div>
 
-    <div style="display:flex;gap:10px;margin-top:16px;">
+    <div style="display:flex;gap:10px;margin-top:8px;">
       <button onclick="kasnetHideModal()" style="flex:1;padding:12px;background:var(--gris);border:none;border-radius:10px;font-weight:700;cursor:pointer;">Cancelar</button>
       <button class="btn-main" onclick="kasnetGuardar()" id="kasnet-btn-guardar" style="flex:1;padding:12px;" disabled>Guardar Registro</button>
     </div>
