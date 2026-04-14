@@ -440,9 +440,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   <div class="tab-content" id="tab-caja">
   <div style="display:flex;gap:8px;margin-bottom:14px;border-bottom:1px solid var(--gris2);padding-bottom:0;">
     <button id="subtab-resumen" onclick="cajaSwitchSubtab('resumen',this)" style="padding:8px 16px;background:none;border:none;border-bottom:2px solid var(--azul2);color:var(--azul2);font-weight:700;font-size:12px;cursor:pointer;"><span class="mi sm">dashboard</span> Resumen</button>
-    <button id="subtab-movimientos" onclick="cajaSwitchSubtab('movimientos',this)" style="padding:8px 16px;background:none;border:none;border-bottom:2px solid transparent;color:var(--texto2);font-weight:600;font-size:12px;cursor:pointer;"><span class="mi sm">swap_vert</span> Movimientos</button>
-    <button id="subtab-arqueo" onclick="cajaSwitchSubtab('arqueo',this)" style="padding:8px 16px;background:none;border:none;border-bottom:2px solid transparent;color:var(--texto2);font-weight:600;font-size:12px;cursor:pointer;"><span class="mi sm">inventory</span> Arqueo</button>
-    <button id="subtab-historial-arq" onclick="cajaSwitchSubtab('historial-arq',this)" style="padding:8px 16px;background:none;border:none;border-bottom:2px solid transparent;color:var(--texto2);font-weight:600;font-size:12px;cursor:pointer;"><span class="mi sm">calendar_month</span> Historial</button>
+    <button id="subtab-cajachica" onclick="cajaSwitchSubtab('cajachica',this)" style="padding:8px 16px;background:none;border:none;border-bottom:2px solid transparent;color:var(--texto2);font-weight:600;font-size:12px;cursor:pointer;"><span class="mi sm">account_balance_wallet</span> Caja Chica</button>
     <button id="subtab-kasnet" onclick="cajaSwitchSubtab('kasnet',this)" style="padding:8px 16px;background:none;border:none;border-bottom:2px solid transparent;color:var(--texto2);font-weight:600;font-size:12px;cursor:pointer;"><span class="mi sm">point_of_sale</span> KASNET</button>
     <div style="margin-left:auto;display:flex;align-items:center;">
       <select id="caja-sede-select" onchange="cajaOnChangeSede()" style="padding:5px 10px;border:1px solid var(--gris2);border-radius:8px;font-size:11px;font-weight:600;color:var(--azul);"></select>
@@ -456,7 +454,14 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     </div>
     <div class="caja-card"><div class="caja-card-title">Mayores Gastos</div><div id="caja-top-gastos">Cargando...</div></div>
   </div>
-  <div id="caja-sub-movimientos" style="display:none;">
+  <!-- SUB: CAJA CHICA (Movimientos + Arqueo + Historial) -->
+  <div id="caja-sub-cajachica" style="display:none;">
+    <div style="display:flex;gap:0;margin-bottom:12px;border-bottom:1px solid var(--gris2);">
+      <button id="cajachica-tab-movimientos" onclick="cajachicaSwitch('movimientos',this)" style="padding:8px 14px;background:none;border:none;border-bottom:2px solid var(--azul2);color:var(--azul2);font-weight:700;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:4px;"><span class="mi sm">swap_vert</span> Movimientos</button>
+      <button id="cajachica-tab-arqueo" onclick="cajachicaSwitch('arqueo',this)" style="padding:8px 14px;background:none;border:none;border-bottom:2px solid transparent;color:var(--texto2);font-weight:600;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:4px;"><span class="mi sm">inventory</span> Arqueo</button>
+      <button id="cajachica-tab-historial-arq" onclick="cajachicaSwitch('historial-arq',this)" style="padding:8px 14px;background:none;border:none;border-bottom:2px solid transparent;color:var(--texto2);font-weight:600;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:4px;"><span class="mi sm">calendar_month</span> Historial</button>
+    </div>
+    <div id="caja-sub-movimientos">
     <div style="display:flex;gap:0;margin-bottom:12px;border-bottom:1px solid var(--gris2);">
       <button id="mov-tab-actual" onclick="cajaMovToggle('actual',this)" style="padding:8px 14px;background:none;border:none;border-bottom:2px solid var(--azul2);color:var(--azul2);font-weight:700;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:4px;"><span class="mi sm">swap_vert</span> Mes Actual</button>
       <button id="mov-tab-archivo" onclick="cajaMovToggle('archivo',this)" style="padding:8px 14px;background:none;border:none;border-bottom:2px solid transparent;color:var(--texto2);font-weight:600;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:4px;"><span class="mi sm">inventory_2</span> Meses Anteriores</button>
@@ -557,6 +562,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       <button class="btn-main" id="btn-arqueos-mas" onclick="cajaLoadHistorial(true)" style="background:white; color:var(--azul2); border:1.5px solid var(--azul2); width:auto; padding:8px 24px; border-radius:30px; font-size:13px; font-weight:700;"><span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">expand_more</span> Ver más arqueos</button>
     </div>
   </div>
+  </div><!-- /caja-sub-cajachica -->
   <!-- SUB: KASNET -->
   <div id="caja-sub-kasnet" style="display:none;">
     <div class="caja-grid">
@@ -1474,13 +1480,15 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       cajaLoadHistorial();
     } else if (document.getElementById('caja-sub-arqueo').style.display !== 'none') {
       cajaLoadArqueo();
+    } else if (document.getElementById('caja-sub-cajachica').style.display !== 'none') {
+      cajachicaSwitch('movimientos', document.getElementById('cajachica-tab-movimientos'));
     } else {
       cajaCargarDatos();
     }
   }
 
   function cajaSwitchSubtab(tab, btn) {
-    ['resumen','movimientos','arqueo','historial-arq','kasnet'].forEach(function(t) {
+    ['resumen','cajachica','kasnet'].forEach(function(t) {
       const el = document.getElementById('caja-sub-' + t);
       if (el) el.style.display = 'none';
       const b = document.getElementById('subtab-' + t);
@@ -1489,13 +1497,26 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     const target = document.getElementById('caja-sub-' + tab);
     if (target) target.style.display = 'block';
     if (btn) { btn.style.borderBottomColor = 'var(--azul2)'; btn.style.color = 'var(--azul2)'; btn.style.fontWeight = '700'; }
-    // Sincronizar sede desde el selector antes de cargar cualquier subpestaña
     cajaSedeActual = document.getElementById('caja-sede-select').value;
-    if (tab === 'arqueo') cajaLoadArqueo();
-    else if (tab === 'historial-arq') cajaLoadHistorial();
-    else if (tab === 'kasnet') kasnetCargarDatos();
-    else if (tab === 'movimientos') cajaRenderTabla(cajaVistaArchivo ? cajaMovArchivo : cajaMovimientos, cajaVistaArchivo);
+    if (tab === 'kasnet') kasnetCargarDatos();
+    else if (tab === 'cajachica') cajachicaSwitch('movimientos', document.getElementById('cajachica-tab-movimientos'));
     else cajaCargarDatos();
+  }
+
+  function cajachicaSwitch(subtab, btn) {
+    ['movimientos','arqueo','historial-arq'].forEach(function(t) {
+      const el = document.getElementById('caja-sub-' + t);
+      if (el) el.style.display = 'none';
+      const b = document.getElementById('cajachica-tab-' + t);
+      if (b) { b.style.borderBottomColor = 'transparent'; b.style.color = 'var(--texto2)'; b.style.fontWeight = '600'; }
+    });
+    const target = document.getElementById('caja-sub-' + subtab);
+    if (target) target.style.display = 'block';
+    if (btn) { btn.style.borderBottomColor = 'var(--azul2)'; btn.style.color = 'var(--azul2)'; btn.style.fontWeight = '700'; }
+    cajaSedeActual = document.getElementById('caja-sede-select').value;
+    if (subtab === 'arqueo') cajaLoadArqueo();
+    else if (subtab === 'historial-arq') cajaLoadHistorial();
+    else cajaRenderTabla(cajaVistaArchivo ? cajaMovArchivo : cajaMovimientos, cajaVistaArchivo);
   }
 
   async function cajaCargarDatos() {
