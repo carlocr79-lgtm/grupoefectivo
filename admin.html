@@ -1180,10 +1180,11 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       const sedeReq = globalSel ? globalSel.value : '';
 
       const resp = await apiFetch({ admin: 'dashboard', sedeContexto: sedeReq });
-      
       if (!resp || resp.error) {
         console.error('Dashboard error:', resp);
-        await Promise.all([cargarClientes(), cargarVouchers(), cargarHistorial()]);
+        document.getElementById('lista-clientes').innerHTML = '<div class="empty">Error cargando clientes.</div>';
+        document.getElementById('lista-vouchers').innerHTML = '<div class="empty">Error cargando vouchers.</div>';
+        document.getElementById('lista-historial').innerHTML = '<div class="empty">Error cargando historial.</div>';
         cajaCargarDatos();
         return;
       }
@@ -1238,7 +1239,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
     } catch(e) {
       console.error('Error cargando dashboard:', e);
-      try { await Promise.all([cargarClientes(), cargarVouchers(), cargarHistorial()]); } catch(e2) {}
+      document.getElementById('lista-clientes').innerHTML = '<div class="empty">Error de conexión.</div>';
       cajaCargarDatos();
     }
   }
