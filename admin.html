@@ -380,13 +380,15 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   padding:12px 18px; border-top:1px solid rgba(255,255,255,0.08);
   display:flex; flex-direction:column; gap:10px;
 }
-.sidebar-sede label { font-size:9px; font-weight:700; letter-spacing:1px; color:rgba(255,255,255,0.4); text-transform:uppercase; display:block; margin-bottom:4px; }
-.sidebar-sede select {
-  width:100%; padding:7px 10px; border:1px solid rgba(255,255,255,0.15); border-radius:8px;
-  font-size:12px; font-weight:600; color:white; background:rgba(255,255,255,0.08);
+.sidebar-sede-top { margin-left:auto; }
+.sidebar-sede-top select {
+  padding:3px 20px 3px 8px; border:1px solid rgba(255,255,255,0.2); border-radius:5px;
+  font-size:10px; font-weight:700; color:white; background:rgba(255,255,255,0.1);
   font-family:'DM Sans',sans-serif; outline:none; cursor:pointer;
+  appearance:none; background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 2px center; background-size:14px;
 }
-.sidebar-sede select option { color:var(--texto); background:white; }
+.sidebar-sede-top select option { color:var(--texto); background:white; }
 .btn-sidebar-logout {
   display:flex; align-items:center; justify-content:center; gap:6px;
   padding:9px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1);
@@ -483,7 +485,9 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
           <div class="sidebar-user-name" id="navbar-user"></div>
           <div style="display:flex;gap:6px;align-items:center;">
             <span class="sidebar-user-role" id="navbar-rol">Panel</span>
-            <span style="font-size:10px;color:rgba(255,255,255,0.45);" id="navbar-oficina">Operaciones</span>
+            <div class="sidebar-sede-top">
+              <select id="global-sede-select" onchange="globalOnChangeSede()"></select>
+            </div>
           </div>
         </div>
       </div>
@@ -524,10 +528,6 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         </button>
       </nav>
       <div class="sidebar-footer">
-        <div class="sidebar-sede">
-          <label>Sede</label>
-          <select id="caja-sede-select" onchange="cajaOnChangeSede()"></select>
-        </div>
         <button class="btn-sidebar-logout" onclick="logout()">
           <span class="mi sm">logout</span> Cerrar sesión
         </button>
@@ -1152,17 +1152,54 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     if (btn) btn.classList.toggle('subnav-open');
   }
 
+  // ── ON CHANGE SEDE GLOBAL ──
+  function globalOnChangeSede() {
+    cajaSedeActual = document.getElementById('global-sede-select').value;
+    // Forzamos el refresh total desde el servidor guardando estado de loading
+    const btn = document.getElementById('btn-refresh');
+    const txt = document.getElementById('btn-refresh-text');
+    if(btn) btn.classList.add('is-refreshing');
+    if(txt) txt.textContent = 'Actualizando...';
+    
+    // Invalidamos el cache de la caja
+    cajaCacheInvalidar(cajaSedeActual);
+    
+    // Recargamos el dashboard filtrado (Gestiones + Caja)
+    cargarTodo().then(() => {
+      if(btn) btn.classList.remove('is-refreshing');
+      const h = String(new Date().getHours()).padStart(2,'0');
+      const m = String(new Date().getMinutes()).padStart(2,'0');
+      if(txt) txt.textContent = 'Agencia: ' + cajaSedeActual + ' (' + h + ':' + m + ')';
+    });
+  }
+
   // ── CARGA INICIAL ──
   async function cargarTodo() {
     try {
-      const resp = await apiFetch({ admin: 'dashboard' });
+      const globalSel = document.getElementById('global-sede-select');
+      const sedeReq = globalSel ? globalSel.value : '';
+
+      const resp = await apiFetch({ admin: 'dashboard', sedeContexto: sedeReq });
+      
       if (!resp || resp.error) {
         console.error('Dashboard error:', resp);
         await Promise.all([cargarClientes(), cargarVouchers(), cargarHistorial()]);
-        // Aun así cargar sedes para el sidebar
         cajaCargarDatos();
         return;
       }
+      
+      // Actualizar el selector global basándose en lo que devolvió el servidor (sedes + sedeActiva)
+      if (resp.sedes && resp.sedes.length > 0 && globalSel.options.length === 0) {
+        globalSel.innerHTML = '';
+        const rolActual = sessionStorage.getItem('ge_rol') || 'asesor';
+        if (rolActual === 'admin') { const o = document.createElement('option'); o.value=''; o.textContent='Todas las sedes'; globalSel.appendChild(o); }
+        resp.sedes.forEach(function(s) { const o = document.createElement('option'); o.value=s; o.textContent=s; globalSel.appendChild(o); });
+      }
+      if (resp.sedeActiva !== undefined && resp.sedeActiva !== null) {
+        globalSel.value = resp.sedeActiva;
+        cajaSedeActual = resp.sedeActiva;
+      }
+
       // Distribuir datos del endpoint unificado
       if (Array.isArray(resp.clientes)) {
         clientes = resp.clientes;
@@ -1179,8 +1216,26 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         poblarFiltrosHistorial();
         renderHistorial();
       }
-      // Cargar datos de caja y poblar selector de sedes en el sidebar
-      cajaCargarDatos();
+      
+      // Datos de CAJA (ahora devueltos en la misma llamada unificada!)
+      // Esto evita una segunda llamada a caja_datos.
+      if (resp.cajaPayload) {
+        cajaDatos = resp.cajaPayload; 
+        cajaSaldoTeorico = resp.cajaPayload.saldo || 0; 
+        cajaMovimientos = resp.cajaPayload.movimientos || [];
+        cajaRenderResumen(cajaDatos); 
+        cajaRenderTabla(cajaMovimientos); 
+        cajaRenderCategorias(cajaDatos.categorias || []);
+        document.getElementById('arq-teorico').textContent = 'S/. ' + cajaSaldoTeorico.toLocaleString('es-PE', {minimumFractionDigits:2});
+        cajaRenderArqueoBanner(cajaDatos);
+        cajaCalcArqueo();
+        // Guardar en cache local para navegación rápida
+        cajaCacheGuardar(cajaSedeActual, cajaDatos);
+      } else {
+        // Fallback por si backend aún no devuelve cajaPayload unificado
+        cajaCargarDatos();
+      }
+
     } catch(e) {
       console.error('Error cargando dashboard:', e);
       try { await Promise.all([cargarClientes(), cargarVouchers(), cargarHistorial()]); } catch(e2) {}
@@ -1652,21 +1707,14 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     try { sessionStorage.removeItem(cajaCacheKey(sede)); } catch(e) {}
   }
 
-  // Al cambiar de sede: actualizar cajaSedeActual y recargar la subpestaña que está visible
+  // Al cambiar de sede: ahora lo maneja globalOnChangeSede()
   function cajaOnChangeSede() {
-    cajaSedeActual = document.getElementById('caja-sede-select').value;
-    // Detect which caja section is active and reload it
-    var activeSection = document.querySelector('.section.active');
-    var activeId = activeSection ? activeSection.id.replace('section-','') : '';
-    if (activeId === 'kasnet') kasnetCargarDatos();
-    else if (activeId === 'historial-arq') cajaLoadHistorial();
-    else if (activeId === 'arqueo') cajaLoadArqueo();
-    else if (activeId === 'movimientos') cajaCargarDatos();
-    else if (activeId === 'caja-resumen') cajaCargarDatos();
+    globalOnChangeSede();
   }
 
   async function cajaCargarDatos() {
-    const sel = document.getElementById('caja-sede-select');
+    const sel = document.getElementById('global-sede-select');
+    if(!sel) return;
     const esPrimeraVez = sel.options.length === 0;
     const sedeElegida = sel.value;
     cajaSedeActual = sedeElegida;
@@ -1678,8 +1726,6 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       cajaRenderResumen(cached); cajaRenderTabla(cajaMovimientos); cajaRenderCategorias(cached.categorias || []);
       cajaSaldoTeorico = cached.saldo;
       document.getElementById('arq-teorico').textContent = 'S/. ' + cached.saldo.toLocaleString('es-PE', {minimumFractionDigits:2});
-      // Refrescar en segundo plano sin bloquear la UI
-      cajaRefrescarSilencioso(sedeElegida);
       return;
     }
 
@@ -1687,11 +1733,10 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     document.getElementById('caja-saldo').textContent = '...';
     document.getElementById('caja-ingresos').textContent = '...';
     document.getElementById('caja-egresos').textContent = '...';
-    document.getElementById('caja-tabla-body').innerHTML = '<div class="empty" style="padding:20px;"><div class="spinner-sm"></div>Cargando...</div>';
+    const tbody = document.getElementById('caja-tabla-body');
+    if(tbody) tbody.innerHTML = '<div class="empty" style="padding:20px;"><div class="spinner-sm"></div>Cargando...</div>';
 
     try {
-      // ── TÉCNICA 2: Primera carga sin sede para obtener lista de sedes,
-      //    luego aplicar sedeActiva SIN hacer segunda llamada ──
       const resp = await apiFetch({ admin: 'caja_datos', sede: sedeElegida, sedeContexto: sedeElegida });
       if (!resp || resp.error) { showToast('Error cargando caja: ' + (resp && resp.error ? resp.error : 'Sin respuesta')); return; }
 
@@ -1700,27 +1745,9 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         const rolActual = sessionStorage.getItem('ge_rol') || 'asesor';
         if (rolActual === 'admin') { const o = document.createElement('option'); o.value=''; o.textContent='Todas las sedes'; sel.appendChild(o); }
         resp.sedes.forEach(function(s) { const o = document.createElement('option'); o.value=s; o.textContent=s; sel.appendChild(o); });
-        // sedeActiva puede ser '' (todas las sedes) o un nombre de sede específico
         if (resp.sedeActiva !== undefined && resp.sedeActiva !== null) {
           sel.value = resp.sedeActiva;
           cajaSedeActual = resp.sedeActiva;
-          // Si el servidor ya devolvió datos de sedeActiva, usarlos directamente — sin segunda llamada
-          if (resp.sedeActiva === sedeElegida || sedeElegida === '') {
-            cajaCacheGuardar(resp.sedeActiva, resp);
-            cajaDatos = resp; cajaSaldoTeorico = resp.saldo; cajaMovimientos = resp.movimientos || [];
-            cajaRenderResumen(resp); cajaRenderTabla(cajaMovimientos); cajaRenderCategorias(resp.categorias || []);
-            document.getElementById('arq-teorico').textContent = 'S/. ' + resp.saldo.toLocaleString('es-PE', {minimumFractionDigits:2});
-            cajaRenderArqueoBanner(resp);
-            cajaCalcArqueo();
-            return;
-          }
-          // Solo relanzar UNA VEZ si la sede activa difiere
-          if (!cajaCargarDatos._recursionGuard) {
-            cajaCargarDatos._recursionGuard = true;
-            await cajaCargarDatos();
-            cajaCargarDatos._recursionGuard = false;
-          }
-          return;
         }
       }
 
@@ -1732,7 +1759,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       document.getElementById('arq-teorico').textContent = 'S/. ' + resp.saldo.toLocaleString('es-PE', {minimumFractionDigits:2});
       cajaRenderArqueoBanner(resp);
       cajaCalcArqueo();
-    } catch(e) { showToast('Error: ' + e.message); }
+    } catch(e) { console.error('caja error', e); }
   }
 
   function cajaRenderArqueoBanner(resp) {
