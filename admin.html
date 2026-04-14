@@ -1158,8 +1158,9 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       const resp = await apiFetch({ admin: 'dashboard' });
       if (!resp || resp.error) {
         console.error('Dashboard error:', resp);
-        // Fallback: cargar por separado si dashboard falla
         await Promise.all([cargarClientes(), cargarVouchers(), cargarHistorial()]);
+        // Aun así cargar sedes para el sidebar
+        cajaCargarDatos();
         return;
       }
       // Distribuir datos del endpoint unificado
@@ -1171,8 +1172,6 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       if (Array.isArray(resp.vouchers)) {
         vouchers = resp.vouchers;
         document.getElementById('badge-vouchers').textContent = vouchers.length;
-        var subBadge = document.getElementById('badge-vouchers-sub');
-        if (subBadge) subBadge.textContent = vouchers.length;
         renderVouchers();
       }
       if (Array.isArray(resp.historial)) {
@@ -1180,10 +1179,12 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         poblarFiltrosHistorial();
         renderHistorial();
       }
+      // Cargar datos de caja y poblar selector de sedes en el sidebar
+      cajaCargarDatos();
     } catch(e) {
       console.error('Error cargando dashboard:', e);
-      // Fallback silencioso
       try { await Promise.all([cargarClientes(), cargarVouchers(), cargarHistorial()]); } catch(e2) {}
+      cajaCargarDatos();
     }
   }
 
