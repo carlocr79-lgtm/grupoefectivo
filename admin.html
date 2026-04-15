@@ -1179,13 +1179,13 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       const globalSel = document.getElementById('global-sede-select');
       const sedeReq = globalSel ? globalSel.value : '';
 
-      const resp = await apiFetch({ admin: 'dashboard', sedeContexto: sedeReq });
+      const pDash = apiFetch({ admin: 'dashboard', sedeContexto: sedeReq });
+      const pCaja = apiFetch({ admin: 'caja_datos', sede: sedeReq, sedeContexto: sedeReq });
+      
+      const resp = await pDash;
       if (!resp || resp.error) {
         console.error('Dashboard error:', resp);
-        document.getElementById('lista-clientes').innerHTML = '<div class="empty">Error cargando clientes.</div>';
-        document.getElementById('lista-vouchers').innerHTML = '<div class="empty">Error cargando vouchers.</div>';
-        document.getElementById('lista-historial').innerHTML = '<div class="empty">Error cargando historial.</div>';
-        cajaCargarDatos();
+        document.getElementById('lista-clientes').innerHTML = '<div class="empty">Error de conexión con el servidor.</div>';
         return;
       }
       
@@ -1207,41 +1207,55 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         renderAsesoresFiltros();
         renderClientes();
       }
-      if (Array.isArray(resp.vouchers)) {
-        vouchers = resp.vouchers;
-        document.getElementById('badge-vouchers').textContent = vouchers.length;
-        renderVouchers();
-      }
-      if (Array.isArray(resp.historial)) {
-        historial = resp.historial;
-        poblarFiltrosHistorial();
-        renderHistorial();
-      }
       
-      // Datos de CAJA (ahora devueltos en la misma llamada unificada!)
-      // Esto evita una segunda llamada a caja_datos.
-      if (resp.cajaPayload) {
-        cajaDatos = resp.cajaPayload; 
-        cajaSaldoTeorico = resp.cajaPayload.saldo || 0; 
-        cajaMovimientos = resp.cajaPayload.movimientos || [];
-        cajaRenderResumen(cajaDatos); 
-        cajaRenderTabla(cajaMovimientos); 
-        cajaRenderCategorias(cajaDatos.categorias || []);
-        document.getElementById('arq-teorico').textContent = 'S/. ' + cajaSaldoTeorico.toLocaleString('es-PE', {minimumFractionDigits:2});
-        cajaRenderArqueoBanner(cajaDatos);
-        cajaCalcArqueo();
-        // Guardar en cache local para navegación rápida
-        cajaCacheGuardar(cajaSedeActual, cajaDatos);
-      } else {
-        // Fallback por si backend aún no devuelve cajaPayload unificado
-        cajaCargarDatos();
-      }
+      // Cargar Adicionales en Background
+      cargarAdicionales(sedeReq);
+
+      // Datos de CAJA recibidos concurrentemente
+      try {
+        const respCaja = await pCaja;
+        if(respCaja && !respCaja.error) {
+          cajaDatos = respCaja; 
+          cajaSaldoTeorico = respCaja.saldo || 0; 
+          cajaMovimientos = respCaja.movimientos || [];
+          cajaCacheGuardar(cajaSedeActual, respCaja);
+          cajaRenderResumen(cajaDatos); 
+          cajaRenderTabla(cajaMovimientos); 
+          cajaRenderCategorias(cajaDatos.categorias || []);
+          const txtT = document.getElementById('arq-teorico');
+          if(txtT) txtT.textContent = 'S/. ' + cajaSaldoTeorico.toLocaleString('es-PE', {minimumFractionDigits:2});
+          cajaRenderArqueoBanner(cajaDatos);
+          cajaCalcArqueo();
+        }
+      } catch(ex) { console.error(ex); }
 
     } catch(e) {
-      console.error('Error cargando dashboard:', e);
+      console.error('Error fatal de conexión:', e);
       document.getElementById('lista-clientes').innerHTML = '<div class="empty">Error de conexión.</div>';
       cajaCargarDatos();
     }
+  }
+
+  async function cargarAdicionales(sedeParam) {
+    try {
+      const pV = apiFetch({ admin: 'vouchers', sedeContexto: sedeParam });
+      const pH = apiFetch({ admin: 'historial', sedeContexto: sedeParam });
+      
+      const resV = await pV;
+      if (Array.isArray(resV)) {
+        vouchers = resV;
+        const bv = document.getElementById('badge-vouchers');
+        if(bv) bv.textContent = vouchers.length;
+        renderVouchers();
+      }
+      
+      const resH = await pH;
+      if (Array.isArray(resH)) {
+        historial = resH;
+        poblarFiltrosHistorial();
+        renderHistorial();
+      }
+    } catch(e) { console.error("Adicionales error: ", e); }
   }
 
   function getSession() { return sessionStorage.getItem('ge_session'); }
