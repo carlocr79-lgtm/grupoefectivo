@@ -193,6 +193,29 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 .btn-refresh.is-refreshing .sync-icon { animation: rotate-sync 1s linear infinite; }
 @keyframes rotate-sync { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
+/* CLIENTE DRAWER */
+.drawer-overlay { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,32,96,0.3); backdrop-filter:blur(4px); z-index:1000; opacity:0; pointer-events:none; transition:opacity 0.4s ease; }
+.drawer-overlay.open { opacity:1; pointer-events:auto; }
+.drawer-panel { position:fixed; top:0; right:0; bottom:0; width:100%; max-width:440px; background:white; z-index:1001; transform:translateX(100%); transition:transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); display:flex; flex-direction:column; box-shadow:-10px 0 40px rgba(0,0,0,0.1); }
+.drawer-panel.open { transform:translateX(0); }
+.drawer-header { padding:24px 24px 20px; border-bottom:1px solid var(--gris2); display:flex; justify-content:space-between; align-items:flex-start; }
+.drawer-header .avatar-group { display:flex; align-items:center; gap:16px; flex:1; }
+.drawer-header h2 { font-family:'Montserrat',sans-serif; font-size:16px; font-weight:800; color:var(--texto); margin:0; line-height:1.3; }
+.drawer-header .subtitle { font-size:11px; color:var(--texto2); margin-top:4px; font-weight:600; display:flex; gap:6px; }
+.drawer-close { background:var(--gris); border:none; width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--texto2); transition:all 0.2s; flex-shrink:0; }
+.drawer-close:hover { background:#ffe8e8; color:var(--rojo); transform:rotate(90deg); }
+.drawer-content { flex:1; overflow-y:auto; padding:24px; background:#f8fafc; }
+.dr-section { background:white; border-radius:16px; padding:20px; margin-bottom:16px; box-shadow:0 2px 12px rgba(0,0,0,0.02); }
+.dr-section-title { font-size:11px; font-weight:700; color:var(--texto2); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:16px; }
+.dr-item { display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--gris2); font-size:13px; align-items:center; }
+.dr-item:last-child { border-bottom:none; padding-bottom:0; }
+.dr-item .lbl { color:var(--texto2); font-weight:600; }
+.dr-item .val { color:var(--texto); font-weight:700; text-align:right; }
+.dr-obs { background:#fff8e6; padding:14px; border-radius:12px; font-size:13px; color:#cc8800; margin-top:16px; display:flex; gap:8px; line-height:1.5; }
+.drawer-actions { padding:20px 24px; background:white; border-top:1px solid var(--gris2); display:flex; gap:12px; }
+.drawer-actions button { flex:1; padding:14px; border-radius:16px; border:none; font-weight:700; font-size:14px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:transform 0.2s, box-shadow 0.2s; color:white; }
+.drawer-actions button:hover { transform:translateY(-2px); box-shadow:0 8px 16px rgba(0,0,0,0.1); }
+
 /* VOUCHER MODAL */
 .modal-overlay { position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,0.75); z-index:999; display:none; align-items:center; justify-content:center; padding:20px; }
 .modal-overlay.show { display:flex; }
@@ -794,6 +817,45 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       </div><!-- /content-body -->
     </main>
   </div><!-- /app-layout -->
+</div>
+
+<!-- CLIENTE DRAWER -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="cerrarClienteDrawer()"></div>
+<div class="drawer-panel" id="drawer-panel">
+  <div class="drawer-header">
+    <div class="avatar-group">
+      <div class="avatar" id="dr-avatar" style="background:var(--azul); width:46px; height:46px; font-size:16px;"></div>
+      <div>
+        <h2 id="dr-nombre">Cargando...</h2>
+        <div class="subtitle" id="dr-tags"></div>
+      </div>
+    </div>
+    <button class="drawer-close" onclick="cerrarClienteDrawer()"><span class="mi">close</span></button>
+  </div>
+  <div class="drawer-content" id="dr-content">
+    <div class="dr-section">
+      <div class="dr-section-title">Finanzas</div>
+      <div class="dr-item"><span class="lbl">Deuda Total</span><span class="val" id="dr-deuda" style="font-size:18px; font-weight:900; color:var(--azul);"></span></div>
+      <div class="dr-item"><span class="lbl">Cuota Mensual</span><span class="val" id="dr-cuota"></span></div>
+      <div class="dr-item"><span class="lbl">Cuotas Vencidas</span><span class="val" id="dr-cuotas"></span></div>
+      <div class="dr-item"><span class="lbl">Días de Atraso</span><span class="val" id="dr-dias"></span></div>
+    </div>
+    <div class="dr-section">
+      <div class="dr-section-title">Datos Generales</div>
+      <div class="dr-item"><span class="lbl">Código</span><span class="val" id="dr-cod"></span></div>
+      <div class="dr-item"><span class="lbl">Celular</span><span class="val" id="dr-cel"></span></div>
+      <div class="dr-item"><span class="lbl">Dirección</span><span class="val" id="dr-dir" style="text-align:right; max-width:60%;"></span></div>
+      <div class="dr-item"><span class="lbl">Próx. Vencimiento</span><span class="val" id="dr-venc"></span></div>
+    </div>
+    <div class="dr-section">
+      <div class="dr-section-title">Gestión Interna</div>
+      <div class="dr-item"><span class="lbl">Asesor Asignado</span><span class="val" id="dr-asesor"></span></div>
+      <div class="dr-item"><span class="lbl">Oficina</span><span class="val" id="dr-ofi"></span></div>
+      <div class="dr-item"><span class="lbl">Tipo de Crédito</span><span class="val" id="dr-tipo"></span></div>
+    </div>
+    <div id="dr-obs-container"></div>
+  </div>
+  <div class="drawer-actions" id="dr-actions"></div>
 </div>
 
 <!-- MODAL VOUCHER -->
@@ -1610,6 +1672,8 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
   function filtrarClientes() { renderClientes(); }
 
+  let clientesFiltrados = [];
+
   function renderClientes() {
     const busqueda = document.getElementById('buscar-cliente').value.toUpperCase();
     let lista = clientes.filter(c => {
@@ -1625,8 +1689,9 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
     // Ordenar por días de atraso desc
     lista.sort((a, b) => b.dias - a.dias);
+    clientesFiltrados = lista;
 
-    document.getElementById('lista-clientes').innerHTML = lista.map((c, idx) => {
+    document.getElementById('lista-clientes').innerHTML = clientesFiltrados.map((c, idx) => {
       const diasTag = c.dias > 90 ? `<span class="tag tag-critico"><span class="mi xs">error</span> ${c.dias} días</span>` :
                       c.dias > 0  ? `<span class="tag tag-vencido"><span class="mi xs">warning</span> ${c.dias} días</span>` :
                                     `<span class="tag tag-pendiente"><span class="mi xs">schedule</span> Vence hoy</span>`;
@@ -1641,8 +1706,8 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       const detId = 'det-' + idx;
 
       return `
-      <div class="cliente-card" id="card-${detId}">
-        <div class="cliente-header" style="cursor:pointer; padding: 18px 16px;" onclick="toggleDetalle('${detId}')">
+      <div class="cliente-card" id="card-${detId}" style="transition: transform 0.2s, box-shadow 0.2s;">
+        <div class="cliente-header" style="cursor:pointer; padding: 18px 16px;" onclick="abrirClienteDrawer(${idx})">
           <div style="display:flex; align-items:center; gap: 14px; min-width:0; flex:1;">
             <div class="avatar" style="background:var(--azul)">${getInitials(c.nombre)}</div>
             <div style="min-width:0;flex:1;">
@@ -1659,49 +1724,79 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
               <div class="cliente-monto" style="color:var(--texto); font-size:16px;">${deudaFmt}</div>
             </div>
             <div style="display:flex; gap:8px;" onclick="event.stopPropagation()">
-              ${c.celular ? `<a href="tel:${c.celular.replace(/\s+/g, '')}" class="btn-call" title="Llamar al cliente"><span class="mi sm">call</span></a>` : ''}
-              ${linkWA ? `<button class="btn-wa" onclick="enviarWA('${linkWAMovil}','${linkWA}')" title="Enviar WhatsApp"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="16" height="16" fill="white"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.736 5.472 2.027 7.774L0 32l8.454-2.01A15.938 15.938 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.333a13.27 13.27 0 01-6.748-1.833l-.484-.287-5.02 1.194 1.271-4.874-.317-.502A13.267 13.267 0 012.667 16C2.667 8.636 8.636 2.667 16 2.667S29.333 8.636 29.333 16 23.364 29.333 16 29.333zm7.27-9.862c-.398-.199-2.354-1.162-2.72-1.294-.365-.133-.631-.199-.897.199-.266.398-1.029 1.294-1.262 1.56-.232.266-.465.299-.863.1-.398-.2-1.681-.619-3.203-1.977-1.184-1.057-1.983-2.362-2.215-2.76-.232-.398-.025-.613.174-.811.179-.178.398-.465.598-.698.199-.232.265-.398.398-.664.133-.266.066-.498-.033-.697-.1-.2-.897-2.162-1.229-2.96-.324-.777-.653-.672-.897-.684l-.764-.013c-.266 0-.697.1-1.063.498-.365.398-1.395 1.362-1.395 3.323s1.428 3.854 1.627 4.12c.2.266 2.81 4.287 6.808 6.014.951.41 1.694.656 2.273.839.955.304 1.824.261 2.511.158.766-.114 2.354-.962 2.687-1.891.332-.929.332-1.726.232-1.891-.099-.166-.365-.266-.763-.465z"/></svg></button>` : ''}
+              ${c.celular ? `<button class="btn-call" style="width:36px;height:36px;background:#f0f4ff;border-radius:50%;color:var(--azul2);display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;" onclick="window.location.href='tel:${c.celular.replace(/\s+/g,'')}'" title="Llamar al cliente"><span class="mi sm">call</span></button>` : ''}
+              ${linkWA ? `<button class="btn-wa" style="width:36px;height:36px;background:#25D366;border-radius:50%;color:white;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;" onclick="enviarWA('${linkWAMovil}','${linkWA}')" title="Enviar WhatsApp"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="18" height="18" fill="white"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.736 5.472 2.027 7.774L0 32l8.454-2.01A15.938 15.938 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.333a13.27 13.27 0 01-6.748-1.833l-.484-.287-5.02 1.194 1.271-4.874-.317-.502A13.267 13.267 0 012.667 16C2.667 8.636 8.636 2.667 16 2.667S29.333 8.636 29.333 16 23.364 29.333 16 29.333zm7.27-9.862c-.398-.199-2.354-1.162-2.72-1.294-.365-.133-.631-.199-.897.199-.266.398-1.029 1.294-1.262 1.56-.232.266-.465.299-.863.1-.398-.2-1.681-.619-3.203-1.977-1.184-1.057-1.983-2.362-2.215-2.76-.232-.398-.025-.613.174-.811.179-.178.398-.465.598-.698.199-.232.265-.398.398-.664.133-.266.066-.498-.033-.697-.1-.2-.897-2.162-1.229-2.96-.324-.777-.653-.672-.897-.684l-.764-.013c-.266 0-.697.1-1.063.498-.365.398-1.395 1.362-1.395 3.323s1.428 3.854 1.627 4.12c.2.266 2.81 4.287 6.808 6.014.951.41 1.694.656 2.273.839.955.304 1.824.261 2.511.158.766-.114 2.354-.962 2.687-1.891.332-.929.332-1.726.232-1.891-.099-.166-.365-.266-.763-.465z"/></svg></button>` : ''}
             </div>
-            <div class="chevron-box">
+            <div class="chevron-box" style="margin-left:8px; opacity:0.5;">
               <span class="mi">chevron_right</span>
             </div>
-          </div>
-        </div>
-        <div class="cliente-detalle" id="${detId}" onclick="event.stopPropagation()">
-          <div class="detalle-grid">
-            <div class="detalle-item"><span class="lbl">Código</span><span class="val">${escapeHtml(c.cod)}</span></div>
-            <div class="detalle-item"><span class="lbl">Celular</span><span class="val">${escapeHtml(c.celular)}</span></div>
-            <div class="detalle-item"><span class="lbl">Asesor</span><span class="val">${escapeHtml(c.asesor)}</span></div>
-            <div class="detalle-item"><span class="lbl">Oficina</span><span class="val">${escapeHtml(c.oficina || '-')}</span></div>
-            <div class="detalle-item"><span class="lbl">Tipo de Crédito</span><span class="val">${escapeHtml(c.tipo)}</span></div>
-            <div class="detalle-item"><span class="lbl">Cuotas Vencidas</span><span class="val" style="${c.cuotas > 0 ? 'color:var(--rojo);font-weight:700;' : ''}">${c.cuotas} cuota(s)</span></div>
-            <div class="detalle-item"><span class="lbl">Cuota Mensual</span><span class="val cuota-val">${cuotaFmt}</span></div>
-            <div class="detalle-item"><span class="lbl">Vencimiento</span><span class="val">${c.vencimiento || '-'}</span></div>
-            ${c.direccion ? '<div class="detalle-item" style="grid-column:1/-1;"><span class="lbl">Dirección</span><span class="val">' + escapeHtml(c.direccion) + '</span></div>' : ''}
-            ${c.obs ? '<div class="detalle-obs"><span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">info</span>' + escapeHtml(c.obs) + '</div>' : ''}
           </div>
         </div>
       </div>`;
     }).join('');
   }
 
-  function toggleDetalle(id) {
-    const el = document.getElementById(id);
-    const card = document.getElementById('card-' + id);
-    if (!el) return;
+  function abrirClienteDrawer(idx) {
+    const c = clientesFiltrados[idx];
+    if (!c) return;
 
-    // Cerrar todos los demás detalles abiertos
-    document.querySelectorAll('.cliente-detalle.open').forEach(d => {
-      if (d.id !== id) {
-        d.classList.remove('open');
-        const otherCard = document.getElementById('card-' + d.id);
-        if (otherCard) otherCard.classList.remove('open');
-      }
-    });
+    document.getElementById('dr-avatar').textContent = getInitials(c.nombre);
+    document.getElementById('dr-nombre').textContent = escapeHtml(c.nombre);
+    
+    // Configurar tags rápidos de cabecera
+    const diasTag = c.dias > 90 ? `<span style="color:var(--rojo);"><span class="mi xs">error</span> ${c.dias} d atraso</span>` :
+                    c.dias > 0  ? `<span style="color:var(--naranja);"><span class="mi xs">warning</span> ${c.dias} d atraso</span>` :
+                                  `<span style="color:var(--verde);"><span class="mi xs">check_circle</span> Al día</span>`;
+    document.getElementById('dr-tags').innerHTML = diasTag + (c.voucher ? ` | <span style="color:#cc8800"><span class="mi xs">hourglass_top</span> Voucher</span>` : '');
 
-    // Toggle del actual
-    el.classList.toggle('open');
-    if (card) card.classList.toggle('open');
+    // Finanzas
+    document.getElementById('dr-deuda').textContent = 'S/. ' + parseFloat(c.deuda || 0).toLocaleString('es-PE',{minimumFractionDigits:2});
+    document.getElementById('dr-cuota').textContent = c.cuota ? 'S/. ' + parseFloat(c.cuota).toLocaleString('es-PE',{minimumFractionDigits:2}) : '-';
+    const numCuotas = c.cuotas > 0 ? `<span style="color:var(--rojo);font-weight:900;background:#fff0f0;padding:2px 8px;border-radius:12px;">${c.cuotas} cuota(s)</span>` : '0 cuotas';
+    document.getElementById('dr-cuotas').innerHTML = numCuotas;
+    document.getElementById('dr-dias').textContent = c.dias + ' día(s)';
+
+    // Datos Generales
+    document.getElementById('dr-cod').textContent = escapeHtml(c.cod);
+    document.getElementById('dr-cel').textContent = escapeHtml(c.celular || '-');
+    document.getElementById('dr-dir').textContent = escapeHtml(c.direccion || '-');
+    document.getElementById('dr-venc').textContent = c.vencimiento ? c.vencimiento : '-';
+
+    // Interno
+    document.getElementById('dr-asesor').textContent = escapeHtml(c.asesor || '-');
+    document.getElementById('dr-ofi').textContent = escapeHtml(c.oficina || '-');
+    document.getElementById('dr-tipo').textContent = escapeHtml(c.tipo || '-');
+
+    // Observaciones (si las hay)
+    const obsContainer = document.getElementById('dr-obs-container');
+    if (c.obs) {
+      obsContainer.innerHTML = `<div class="dr-obs"><span class="mi" style="font-size:18px;">info</span><div>${escapeHtml(c.obs)}</div></div>`;
+    } else {
+      obsContainer.innerHTML = '';
+    }
+
+    // Acciones Grandes
+    let accionesHTML = '';
+    if(c.celular) {
+       accionesHTML += `<button style="background:var(--azul);" onclick="window.location.href='tel:${c.celular.replace(/\s+/g,'')}'"><span class="mi">call</span> Llamar</button>`;
+    }
+    const linkWA = c.telefono ? `https://web.whatsapp.com/send?phone=${c.telefono}${c.mensaje ? '&text=' + encodeURIComponent(c.mensaje) : ''}` : '';
+    const linkWAMovil = c.telefono ? `https://api.whatsapp.com/send?phone=${c.telefono}${c.mensaje ? '&text=' + encodeURIComponent(c.mensaje) : ''}` : '';
+    if(linkWA) {
+       accionesHTML += `<button style="background:#25D366;" onclick="enviarWA('${linkWAMovil}','${linkWA}')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="18" height="18" fill="white"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.736 5.472 2.027 7.774L0 32l8.454-2.01A15.938 15.938 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.333a13.27 13.27 0 01-6.748-1.833l-.484-.287-5.02 1.194 1.271-4.874-.317-.502A13.267 13.267 0 012.667 16C2.667 8.636 8.636 2.667 16 2.667S29.333 8.636 29.333 16 23.364 29.333 16 29.333zm7.27-9.862c-.398-.199-2.354-1.162-2.72-1.294-.365-.133-.631-.199-.897.199-.266.398-1.029 1.294-1.262 1.56-.232.266-.465.299-.863.1-.398-.2-1.681-.619-3.203-1.977-1.184-1.057-1.983-2.362-2.215-2.76-.232-.398-.025-.613.174-.811.179-.178.398-.465.598-.698.199-.232.265-.398.398-.664.133-.266.066-.498-.033-.697-.1-.2-.897-2.162-1.229-2.96-.324-.777-.653-.672-.897-.684l-.764-.013c-.266 0-.697.1-1.063.498-.365.398-1.395 1.362-1.395 3.323s1.428 3.854 1.627 4.12c.2.266 2.81 4.287 6.808 6.014.951.41 1.694.656 2.273.839.955.304 1.824.261 2.511.158.766-.114 2.354-.962 2.687-1.891.332-.929.332-1.726.232-1.891-.099-.166-.365-.266-.763-.465z"/></svg> WhatsApp</button>`;
+    }
+    document.getElementById('dr-actions').innerHTML = accionesHTML;
+
+    // Show Drawer
+    document.getElementById('drawer-overlay').classList.add('open');
+    document.getElementById('drawer-panel').classList.add('open');
+    document.body.style.overflow = 'hidden'; // Evitar scroll de fondo
+  }
+
+  function cerrarClienteDrawer() {
+    document.getElementById('drawer-overlay').classList.remove('open');
+    document.getElementById('drawer-panel').classList.remove('open');
+    document.body.style.overflow = '';
   }
 
   function enviarWA(linkMovil, linkWeb) {
