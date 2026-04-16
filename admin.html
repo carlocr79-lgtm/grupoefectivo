@@ -168,11 +168,11 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 .btn-ver { flex:1; padding:9px; background:#f0f4ff; color:var(--azul2); border:none; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer; }
 .btn-verificar { flex:1; padding:9px; background:linear-gradient(135deg,var(--verde),#00cc55); color:white; border:none; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer; }
 .btn-refresh {
-  background:var(--gris); color:var(--texto); border:none; padding:6px 12px; border-radius:8px;
-  font-family:'DM Sans', sans-serif; font-size:11px; font-weight:700; cursor:pointer;
-  display:flex; align-items:center; gap:6px; transition:background 0.2s;
+  background:transparent; color:var(--texto2); border:1px solid transparent; padding:4px 10px; border-radius:20px;
+  font-family:'DM Sans', sans-serif; font-size:11px; font-weight:600; cursor:pointer;
+  display:flex; align-items:center; gap:4px; transition:all 0.2s ease;
 }
-.btn-refresh:hover { background:var(--gris2); }
+.btn-refresh:hover { background:var(--gris); border-color:var(--gris2); color:var(--azul); }
 .btn-refresh .sync-icon { margin:0; display:flex; align-items:center; justify-content:center; transform-origin:center; }
 .btn-refresh.is-refreshing { pointer-events:none; opacity:0.8; }
 .btn-refresh.is-refreshing .sync-icon { animation: rotate-sync 1s linear infinite; }
@@ -1232,7 +1232,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       if(btn) btn.classList.remove('is-refreshing');
       const h = String(new Date().getHours()).padStart(2,'0');
       const m = String(new Date().getMinutes()).padStart(2,'0');
-      if(txt) txt.textContent = 'Agencia: ' + cajaSedeActual + ' (' + h + ':' + m + ')';
+      if(txt) txt.textContent = 'Actualizado ' + h + ':' + m;
     });
   }
 
