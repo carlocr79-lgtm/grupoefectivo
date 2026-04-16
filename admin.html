@@ -134,11 +134,13 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   border: 1px solid transparent;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
-.cliente-card:hover {
+.cliente-card:hover, .cliente-card.open {
   transform: translateY(-3px);
   box-shadow: 0 12px 25px rgba(0,48,135,0.08);
   border-color: var(--azul-claro);
 }
+.chevron-box { display:flex; align-items:center; color:var(--texto2); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); margin-left:4px; font-size:24px; }
+.cliente-card.open .chevron-box { transform: rotate(90deg); color:var(--azul); }
 .avatar {
   width: 42px; height: 42px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
@@ -1639,32 +1641,33 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       const detId = 'det-' + idx;
 
       return `
-      <div class="cliente-card">
-        <div class="cliente-header" style="padding-bottom: 8px;">
-          <div style="display:flex; align-items:center; gap: 12px; min-width:0; flex:1;">
+      <div class="cliente-card" id="card-${detId}">
+        <div class="cliente-header" style="cursor:pointer; padding: 18px 16px;" onclick="toggleDetalle('${detId}')">
+          <div style="display:flex; align-items:center; gap: 14px; min-width:0; flex:1;">
             <div class="avatar" style="background:var(--azul)">${getInitials(c.nombre)}</div>
             <div style="min-width:0;flex:1;">
-              <div class="cliente-nombre">${escapeHtml(c.nombre)}</div>
+              <div class="cliente-nombre" style="font-size:14px;">${escapeHtml(c.nombre)}</div>
               <div style="margin-top: 6px; display: flex; flex-wrap: wrap; gap: 6px;">
                 ${diasTag}
                 ${tieneVoucher}
               </div>
             </div>
           </div>
-          <div style="display:flex;align-items:center;gap:10px;">
+          <div style="display:flex;align-items:center;gap:16px;">
             <div style="text-align:right;">
-              <div class="cliente-monto">${deudaFmt}</div>
+              <div style="font-size:10px; color:var(--texto2); font-weight:700; margin-bottom:2px; text-transform:uppercase; letter-spacing:0.5px;">Deuda Total</div>
+              <div class="cliente-monto" style="color:var(--texto); font-size:16px;">${deudaFmt}</div>
             </div>
-            <div style="display:flex; gap:6px;">
-              ${c.celular ? `<a href="tel:${c.celular.replace(/\s+/g, '')}" class="btn-call" title="Llamar al cliente"><span class="mi sm">call</span></a>` : ''}
-              ${linkWA ? `<button class="btn-wa" onclick="enviarWA('${linkWAMovil}','${linkWA}')" title="Enviar WhatsApp"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="16" height="16" fill="white"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.736 5.472 2.027 7.774L0 32l8.454-2.01A15.938 15.938 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.333a13.27 13.27 0 01-6.748-1.833l-.484-.287-5.02 1.194 1.271-4.874-.317-.502A13.267 13.267 0 012.667 16C2.667 8.636 8.636 2.667 16 2.667S29.333 8.636 29.333 16 23.364 29.333 16 29.333zm7.27-9.862c-.398-.199-2.354-1.162-2.72-1.294-.365-.133-.631-.199-.897.199-.266.398-1.029 1.294-1.262 1.56-.232.266-.465.299-.863.1-.398-.2-1.681-.619-3.203-1.977-1.184-1.057-1.983-2.362-2.215-2.76-.232-.398-.025-.613.174-.811.179-.178.398-.465.598-.698.199-.232.265-.398.398-.664.133-.266.066-.498-.033-.697-.1-.2-.897-2.162-1.229-2.96-.324-.777-.653-.672-.897-.684l-.764-.013c-.266 0-.697.1-1.063.498-.365.398-1.395 1.362-1.395 3.323s1.428 3.854 1.627 4.12c.2.266 2.81 4.287 6.808 6.014.951.41 1.694.656 2.273.839.955.304 1.824.261 2.511.158.766-.114 2.354-.962 2.687-1.891.332-.929.332-1.726.232-1.891-.099-.166-.365-.266-.763-.465z"/></svg></button>` : ''}
+            <div style="display:flex; gap:8px;" onclick="event.stopPropagation()">
+              ${callBtn}
+              ${waBtn}
+            </div>
+            <div class="chevron-box">
+              <span class="mi">chevron_right</span>
             </div>
           </div>
         </div>
-        <div class="cliente-acciones">
-          <button class="btn-detalle" onclick="toggleDetalle('${detId}',this)"><span class="mi sm">expand_more</span><span>Ver detalle completo</span></button>
-        </div>
-        <div class="cliente-detalle" id="${detId}">
+        <div class="cliente-detalle" id="${detId}" onclick="event.stopPropagation()">
           <div class="detalle-grid">
             <div class="detalle-item"><span class="lbl">Código</span><span class="val">${escapeHtml(c.cod)}</span></div>
             <div class="detalle-item"><span class="lbl">Celular</span><span class="val">${escapeHtml(c.celular)}</span></div>
@@ -1682,28 +1685,23 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     }).join('');
   }
 
-  function toggleDetalle(id, btn) {
+  function toggleDetalle(id) {
     const el = document.getElementById(id);
+    const card = document.getElementById('card-' + id);
     if (!el) return;
-    const wasOpen = el.classList.contains('open');
 
     // Cerrar todos los demás detalles abiertos
     document.querySelectorAll('.cliente-detalle.open').forEach(d => {
-      if (d.id !== id) d.classList.remove('open');
-    });
-    document.querySelectorAll('.btn-detalle.open').forEach(b => {
-      if (b !== btn) {
-        b.classList.remove('open');
-        const s = b.querySelectorAll('span')[1];
-        if (s) s.textContent = 'Ver detalle completo';
+      if (d.id !== id) {
+        d.classList.remove('open');
+        const otherCard = document.getElementById('card-' + d.id);
+        if (otherCard) otherCard.classList.remove('open');
       }
     });
 
     // Toggle del actual
     el.classList.toggle('open');
-    btn.classList.toggle('open');
-    const txtSpan = btn.querySelectorAll('span')[1];
-    if (txtSpan) txtSpan.textContent = el.classList.contains('open') ? 'Ocultar detalle' : 'Ver detalle completo';
+    if (card) card.classList.toggle('open');
   }
 
   function enviarWA(linkMovil, linkWeb) {
