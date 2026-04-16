@@ -488,8 +488,9 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         <div class="sidebar-brand"><span class="mi" style="font-size:20px;">business</span> Grupo Efectivo</div>
         <div class="sidebar-user-info">
           <div class="sidebar-user-name" id="navbar-user"></div>
-          <div style="display:flex;gap:6px;align-items:center;">
+          <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
             <span class="sidebar-user-role" id="navbar-rol">Panel</span>
+            <span class="sidebar-user-role" id="navbar-oficina" style="font-size:9px;"></span>
             <div class="sidebar-sede-top">
               <select id="global-sede-select" onchange="globalOnChangeSede()"></select>
             </div>
@@ -2219,15 +2220,17 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     if (!confirm('¿Confirmar ' + tipoTexto + '?')) return;
 
     showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">hourglass_empty</span> Procesando ' + tipoTexto + '...');
-    const tabCaja = document.getElementById('tab-caja');
+    const tabCaja = document.getElementById('section-arqueo');
     if (tabCaja) { tabCaja.style.opacity = '0.6'; tabCaja.style.pointerEvents = 'none'; }
 
+    const _denomMap = {'200':'b200','100':'b100','50':'b50','20':'b20','10':'b10',
+      '5':'m5','2':'m2','1':'m1','0.50':'m050','0.20':'m020','0.10':'m010'};
     const detalle = {};
     const inputs = tipoTexto === 'Cierre Diario'
       ? document.querySelectorAll('.arq-input-cajera')
       : document.querySelectorAll('.arq-input');
     inputs.forEach(function(inp) {
-      const key = inp.id ? inp.id.replace('arq-','') : 'val-' + inp.dataset.val;
+      const key = inp.id ? inp.id.replace('arq-','') : (_denomMap[inp.dataset.val] || 'val-' + inp.dataset.val);
       detalle[key] = parseFloat(inp.value) || 0;
     });
 
