@@ -112,11 +112,18 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 .search-bar .icon { position:absolute; left:16px; top:50%; transform:translateY(-50%); font-size:20px; color:var(--texto2); transition:color 0.3s; z-index:2; pointer-events:none; }
 .search-bar:focus-within .icon { color: var(--azul2); }
 
-/* FILTRO ASESOR */
-.filtros { display:flex; gap:8px; margin-bottom:12px; overflow-x:auto; padding:6px 16px 14px 6px; margin-right:-16px; margin-left:-6px; }
-.filtro-btn { padding:8px 16px; border-radius:24px; border:none; background:white; font-size:12px; font-weight:700; color:var(--texto2); cursor:pointer; white-space:nowrap; box-shadow:0 2px 6px rgba(0,0,0,0.05); transition:all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1); }
-.filtro-btn:hover { transform:translateY(-1px); box-shadow:0 4px 10px rgba(0,0,0,0.08); }
-.filtro-btn.active { background:linear-gradient(135deg,var(--azul),var(--azul2)); color:white; box-shadow:0 4px 12px rgba(0,48,135,0.3); }
+/* FILTRO ASESOR DESPLEGABLE */
+.clean-select-wrap { position:relative; min-width:180px; }
+.clean-select {
+  width:100%; appearance:none; border:none; border-radius:16px; padding:14px 20px 14px 44px;
+  font-family:'DM Sans',sans-serif; font-size:13px; font-weight:700; color:var(--texto);
+  background:white url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%235a6475%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E") no-repeat right 16px top 50%;
+  background-size: 10px auto;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05); cursor:pointer; outline:none; transition:all 0.3s ease; height: 100%;
+}
+.clean-select:focus { box-shadow: 0 6px 20px rgba(0,48,135,0.12), 0 0 0 3px var(--azul-claro); transform:translateY(-1px); }
+.clean-select-wrap .icon { position:absolute; left:16px; top:50%; transform:translateY(-50%); font-size:20px; color:var(--texto2); pointer-events:none; transition:color 0.3s; z-index:2; }
+.clean-select-wrap:focus-within .icon { color: var(--azul2); }
 
 /* CARDS CLIENTE */
 .cliente-card {
@@ -625,12 +632,15 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
         <!-- SECTION: CLIENTES -->
         <div id="section-clientes" class="section">
-          <div class="search-bar">
-            <span class="icon"><span class="mi" style="font-size:16px;">search</span></span>
-            <input type="text" id="buscar-cliente" placeholder="Buscar por nombre o celular..." oninput="filtrarClientes()">
-          </div>
-          <div class="filtros" id="filtros-asesores">
-            <button class="filtro-btn active" onclick="setFiltroAsesor('',this)">Todos</button>
+          <div style="display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap; align-items:stretch;">
+            <div class="search-bar" style="margin-bottom:0; flex:1; min-width:200px;">
+              <span class="icon"><span class="mi" style="font-size:16px;">search</span></span>
+              <input type="text" id="buscar-cliente" placeholder="Buscar por nombre o celular..." oninput="filtrarClientes()">
+            </div>
+            <div class="clean-select-wrap">
+              <span class="icon"><span class="mi" style="font-size:16px;">badge</span></span>
+              <select id="filtros-asesores" class="clean-select" onchange="setFiltroAsesor(this.value)"></select>
+            </div>
           </div>
           <div id="lista-clientes"><div class="loading"><div class="spinner-sm"></div>Cargando clientes...</div></div>
         </div>
@@ -1561,17 +1571,23 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
   function renderAsesoresFiltros() {
     const asesores = [...new Set(clientes.map(c => c.asesor.split(' ')[0]))].filter(Boolean);
-    const cont = document.getElementById('filtros-asesores');
-    cont.innerHTML = '<button class="filtro-btn active" onclick="setFiltroAsesor(\'\',this)">Todos</button>';
+    const sel = document.getElementById('filtros-asesores');
+    if(!sel) return;
+    sel.innerHTML = '<option value="">Todos los asesores</option>';
     asesores.forEach(a => {
-      cont.innerHTML += `<button class="filtro-btn" onclick="setFiltroAsesor('${a}',this)">${a}</button>`;
+      sel.innerHTML += `<option value="${a}">${a}</option>`;
     });
+    // Conservar seleccion previa si existe
+    if (filtroAsesor && asesores.includes(filtroAsesor)) {
+      sel.value = filtroAsesor;
+    } else {
+      filtroAsesor = '';
+      sel.value = '';
+    }
   }
 
-  function setFiltroAsesor(asesor, btn) {
+  function setFiltroAsesor(asesor) {
     filtroAsesor = asesor;
-    document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
     renderClientes();
   }
 
