@@ -668,6 +668,10 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
               <span class="icon"><span class="mi" style="font-size:16px;">badge</span></span>
               <select id="filtros-asesores" class="clean-select" onchange="setFiltroAsesor(this.value)"></select>
             </div>
+            <button onclick="iniciarRecordatorios()" style="background:#25D366;color:white;border:none;border-radius:10px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="16" height="16" fill="white"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.736 5.472 2.027 7.774L0 32l8.454-2.01A15.938 15.938 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm7.27 19.471c-.398-.199-2.354-1.162-2.72-1.294-.365-.133-.631-.199-.897.199-.266.398-1.029 1.294-1.262 1.56-.232.266-.465.299-.863.1-.398-.2-1.681-.619-3.203-1.977-1.184-1.057-1.983-2.362-2.215-2.76-.232-.398-.025-.613.174-.811.179-.178.398-.465.598-.698.199-.232.265-.398.398-.664.133-.266.066-.498-.033-.697-.1-.2-.897-2.162-1.229-2.96-.324-.777-.653-.672-.897-.684l-.764-.013c-.266 0-.697.1-1.063.498-.365.398-1.395 1.362-1.395 3.323s1.428 3.854 1.627 4.12c.2.266 2.81 4.287 6.808 6.014.951.41 1.694.656 2.273.839.955.304 1.824.261 2.511.158.766-.114 2.354-.962 2.687-1.891.332-.929.332-1.726.232-1.891-.099-.166-.365-.266-.763-.465z"/></svg>
+              Recordatorios
+            </button>
           </div>
           <div id="lista-clientes"><div class="loading"><div class="spinner-sm"></div>Cargando clientes...</div></div>
         </div>
@@ -1800,9 +1804,65 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   }
 
   function enviarWA(linkMovil, linkWeb) {
-    // Detectar si es móvil o desktop
     const esMobil = /Android|iPhone|iPad/i.test(navigator.userAgent);
     window.open(esMobil ? linkMovil : linkWeb, '_blank');
+  }
+
+  // ── RECORDATORIOS MASIVOS ──
+  let _recLista = [];
+  let _recIdx = 0;
+  let _recEnviados = [];
+
+  function iniciarRecordatorios() {
+    const conWA = clientesFiltrados.filter(c => c.telefono && c.mensaje);
+    if (!conWA.length) {
+      alert('No hay clientes con teléfono y mensaje configurado en la lista actual.');
+      return;
+    }
+    _recLista = conWA;
+    _recIdx = 0;
+    _recEnviados = [];
+    document.getElementById('modal-rec').style.display = 'flex';
+    renderRecModal();
+  }
+
+  function renderRecModal() {
+    const total = _recLista.length;
+    const c = _recLista[_recIdx];
+    const esMobil = /Android|iPhone|iPad/i.test(navigator.userAgent);
+    const linkWA = esMobil
+      ? `https://api.whatsapp.com/send?phone=${c.telefono}&text=${encodeURIComponent(c.mensaje)}`
+      : `https://web.whatsapp.com/send?phone=${c.telefono}&text=${encodeURIComponent(c.mensaje)}`;
+
+    const yaEnviado = _recEnviados.includes(_recIdx);
+    document.getElementById('rec-contador').textContent = `Cliente ${_recIdx + 1} de ${total}`;
+    document.getElementById('rec-progreso').style.width = `${(_recIdx / total) * 100}%`;
+    document.getElementById('rec-nombre').textContent = c.nombre || '-';
+    document.getElementById('rec-avatar').textContent = c.nombre ? c.nombre.trim().split(' ').map(w=>w[0]).join('').toUpperCase().substring(0,2) : '?';
+    document.getElementById('rec-tel').textContent = c.celular || c.telefono || '-';
+    document.getElementById('rec-msg').textContent = c.mensaje;
+    document.getElementById('rec-btn-wa').onclick = () => {
+      window.open(linkWA, '_blank');
+      if (!_recEnviados.includes(_recIdx)) _recEnviados.push(_recIdx);
+      document.getElementById('rec-btn-wa').style.opacity = '0.7';
+      document.getElementById('rec-tag-enviado').style.display = 'inline-flex';
+    };
+    document.getElementById('rec-btn-wa').style.opacity = yaEnviado ? '0.7' : '1';
+    document.getElementById('rec-tag-enviado').style.display = yaEnviado ? 'inline-flex' : 'none';
+
+    document.getElementById('rec-btn-ant').style.display = _recIdx > 0 ? 'flex' : 'none';
+    const btnSig = document.getElementById('rec-btn-sig');
+    if (_recIdx < total - 1) {
+      btnSig.textContent = 'Siguiente →';
+      btnSig.onclick = () => { _recIdx++; renderRecModal(); };
+    } else {
+      btnSig.textContent = '✅ Finalizar';
+      btnSig.onclick = () => cerrarRecModal();
+    }
+  }
+
+  function cerrarRecModal() {
+    document.getElementById('modal-rec').style.display = 'none';
   }
 
   
@@ -3112,5 +3172,57 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     });
   });
 </script>
+
+<!-- MODAL RECORDATORIOS MASIVOS -->
+<div id="modal-rec" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;align-items:center;justify-content:center;padding:16px;">
+  <div style="background:white;border-radius:20px;width:100%;max-width:420px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+    <!-- Header -->
+    <div style="background:#25D366;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="22" height="22" fill="white"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.736 5.472 2.027 7.774L0 32l8.454-2.01A15.938 15.938 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm7.27 19.471c-.398-.199-2.354-1.162-2.72-1.294-.365-.133-.631-.199-.897.199-.266.398-1.029 1.294-1.262 1.56-.232.266-.465.299-.863.1-.398-.2-1.681-.619-3.203-1.977-1.184-1.057-1.983-2.362-2.215-2.76-.232-.398-.025-.613.174-.811.179-.178.398-.465.598-.698.199-.232.265-.398.398-.664.133-.266.066-.498-.033-.697-.1-.2-.897-2.162-1.229-2.96-.324-.777-.653-.672-.897-.684l-.764-.013c-.266 0-.697.1-1.063.498-.365.398-1.395 1.362-1.395 3.323s1.428 3.854 1.627 4.12c.2.266 2.81 4.287 6.808 6.014.951.41 1.694.656 2.273.839.955.304 1.824.261 2.511.158.766-.114 2.354-.962 2.687-1.891.332-.929.332-1.726.232-1.891-.099-.166-.365-.266-.763-.465z"/></svg>
+        <span style="color:white;font-weight:700;font-size:15px;">Recordatorios WhatsApp</span>
+      </div>
+      <button onclick="cerrarRecModal()" style="background:rgba(255,255,255,0.2);border:none;color:white;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;">×</button>
+    </div>
+    <!-- Progreso -->
+    <div style="height:4px;background:#e8f5e9;">
+      <div id="rec-progreso" style="height:100%;background:#25D366;transition:width 0.3s;width:0%;"></div>
+    </div>
+    <!-- Contador -->
+    <div style="padding:12px 20px 0;display:flex;align-items:center;justify-content:space-between;">
+      <span id="rec-contador" style="font-size:13px;color:#888;font-weight:600;"></span>
+      <span id="rec-tag-enviado" style="display:none;align-items:center;gap:4px;background:#e8f5e9;color:#25D366;font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;">
+        <span style="font-size:14px;">✓</span> Enviado
+      </span>
+    </div>
+    <!-- Info cliente -->
+    <div style="padding:16px 20px;">
+      <div style="background:#f8f9fa;border-radius:14px;padding:16px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+          <div style="width:44px;height:44px;background:#25D366;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:16px;flex-shrink:0;" id="rec-avatar">?</div>
+          <div>
+            <div id="rec-nombre" style="font-weight:700;font-size:15px;color:#1a1a2e;"></div>
+            <div id="rec-tel" style="font-size:13px;color:#888;margin-top:2px;"></div>
+          </div>
+        </div>
+        <div style="background:white;border-radius:10px;padding:12px;border:1px solid #e8f5e9;">
+          <div style="font-size:11px;color:#25D366;font-weight:700;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;">Mensaje a enviar</div>
+          <div id="rec-msg" style="font-size:13px;color:#333;line-height:1.5;"></div>
+        </div>
+      </div>
+    </div>
+    <!-- Botones -->
+    <div style="padding:0 20px 20px;display:flex;flex-direction:column;gap:10px;">
+      <button id="rec-btn-wa" style="background:#25D366;color:white;border:none;border-radius:12px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity 0.2s;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="18" height="18" fill="white"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.736 5.472 2.027 7.774L0 32l8.454-2.01A15.938 15.938 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm7.27 19.471c-.398-.199-2.354-1.162-2.72-1.294-.365-.133-.631-.199-.897.199-.266.398-1.029 1.294-1.262 1.56-.232.266-.465.299-.863.1-.398-.2-1.681-.619-3.203-1.977-1.184-1.057-1.983-2.362-2.215-2.76-.232-.398-.025-.613.174-.811.179-.178.398-.465.598-.698.199-.232.265-.398.398-.664.133-.266.066-.498-.033-.697-.1-.2-.897-2.162-1.229-2.96-.324-.777-.653-.672-.897-.684l-.764-.013c-.266 0-.697.1-1.063.498-.365.398-1.395 1.362-1.395 3.323s1.428 3.854 1.627 4.12c.2.266 2.81 4.287 6.808 6.014.951.41 1.694.656 2.273.839.955.304 1.824.261 2.511.158.766-.114 2.354-.962 2.687-1.891.332-.929.332-1.726.232-1.891-.099-.166-.365-.266-.763-.465z"/></svg>
+        Abrir WhatsApp
+      </button>
+      <div style="display:flex;gap:10px;">
+        <button id="rec-btn-ant" onclick="(function(){_recIdx--;renderRecModal();})()" style="display:none;flex:1;background:#f0f4ff;color:#3a5fc8;border:none;border-radius:12px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;">← Anterior</button>
+        <button id="rec-btn-sig" style="flex:1;background:#1a1a2e;color:white;border:none;border-radius:12px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;">Siguiente →</button>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
