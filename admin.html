@@ -1842,7 +1842,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     document.getElementById('rec-tel').textContent = c.celular || c.telefono || '-';
     document.getElementById('rec-msg').textContent = c.mensaje;
     document.getElementById('rec-btn-wa').onclick = () => {
-      window.open(linkWA, '_blank');
+      window.open(linkWA, 'wa_recordatorio');
       if (!_recEnviados.includes(_recIdx)) _recEnviados.push(_recIdx);
       document.getElementById('rec-btn-wa').style.opacity = '0.7';
       document.getElementById('rec-tag-enviado').style.display = 'inline-flex';
