@@ -168,12 +168,16 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 .btn-ver { flex:1; padding:9px; background:#f0f4ff; color:var(--azul2); border:none; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer; }
 .btn-verificar { flex:1; padding:9px; background:linear-gradient(135deg,var(--verde),#00cc55); color:white; border:none; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer; }
 .btn-refresh {
-  background:transparent; color:var(--texto2); border:1px solid transparent; padding:4px 10px; border-radius:20px;
+  background:transparent; color:var(--texto2); border:1px solid transparent; padding:6px; border-radius:24px;
   font-family:'DM Sans', sans-serif; font-size:11px; font-weight:600; cursor:pointer;
-  display:flex; align-items:center; gap:4px; transition:all 0.2s ease;
+  display:flex; align-items:center; transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.btn-refresh:hover { background:var(--gris); border-color:var(--gris2); color:var(--azul); }
-.btn-refresh .sync-icon { margin:0; display:flex; align-items:center; justify-content:center; transform-origin:center; }
+.btn-refresh #btn-refresh-text {
+  max-width:0; opacity:0; overflow:hidden; white-space:nowrap; transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.btn-refresh:hover { background:var(--gris); border-color:var(--gris2); color:var(--azul); padding:6px 12px; }
+.btn-refresh:hover #btn-refresh-text { max-width:120px; opacity:1; margin-left:6px; }
+.btn-refresh .sync-icon { margin:0; display:flex; align-items:center; justify-content:center; transform-origin:center; font-size:16px; }
 .btn-refresh.is-refreshing { pointer-events:none; opacity:0.8; }
 .btn-refresh.is-refreshing .sync-icon { animation: rotate-sync 1s linear infinite; }
 @keyframes rotate-sync { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
