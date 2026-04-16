@@ -438,6 +438,64 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   .hamburger { display:flex; }
   .content-body { padding:14px 16px; }
 }
+
+/* ══════ DASHBOARD ══════ */
+.dash-kpis { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:18px; }
+@media(max-width:900px) { .dash-kpis { grid-template-columns:repeat(2,1fr); } }
+@media(max-width:480px) { .dash-kpis { grid-template-columns:1fr; } }
+.dash-kpi {
+  background:white; border-radius:16px; padding:18px 16px; position:relative; overflow:hidden;
+  box-shadow:0 4px 15px rgba(0,48,135,0.05); border:1px solid var(--gris2); transition:all 0.3s;
+}
+.dash-kpi:hover { transform:translateY(-3px); box-shadow:0 8px 24px rgba(0,48,135,0.1); }
+.dash-kpi .kpi-icon {
+  width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center;
+  margin-bottom:12px; font-size:20px;
+}
+.dash-kpi .kpi-val { font-family:'Montserrat',sans-serif; font-weight:900; font-size:22px; line-height:1.1; margin-bottom:4px; }
+.dash-kpi .kpi-lbl { font-size:11px; color:var(--texto2); font-weight:600; text-transform:uppercase; letter-spacing:0.5px; }
+.dash-kpi .kpi-sub { font-size:10px; color:var(--texto2); margin-top:6px; display:flex; align-items:center; gap:4px; }
+.dash-kpi::after {
+  content:''; position:absolute; top:0; right:0; width:80px; height:80px;
+  border-radius:50%; opacity:0.06; transform:translate(20px,-20px);
+}
+.dash-kpi.blue .kpi-icon { background:#e8f0ff; color:var(--azul); }
+.dash-kpi.blue .kpi-val { color:var(--azul); }
+.dash-kpi.blue::after { background:var(--azul); }
+.dash-kpi.red .kpi-icon { background:#fff0f0; color:var(--rojo); }
+.dash-kpi.red .kpi-val { color:var(--rojo); }
+.dash-kpi.red::after { background:var(--rojo); }
+.dash-kpi.orange .kpi-icon { background:#fff5e6; color:var(--naranja); }
+.dash-kpi.orange .kpi-val { color:var(--naranja); }
+.dash-kpi.orange::after { background:var(--naranja); }
+.dash-kpi.green .kpi-icon { background:#e6ffe6; color:var(--verde); }
+.dash-kpi.green .kpi-val { color:var(--verde); }
+.dash-kpi.green::after { background:var(--verde); }
+
+.dash-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:18px; }
+@media(max-width:768px) { .dash-row { grid-template-columns:1fr; } }
+.dash-panel {
+  background:white; border-radius:16px; padding:18px; box-shadow:0 4px 15px rgba(0,48,135,0.05);
+  border:1px solid var(--gris2);
+}
+.dash-panel-title {
+  font-family:'Montserrat',sans-serif; font-weight:800; font-size:12px;
+  color:var(--azul); text-transform:uppercase; letter-spacing:0.5px;
+  margin-bottom:14px; display:flex; align-items:center; gap:6px;
+}
+.risk-bar-wrap { margin-bottom:10px; }
+.risk-bar-label { display:flex; justify-content:space-between; font-size:11px; font-weight:700; margin-bottom:4px; }
+.risk-bar-track { height:10px; background:var(--gris); border-radius:6px; overflow:hidden; }
+.risk-bar-fill { height:100%; border-radius:6px; transition:width 0.6s cubic-bezier(0.4,0,0.2,1); min-width:2px; }
+.asesor-table { width:100%; border-collapse:collapse; font-size:12px; }
+.asesor-table th { text-align:left; font-size:10px; font-weight:700; color:var(--texto2); text-transform:uppercase; padding:8px 10px; border-bottom:2px solid var(--gris2); }
+.asesor-table td { padding:8px 10px; border-bottom:1px solid var(--gris2); }
+.asesor-table tr:last-child td { border-bottom:none; }
+.asesor-table tr:hover td { background:var(--azul-claro); }
+.dash-mini-stat { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--gris2); font-size:12px; }
+.dash-mini-stat:last-child { border-bottom:none; }
+.dash-mini-stat .ms-lbl { color:var(--texto2); display:flex; align-items:center; gap:4px; }
+.dash-mini-stat .ms-val { font-family:'Montserrat',sans-serif; font-weight:800; font-size:13px; }
 </style>
 </head>
 <body>
@@ -498,8 +556,12 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         </div>
       </div>
       <nav class="sidebar-nav">
+        <button class="nav-item active" onclick="navTo('dashboard',this)">
+          <span class="mi sm">dashboard</span> Dashboard
+        </button>
+        <div class="nav-divider"></div>
         <div class="nav-section">Gestiones</div>
-        <button class="nav-item active" onclick="navTo('clientes',this)">
+        <button class="nav-item" onclick="navTo('clientes',this)">
           <span class="mi sm">group</span> Clientes
         </button>
         <button class="nav-item" onclick="navTo('vouchers',this)">
@@ -511,9 +573,6 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         </button>
         <div class="nav-divider"></div>
         <div class="nav-section">Caja</div>
-        <button class="nav-item" onclick="navTo('caja-resumen',this)">
-          <span class="mi sm">dashboard</span> Resumen
-        </button>
         <button class="nav-item" id="nav-cajachica-parent" onclick="toggleSubnav('cajachica-subnav',this)">
           <span class="mi sm">account_balance_wallet</span> Caja Chica
           <span class="mi sm nav-arrow">expand_more</span>
@@ -546,7 +605,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         <button class="hamburger" id="hamburger-btn" onclick="toggleSidebar()">
           <span class="mi">menu</span>
         </button>
-        <h1 class="topbar-title" id="topbar-title">Clientes</h1>
+        <h1 class="topbar-title" id="topbar-title">Dashboard</h1>
         <div class="topbar-right">
           <button id="btn-refresh" class="btn-refresh" onclick="refrescarDatos()" title="Actualizar datos">
             <span class="mi sm sync-icon">sync</span> <span id="btn-refresh-text">Actualizar</span>
@@ -555,8 +614,13 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       </header>
       <div class="content-body">
 
+        <!-- SECTION: DASHBOARD -->
+        <div id="section-dashboard" class="section active">
+          <div id="dash-content"><div class="loading"><div class="spinner-sm"></div>Cargando dashboard...</div></div>
+        </div>
+
         <!-- SECTION: CLIENTES -->
-        <div id="section-clientes" class="section active">
+        <div id="section-clientes" class="section">
           <div class="search-bar">
             <span class="icon"><span class="mi" style="font-size:16px;">search</span></span>
             <input type="text" id="buscar-cliente" placeholder="Buscar por nombre o celular..." oninput="filtrarClientes()">
@@ -587,16 +651,6 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
             <div class="resumen-item"><div class="val" id="res-count">-</div><div class="lbl">Pagos registrados</div></div>
           </div>
           <div id="lista-historial"><div class="loading"><div class="spinner-sm"></div>Cargando historial...</div></div>
-        </div>
-
-        <!-- SECTION: CAJA RESUMEN -->
-        <div id="section-caja-resumen" class="section">
-          <div class="caja-grid">
-            <div class="caja-card"><div class="caja-card-title">Saldo Disponible</div><div class="caja-monto azul" id="caja-saldo">S/. 0.00</div></div>
-            <div class="caja-card"><div class="caja-card-title">Ingresos</div><div class="caja-monto verde" id="caja-ingresos">S/. 0.00</div></div>
-            <div class="caja-card"><div class="caja-card-title">Egresos</div><div class="caja-monto rojo" id="caja-egresos">S/. 0.00</div></div>
-          </div>
-          <div class="caja-card"><div class="caja-card-title">Mayores Gastos</div><div id="caja-top-gastos">Cargando...</div></div>
         </div>
 
         <!-- SECTION: MOVIMIENTOS -->
@@ -1098,12 +1152,12 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
   // ── SIDEBAR NAVIGATION ──
   const _sectionTitles = {
-    'clientes': 'Clientes', 'vouchers': 'Vouchers Pendientes', 'historial': 'Historial de Pagos',
-    'caja-resumen': 'Resumen de Caja', 'movimientos': 'Movimientos', 'arqueo': 'Arqueo de Caja',
+    'dashboard': 'Dashboard', 'clientes': 'Clientes', 'vouchers': 'Vouchers Pendientes', 'historial': 'Historial de Pagos',
+    'movimientos': 'Movimientos', 'arqueo': 'Arqueo de Caja',
     'historial-arq': 'Historial de Arqueos', 'kasnet': 'KASNET'
   };
-  const _allSections = ['clientes','vouchers','historial','caja-resumen','movimientos','arqueo','historial-arq','kasnet'];
-  const _cajaSections = ['caja-resumen','movimientos','arqueo','historial-arq','kasnet'];
+  const _allSections = ['dashboard','clientes','vouchers','historial','movimientos','arqueo','historial-arq','kasnet'];
+  const _cajaSections = ['movimientos','arqueo','historial-arq','kasnet'];
 
   function navTo(section, btn) {
     // Hide all sections
@@ -1134,8 +1188,8 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       var parentBtn = document.getElementById('nav-cajachica-parent');
       if (parentBtn) parentBtn.classList.add('subnav-open');
     }
-    // Load data for caja sections
-    if (section === 'caja-resumen') cajaCargarDatos();
+    // Load data for sections
+    if (section === 'dashboard') renderDashboard();
     else if (section === 'movimientos') { cajaCargarDatos(); cajaRenderTabla(cajaVistaArchivo ? cajaMovArchivo : cajaMovimientos, cajaVistaArchivo); }
     else if (section === 'arqueo') { cajaCargarDatos(); cajaLoadArqueo(); }
     else if (section === 'historial-arq') cajaLoadHistorial();
@@ -1228,7 +1282,6 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
           cajaSaldoTeorico = respCaja.saldo || 0; 
           cajaMovimientos = respCaja.movimientos || [];
           cajaCacheGuardar(cajaSedeActual, respCaja);
-          cajaRenderResumen(cajaDatos); 
           cajaRenderTabla(cajaMovimientos); 
           cajaRenderCategorias(cajaDatos.categorias || []);
           const txtT = document.getElementById('arq-teorico');
@@ -1238,11 +1291,190 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         }
       } catch(ex) { console.error(ex); }
 
+      // Renderizar dashboard con toda la data disponible
+      renderDashboard();
+
     } catch(e) {
       console.error('Error fatal de conexión:', e);
       document.getElementById('lista-clientes').innerHTML = '<div class="empty">Error de conexión.</div>';
       cajaCargarDatos();
     }
+  }
+
+  // ══════════════════════════════════════
+  // ──── DASHBOARD GENERAL ─────────────
+  // ══════════════════════════════════════
+  function renderDashboard() {
+    const container = document.getElementById('dash-content');
+    if (!container) return;
+
+    // ── Calcular KPIs desde data ya cargada ──
+    const totalClientes = clientes.length;
+    const totalDeuda = clientes.reduce(function(s,c) { return s + (parseFloat(c.deuda)||0); }, 0);
+    const morosos = clientes.filter(function(c) { return (parseInt(c.dias)||0) > 0; }).length;
+    const vouchersPend = vouchers.length;
+    const cajaSaldo = cajaDatos ? (cajaDatos.saldo || 0) : 0;
+    const cajaIngresos = cajaDatos && cajaDatos.metricas ? (cajaDatos.metricas.totalIngresos || 0) : 0;
+    const cajaEgresos = cajaDatos && cajaDatos.metricas ? (cajaDatos.metricas.totalEgresos || 0) : 0;
+
+    // ── Distribución de riesgo ──
+    var dist = { normal:0, cpp:0, deficiente:0, dudoso:0, perdida:0 };
+    clientes.forEach(function(c) {
+      var d = parseInt(c.dias) || 0;
+      if (d > 120) dist.perdida++;
+      else if (d >= 61) dist.dudoso++;
+      else if (d >= 31) dist.deficiente++;
+      else if (d >= 9) dist.cpp++;
+      else dist.normal++;
+    });
+    const totalDist = totalClientes || 1;
+
+    // ── Resumen por asesor ──
+    var porAsesor = {};
+    clientes.forEach(function(c) {
+      var a = c.asesor || 'Sin asesor';
+      if (!porAsesor[a]) porAsesor[a] = { nombre: a, clientes:0, deuda:0, dias:[], peor:0 };
+      porAsesor[a].clientes++;
+      porAsesor[a].deuda += (parseFloat(c.deuda)||0);
+      var d = parseInt(c.dias)||0;
+      porAsesor[a].dias.push(d);
+      if (d > porAsesor[a].peor) porAsesor[a].peor = d;
+    });
+    var asesores = Object.values(porAsesor).sort(function(a,b) { return b.deuda - a.deuda; });
+    asesores.forEach(function(a) {
+      a.promDias = a.dias.length > 0 ? Math.round(a.dias.reduce(function(s,v){return s+v;},0) / a.dias.length) : 0;
+    });
+
+    // ── Historial del mes ──
+    var mesStr = new Date().toISOString().substring(0,7);
+    var pagosMes = 0, montoMes = 0, pendientesMes = 0;
+    historial.forEach(function(h) {
+      var fStr = h.fecha || '';
+      if (typeof fStr === 'string' && fStr.length >= 7) {
+        var fMes = '';
+        if (fStr.match(/^\d{4}-\d{2}/)) fMes = fStr.substring(0,7);
+        else if (fStr.match(/^\d{2}\/\d{2}\/\d{4}/)) {
+          var pts = fStr.split('/');
+          fMes = pts[2] + '-' + pts[1];
+        }
+        if (fMes === mesStr) {
+          pagosMes++;
+          montoMes += parseFloat(h.monto)||0;
+          if (h.estado && h.estado.toString().includes('PENDIENTE')) pendientesMes++;
+        }
+      }
+    });
+
+    // ── Top gastos de caja ──
+    var topGastos = cajaDatos && cajaDatos.metricas && cajaDatos.metricas.topGastos ? cajaDatos.metricas.topGastos : [];
+
+    // ═══ RENDER HTML ═══
+    var html = '';
+
+    // ── BLOQUE 1: KPI CARDS ──
+    html += '<div class="dash-kpis">';
+    html += '<div class="dash-kpi blue">' +
+      '<div class="kpi-icon"><span class="mi">account_balance</span></div>' +
+      '<div class="kpi-val">S/. ' + totalDeuda.toLocaleString('es-PE',{minimumFractionDigits:2}) + '</div>' +
+      '<div class="kpi-lbl">Cartera Total</div>' +
+      '<div class="kpi-sub"><span class="mi" style="font-size:14px;">group</span> ' + totalClientes + ' clientes activos</div>' +
+    '</div>';
+    html += '<div class="dash-kpi red">' +
+      '<div class="kpi-icon"><span class="mi">warning</span></div>' +
+      '<div class="kpi-val">' + morosos + '</div>' +
+      '<div class="kpi-lbl">Clientes Morosos</div>' +
+      '<div class="kpi-sub"><span class="mi" style="font-size:14px;">percent</span> ' + (totalClientes > 0 ? Math.round(morosos/totalClientes*100) : 0) + '% del portafolio</div>' +
+    '</div>';
+    html += '<div class="dash-kpi orange">' +
+      '<div class="kpi-icon"><span class="mi">receipt_long</span></div>' +
+      '<div class="kpi-val">' + vouchersPend + '</div>' +
+      '<div class="kpi-lbl">Vouchers Pendientes</div>' +
+      '<div class="kpi-sub"><span class="mi" style="font-size:14px;">schedule</span> Por verificar</div>' +
+    '</div>';
+    html += '<div class="dash-kpi green">' +
+      '<div class="kpi-icon"><span class="mi">account_balance_wallet</span></div>' +
+      '<div class="kpi-val">S/. ' + cajaSaldo.toLocaleString('es-PE',{minimumFractionDigits:2}) + '</div>' +
+      '<div class="kpi-lbl">Saldo Caja Chica</div>' +
+      '<div class="kpi-sub"><span class="mi" style="font-size:14px;">trending_up</span> Ingresos: S/. ' + cajaIngresos.toLocaleString('es-PE',{minimumFractionDigits:0}) + '</div>' +
+    '</div>';
+    html += '</div>';
+
+    // ── BLOQUE 2: Distribución de Riesgo + Resumen Por Asesor ──
+    html += '<div class="dash-row">';
+
+    // Panel izquierda: Distribución
+    html += '<div class="dash-panel">';
+    html += '<div class="dash-panel-title"><span class="mi sm">shield</span> Distribución de Cartera por Riesgo</div>';
+    var riskData = [
+      { name:'Normal (0-8d)', count:dist.normal, color:'var(--verde)', pct:Math.round(dist.normal/totalDist*100) },
+      { name:'CPP (9-30d)', count:dist.cpp, color:'#cc8800', pct:Math.round(dist.cpp/totalDist*100) },
+      { name:'Deficiente (31-60d)', count:dist.deficiente, color:'var(--naranja)', pct:Math.round(dist.deficiente/totalDist*100) },
+      { name:'Dudoso (61-120d)', count:dist.dudoso, color:'var(--rojo)', pct:Math.round(dist.dudoso/totalDist*100) },
+      { name:'Pérdida (>120d)', count:dist.perdida, color:'#333', pct:Math.round(dist.perdida/totalDist*100) }
+    ];
+    riskData.forEach(function(r) {
+      html += '<div class="risk-bar-wrap">';
+      html += '<div class="risk-bar-label"><span>' + r.name + '</span><span style="color:' + r.color + ';">' + r.count + ' (' + r.pct + '%)</span></div>';
+      html += '<div class="risk-bar-track"><div class="risk-bar-fill" style="width:' + Math.max(r.pct, 1) + '%;background:' + r.color + ';"></div></div>';
+      html += '</div>';
+    });
+    html += '</div>';
+
+    // Panel derecha: Tabla de asesores
+    html += '<div class="dash-panel">';
+    html += '<div class="dash-panel-title"><span class="mi sm">groups</span> Rendimiento por Asesor</div>';
+    if (asesores.length === 0) {
+      html += '<div style="text-align:center;color:var(--texto2);padding:20px;">Sin datos</div>';
+    } else {
+      html += '<div style="overflow-x:auto;"><table class="asesor-table">';
+      html += '<thead><tr><th>Asesor</th><th>Clientes</th><th>Deuda Total</th><th>Prom. Días</th><th>Peor</th></tr></thead><tbody>';
+      asesores.forEach(function(a) {
+        var peorColor = a.peor > 60 ? 'var(--rojo)' : a.peor > 30 ? 'var(--naranja)' : 'var(--texto)';
+        html += '<tr>';
+        html += '<td style="font-weight:700;">' + escapeHtml(a.nombre.split(' ')[0]) + '</td>';
+        html += '<td>' + a.clientes + '</td>';
+        html += '<td style="font-weight:700;font-family:Montserrat,sans-serif;">S/. ' + a.deuda.toLocaleString('es-PE',{minimumFractionDigits:2}) + '</td>';
+        html += '<td>' + a.promDias + 'd</td>';
+        html += '<td style="color:' + peorColor + ';font-weight:700;">' + a.peor + 'd</td>';
+        html += '</tr>';
+      });
+      html += '</tbody></table></div>';
+    }
+    html += '</div>';
+    html += '</div>'; // close dash-row
+
+    // ── BLOQUE 3: Cobranza del Mes + Resumen Financiero ──
+    html += '<div class="dash-row">';
+
+    // Panel izquierda: Cobranza
+    html += '<div class="dash-panel">';
+    html += '<div class="dash-panel-title"><span class="mi sm">payments</span> Cobranza del Mes</div>';
+    html += '<div class="dash-mini-stat"><span class="ms-lbl"><span class="mi" style="font-size:14px;color:var(--verde);">check_circle</span> Pagos registrados</span><span class="ms-val" style="color:var(--verde);">' + pagosMes + '</span></div>';
+    html += '<div class="dash-mini-stat"><span class="ms-lbl"><span class="mi" style="font-size:14px;color:var(--azul);">attach_money</span> Monto recaudado</span><span class="ms-val" style="color:var(--azul);">S/. ' + montoMes.toLocaleString('es-PE',{minimumFractionDigits:2}) + '</span></div>';
+    html += '<div class="dash-mini-stat"><span class="ms-lbl"><span class="mi" style="font-size:14px;color:var(--naranja);">hourglass_top</span> Pendientes verificar</span><span class="ms-val" style="color:var(--naranja);">' + pendientesMes + '</span></div>';
+    html += '<div class="dash-mini-stat"><span class="ms-lbl"><span class="mi" style="font-size:14px;color:var(--rojo);">receipt_long</span> Vouchers sin procesar</span><span class="ms-val" style="color:var(--rojo);">' + vouchersPend + '</span></div>';
+    html += '</div>';
+
+    // Panel derecha: Finanzas
+    html += '<div class="dash-panel">';
+    html += '<div class="dash-panel-title"><span class="mi sm">account_balance_wallet</span> Resumen Financiero</div>';
+    html += '<div class="dash-mini-stat"><span class="ms-lbl"><span class="mi" style="font-size:14px;color:var(--azul);">savings</span> Saldo Caja Chica</span><span class="ms-val" style="color:var(--azul);">S/. ' + cajaSaldo.toLocaleString('es-PE',{minimumFractionDigits:2}) + '</span></div>';
+    html += '<div class="dash-mini-stat"><span class="ms-lbl"><span class="mi" style="font-size:14px;color:var(--verde);">arrow_downward</span> Ingresos del mes</span><span class="ms-val" style="color:var(--verde);">S/. ' + cajaIngresos.toLocaleString('es-PE',{minimumFractionDigits:2}) + '</span></div>';
+    html += '<div class="dash-mini-stat"><span class="ms-lbl"><span class="mi" style="font-size:14px;color:var(--rojo);">arrow_upward</span> Egresos del mes</span><span class="ms-val" style="color:var(--rojo);">S/. ' + cajaEgresos.toLocaleString('es-PE',{minimumFractionDigits:2}) + '</span></div>';
+
+    // Top gastos
+    if (topGastos.length > 0) {
+      html += '<div style="margin-top:10px;padding-top:8px;border-top:2px solid var(--gris2);">';
+      html += '<div style="font-size:10px;font-weight:700;color:var(--texto2);text-transform:uppercase;margin-bottom:6px;">Mayores Gastos</div>';
+      topGastos.slice(0,3).forEach(function(g, i) {
+        html += '<div class="dash-mini-stat"><span class="ms-lbl">' + (i+1) + '. ' + escapeHtml(g.categoria) + '</span><span class="ms-val" style="color:var(--rojo);">S/. ' + g.monto.toLocaleString('es-PE',{minimumFractionDigits:2}) + '</span></div>';
+      });
+      html += '</div>';
+    }
+    html += '</div>';
+    html += '</div>'; // close dash-row
+
+    container.innerHTML = html;
   }
 
   async function cargarAdicionales(sedeParam) {
@@ -1264,6 +1496,8 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         poblarFiltrosHistorial();
         renderHistorial();
       }
+      // Re-renderizar dashboard con datos completos (vouchers + historial)
+      renderDashboard();
     } catch(e) { console.error("Adicionales error: ", e); }
   }
 
@@ -1823,11 +2057,15 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   }
 
   function cajaRenderResumen(data) {
-    document.getElementById('caja-saldo').textContent = 'S/. ' + (data.saldo || 0).toLocaleString('es-PE', {minimumFractionDigits:2});
-    document.getElementById('caja-ingresos').textContent = 'S/. ' + (data.metricas.totalIngresos || 0).toLocaleString('es-PE', {minimumFractionDigits:2});
-    document.getElementById('caja-egresos').textContent = 'S/. ' + (data.metricas.totalEgresos || 0).toLocaleString('es-PE', {minimumFractionDigits:2});
+    var el1 = document.getElementById('caja-saldo');
+    var el2 = document.getElementById('caja-ingresos');
+    var el3 = document.getElementById('caja-egresos');
+    if (el1) el1.textContent = 'S/. ' + (data.saldo || 0).toLocaleString('es-PE', {minimumFractionDigits:2});
+    if (el2) el2.textContent = 'S/. ' + (data.metricas.totalIngresos || 0).toLocaleString('es-PE', {minimumFractionDigits:2});
+    if (el3) el3.textContent = 'S/. ' + (data.metricas.totalEgresos || 0).toLocaleString('es-PE', {minimumFractionDigits:2});
     const top = data.metricas.topGastos || [];
     const topEl = document.getElementById('caja-top-gastos');
+    if (!topEl) return;
     if (top.length === 0) { topEl.innerHTML = '<div style="padding:10px;text-align:center;">Sin gastos registrados</div>'; return; }
     topEl.innerHTML = top.map(function(g, i) {
       return '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--gris2);">' +
