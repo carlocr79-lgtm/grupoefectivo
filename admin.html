@@ -1965,11 +1965,6 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     try { sessionStorage.removeItem(cajaCacheKey(sede)); } catch(e) {}
   }
 
-  // Al cambiar de sede: ahora lo maneja globalOnChangeSede()
-  function cajaOnChangeSede() {
-    globalOnChangeSede();
-  }
-
   async function cajaCargarDatos() {
     const sel = document.getElementById('global-sede-select');
     if(!sel) return;
@@ -2215,7 +2210,8 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     document.getElementById('caja-edit-id').value = editData ? editData.id : '';
     document.getElementById('modal-caja-titulo').innerHTML = editData ? '<span class="mi" style="font-size:18px;vertical-align:middle;">edit</span> Editar Movimiento' : '<span class="mi" style="font-size:18px;vertical-align:middle;">add_circle</span> Nuevo Movimiento';
     const hoy = new Date();
-    document.getElementById('caja-fecha').value = hoy.toISOString().split('T')[0];
+    const localYMD = new Date(hoy.getTime() - (hoy.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+    document.getElementById('caja-fecha').value = localYMD;
     document.getElementById('caja-archivo').value = '';
     document.getElementById('file-upload-text').innerText = 'Subir comprobante (Opcional)';
     document.getElementById('file-upload-icon').innerText = 'cloud_upload';
@@ -2800,7 +2796,8 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       kasnetCalcTotal(); 
     } else {
       const hoy = new Date();
-      document.getElementById('kasnet-fecha').value = hoy.toISOString().split('T')[0];
+      const localYMD = new Date(hoy.getTime() - (hoy.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+      document.getElementById('kasnet-fecha').value = localYMD;
       kasnetCalcTotal();
     }
     
