@@ -1812,17 +1812,19 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   let _recLista = [];
   let _recIdx = 0;
   let _recEnviados = [];
+  let _recWaTab = null;
 
   function iniciarRecordatorios() {
     const conWA = clientesFiltrados.filter(c => c.telefono && c.mensaje);
     if (!conWA.length) {
-      alert('No hay clientes con teléfono y mensaje configurado en la lista actual.');
+      alert("No hay clientes con teléfono y mensaje configurado en la lista actual.");
       return;
     }
     _recLista = conWA;
     _recIdx = 0;
     _recEnviados = [];
-    document.getElementById('modal-rec').style.display = 'flex';
+    _recWaTab = null;
+    document.getElementById("modal-rec").style.display = "flex";
     renderRecModal();
   }
 
@@ -1831,37 +1833,44 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     const c = _recLista[_recIdx];
     const esMobil = /Android|iPhone|iPad/i.test(navigator.userAgent);
     const linkWA = esMobil
-      ? `https://api.whatsapp.com/send?phone=${c.telefono}&text=${encodeURIComponent(c.mensaje)}`
-      : `https://web.whatsapp.com/send?phone=${c.telefono}&text=${encodeURIComponent(c.mensaje)}`;
+      ? "https://api.whatsapp.com/send?phone=" + c.telefono + "&text=" + encodeURIComponent(c.mensaje)
+      : "https://web.whatsapp.com/send?phone=" + c.telefono + "&text=" + encodeURIComponent(c.mensaje);
 
     const yaEnviado = _recEnviados.includes(_recIdx);
-    document.getElementById('rec-contador').textContent = `Cliente ${_recIdx + 1} de ${total}`;
-    document.getElementById('rec-progreso').style.width = `${(_recIdx / total) * 100}%`;
-    document.getElementById('rec-nombre').textContent = c.nombre || '-';
-    document.getElementById('rec-avatar').textContent = c.nombre ? c.nombre.trim().split(' ').map(w=>w[0]).join('').toUpperCase().substring(0,2) : '?';
-    document.getElementById('rec-tel').textContent = c.celular || c.telefono || '-';
-    document.getElementById('rec-msg').textContent = c.mensaje;
-    document.getElementById('rec-btn-wa').onclick = () => {
-      window.open(linkWA, 'wa_recordatorio');
+    document.getElementById("rec-contador").textContent = "Cliente " + (_recIdx + 1) + " de " + total;
+    document.getElementById("rec-progreso").style.width = ((_recIdx / total) * 100) + "%";
+    document.getElementById("rec-nombre").textContent = c.nombre || "-";
+    document.getElementById("rec-avatar").textContent = c.nombre ? c.nombre.trim().split(" ").map(function(w){return w[0];}).join("").toUpperCase().substring(0,2) : "?";
+    document.getElementById("rec-tel").textContent = c.celular || c.telefono || "-";
+    document.getElementById("rec-msg").textContent = c.mensaje;
+    document.getElementById("rec-btn-wa").onclick = function() {
+      if (!_recWaTab || _recWaTab.closed) {
+        _recWaTab = window.open(linkWA, "wa_recordatorio");
+      } else {
+        _recWaTab.location.href = linkWA;
+        _recWaTab.focus();
+      }
       if (!_recEnviados.includes(_recIdx)) _recEnviados.push(_recIdx);
-      document.getElementById('rec-btn-wa').style.opacity = '0.7';
-      document.getElementById('rec-tag-enviado').style.display = 'inline-flex';
+      document.getElementById("rec-btn-wa").style.opacity = "0.7";
+      document.getElementById("rec-tag-enviado").style.display = "inline-flex";
     };
-    document.getElementById('rec-btn-wa').style.opacity = yaEnviado ? '0.7' : '1';
-    document.getElementById('rec-tag-enviado').style.display = yaEnviado ? 'inline-flex' : 'none';
+    document.getElementById("rec-btn-wa").style.opacity = yaEnviado ? "0.7" : "1";
+    document.getElementById("rec-tag-enviado").style.display = yaEnviado ? "inline-flex" : "none";
 
-    document.getElementById('rec-btn-ant').style.display = _recIdx > 0 ? 'flex' : 'none';
-    const btnSig = document.getElementById('rec-btn-sig');
+    document.getElementById("rec-btn-ant").style.display = _recIdx > 0 ? "flex" : "none";
+    const btnSig = document.getElementById("rec-btn-sig");
     if (_recIdx < total - 1) {
-      btnSig.textContent = 'Siguiente →';
-      btnSig.onclick = () => { _recIdx++; renderRecModal(); };
+      btnSig.textContent = "Siguiente →";
+      btnSig.onclick = function() { _recIdx++; renderRecModal(); };
     } else {
-      btnSig.textContent = '✅ Finalizar';
-      btnSig.onclick = () => cerrarRecModal();
+      btnSig.textContent = "✅ Finalizar";
+      btnSig.onclick = function() { cerrarRecModal(); };
     }
   }
 
   function cerrarRecModal() {
+    document.getElementById("modal-rec").style.display = "none";
+  }
     document.getElementById('modal-rec').style.display = 'none';
   }
 
