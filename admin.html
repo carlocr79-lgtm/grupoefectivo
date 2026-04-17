@@ -1835,14 +1835,12 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       : `https://web.whatsapp.com/send?phone=${c.telefono}&text=${encodeURIComponent(c.mensaje)}`;
 
     const yaEnviado = _recEnviados.includes(_recIdx);
-    document.getElementById('rec-contador').textContent = `Cliente ${_recIdx + 1} de ${total}`;
+    document.getElementById('rec-contador').textContent = `${_recIdx + 1}/${total}`;
     document.getElementById('rec-progreso').style.width = `${((_recIdx + 1) / total) * 100}%`;
     document.getElementById('rec-nombre').textContent = c.nombre || '-';
     document.getElementById('rec-avatar').textContent = c.nombre ? c.nombre.trim().split(' ').map(w=>w[0]).join('').toUpperCase().substring(0,2) : '?';
     document.getElementById('rec-tel').textContent = c.celular || c.telefono || '-';
     document.getElementById('rec-msg').textContent = c.mensaje;
-    document.getElementById('rec-tag-enviado').style.display = yaEnviado ? 'inline-flex' : 'none';
-
     document.getElementById('rec-btn-ant').style.opacity = _recIdx > 0 ? '1' : '0.2';
     document.getElementById('rec-btn-ant').style.pointerEvents = _recIdx > 0 ? 'auto' : 'none';
   }
