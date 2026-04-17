@@ -3187,7 +3187,30 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
     // Auto-refresh al volver a la pestaña (cooldown 30s)
     let _lastRefresh = Date.now();
-    document.addEventListener('visibilitychange',<div id="modal-rec" style="display:none;position:fixed;inset:0;background:rgba(11,20,26,0.6);backdrop-filter:blur(3px);z-index:9999;align-items:center;justify-content:center;padding:12px;font-family:Segoe UI,Helvetica,Arial,sans-serif;">
+    document.addEventListener('visibilitychange', function() {
+      if (document.visibilityState === 'visible' && sessionStorage.getItem('ge_session')) {
+        const ahora = Date.now();
+        if (ahora - _lastRefresh >= 30000) {
+          _lastRefresh = ahora;
+          const btnTxt = document.getElementById('btn-refresh-text');
+          const btnRefresh = document.getElementById('btn-refresh');
+          if (btnRefresh) btnRefresh.classList.add('is-refreshing');
+          if (btnTxt) btnTxt.textContent = 'Actualizando...';
+          
+          cargarTodo().then(function() {
+            if (btnRefresh) btnRefresh.classList.remove('is-refreshing');
+            const h = String(new Date().getHours()).padStart(2,'0');
+            const m = String(new Date().getMinutes()).padStart(2,'0');
+            if (btnTxt) btnTxt.textContent = 'Actualizado ' + h + ':' + m;
+          });
+        }
+      }
+    });
+  });
+</script>
+
+<!-- MODAL BULK WA -->
+<div id="modal-rec" style="display:none;position:fixed;inset:0;background:rgba(11,20,26,0.6);backdrop-filter:blur(3px);z-index:9999;align-items:center;justify-content:center;padding:12px;font-family:Segoe UI,Helvetica,Arial,sans-serif;">
   <div style="background:#f0f2f5;border-radius:16px;width:100%;max-width:350px;overflow:hidden;box-shadow:0 15px 35px rgba(0,0,0,0.2);">
     
     <!-- Header (Contact Info) -->
