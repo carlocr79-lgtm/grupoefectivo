@@ -1861,6 +1861,58 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     }
   }
 
+  function exportarWhatsAppCSV() {
+    if(!_recLista || !_recLista.length) {
+      alert("No hay clientes para exportar.");
+      return;
+    }
+    
+    // Configurar Payload para nuestra Extensión de Chrome
+    let exportData = [];
+    
+    // Text CSV Fallback
+    let csvContent = "Phone,Message\n";
+    
+    _recLista.forEach(c => {
+      let phone = (c.telefono || c.celular || "").toString().replace(/\D/g, "");
+      if(!phone.startsWith("51") && phone.length === 9) phone = "51" + phone;
+      let msg = (c.mensaje || "").replace(/"/g, '""');
+      
+      exportData.push({ phone: phone, message: c.mensaje });
+      csvContent += `"${phone}","${msg}"\n`;
+    });
+
+    // Intentar comunicarse con la Extensión primero:
+    // Disparamos un evento personalizado que el content_crm.js estará escuchando.
+    let evt = new CustomEvent("GE_WA_BOT_SEND_BULK", { detail: exportData });
+    window.dispatchEvent(evt);
+
+    // Damos un mensaje de consola
+    console.log("Evento enviado al Robot. Si la extensión no atrapa esto en 1s, el navegador descargará el CSV por seguridad.");
+    
+    // (Opcional) Si quisieramos descargar el CSV como backup, lo hacemos aquí, 
+    // pero para no confundir al robot, ignoraremos el backup a menos que aprieten otro botón.
+  }
+
+  function descargarCSVBackup() {
+    if(!_recLista || !_recLista.length) return;
+    let csvContent = "Phone,Message\n";
+    _recLista.forEach(c => {
+      let phone = (c.telefono || c.celular || "").toString().replace(/\D/g, "");
+      if(!phone.startsWith("51") && phone.length === 9) phone = "51" + phone;
+      let msg = (c.mensaje || "").replace(/"/g, '""');
+      csvContent += `"${phone}","${msg}"\n`;
+    });
+    const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `Clientes_WhatsApp_${new Date().toISOString().slice(0,10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
   function cerrarRecModal() {
     document.getElementById('modal-rec').style.display = 'none';
   }
@@ -3174,58 +3226,66 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 </script>
 
 <!-- MODAL RECORDATORIOS MASIVOS -->
-<div id="modal-rec" style="display:none;position:fixed;inset:0;background:rgba(0,32,96,0.4);backdrop-filter:blur(3px);z-index:9999;align-items:center;justify-content:center;padding:16px;">
-  <div style="background:white;border-radius:24px;width:100%;max-width:440px;overflow:hidden;box-shadow:0 25px 50px rgba(0,0,0,0.15);">
+<div id="modal-rec" style="display:none;position:fixed;inset:0;background:rgba(0,32,96,0.4);backdrop-filter:blur(3px);z-index:9999;align-items:center;justify-content:center;padding:12px;">
+  <div style="background:white;border-radius:20px;width:100%;max-width:380px;overflow:hidden;box-shadow:0 15px 35px rgba(0,0,0,0.15);">
     <!-- Header -->
-    <div style="padding:20px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--gris2);">
-      <div style="display:flex;align-items:center;gap:14px;">
-        <div style="width:40px;height:40px;background:#e8f5e9;border-radius:50%;display:flex;align-items:center;justify-content:center;">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="22" height="22" fill="#25D366"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.736 5.472 2.027 7.774L0 32l8.454-2.01A15.938 15.938 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm7.27 19.471c-.398-.199-2.354-1.162-2.72-1.294-.365-.133-.631-.199-.897.199-.266.398-1.029 1.294-1.262 1.56-.232.266-.465.299-.863.1-.398-.2-1.681-.619-3.203-1.977-1.184-1.057-1.983-2.362-2.215-2.76-.232-.398-.025-.613.174-.811.179-.178.398-.465.598-.698.199-.232.265-.398.398-.664.133-.266.066-.498-.033-.697-.1-.2-.897-2.162-1.229-2.96-.324-.777-.653-.672-.897-.684l-.764-.013c-.266 0-.697.1-1.063.498-.365.398-1.395 1.362-1.395 3.323s1.428 3.854 1.627 4.12c.2.266 2.81 4.287 6.808 6.014.951.41 1.694.656 2.273.839.955.304 1.824.261 2.511.158.766-.114 2.354-.962 2.687-1.891.332-.929.332-1.726.232-1.891-.099-.166-.365-.266-.763-.465z"/></svg>
+    <div style="padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--gris2);">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="width:34px;height:34px;background:#e8f5e9;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="18" height="18" fill="#25D366"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.736 5.472 2.027 7.774L0 32l8.454-2.01A15.938 15.938 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm7.27 19.471c-.398-.199-2.354-1.162-2.72-1.294-.365-.133-.631-.199-.897.199-.266.398-1.029 1.294-1.262 1.56-.232.266-.465.299-.863.1-.398-.2-1.681-.619-3.203-1.977-1.184-1.057-1.983-2.362-2.215-2.76-.232-.398-.025-.613.174-.811.179-.178.398-.465.598-.698.199-.232.265-.398.398-.664.133-.266.066-.498-.033-.697-.1-.2-.897-2.162-1.229-2.96-.324-.777-.653-.672-.897-.684l-.764-.013c-.266 0-.697.1-1.063.498-.365.398-1.395 1.362-1.395 3.323s1.428 3.854 1.627 4.12c.2.266 2.81 4.287 6.808 6.014.951.41 1.694.656 2.273.839.955.304 1.824.261 2.511.158.766-.114 2.354-.962 2.687-1.891.332-.929.332-1.726.232-1.891-.099-.166-.365-.266-.763-.465z"/></svg>
         </div>
         <div>
-          <div style="color:var(--texto);font-weight:800;font-size:16px;">WhatsApp Bulk</div>
-          <div id="rec-contador" style="font-size:12px;color:var(--texto2);font-weight:600;margin-top:2px;"></div>
+          <div style="color:var(--texto);font-weight:800;font-size:15px;">WhatsApp Bulk</div>
+          <div id="rec-contador" style="font-size:11px;color:var(--texto2);font-weight:600;margin-top:2px;"></div>
         </div>
       </div>
-      <button onclick="cerrarRecModal()" style="background:var(--gris);border:none;color:var(--texto2);width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;">×</button>
+      <button onclick="cerrarRecModal()" style="background:var(--gris);border:none;color:var(--texto2);width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;">×</button>
     </div>
     <!-- Progreso -->
-    <div style="height:4px;background:var(--gris2);width:100%;">
+    <div style="height:3px;background:var(--gris2);width:100%;">
       <div id="rec-progreso" style="height:100%;background:#25D366;transition:width 0.4s cubic-bezier(0.2,0.8,0.2,1);width:0%;"></div>
     </div>
     <!-- Body -->
-    <div style="padding:24px;">
-      <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">
-        <div style="width:50px;height:50px;background:var(--azul);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:18px;flex-shrink:0;" id="rec-avatar">?</div>
+    <div style="padding:16px 20px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+        <div style="width:40px;height:40px;background:var(--azul);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:15px;flex-shrink:0;" id="rec-avatar">?</div>
         <div style="flex:1;">
-          <div id="rec-nombre" style="font-weight:800;font-size:15px;color:var(--texto);margin-bottom:4px;"></div>
+          <div id="rec-nombre" style="font-weight:800;font-size:13px;color:var(--texto);margin-bottom:2px;"></div>
           <div style="display:flex;align-items:center;justify-content:space-between;">
-            <div id="rec-tel" style="font-size:13px;color:var(--texto2);font-weight:600;"></div>
-            <span id="rec-tag-enviado" style="display:none;align-items:center;gap:4px;background:#e8f5e9;color:#25D366;font-size:11px;font-weight:800;padding:2px 8px;border-radius:20px;">
-              <span class="mi xs" style="font-size:14px;">check_circle</span> Enviado
+            <div id="rec-tel" style="font-size:12px;color:var(--texto2);font-weight:600;"></div>
+            <span id="rec-tag-enviado" style="display:none;align-items:center;gap:4px;background:#e8f5e9;color:#25D366;font-size:10px;font-weight:800;padding:2px 8px;border-radius:20px;">
+              <span class="mi xs" style="font-size:12px;">check_circle</span> Enviado
             </span>
           </div>
         </div>
       </div>
       
       <!-- Chat Bubble -->
-      <div style="background:#e1f5fe; border:1px solid #b3e5fc; border-radius:18px; border-top-left-radius:0; padding:18px; position:relative; margin-bottom:10px;">
-         <div style="font-size:10px; color:#0277bd; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px; display:flex; align-items:center; gap:6px;">
-            <span class="mi xs" style="font-size:14px;">chat</span> Vista Previa del Mensaje
+      <div style="background:#e1f5fe; border:1px solid #b3e5fc; border-radius:14px; border-top-left-radius:0; padding:14px; position:relative; margin-bottom:0;">
+         <div style="font-size:9px; color:#0277bd; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px; display:flex; align-items:center; gap:4px;">
+            <span class="mi xs" style="font-size:12px;">chat</span> Vista Previa
          </div>
-         <div id="rec-msg" style="font-size:14px; color:#1a2110; line-height:1.5; white-space:pre-wrap;"></div>
+         <div id="rec-msg" style="font-size:12px; color:#1a2110; line-height:1.4; white-space:pre-wrap; max-height: 200px; overflow-y: auto;"></div>
       </div>
 
     </div>
     <!-- Actions -->
-    <div style="padding:0 24px 24px;display:flex;flex-direction:column;gap:12px;">
-      <button id="rec-btn-wa" style="background:#25D366;color:white;border:none;border-radius:16px;padding:16px;font-size:15px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all 0.2s; box-shadow:0 4px 15px rgba(37,211,102,0.3);">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="20" height="20" fill="white"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.736 5.472 2.027 7.774L0 32l8.454-2.01A15.938 15.938 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm7.27 19.471c-.398-.199-2.354-1.162-2.72-1.294-.365-.133-.631-.199-.897.199-.266.398-1.029 1.294-1.262 1.56-.232.266-.465.299-.863.1-.398-.2-1.681-.619-3.203-1.977-1.184-1.057-1.983-2.362-2.215-2.76-.232-.398-.025-.613.174-.811.179-.178.398-.465.598-.698.199-.232.265-.398.398-.664.133-.266.066-.498-.033-.697-.1-.2-.897-2.162-1.229-2.96-.324-.777-.653-.672-.897-.684l-.764-.013c-.266 0-.697.1-1.063.498-.365.398-1.395 1.362-1.395 3.323s1.428 3.854 1.627 4.12c.2.266 2.81 4.287 6.808 6.014.951.41 1.694.656 2.273.839.955.304 1.824.261 2.511.158.766-.114 2.354-.962 2.687-1.891.332-.929.332-1.726.232-1.891-.099-.166-.365-.266-.763-.465z"/></svg>
-        Abrir Servidor WhatsApp
+    <div style="padding:12px 20px 20px;display:flex;flex-direction:column;gap:8px;">
+      <button id="rec-btn-wa" style="background:#25D366;color:white;border:none;border-radius:12px;padding:12px;font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.2s;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="16" height="16" fill="white"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.736 5.472 2.027 7.774L0 32l8.454-2.01A15.938 15.938 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm7.27 19.471c-.398-.199-2.354-1.162-2.72-1.294-.365-.133-.631-.199-.897.199-.266.398-1.029 1.294-1.262 1.56-.232.266-.465.299-.863.1-.398-.2-1.681-.619-3.203-1.977-1.184-1.057-1.983-2.362-2.215-2.76-.232-.398-.025-.613.174-.811.179-.178.398-.465.598-.698.199-.232.265-.398.398-.664.133-.266.066-.498-.033-.697-.1-.2-.897-2.162-1.229-2.96-.324-.777-.653-.672-.897-.684l-.764-.013c-.266 0-.697.1-1.063.498-.365.398-1.395 1.362-1.395 3.323s1.428 3.854 1.627 4.12c.2.266 2.81 4.287 6.808 6.014.951.41 1.694.656 2.273.839.955.304 1.824.261 2.511.158.766-.114 2.354-.962 2.687-1.891.332-.929.332-1.726.232-1.891-.099-.166-.365-.266-.763-.465z"/></svg>
+        Enviar WhatsApp
       </button>
-      <div style="display:flex;gap:10px;">
-        <button id="rec-btn-ant" onclick="(function(){_recIdx--;renderRecModal();})()" style="display:none;flex:1;background:var(--gris);color:var(--texto);border:none;border-radius:14px;padding:14px;font-size:14px;font-weight:700;cursor:pointer; transition:background 0.2s;">← Anterior</button>
-        <button id="rec-btn-sig" style="flex:1;background:var(--azul);color:white;border:none;border-radius:14px;padding:14px;font-size:14px;font-weight:700;cursor:pointer; transition:transform 0.2s;">Siguiente →</button>
+      <div style="display:flex;gap:8px;">
+        <button id="rec-btn-ant" onclick="(function(){_recIdx--;renderRecModal();})()" style="display:none;flex:1;background:var(--gris);color:var(--texto);border:none;border-radius:10px;padding:10px;font-size:12px;font-weight:700;cursor:pointer; transition:background 0.2s;">← Anterior</button>
+        <button id="rec-btn-sig" style="flex:1;background:var(--azul);color:white;border:none;border-radius:10px;padding:10px;font-size:12px;font-weight:700;cursor:pointer; transition:transform 0.2s;">Siguiente →</button>
+      </div>
+      <div style="border-top:1px dashed var(--gris2);margin-top:6px;padding-top:14px;display:flex;flex-direction:column;gap:8px;">
+        <button onclick="exportarWhatsAppCSV()" style="width:100%;background:#fff9e6;color:#cca300;border:1px solid #ffe899;border-radius:12px;padding:14px;font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:0.2s;box-shadow:0 6px 12px rgba(204,163,0,0.15);">
+          <span class="mi xs" style="font-size:18px;">smart_toy</span> Iniciar Robot Masivo
+        </button>
+        <button onclick="descargarCSVBackup()" style="width:100%;background:transparent;color:var(--texto2);border:none;padding:6px;font-size:11px;font-weight:600;cursor:pointer;text-decoration:underline;">
+          (Backup) Descargar como CSV
+        </button>
       </div>
     </div>
   </div>
