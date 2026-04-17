@@ -1841,23 +1841,16 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     document.getElementById('rec-avatar').textContent = c.nombre ? c.nombre.trim().split(' ').map(w=>w[0]).join('').toUpperCase().substring(0,2) : '?';
     document.getElementById('rec-tel').textContent = c.celular || c.telefono || '-';
     document.getElementById('rec-msg').textContent = c.mensaje;
-    document.getElementById('rec-btn-wa').onclick = () => {
-      window.open(linkWA, 'wa_recordatorio');
-      if (!_recEnviados.includes(_recIdx)) _recEnviados.push(_recIdx);
-      document.getElementById('rec-btn-wa').style.opacity = '0.7';
-      document.getElementById('rec-tag-enviado').style.display = 'inline-flex';
-    };
-    document.getElementById('rec-btn-wa').style.opacity = yaEnviado ? '0.7' : '1';
     document.getElementById('rec-tag-enviado').style.display = yaEnviado ? 'inline-flex' : 'none';
 
     document.getElementById('rec-btn-ant').style.display = _recIdx > 0 ? 'flex' : 'none';
     const btnSig = document.getElementById('rec-btn-sig');
     if (_recIdx < total - 1) {
-      btnSig.textContent = 'Siguiente →';
+      btnSig.textContent = 'Revisar Siguiente →';
       btnSig.onclick = () => { _recIdx++; renderRecModal(); };
     } else {
-      btnSig.textContent = '✅ Finalizar';
-      btnSig.onclick = () => cerrarRecModal();
+      btnSig.textContent = '⟲ Volver al Inicio';
+      btnSig.onclick = () => { _recIdx = 0; renderRecModal(); };
     }
   }
 
@@ -3271,19 +3264,15 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     </div>
     <!-- Actions -->
     <div style="padding:12px 20px 20px;display:flex;flex-direction:column;gap:8px;">
-      <button id="rec-btn-wa" style="background:#25D366;color:white;border:none;border-radius:12px;padding:12px;font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.2s;">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="16" height="16" fill="white"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.736 5.472 2.027 7.774L0 32l8.454-2.01A15.938 15.938 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm7.27 19.471c-.398-.199-2.354-1.162-2.72-1.294-.365-.133-.631-.199-.897.199-.266.398-1.029 1.294-1.262 1.56-.232.266-.465.299-.863.1-.398-.2-1.681-.619-3.203-1.977-1.184-1.057-1.983-2.362-2.215-2.76-.232-.398-.025-.613.174-.811.179-.178.398-.465.598-.698.199-.232.265-.398.398-.664.133-.266.066-.498-.033-.697-.1-.2-.897-2.162-1.229-2.96-.324-.777-.653-.672-.897-.684l-.764-.013c-.266 0-.697.1-1.063.498-.365.398-1.395 1.362-1.395 3.323s1.428 3.854 1.627 4.12c.2.266 2.81 4.287 6.808 6.014.951.41 1.694.656 2.273.839.955.304 1.824.261 2.511.158.766-.114 2.354-.962 2.687-1.891.332-.929.332-1.726.232-1.891-.099-.166-.365-.266-.763-.465z"/></svg>
-        Enviar WhatsApp
+      <button onclick="exportarWhatsAppCSV()" style="width:100%;margin-bottom:8px;background:#fff9e6;color:#cca300;border:1px solid #ffe899;border-radius:14px;padding:16px;font-size:16px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:0.2s;box-shadow:0 6px 15px rgba(204,163,0,0.2);">
+        <span class="mi xs" style="font-size:20px;">smart_toy</span> Iniciar Robot Masivo
       </button>
       <div style="display:flex;gap:8px;">
-        <button id="rec-btn-ant" onclick="(function(){_recIdx--;renderRecModal();})()" style="display:none;flex:1;background:var(--gris);color:var(--texto);border:none;border-radius:10px;padding:10px;font-size:12px;font-weight:700;cursor:pointer; transition:background 0.2s;">← Anterior</button>
-        <button id="rec-btn-sig" style="flex:1;background:var(--azul);color:white;border:none;border-radius:10px;padding:10px;font-size:12px;font-weight:700;cursor:pointer; transition:transform 0.2s;">Siguiente →</button>
+        <button id="rec-btn-ant" onclick="(function(){_recIdx--;renderRecModal();})()" style="display:none;flex:1;background:var(--gris);color:var(--texto);border:none;border-radius:10px;padding:8px;font-size:11px;font-weight:700;cursor:pointer; transition:background 0.2s;">← Anterior (Revisar)</button>
+        <button id="rec-btn-sig" style="flex:1;background:var(--azul);color:white;border:none;border-radius:10px;padding:8px;font-size:11px;font-weight:700;cursor:pointer; transition:transform 0.2s;">Revisar Siguiente →</button>
       </div>
-      <div style="border-top:1px dashed var(--gris2);margin-top:6px;padding-top:14px;display:flex;flex-direction:column;gap:8px;">
-        <button onclick="exportarWhatsAppCSV()" style="width:100%;background:#fff9e6;color:#cca300;border:1px solid #ffe899;border-radius:12px;padding:14px;font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:0.2s;box-shadow:0 6px 12px rgba(204,163,0,0.15);">
-          <span class="mi xs" style="font-size:18px;">smart_toy</span> Iniciar Robot Masivo
-        </button>
-        <button onclick="descargarCSVBackup()" style="width:100%;background:transparent;color:var(--texto2);border:none;padding:6px;font-size:11px;font-weight:600;cursor:pointer;text-decoration:underline;">
+      <div style="border-top:1px dashed var(--gris2);margin-top:6px;padding-top:10px;display:flex;flex-direction:column;align-items:center;">
+        <button onclick="descargarCSVBackup()" style="background:transparent;color:var(--texto2);border:none;padding:6px;font-size:11px;font-weight:600;cursor:pointer;text-decoration:underline;">
           (Backup) Descargar como CSV
         </button>
       </div>
