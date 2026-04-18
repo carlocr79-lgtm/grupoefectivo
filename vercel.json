@@ -1,6 +1,6 @@
 {
   "rewrites": [
-    { "source": "/api", "destination": "https://script.google.com/macros/s/AKfycbxARZ0RKzgRWAdLl8SOLN-oeVJWEkdIvcaXE1tmWHRAllIJnYndrRgPHEMZ3_r4BV5wxA/exec" },
+    { "source": "/api", "destination": "@APPS_SCRIPT_URL" },
     { "source": "/admin", "destination": "/admin.html" },
     { "source": "/", "destination": "/index.html" }
   ]
