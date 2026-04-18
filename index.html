@@ -731,17 +731,6 @@
     lastTouchEnd = now;
   }, { passive: false });
 
-  // ─── ESCAPE XSS: sanitiza datos externos antes de insertar en HTML ───
-  function esc(str) {
-    if (str == null) return '';
-    return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
-  }
-
   // ─── DEBOUNCE: evita doble llamada al API ───
   let cargando = false;
   let codActual = null;
@@ -804,12 +793,12 @@
     nombreActual = cliente.nombres;
     montoActual = monto;
 
-    document.getElementById('cliente-nombre').textContent = esc(cliente.nombres) || '-';
-    document.getElementById('cliente-sub').textContent = 'Crédito #' + esc(cliente.cod) + ' · ' + esc(cliente.tipo || '');
+    document.getElementById('cliente-nombre').textContent = cliente.nombres || '-';
+    document.getElementById('cliente-sub').textContent = 'Crédito #' + cliente.cod + ' · ' + (cliente.tipo || '');
     document.getElementById('stat-monto').textContent = 'S/. ' + monto.toLocaleString('es-PE', {minimumFractionDigits:2});
-    document.getElementById('info-asesor').textContent = esc(cliente.asesor) || '-';
-    document.getElementById('info-tipo').textContent = esc(getTipo(cliente.tipo));
-    document.getElementById('info-frecuencia').textContent = esc(getFrecuencia(cliente.tipo));
+    document.getElementById('info-asesor').textContent = cliente.asesor || '-';
+    document.getElementById('info-tipo').textContent = getTipo(cliente.tipo);
+    document.getElementById('info-frecuencia').textContent = getFrecuencia(cliente.tipo);
     document.getElementById('stat-dias').textContent = dias + (dias === 1 ? ' día' : ' días');
     document.getElementById('stat-cuotas').textContent = cuotas;
     document.getElementById('info-cuota').textContent = 'S/. ' + cuota.toLocaleString('es-PE', {minimumFractionDigits:2});
@@ -840,14 +829,14 @@
       let htmlTransf = '';
       if (cliente.cuentas.bcp_cuenta || cliente.cuentas.bcp_cci) {
         htmlTransf += '<div class="banco-box"><span class="banco-badge badge-bcp">BCP</span>';
-        if (cliente.cuentas.bcp_cuenta) htmlTransf += '<div class="cuenta-row"><span class="lbl">Cuenta</span><div style="display:flex;align-items:center;"><span class="cuenta-num">' + esc(cliente.cuentas.bcp_cuenta) + '</span><button class="copy-btn" onclick="copiar(\'' + esc(cliente.cuentas.bcp_cuenta) + '\')"><span class="mi xs" style="vertical-align:text-bottom;">content_copy</span></button></div></div>';
-        if (cliente.cuentas.bcp_cci) htmlTransf += '<div class="cuenta-row"><span class="lbl">CCI</span><div style="display:flex;align-items:center;"><span class="cuenta-num">' + esc(cliente.cuentas.bcp_cci) + '</span><button class="copy-btn" onclick="copiar(\'' + esc(cliente.cuentas.bcp_cci) + '\')"><span class="mi xs" style="vertical-align:text-bottom;">content_copy</span></button></div></div>';
+        if (cliente.cuentas.bcp_cuenta) htmlTransf += '<div class="cuenta-row"><span class="lbl">Cuenta</span><div style="display:flex;align-items:center;"><span class="cuenta-num">' + cliente.cuentas.bcp_cuenta + '</span><button class="copy-btn" onclick="copiar(\'' + cliente.cuentas.bcp_cuenta + '\')"><span class="mi xs" style="vertical-align:text-bottom;">content_copy</span></button></div></div>';
+        if (cliente.cuentas.bcp_cci) htmlTransf += '<div class="cuenta-row"><span class="lbl">CCI</span><div style="display:flex;align-items:center;"><span class="cuenta-num">' + cliente.cuentas.bcp_cci + '</span><button class="copy-btn" onclick="copiar(\'' + cliente.cuentas.bcp_cci + '\')"><span class="mi xs" style="vertical-align:text-bottom;">content_copy</span></button></div></div>';
         htmlTransf += '</div>';
       }
       if (cliente.cuentas.bbva_cuenta || cliente.cuentas.bbva_cci) {
         htmlTransf += '<div class="banco-box"><span class="banco-badge badge-bbva">BBVA</span>';
-        if (cliente.cuentas.bbva_cuenta) htmlTransf += '<div class="cuenta-row"><span class="lbl">Cuenta</span><div style="display:flex;align-items:center;"><span class="cuenta-num">' + esc(cliente.cuentas.bbva_cuenta) + '</span><button class="copy-btn" onclick="copiar(\'' + esc(cliente.cuentas.bbva_cuenta) + '\')"><span class="mi xs" style="vertical-align:text-bottom;">content_copy</span></button></div></div>';
-        if (cliente.cuentas.bbva_cci) htmlTransf += '<div class="cuenta-row"><span class="lbl">CCI</span><div style="display:flex;align-items:center;"><span class="cuenta-num">' + esc(cliente.cuentas.bbva_cci) + '</span><button class="copy-btn" onclick="copiar(\'' + esc(cliente.cuentas.bbva_cci) + '\')"><span class="mi xs" style="vertical-align:text-bottom;">content_copy</span></button></div></div>';
+        if (cliente.cuentas.bbva_cuenta) htmlTransf += '<div class="cuenta-row"><span class="lbl">Cuenta</span><div style="display:flex;align-items:center;"><span class="cuenta-num">' + cliente.cuentas.bbva_cuenta + '</span><button class="copy-btn" onclick="copiar(\'' + cliente.cuentas.bbva_cuenta + '\')"><span class="mi xs" style="vertical-align:text-bottom;">content_copy</span></button></div></div>';
+        if (cliente.cuentas.bbva_cci) htmlTransf += '<div class="cuenta-row"><span class="lbl">CCI</span><div style="display:flex;align-items:center;"><span class="cuenta-num">' + cliente.cuentas.bbva_cci + '</span><button class="copy-btn" onclick="copiar(\'' + cliente.cuentas.bbva_cci + '\')"><span class="mi xs" style="vertical-align:text-bottom;">content_copy</span></button></div></div>';
         htmlTransf += '</div>';
       }
       if (!htmlTransf) htmlTransf = '<p style="text-align:center;color:#666;font-size:13px;padding:20px;">No hay cuentas configuradas.</p>';
@@ -866,24 +855,24 @@
       var cardsHtml = '';
       if (cliente.cuentas.yape_num || cliente.cuentas.yape_qr) {
         cardsHtml += '<div class="qr-card yape"><div><div class="nombre">YAPE</div>';
-        if (cliente.cuentas.yape_num) cardsHtml += '<div class="numero">' + esc(cliente.cuentas.yape_num) + '</div>';
+        if (cliente.cuentas.yape_num) cardsHtml += '<div class="numero">' + cliente.cuentas.yape_num + '</div>';
         cardsHtml += '</div><div style="display:flex;flex-direction:column;align-items:center;">';
         if (cliente.cuentas.yape_qr) {
           let qrUrl = convertDriveLink(cliente.cuentas.yape_qr);
-          cardsHtml += '<img src="' + esc(qrUrl) + '" alt="QR Yape"><p>Escanea para pagar</p>';
-          cardsHtml += '<button type="button" onclick="descargarQR(\'' + esc(qrUrl) + '\', \'QR_Yape.jpg\')" class="btn-download-qr"><span class="mi xs" style="margin-right:4px;">download</span> Guardar QR</button>';
+          cardsHtml += '<img src="' + qrUrl + '" alt="QR Yape"><p>Escanea para pagar</p>';
+          cardsHtml += '<button type="button" onclick="descargarQR(\'' + qrUrl + '\', \'QR_Yape.jpg\')" class="btn-download-qr"><span class="mi xs" style="margin-right:4px;">download</span> Guardar QR</button>';
         }
         cardsHtml += '</div></div>';
         cardCount++;
       }
       if (cliente.cuentas.plin_num || cliente.cuentas.plin_qr) {
         cardsHtml += '<div class="qr-card plin"><div><div class="nombre">PLIN</div>';
-        if (cliente.cuentas.plin_num) cardsHtml += '<div class="numero">' + esc(cliente.cuentas.plin_num) + '</div>';
+        if (cliente.cuentas.plin_num) cardsHtml += '<div class="numero">' + cliente.cuentas.plin_num + '</div>';
         cardsHtml += '</div><div style="display:flex;flex-direction:column;align-items:center;">';
         if (cliente.cuentas.plin_qr) {
           let qrUrl = convertDriveLink(cliente.cuentas.plin_qr);
-          cardsHtml += '<img src="' + esc(qrUrl) + '" alt="QR Plin"><p>Escanea para pagar</p>';
-          cardsHtml += '<button type="button" onclick="descargarQR(\'' + esc(qrUrl) + '\', \'QR_Plin.jpg\')" class="btn-download-qr"><span class="mi xs" style="margin-right:4px;">download</span> Guardar QR</button>';
+          cardsHtml += '<img src="' + qrUrl + '" alt="QR Plin"><p>Escanea para pagar</p>';
+          cardsHtml += '<button type="button" onclick="descargarQR(\'' + qrUrl + '\', \'QR_Plin.jpg\')" class="btn-download-qr"><span class="mi xs" style="margin-right:4px;">download</span> Guardar QR</button>';
         }
         cardsHtml += '</div></div>';
         cardCount++;
@@ -1070,14 +1059,10 @@
       } else {
         base64 = await comprimirImagen(file, 800, 0.7);
       }
-      const ctrl = new AbortController();
-      const tid = setTimeout(() => ctrl.abort(), 20000);
       const res = await fetch(API_URL, {
         method: 'POST',
-        signal: ctrl.signal,
         body: JSON.stringify({ cod: codActual, voucher: base64, nombre: nombreActual, monto: montoActual })
       });
-      clearTimeout(tid);
       const data = await res.json();
       if (data.success) {
         lanzarConfetti();
@@ -1086,14 +1071,10 @@
         showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> ' + (data.error || 'Error. Intenta de nuevo.'));
       }
     } catch(err) {
-      const msg = err.name === 'AbortError'
-        ? 'Tiempo de espera agotado. Intenta de nuevo.'
-        : 'Error de conexion.';
-      showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> ' + msg);
-    } finally {
-      btn.innerHTML = '<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">check_circle</span> Confirmar mi pago';
-      btn.disabled = false;
+      showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> Error de conexión.');
     }
+    btn.innerHTML = '<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">check_circle</span> Confirmar mi pago';
+    btn.disabled = false;
   }
 
   function lanzarConfetti() {
@@ -1254,20 +1235,13 @@
     const cel = params.get('cel');
 
     if (token) {
-      // ── Mostrar caché instantáneamente si existe y no expiró ──
+      // ── Mostrar caché instantáneamente si existe ──
       const cacheKey = 'ge_cache_' + token;
-      const CACHE_TTL = 30 * 60 * 1000; // 30 minutos
-      const cachedRaw = localStorage.getItem(cacheKey);
-      let cachedData = null;
-      if (cachedRaw) {
+      const cached = localStorage.getItem(cacheKey);
+      if (cached) {
         try {
-          const parsed = JSON.parse(cachedRaw);
-          if (parsed.exp && Date.now() < parsed.exp) {
-            cachedData = parsed.data;
-            aplicarRespuesta(cachedData); // muestra datos al instante
-          } else {
-            localStorage.removeItem(cacheKey); // expirado, limpiar
-          }
+          const cachedData = JSON.parse(cached);
+          aplicarRespuesta(cachedData); // muestra datos al instante
         } catch(e) { localStorage.removeItem(cacheKey); }
       }
 
@@ -1275,9 +1249,9 @@
       try {
         const res = await fetchConTimeout(API_URL + '?cod=' + encodeURIComponent(token), 15000);
         const data = await res.json();
-        localStorage.setItem(cacheKey, JSON.stringify({ data: data, exp: Date.now() + CACHE_TTL }));
+        localStorage.setItem(cacheKey, JSON.stringify(data)); // guardar para próxima vez
         clearTimeout(splashTimeout);
-        if (!cachedData) {
+        if (!cached) {
           aplicarRespuesta(data); // sin caché: aplicar normalmente
         } else if (data.verificando || data.alDia || data.expirado) {
           aplicarRespuesta(data); // estado cambió (ej: ya pagó) → override del caché
@@ -1285,7 +1259,7 @@
           cargarDatos(data, true); // mismo estado: actualizar datos silenciosamente
         }
       } catch(err) {
-        if (!cachedData) {
+        if (!cached) {
           cerrarSplash();
           showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> Error de conexión');
           irPaso('step-aldia', 0);
