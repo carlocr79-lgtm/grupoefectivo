@@ -1862,7 +1862,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       if(!phone.startsWith("51") && phone.length === 9) phone = "51" + phone;
       let msg = (c.mensaje || "").replace(/"/g, '""');
       
-      exportData.push({ phone: phone, message: c.mensaje });
+      exportData.push({ phone: phone, message: c.mensaje, name: c.nombre || null });
       csvContent += `"${phone}","${msg}"\n`;
     });
 
