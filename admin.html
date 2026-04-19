@@ -660,8 +660,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
         <!-- SECTION: MORA (Clientes, Vouchers, Historial) -->
         <div id="section-mora" class="section">
-          <!-- Topbar de la sección Mora -->
-          <div style="display:flex; gap:12px; margin-bottom:16px; flex-wrap:wrap; align-items:center; background:white; padding:8px 12px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+          <div style="display:flex; gap:12px; margin-bottom:16px; flex-wrap:wrap; align-items:center; background:white; padding:8px 12px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.05); min-height:58px;">
             
             <!-- TABS HORIZONTALES -->
             <div style="display:flex; gap:6px; background:var(--gris); padding:4px; border-radius:10px;">
@@ -674,9 +673,9 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
             <!-- CONTROLES POR TAB (Clientes) -->
             <div id="mora-controls-clientes" style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
-              <div class="search-bar" style="margin-bottom:0; flex:1; min-width:200px;">
+              <div class="search-bar" style="margin-bottom:0; flex:1; min-width:240px;">
                 <span class="icon"><span class="mi" style="font-size:16px;">search</span></span>
-                <input type="text" id="buscar-cliente" placeholder="Buscar por nombre o celular..." oninput="filtrarClientes()">
+                <input type="text" id="buscar-cliente" placeholder="Buscar cliente por nombre o celular..." oninput="filtrarClientes()">
               </div>
               <div class="clean-select-wrap">
                 <span class="icon"><span class="mi" style="font-size:16px;">badge</span></span>
