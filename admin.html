@@ -660,7 +660,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
         <!-- SECTION: MORA (Clientes, Vouchers, Historial) -->
         <div id="section-mora" class="section">
-          <div style="display:flex; gap:12px; margin-bottom:16px; flex-wrap:wrap; align-items:center; background:white; padding:8px 12px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.05); min-height:58px;">
+          <div style="display:flex; gap:12px; margin-bottom:16px; flex-wrap:wrap; align-items:center; background:white; padding:8px 12px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.05); min-height:60px;">
             
             <!-- TABS HORIZONTALES -->
             <div style="display:flex; gap:6px; background:var(--gris); padding:4px; border-radius:10px;">
@@ -669,10 +669,8 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
               <button id="tab-mora-historial" class="btn-mora-tab" onclick="switchMoraTab('historial')">Historial</button>
             </div>
 
-            <div style="flex:1; min-width:10px;"></div>
-
             <!-- CONTROLES POR TAB (Clientes) -->
-            <div id="mora-controls-clientes" style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+            <div id="mora-controls-clientes" style="display:flex; gap:12px; flex-wrap:wrap; align-items:center; flex:1; margin-left:12px;">
               <div class="search-bar" style="margin-bottom:0; flex:1; min-width:240px;">
                 <span class="icon"><span class="mi" style="font-size:16px;">search</span></span>
                 <input type="text" id="buscar-cliente" placeholder="Buscar cliente por nombre o celular..." oninput="filtrarClientes()">
@@ -688,7 +686,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
             </div>
 
             <!-- CONTROLES POR TAB (Historial) -->
-            <div id="mora-controls-historial" class="hist-filtros" style="display:none; margin:0;">
+            <div id="mora-controls-historial" class="hist-filtros" style="display:none; margin:0; margin-left:auto;">
               <select id="filtro-hist-asesor" onchange="renderHistorial()">
                 <option value="">Todos los asesores</option>
               </select>
