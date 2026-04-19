@@ -1732,6 +1732,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
                       c.dias > 0  ? `<span class="tag tag-vencido"><span class="mi xs">warning</span> ${c.dias} días</span>` :
                                     `<span class="tag tag-pendiente"><span class="mi xs">schedule</span> Vence hoy</span>`;
       const tieneVoucher = c.voucher ? `<span class="tag tag-pendiente"><span class="mi xs">hourglass_top</span> Voucher enviado</span>` : '';
+      const notificadoTag = esNotificado(c.telefono || c.celular) ? `<span class="tag" style="background:#e8f8f5; color:var(--verde);"><span class="mi xs">check_circle</span> Notificado hoy</span>` : '';
       const linkWA = c.telefono ? 
         `https://web.whatsapp.com/send?phone=${c.telefono}${c.mensaje ? '&text=' + encodeURIComponent(c.mensaje) : ''}` : '';
       const linkWAMovil = c.telefono ?
@@ -1752,6 +1753,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
             <div class="mov-cat">
               ${diasTag}
               ${tieneVoucher}
+              ${notificadoTag}
               <span style="background:var(--gris);padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;">Cód. ${escapeHtml(c.cod)}</span>
             </div>
           </div>
@@ -1902,6 +1904,8 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     });
 
     // Intentar comunicarse con la Extensión primero:
+    // Guardamos la lista en memoria para poder deducir cuáles fallaron después.
+    window._lastBulkPayload = exportData;
     // Disparamos un evento personalizado que el content_crm.js estará escuchando.
     let evt = new CustomEvent("GE_WA_BOT_SEND_BULK", { detail: exportData });
     window.dispatchEvent(evt);
@@ -1936,7 +1940,65 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     document.getElementById('modal-rec').style.display = 'none';
   }
 
+  // ── GESTIÓN DE NOTIFICADOS (LOCALSTORAGE) ──
+  function getNotificadosKey() {
+    const today = new Date().toISOString().slice(0,10);
+    return 'ge_wa_notificados_' + today;
+  }
+
+  function limpiarNotificadosAntiguos() {
+    const keyPrefix = 'ge_wa_notificados_';
+    const todayKey = getNotificadosKey();
+    let keysToRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      let k = localStorage.key(i);
+      if (k && k.startsWith(keyPrefix) && k !== todayKey) {
+        keysToRemove.push(k);
+      }
+    }
+    keysToRemove.forEach(k => localStorage.removeItem(k));
+  }
   
+  // Ejecutar limpieza al cargar
+  limpiarNotificadosAntiguos();
+
+  function marcarComoNotificados(lista) {
+    const key = getNotificadosKey();
+    let guardados = JSON.parse(localStorage.getItem(key) || '[]');
+    lista.forEach(c => {
+      if (!guardados.includes(c.phone)) {
+        guardados.push(c.phone);
+      }
+    });
+    localStorage.setItem(key, JSON.stringify(guardados));
+  }
+  
+  function esNotificado(telefono) {
+    if (!telefono) return false;
+    let phoneStr = telefono.toString().replace(/\D/g, "");
+    if (!phoneStr.startsWith("51") && phoneStr.length === 9) phoneStr = "51" + phoneStr;
+    const key = getNotificadosKey();
+    let guardados = JSON.parse(localStorage.getItem(key) || '[]');
+    return guardados.includes(phoneStr);
+  }
+
+  window.addEventListener('GE_WA_BOT_COMPLETED', (e) => {
+    const data = e.detail;
+    if (!window._lastBulkPayload) return;
+    
+    // Extraer teléfonos que fallaron
+    const failedPhones = (data.failedItems || []).map(item => item.phone);
+    
+    // Filtrar los que sí se enviaron (estaban en el payload pero no en failedItems)
+    const exitosos = window._lastBulkPayload.filter(item => !failedPhones.includes(item.phone));
+    
+    if (exitosos.length > 0) {
+      marcarComoNotificados(exitosos);
+      renderClientes(); // Re-render para mostrar los tags
+    }
+    
+    window._lastBulkPayload = null; // Limpiar memoria
+  });
 
   // ── VOUCHERS ──
   async function cargarVouchers() {
