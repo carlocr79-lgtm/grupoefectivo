@@ -14,7 +14,7 @@
 <style>
 :root {
   --azul: #003087; --azul2: #0052cc; --azul-claro: #e8f0ff;
-  --verde: #00aa44; --rojo: #cc0000; --naranja: #ff8800;
+  --verde: #0052cc; --rojo: #cc0000; --naranja: #ff8800;
   --gris: #f5f7fc; --gris2: #e0e6f0; --texto: #1a1a2e; --texto2: #5a6475;
 }
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
@@ -155,13 +155,13 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 .cliente-info { padding:0 14px 10px; display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
 .tag { padding:3px 8px; border-radius:20px; font-size:10px; font-weight:600; }
 .tag-asesor { background:var(--azul-claro); color:var(--azul); }
-.tag-tipo { background:#f0fff4; color:var(--verde); }
+.tag-tipo { background:#e8f0ff; color:var(--verde); }
 .tag-critico { background:#fff0f0; color:var(--rojo); }
 .tag-vencido { background:#fff5e6; color:var(--naranja); }
 .tag-pendiente { background:#fff8e6; color:#cc8800; }
-.tag-verificado { background:#f0fff4; color:var(--verde); }
+.tag-verificado { background:#e8f0ff; color:var(--verde); }
 .btn-wa {
-  width:32px; height:32px; border-radius:50%; background:#25D366; color:white;
+  width:32px; height:32px; border-radius:50%; background:var(--azul2); color:white;
   border:none; cursor:pointer; display:flex; align-items:center; justify-content:center;
   flex-shrink:0; transition:transform 0.15s, box-shadow 0.15s;
   box-shadow:0 2px 6px rgba(37,211,102,0.3);
@@ -177,7 +177,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 .btn-call { width:32px; height:32px; border-radius:50%; background:var(--azul2); color:white; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:transform 0.15s, box-shadow 0.15s; box-shadow:0 2px 6px rgba(0,82,204,0.3); text-decoration:none; }
 .btn-call:hover { transform:scale(1.1); box-shadow:0 3px 12px rgba(0,82,204,0.5); }
 .btn-ver { flex:1; padding:9px; background:#f0f4ff; color:var(--azul2); border:none; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer; }
-.btn-verificar { flex:1; padding:9px; background:linear-gradient(135deg,var(--verde),#00cc55); color:white; border:none; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer; }
+.btn-verificar { flex:1; padding:9px; background:linear-gradient(135deg,var(--verde),#003087); color:white; border:none; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer; }
 .btn-refresh {
   background:transparent; color:var(--texto2); border:1px solid transparent; padding:6px; border-radius:24px;
   font-family:'DM Sans', sans-serif; font-size:11px; font-weight:600; cursor:pointer;
@@ -267,7 +267,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 .caja-table td { padding:10px 12px; border-bottom:1px solid var(--gris2); color:var(--texto); }
 .caja-table tr:last-child td { border-bottom:none; }
 .caja-table tr:hover td { background:var(--azul-claro); }
-.badge-ingreso { background:#f0fff4; color:#00aa44; border-radius:20px; padding:2px 8px; font-size:10px; font-weight:700; }
+.badge-ingreso { background:#e8f0ff; color:#0052cc; border-radius:20px; padding:2px 8px; font-size:10px; font-weight:700; }
 .badge-egreso { background:#fff0f0; color:var(--rojo); border-radius:20px; padding:2px 8px; font-size:10px; font-weight:700; }
 
 /* LISTA DE MOVIMIENTOS CAJA CHICA (TARJETAS) */
@@ -276,7 +276,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 .mov-card:hover { transform:translateY(-1px); box-shadow:0 4px 12px rgba(0,48,135,0.08); border-color:var(--azul-claro); }
 .mov-left { display:flex; gap:10px; align-items:center; overflow:hidden; min-width:0; flex:1; }
 .mov-icon { width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
-.mov-icon.ingreso { background:#e6ffe6; color:var(--verde); }
+.mov-icon.ingreso { background:#e8f0ff; color:var(--verde); }
 .mov-icon.egreso { background:#ffe6e6; color:var(--rojo); }
 .mov-info { display:flex; flex-direction:column; overflow:hidden; min-width:0; gap:3px; }
 .mov-desc { font-weight:700; font-size:13px; color:var(--texto); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-family:'DM Sans',sans-serif; }
@@ -302,7 +302,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 .denom-input { width:80px; padding:5px 8px; border:1px solid var(--gris2); border-radius:8px; text-align:center; font-weight:700; font-size:13px; color:var(--azul); }
 .denom-subtotal { width:70px; text-align:right; font-weight:600; font-size:12px; color:var(--texto2); }
 .diff-card { background:var(--gris); border-radius:12px; padding:14px; text-align:center; margin-top:12px; border:2px solid var(--gris2); transition:all 0.3s; }
-.diff-card.cuadre { background:#f0fff4; border-color:var(--verde); }
+.diff-card.cuadre { background:#e8f0ff; border-color:var(--verde); }
 .diff-card.sobrante { background:#fff8e6; border-color:#ffaa00; }
 .diff-card.faltante { background:#fff0f0; border-color:var(--rojo); }
 
@@ -319,7 +319,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 .file-upload-wrapper:hover { border-color:var(--azul2); background:var(--azul-claro); }
 .file-upload-label { display:flex; flex-direction:column; align-items:center; gap:4px; padding:20px 10px; cursor:pointer; color:var(--texto2); font-weight:600; font-size:12px; }
 .file-upload-label .mi { font-size:32px; color:var(--azul2); }
-.file-upload-label.has-file { color:var(--verde); border-color:var(--verde); background:#f0fff4; border-radius:12px; }
+.file-upload-label.has-file { color:var(--verde); border-color:var(--verde); background:#e8f0ff; border-radius:12px; }
 .file-upload-label.has-file .mi { color:var(--verde); }
 .form-caja-group input:focus, .form-caja-group select:focus { border-color:var(--azul2); }
 .btn-main { padding:12px; background:linear-gradient(135deg,var(--azul),var(--azul2)); color:white; border:none; border-radius:10px; font-family:'Montserrat',sans-serif; font-weight:700; font-size:14px; cursor:pointer; transition:all 0.2s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 10px rgba(0,48,135,0.2); }
@@ -506,7 +506,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 .dash-kpi.orange .kpi-icon { background:#fff5e6; color:var(--naranja); }
 .dash-kpi.orange .kpi-val { color:var(--naranja); }
 .dash-kpi.orange::after { background:var(--naranja); }
-.dash-kpi.green .kpi-icon { background:#e6ffe6; color:var(--verde); }
+.dash-kpi.green .kpi-icon { background:#e8f0ff; color:var(--verde); }
 .dash-kpi.green .kpi-val { color:var(--verde); }
 .dash-kpi.green::after { background:var(--verde); }
 
@@ -668,7 +668,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
               <span class="icon"><span class="mi" style="font-size:16px;">badge</span></span>
               <select id="filtros-asesores" class="clean-select" onchange="setFiltroAsesor(this.value)"></select>
             </div>
-            <button onclick="iniciarRecordatorios()" style="background:#25D366;color:white;border:none;border-radius:10px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;">
+            <button onclick="iniciarRecordatorios()" style="background:var(--azul2);color:white;border:none;border-radius:10px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="16" height="16" fill="white"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.736 5.472 2.027 7.774L0 32l8.454-2.01A15.938 15.938 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm7.27 19.471c-.398-.199-2.354-1.162-2.72-1.294-.365-.133-.631-.199-.897.199-.266.398-1.029 1.294-1.262 1.56-.232.266-.465.299-.863.1-.398-.2-1.681-.619-3.203-1.977-1.184-1.057-1.983-2.362-2.215-2.76-.232-.398-.025-.613.174-.811.179-.178.398-.465.598-.698.199-.232.265-.398.398-.664.133-.266.066-.498-.033-.697-.1-.2-.897-2.162-1.229-2.96-.324-.777-.653-.672-.897-.684l-.764-.013c-.266 0-.697.1-1.063.498-.365.398-1.395 1.362-1.395 3.323s1.428 3.854 1.627 4.12c.2.266 2.81 4.287 6.808 6.014.951.41 1.694.656 2.273.839.955.304 1.824.261 2.511.158.766-.114 2.354-.962 2.687-1.891.332-.929.332-1.726.232-1.891-.099-.166-.365-.266-.763-.465z"/></svg>
               Recordatorios
             </button>
@@ -1729,7 +1729,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
             </div>
             <div style="display:flex; gap:8px;" onclick="event.stopPropagation()">
               ${c.celular ? `<button class="btn-call" style="width:36px;height:36px;background:#f0f4ff;border-radius:50%;color:var(--azul2);display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;" onclick="window.location.href='tel:${c.celular.replace(/\s+/g,'')}'" title="Llamar al cliente"><span class="mi sm">call</span></button>` : ''}
-              ${linkWA ? `<button class="btn-wa" style="width:36px;height:36px;background:#25D366;border-radius:50%;color:white;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;" onclick="enviarWA('${linkWAMovil}','${linkWA}')" title="Enviar WhatsApp"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="18" height="18" fill="white"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.736 5.472 2.027 7.774L0 32l8.454-2.01A15.938 15.938 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.333a13.27 13.27 0 01-6.748-1.833l-.484-.287-5.02 1.194 1.271-4.874-.317-.502A13.267 13.267 0 012.667 16C2.667 8.636 8.636 2.667 16 2.667S29.333 8.636 29.333 16 23.364 29.333 16 29.333zm7.27-9.862c-.398-.199-2.354-1.162-2.72-1.294-.365-.133-.631-.199-.897.199-.266.398-1.029 1.294-1.262 1.56-.232.266-.465.299-.863.1-.398-.2-1.681-.619-3.203-1.977-1.184-1.057-1.983-2.362-2.215-2.76-.232-.398-.025-.613.174-.811.179-.178.398-.465.598-.698.199-.232.265-.398.398-.664.133-.266.066-.498-.033-.697-.1-.2-.897-2.162-1.229-2.96-.324-.777-.653-.672-.897-.684l-.764-.013c-.266 0-.697.1-1.063.498-.365.398-1.395 1.362-1.395 3.323s1.428 3.854 1.627 4.12c.2.266 2.81 4.287 6.808 6.014.951.41 1.694.656 2.273.839.955.304 1.824.261 2.511.158.766-.114 2.354-.962 2.687-1.891.332-.929.332-1.726.232-1.891-.099-.166-.365-.266-.763-.465z"/></svg></button>` : ''}
+              ${linkWA ? `<button class="btn-wa" style="width:36px;height:36px;background:var(--azul2);border-radius:50%;color:white;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;" onclick="enviarWA('${linkWAMovil}','${linkWA}')" title="Enviar WhatsApp"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="18" height="18" fill="white"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.736 5.472 2.027 7.774L0 32l8.454-2.01A15.938 15.938 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.333a13.27 13.27 0 01-6.748-1.833l-.484-.287-5.02 1.194 1.271-4.874-.317-.502A13.267 13.267 0 012.667 16C2.667 8.636 8.636 2.667 16 2.667S29.333 8.636 29.333 16 23.364 29.333 16 29.333zm7.27-9.862c-.398-.199-2.354-1.162-2.72-1.294-.365-.133-.631-.199-.897.199-.266.398-1.029 1.294-1.262 1.56-.232.266-.465.299-.863.1-.398-.2-1.681-.619-3.203-1.977-1.184-1.057-1.983-2.362-2.215-2.76-.232-.398-.025-.613.174-.811.179-.178.398-.465.598-.698.199-.232.265-.398.398-.664.133-.266.066-.498-.033-.697-.1-.2-.897-2.162-1.229-2.96-.324-.777-.653-.672-.897-.684l-.764-.013c-.266 0-.697.1-1.063.498-.365.398-1.395 1.362-1.395 3.323s1.428 3.854 1.627 4.12c.2.266 2.81 4.287 6.808 6.014.951.41 1.694.656 2.273.839.955.304 1.824.261 2.511.158.766-.114 2.354-.962 2.687-1.891.332-.929.332-1.726.232-1.891-.099-.166-.365-.266-.763-.465z"/></svg></button>` : ''}
             </div>
             <div class="chevron-box" style="margin-left:8px; opacity:0.5;">
               <span class="mi">chevron_right</span>
@@ -1787,7 +1787,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     const linkWA = c.telefono ? `https://web.whatsapp.com/send?phone=${c.telefono}${c.mensaje ? '&text=' + encodeURIComponent(c.mensaje) : ''}` : '';
     const linkWAMovil = c.telefono ? `https://api.whatsapp.com/send?phone=${c.telefono}${c.mensaje ? '&text=' + encodeURIComponent(c.mensaje) : ''}` : '';
     if(linkWA) {
-       accionesHTML += `<button style="background:#25D366;" onclick="enviarWA('${linkWAMovil}','${linkWA}')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="18" height="18" fill="white"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.736 5.472 2.027 7.774L0 32l8.454-2.01A15.938 15.938 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.333a13.27 13.27 0 01-6.748-1.833l-.484-.287-5.02 1.194 1.271-4.874-.317-.502A13.267 13.267 0 012.667 16C2.667 8.636 8.636 2.667 16 2.667S29.333 8.636 29.333 16 23.364 29.333 16 29.333zm7.27-9.862c-.398-.199-2.354-1.162-2.72-1.294-.365-.133-.631-.199-.897.199-.266.398-1.029 1.294-1.262 1.56-.232.266-.465.299-.863.1-.398-.2-1.681-.619-3.203-1.977-1.184-1.057-1.983-2.362-2.215-2.76-.232-.398-.025-.613.174-.811.179-.178.398-.465.598-.698.199-.232.265-.398.398-.664.133-.266.066-.498-.033-.697-.1-.2-.897-2.162-1.229-2.96-.324-.777-.653-.672-.897-.684l-.764-.013c-.266 0-.697.1-1.063.498-.365.398-1.395 1.362-1.395 3.323s1.428 3.854 1.627 4.12c.2.266 2.81 4.287 6.808 6.014.951.41 1.694.656 2.273.839.955.304 1.824.261 2.511.158.766-.114 2.354-.962 2.687-1.891.332-.929.332-1.726.232-1.891-.099-.166-.365-.266-.763-.465z"/></svg> WhatsApp</button>`;
+       accionesHTML += `<button style="background:var(--azul2);" onclick="enviarWA('${linkWAMovil}','${linkWA}')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="18" height="18" fill="white"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.736 5.472 2.027 7.774L0 32l8.454-2.01A15.938 15.938 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.333a13.27 13.27 0 01-6.748-1.833l-.484-.287-5.02 1.194 1.271-4.874-.317-.502A13.267 13.267 0 012.667 16C2.667 8.636 8.636 2.667 16 2.667S29.333 8.636 29.333 16 23.364 29.333 16 29.333zm7.27-9.862c-.398-.199-2.354-1.162-2.72-1.294-.365-.133-.631-.199-.897.199-.266.398-1.029 1.294-1.262 1.56-.232.266-.465.299-.863.1-.398-.2-1.681-.619-3.203-1.977-1.184-1.057-1.983-2.362-2.215-2.76-.232-.398-.025-.613.174-.811.179-.178.398-.465.598-.698.199-.232.265-.398.398-.664.133-.266.066-.498-.033-.697-.1-.2-.897-2.162-1.229-2.96-.324-.777-.653-.672-.897-.684l-.764-.013c-.266 0-.697.1-1.063.498-.365.398-1.395 1.362-1.395 3.323s1.428 3.854 1.627 4.12c.2.266 2.81 4.287 6.808 6.014.951.41 1.694.656 2.273.839.955.304 1.824.261 2.511.158.766-.114 2.354-.962 2.687-1.891.332-.929.332-1.726.232-1.891-.099-.166-.365-.266-.763-.465z"/></svg> WhatsApp</button>`;
     }
     document.getElementById('dr-actions').innerHTML = accionesHTML;
 
