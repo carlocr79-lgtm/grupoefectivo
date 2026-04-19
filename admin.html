@@ -1645,7 +1645,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     if(!sel) return;
     sel.innerHTML = '<option value="">Todos</option>';
     asesores.forEach(a => {
-      sel.innerHTML += `<option value="${a}">${a}</option>`;
+      sel.innerHTML += `<option value="${escapeHtml(a)}">${escapeHtml(a)}</option>`;
     });
     // Conservar seleccion previa si existe
     if (filtroAsesor && asesores.includes(filtroAsesor)) {
@@ -2020,11 +2020,11 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
     const selAsesor = document.getElementById('filtro-hist-asesor');
     selAsesor.innerHTML = '<option value="">Todos los asesores</option>';
-    asesores.forEach(a => selAsesor.innerHTML += `<option value="${a}">${a.split(' ')[0]}</option>`);
+    asesores.forEach(a => selAsesor.innerHTML += `<option value="${escapeHtml(a)}">${escapeHtml(a.split(' ')[0])}</option>`);
 
     const selFecha = document.getElementById('filtro-hist-fecha');
     selFecha.innerHTML = '<option value="">Todas las fechas</option>';
-    fechas.forEach(f => selFecha.innerHTML += `<option value="${f}">${f}</option>`);
+    fechas.forEach(f => selFecha.innerHTML += `<option value="${escapeHtml(f)}">${escapeHtml(f)}</option>`);
 
   }
 
