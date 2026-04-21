@@ -718,10 +718,16 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
           </div>
           <div class="caja-toolbar" id="caja-toolbar-actual">
             <button class="btn-main" onclick="cajaShowModal()" style="width:auto;padding:9px 16px;font-size:13px;">+ Nuevo</button>
-            <input type="text" id="caja-buscar" placeholder="Buscar..." oninput="cajaFiltrar()" style="flex:1;padding:8px 12px;border:1.5px solid var(--gris2);border-radius:10px;font-size:13px;max-width:300px;">
+            <div style="position:relative; flex:1; max-width:300px;">
+              <span class="mi" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:16px; color:var(--texto2); pointer-events:none;">search</span>
+              <input type="text" id="caja-buscar" placeholder="Buscar..." oninput="cajaFiltrar()" style="width:100%; padding:8px 12px 8px 34px; border:1.5px solid var(--gris2); border-radius:10px; font-size:13px; outline:none; transition:border-color 0.2s;">
+            </div>
           </div>
           <div class="caja-toolbar" id="caja-toolbar-archivo" style="display:none;">
-            <input type="text" id="caja-buscar-archivo" placeholder="Buscar en archivo..." oninput="cajaFiltrar()" style="flex:1;padding:8px 12px;border:1.5px solid var(--gris2);border-radius:10px;font-size:13px;max-width:300px;">
+            <div style="position:relative; flex:1; max-width:300px;">
+              <span class="mi" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:16px; color:var(--texto2); pointer-events:none;">search</span>
+              <input type="text" id="caja-buscar-archivo" placeholder="Buscar en archivo..." oninput="cajaFiltrar()" style="width:100%; padding:8px 12px 8px 34px; border:1.5px solid var(--gris2); border-radius:10px; font-size:13px; outline:none; transition:border-color 0.2s;">
+            </div>
           </div>
           <div class="movimientos-list" id="caja-tabla-body">
             <div class="empty" style="padding:20px;"><div class="spinner-sm"></div>Cargando movimientos...</div>
@@ -818,7 +824,10 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         <div id="section-kasnet" class="section">
           <div class="caja-toolbar">
             <button class="btn-main" onclick="kasnetShowModal()" style="width:auto;padding:9px 16px;font-size:13px;">+ Nuevo Registro Diario</button>
-            <input type="text" id="kasnet-buscar" placeholder="Buscar fecha..." oninput="kasnetFiltrar()" style="flex:1;padding:8px 12px;border:1.5px solid var(--gris2);border-radius:10px;font-size:13px;max-width:300px;">
+            <div style="position:relative; flex:1; max-width:300px;">
+              <span class="mi" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:16px; color:var(--texto2); pointer-events:none;">search</span>
+              <input type="text" id="kasnet-buscar" placeholder="Buscar fecha..." oninput="kasnetFiltrar()" style="width:100%; padding:8px 12px 8px 34px; border:1.5px solid var(--gris2); border-radius:10px; font-size:13px; outline:none; transition:border-color 0.2s;">
+            </div>
           </div>
           <div class="movimientos-list" id="kasnet-lista">
             <div class="empty" style="padding:20px;"><div class="spinner-sm"></div>Cargando registros...</div>
