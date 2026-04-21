@@ -2668,12 +2668,6 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       document.getElementById('dr-caja-iframe').src = '';
     }
     
-  function mostrarIframeCaja() {
-    document.getElementById('dr-caja-btn-show-comp').style.display = 'none';
-    document.getElementById('dr-caja-iframe').style.display = 'block';
-    document.getElementById('dr-caja-link-comp').style.display = 'flex';
-  }
-    
     // Actions
     const isPastMonth = typeof m.fecha === 'string' && (function(){
       const parts = m.fecha.split('-');
@@ -2699,6 +2693,12 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     
     document.getElementById('drawer-overlay-caja').classList.add('open');
     document.getElementById('drawer-caja').classList.add('open');
+  }
+
+  function mostrarIframeCaja() {
+    document.getElementById('dr-caja-btn-show-comp').style.display = 'none';
+    document.getElementById('dr-caja-iframe').style.display = 'block';
+    document.getElementById('dr-caja-link-comp').style.display = 'flex';
   }
 
   function cajaCerrarDrawer() {
@@ -3298,12 +3298,6 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       document.getElementById('dr-kasnet-iframe').src = '';
     }
     
-  function mostrarIframeKasnet() {
-    document.getElementById('dr-kasnet-btn-show-comp').style.display = 'none';
-    document.getElementById('dr-kasnet-iframe').style.display = 'block';
-    document.getElementById('dr-kasnet-link-comp').style.display = 'flex';
-  }
-    
     // Actions
     const actionsEl = document.getElementById('dr-kasnet-actions');
     actionsEl.innerHTML = 
@@ -3312,6 +3306,12 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     
     document.getElementById('drawer-overlay-kasnet').classList.add('open');
     document.getElementById('drawer-kasnet').classList.add('open');
+  }
+
+  function mostrarIframeKasnet() {
+    document.getElementById('dr-kasnet-btn-show-comp').style.display = 'none';
+    document.getElementById('dr-kasnet-iframe').style.display = 'block';
+    document.getElementById('dr-kasnet-link-comp').style.display = 'flex';
   }
 
   function kasnetCerrarDrawer() {
