@@ -877,6 +877,71 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   </div>
   <div class="drawer-actions" id="dr-actions"></div>
 </div>
+<!-- CAJA CHICA DRAWER -->
+<div class="drawer-overlay" id="drawer-overlay-caja" onclick="cajaCerrarDrawer()"></div>
+<div class="drawer-panel" id="drawer-caja">
+  <div class="drawer-header">
+    <div class="avatar-group">
+      <div class="avatar" id="dr-caja-icon" style="background:var(--azul); width:46px; height:46px; font-size:20px;"></div>
+      <div>
+        <h2 id="dr-caja-titulo">Cargando...</h2>
+        <div class="subtitle" id="dr-caja-sub"></div>
+      </div>
+    </div>
+    <button class="drawer-close" onclick="cajaCerrarDrawer()"><span class="mi">close</span></button>
+  </div>
+  <div class="drawer-content" id="dr-caja-content">
+    <div class="dr-section">
+      <div class="dr-section-title">Detalles del Movimiento</div>
+      <div class="dr-item"><span class="lbl">Monto</span><span class="val" id="dr-caja-monto" style="font-size:18px; font-weight:900;"></span></div>
+      <div class="dr-item"><span class="lbl">Categoría</span><span class="val" id="dr-caja-cat"></span></div>
+      <div class="dr-item"><span class="lbl">Fecha</span><span class="val" id="dr-caja-fecha"></span></div>
+      <div class="dr-item"><span class="lbl">Tipo</span><span class="val" id="dr-caja-tipo"></span></div>
+    </div>
+    <div class="dr-section" id="dr-caja-desc-section">
+      <div class="dr-section-title">Descripción</div>
+      <div id="dr-caja-desc" style="font-size:13px; color:var(--texto); line-height:1.5;"></div>
+    </div>
+    <div class="dr-section" id="dr-caja-comp-section" style="display:none;">
+      <div class="dr-section-title">Comprobante</div>
+      <button id="dr-caja-btn-comp" class="btn-secundary" style="width:100%; justify-content:center; gap:8px;"><span class="mi sm">visibility</span> Ver Comprobante</button>
+    </div>
+  </div>
+  <div class="drawer-actions" id="dr-caja-actions"></div>
+</div>
+
+<!-- KASNET DRAWER -->
+<div class="drawer-overlay" id="drawer-overlay-kasnet" onclick="kasnetCerrarDrawer()"></div>
+<div class="drawer-panel" id="drawer-kasnet">
+  <div class="drawer-header">
+    <div class="avatar-group">
+      <div class="avatar" id="dr-kasnet-icon" style="background:var(--azul); width:46px; height:46px; font-size:20px;"><span class="mi">point_of_sale</span></div>
+      <div>
+        <h2 id="dr-kasnet-titulo">Cargando...</h2>
+        <div class="subtitle" id="dr-kasnet-sub"></div>
+      </div>
+    </div>
+    <button class="drawer-close" onclick="kasnetCerrarDrawer()"><span class="mi">close</span></button>
+  </div>
+  <div class="drawer-content" id="dr-kasnet-content">
+    <div class="dr-section">
+      <div class="dr-section-title">Resumen de Cuadre</div>
+      <div class="dr-item"><span class="lbl">Total Físico</span><span class="val" id="dr-kasnet-fis" style="font-size:18px; font-weight:900; color:var(--verde);"></span></div>
+      <div class="dr-item"><span class="lbl">Total Virtual</span><span class="val" id="dr-kasnet-virt"></span></div>
+      <div class="dr-item"><span class="lbl">Operaciones</span><span class="val" id="dr-kasnet-ops"></span></div>
+      <div class="dr-item"><span class="lbl">Estado</span><span class="val" id="dr-kasnet-est"></span></div>
+    </div>
+    <div class="dr-section">
+      <div class="dr-section-title">Desglose Físico</div>
+      <div id="dr-kasnet-desglose"></div>
+    </div>
+    <div class="dr-section" id="dr-kasnet-comp-section" style="display:none;">
+      <div class="dr-section-title">Comprobante</div>
+      <button id="dr-kasnet-btn-comp" class="btn-secundary" style="width:100%; justify-content:center; gap:8px;"><span class="mi sm">visibility</span> Ver Comprobante</button>
+    </div>
+  </div>
+  <div class="drawer-actions" id="dr-kasnet-actions"></div>
+</div>
 
 <!-- MODAL VOUCHER -->
 <div class="modal-overlay" id="modal-voucher">
@@ -1092,17 +1157,6 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       <button class="btn-secundary" onclick="kasnetHideModal()" style="flex:1;">Cancelar</button>
       <button class="btn-main" onclick="kasnetGuardar()" id="kasnet-btn-guardar" style="flex:1;padding:12px;" disabled>Guardar Registro</button>
     </div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="modal-kasnet-arqueo" onclick="if(event.target===this) this.classList.remove('show')">
-  <div class="modal-box" style="max-width:320px;">
-    <div class="modal-title" style="display:flex; justify-content:space-between; align-items:center;">
-      <span style="display:flex; align-items:center; gap:6px;"><span class="mi">payments</span> Detalle Físico</span>
-      <button onclick="document.getElementById('modal-kasnet-arqueo').classList.remove('show')" style="background:none; border:none; cursor:pointer; font-size:20px; color:var(--texto2);"><span class="mi">close</span></button>
-    </div>
-    <div class="modal-info" id="kasnet-arqueo-content" style="background:white; padding:0;"></div>
-    <div style="text-align:center; font-family:'Montserrat',sans-serif; font-weight:800; font-size:18px; color:var(--verde); margin-top:14px; padding-top:14px; border-top:1.5px dashed var(--gris2);" id="kasnet-arqueo-total">S/. 0.00</div>
   </div>
 </div>
 
@@ -2463,14 +2517,14 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       const itemReadOnly = readOnly || isPastMonth;
 
       return `
-      <div class="mov-card">
+      <div class="mov-card" onclick="cajaAbrirDrawer('${m.id}', ${readOnly})" style="cursor:pointer; transition:transform 0.2s; box-shadow:0 2px 8px rgba(0,0,0,0.02);" onmouseover="this.style.transform='translateY(-2px)';" onmouseout="this.style.transform='translateY(0)';">
         <div class="mov-left">
           <div class="mov-icon ${esIngreso ? 'ingreso' : 'egreso'}">${icon}</div>
           <div class="mov-info">
             <div class="mov-desc" title="${m.descripcion.replace(/"/g, '&quot;')}">${m.descripcion}</div>
             <div class="mov-cat">
               <span style="background:var(--gris);padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;">${m.categoria}</span>
-              ${m.sustentoUrl ? '<span style="color:var(--azul);background:var(--azul-claro);padding:3px 8px;border-radius:6px;font-weight:700;font-size:10px;display:flex;align-items:center;gap:4px;"><span class="mi xs" style="margin:0;vertical-align:bottom;">attach_file</span> Adjunto</span>' : ''}
+              ${m.sustentoUrl ? '<span style="color:var(--azul);background:var(--azul-claro);padding:3px 8px;border-radius:6px;font-weight:700;font-size:10px;display:inline-flex;align-items:center;gap:4px;"><span class="mi xs" style="margin:0;vertical-align:bottom;">attach_file</span> Adjunto</span>' : ''}
             </div>
           </div>
         </div>
@@ -2478,11 +2532,6 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
           <div class="mov-monto ${esIngreso ? 'ingreso' : 'egreso'}">${sign} S/. ${m.monto.toLocaleString('es-PE', {minimumFractionDigits:2})}</div>
           <div style="display:flex; justify-content:flex-end; width:100%; align-items:center; gap:10px;">
             <div class="mov-fecha">${m.fecha}</div>
-            <div class="mov-acciones">
-              ${m.sustentoUrl ? `<button class="mov-btn" onclick="verSustento('${sustentoUrlSafe}')" title="Ver sustento"><span class="mi sm">attach_file</span></button>` : ''}
-              ${itemReadOnly ? '' : `<button class="mov-btn" data-movid="${mDataId}" onclick="cajaShowModalById(this.dataset.movid)" title="Editar"><span class="mi sm">edit</span></button>`}
-              ${itemReadOnly ? '' : `<button class="mov-btn delete" onclick="cajaEliminar('${m.id}')" title="Eliminar"><span class="mi sm">delete</span></button>`}
-            </div>
           </div>
         </div>
       </div>`;
@@ -2560,6 +2609,79 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     cats.forEach(function(c) {
       sel.innerHTML += '<option value="' + c + '">' + c + '</option>';
     });
+  }
+
+  function cajaAbrirDrawer(movId, readOnly) {
+    const m = _cajaMovMap['mov-' + movId];
+    if (!m) return;
+    
+    // Set icon
+    const iconEl = document.getElementById('dr-caja-icon');
+    iconEl.innerHTML = m.tipo === 'Ingreso' ? '<span class="mi">arrow_downward</span>' : '<span class="mi">arrow_upward</span>';
+    iconEl.style.background = m.tipo === 'Ingreso' ? '#e8f0ff' : '#ffe6e6';
+    iconEl.style.color = m.tipo === 'Ingreso' ? 'var(--verde)' : 'var(--rojo)';
+    
+    // Header
+    document.getElementById('dr-caja-titulo').textContent = m.tipo;
+    document.getElementById('dr-caja-sub').textContent = m.fecha;
+    
+    // Content
+    const sign = m.tipo === 'Ingreso' ? '+' : '-';
+    const montoEl = document.getElementById('dr-caja-monto');
+    montoEl.textContent = sign + ' S/. ' + m.monto.toLocaleString('es-PE', {minimumFractionDigits:2});
+    montoEl.style.color = m.tipo === 'Ingreso' ? 'var(--verde)' : 'var(--rojo)';
+    
+    document.getElementById('dr-caja-cat').textContent = m.categoria;
+    document.getElementById('dr-caja-fecha').textContent = m.fecha;
+    document.getElementById('dr-caja-tipo').textContent = m.tipo;
+    
+    // Description
+    if (m.descripcion) {
+      document.getElementById('dr-caja-desc-section').style.display = 'block';
+      document.getElementById('dr-caja-desc').textContent = m.descripcion;
+    } else {
+      document.getElementById('dr-caja-desc-section').style.display = 'none';
+    }
+    
+    // Comprobante
+    if (m.sustentoUrl) {
+      document.getElementById('dr-caja-comp-section').style.display = 'block';
+      const safeUrl = m.sustentoUrl.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+      document.getElementById('dr-caja-btn-comp').onclick = function() { verSustento(safeUrl); };
+    } else {
+      document.getElementById('dr-caja-comp-section').style.display = 'none';
+    }
+    
+    // Actions
+    const isPastMonth = typeof m.fecha === 'string' && (function(){
+      const parts = m.fecha.split('-');
+      if (parts.length === 3) {
+        const movDate = new Date(parts[0], parts[1] - 1, parts[2]);
+        const now = new Date();
+        return movDate.getFullYear() < now.getFullYear() || (movDate.getFullYear() === now.getFullYear() && movDate.getMonth() < now.getMonth());
+      }
+      return false;
+    })();
+    
+    const itemReadOnly = readOnly || isPastMonth;
+    const actionsEl = document.getElementById('dr-caja-actions');
+    
+    if (itemReadOnly) {
+      actionsEl.style.display = 'none';
+    } else {
+      actionsEl.style.display = 'flex';
+      actionsEl.innerHTML = 
+        '<button style="background:var(--gris); color:var(--texto);" onclick="cajaCerrarDrawer(); cajaShowModalById(\'mov-' + m.id + '\')"><span class="mi">edit</span> Editar</button>' +
+        '<button style="background:#ffe6e6; color:var(--rojo);" onclick="cajaCerrarDrawer(); cajaEliminar(\'' + m.id + '\')"><span class="mi">delete</span> Eliminar</button>';
+    }
+    
+    document.getElementById('drawer-overlay-caja').classList.add('open');
+    document.getElementById('drawer-caja').classList.add('open');
+  }
+
+  function cajaCerrarDrawer() {
+    document.getElementById('drawer-overlay-caja').classList.remove('open');
+    document.getElementById('drawer-caja').classList.remove('open');
   }
 
   function cajaShowModalById(movId) {
@@ -3046,7 +3168,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       const sign = m.diferencia > 0 ? '+' : '';
 
       const compUrlSafe = m.comprobante ? m.comprobante.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;') : '';
-      return '<div class="mov-card">' +
+      return '<div class="mov-card" onclick="kasnetAbrirDrawer(\'' + mDataId + '\')" style="cursor:pointer; transition:transform 0.2s; box-shadow:0 2px 8px rgba(0,0,0,0.02);" onmouseover="this.style.transform=\'translateY(-2px)\';" onmouseout="this.style.transform=\'translateY(0)\';">' +
         '<div class="mov-left">' +
           '<div class="mov-icon ' + iconBg + '"><span class="mi sm">receipt_long</span></div>' +
           '<div class="mov-info">' +
@@ -3064,12 +3186,6 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
           '<div class="mov-monto ' + iconBg + '">S/. ' + m.total.toLocaleString('es-PE', {minimumFractionDigits:2}) + '</div>' +
           '<div style="display:flex; justify-content:flex-end; width:100%; align-items:center; gap:10px;">' +
             '<div class="mov-fecha">' + escapeHtml(m.fecha) + '</div>' +
-            '<div class="mov-acciones">' +
-              (m.comprobante ? '<button class="mov-btn" onclick="verSustento(\'' + compUrlSafe + '\')" title="Ver comprobante"><span class="mi sm">attach_file</span></button>' : '') +
-              '<button class="mov-btn" data-movid="' + mDataId + '" onclick="kasnetVerArqueo(this.dataset.movid)" title="Ver detalle de físico"><span class="mi sm">visibility</span></button>' +
-              '<button class="mov-btn" data-movid="' + mDataId + '" onclick="kasnetShowModalById(this.dataset.movid)" title="Editar"><span class="mi sm">edit</span></button>' +
-              '<button class="mov-btn delete" onclick="kasnetEliminar(\'' + m.id + '\')" title="Eliminar"><span class="mi sm">delete</span></button>' +
-            '</div>' +
           '</div>' +
         '</div>' +
       '</div>';
@@ -3084,10 +3200,29 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     kasnetRenderOperaciones(filtrados);
   }
 
-  function kasnetVerArqueo(movId) {
+  function kasnetAbrirDrawer(movId) {
     const m = _kasnetRegMap[movId];
     if (!m) return;
     
+    // Header
+    const iconBg = m.estado === 'SOBRANTE' ? '#e8f0ff' : m.estado === 'FALTANTE' ? '#ffe6e6' : 'var(--gris)';
+    const iconColor = m.estado === 'SOBRANTE' ? 'var(--verde)' : m.estado === 'FALTANTE' ? 'var(--rojo)' : 'var(--texto2)';
+    const iconEl = document.getElementById('dr-kasnet-icon');
+    iconEl.style.background = iconBg;
+    iconEl.style.color = iconColor;
+    
+    document.getElementById('dr-kasnet-titulo').textContent = 'Registro KASNET';
+    document.getElementById('dr-kasnet-sub').textContent = m.fecha;
+    
+    // Content Resumen
+    document.getElementById('dr-kasnet-fis').textContent = 'S/. ' + m.efectivoFisico.toLocaleString('es-PE', {minimumFractionDigits:2});
+    document.getElementById('dr-kasnet-virt').textContent = 'S/. ' + (m.posVirtual + m.pagayaVirtual).toLocaleString('es-PE', {minimumFractionDigits:2});
+    document.getElementById('dr-kasnet-ops').textContent = m.numOps;
+    
+    const sign = m.diferencia > 0 ? '+' : '';
+    document.getElementById('dr-kasnet-est').innerHTML = '<span class="tag ' + (m.estado === 'SOBRANTE' ? 'tag-vencido' : m.estado === 'FALTANTE' ? 'tag-critico' : 'tag-verificado') + '">' + m.estado + ' (' + sign + 'S/. ' + Math.abs(m.diferencia).toFixed(2) + ')</span>';
+    
+    // Desglose
     let html = '';
     let total = 0;
     
@@ -3120,10 +3255,32 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       html = '<div style="padding:20px; text-align:center; color:var(--texto2); font-size:12px;">No hay detalle de arqueo guardado para este registro.</div>';
     }
     
-    document.getElementById('kasnet-arqueo-content').innerHTML = html;
-    document.getElementById('kasnet-arqueo-total').textContent = 'Total Físico: S/. ' + (total > 0 ? total : m.efectivoFisico).toLocaleString('es-PE', {minimumFractionDigits:2});
+    html += '<div style="text-align:right; font-family:\'Montserrat\',sans-serif; font-weight:800; font-size:16px; color:var(--verde); margin-top:14px; padding-top:14px; border-top:1.5px dashed var(--gris2);">Total Desglose: S/. ' + (total > 0 ? total : m.efectivoFisico).toLocaleString('es-PE', {minimumFractionDigits:2}) + '</div>';
     
-    document.getElementById('modal-kasnet-arqueo').classList.add('show');
+    document.getElementById('dr-kasnet-desglose').innerHTML = html;
+    
+    // Comprobante
+    if (m.comprobante) {
+      document.getElementById('dr-kasnet-comp-section').style.display = 'block';
+      const safeUrl = m.comprobante.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+      document.getElementById('dr-kasnet-btn-comp').onclick = function() { verSustento(safeUrl); };
+    } else {
+      document.getElementById('dr-kasnet-comp-section').style.display = 'none';
+    }
+    
+    // Actions
+    const actionsEl = document.getElementById('dr-kasnet-actions');
+    actionsEl.innerHTML = 
+      '<button style="background:var(--gris); color:var(--texto);" onclick="kasnetCerrarDrawer(); kasnetShowModalById(\'kreg-' + m.id + '\')"><span class="mi">edit</span> Editar</button>' +
+      '<button style="background:#ffe6e6; color:var(--rojo);" onclick="kasnetCerrarDrawer(); kasnetEliminar(\'' + m.id + '\')"><span class="mi">delete</span> Eliminar</button>';
+    
+    document.getElementById('drawer-overlay-kasnet').classList.add('open');
+    document.getElementById('drawer-kasnet').classList.add('open');
+  }
+
+  function kasnetCerrarDrawer() {
+    document.getElementById('drawer-overlay-kasnet').classList.remove('open');
+    document.getElementById('drawer-kasnet').classList.remove('open');
   }
 
   function kasnetShowModalById(movId) {
