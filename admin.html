@@ -1095,6 +1095,17 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   </div>
 </div>
 
+<div class="modal-overlay" id="modal-kasnet-arqueo" onclick="if(event.target===this) this.classList.remove('show')">
+  <div class="modal-box" style="max-width:320px;">
+    <div class="modal-title" style="display:flex; justify-content:space-between; align-items:center;">
+      <span style="display:flex; align-items:center; gap:6px;"><span class="mi">payments</span> Detalle Físico</span>
+      <button onclick="document.getElementById('modal-kasnet-arqueo').classList.remove('show')" style="background:none; border:none; cursor:pointer; font-size:20px; color:var(--texto2);"><span class="mi">close</span></button>
+    </div>
+    <div class="modal-info" id="kasnet-arqueo-content" style="background:white; padding:0;"></div>
+    <div style="text-align:center; font-family:'Montserrat',sans-serif; font-weight:800; font-size:18px; color:var(--verde); margin-top:14px; padding-top:14px; border-top:1.5px dashed var(--gris2);" id="kasnet-arqueo-total">S/. 0.00</div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -3055,6 +3066,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
             '<div class="mov-fecha">' + escapeHtml(m.fecha) + '</div>' +
             '<div class="mov-acciones">' +
               (m.comprobante ? '<button class="mov-btn" onclick="verSustento(\'' + compUrlSafe + '\')" title="Ver comprobante"><span class="mi sm">attach_file</span></button>' : '') +
+              '<button class="mov-btn" data-movid="' + mDataId + '" onclick="kasnetVerArqueo(this.dataset.movid)" title="Ver detalle de físico"><span class="mi sm">visibility</span></button>' +
               '<button class="mov-btn" data-movid="' + mDataId + '" onclick="kasnetShowModalById(this.dataset.movid)" title="Editar"><span class="mi sm">edit</span></button>' +
               '<button class="mov-btn delete" onclick="kasnetEliminar(\'' + m.id + '\')" title="Eliminar"><span class="mi sm">delete</span></button>' +
             '</div>' +
@@ -3070,6 +3082,48 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       return m.fecha.includes(q);
     });
     kasnetRenderOperaciones(filtrados);
+  }
+
+  function kasnetVerArqueo(movId) {
+    const m = _kasnetRegMap[movId];
+    if (!m) return;
+    
+    let html = '';
+    let total = 0;
+    
+    if (m.desglose) {
+      try {
+        const desg = typeof m.desglose === 'string' ? JSON.parse(m.desglose) : m.desglose;
+        const labels = {
+          'b200': 'Billetes S/ 200', 'b100': 'Billetes S/ 100', 'b50': 'Billetes S/ 50', 'b20': 'Billetes S/ 20', 'b10': 'Billetes S/ 10',
+          'm5': 'Monedas S/ 5', 'm2': 'Monedas S/ 2', 'm1': 'Monedas S/ 1', 'm050': 'Monedas S/ 0.50', 'm020': 'Monedas S/ 0.20', 'm010': 'Monedas S/ 0.10'
+        };
+        const values = {
+          'b200': 200, 'b100': 100, 'b50': 50, 'b20': 20, 'b10': 10,
+          'm5': 5, 'm2': 2, 'm1': 1, 'm050': 0.5, 'm020': 0.2, 'm010': 0.1
+        };
+        
+        ['b200','b100','b50','b20','b10','m5','m2','m1','m050','m020','m010'].forEach(k => {
+          if (desg[k] && parseInt(desg[k]) > 0) {
+            const sub = parseInt(desg[k]) * values[k];
+            total += sub;
+            html += '<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--gris2); font-size:13px;">' +
+                      '<span style="color:var(--texto2);">' + labels[k] + ' <strong style="color:var(--azul);">x' + desg[k] + '</strong></span>' +
+                      '<span style="font-weight:700;">S/. ' + sub.toLocaleString('es-PE', {minimumFractionDigits:2}) + '</span>' +
+                    '</div>';
+          }
+        });
+      } catch(e) {}
+    }
+    
+    if (!html) {
+      html = '<div style="padding:20px; text-align:center; color:var(--texto2); font-size:12px;">No hay detalle de arqueo guardado para este registro.</div>';
+    }
+    
+    document.getElementById('kasnet-arqueo-content').innerHTML = html;
+    document.getElementById('kasnet-arqueo-total').textContent = 'Total Físico: S/. ' + (total > 0 ? total : m.efectivoFisico).toLocaleString('es-PE', {minimumFractionDigits:2});
+    
+    document.getElementById('modal-kasnet-arqueo').classList.add('show');
   }
 
   function kasnetShowModalById(movId) {
