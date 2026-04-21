@@ -902,9 +902,12 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       <div class="dr-section-title">Descripción</div>
       <div id="dr-caja-desc" style="font-size:13px; color:var(--texto); line-height:1.5;"></div>
     </div>
-    <div class="dr-section" id="dr-caja-comp-section" style="display:none;">
-      <div class="dr-section-title">Comprobante</div>
-      <button id="dr-caja-btn-comp" class="btn-secundary" style="width:100%; justify-content:center; gap:8px;"><span class="mi sm">visibility</span> Ver Comprobante</button>
+    <div class="dr-section" id="dr-caja-comp-section" style="display:none; flex-direction:column; padding:12px;">
+      <div class="dr-section-title" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <span>Comprobante</span>
+        <a id="dr-caja-link-comp" href="#" target="_blank" style="font-size:11px; color:var(--azul); text-decoration:none; display:flex; align-items:center; gap:4px; font-weight:700;"><span class="mi xs">open_in_new</span> Abrir</a>
+      </div>
+      <iframe id="dr-caja-iframe" src="" style="width:100%; height:250px; border:1px solid var(--gris2); border-radius:10px; background:#f8fafc;"></iframe>
     </div>
   </div>
   <div class="drawer-actions" id="dr-caja-actions"></div>
@@ -935,9 +938,12 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       <div class="dr-section-title">Desglose Físico</div>
       <div id="dr-kasnet-desglose"></div>
     </div>
-    <div class="dr-section" id="dr-kasnet-comp-section" style="display:none;">
-      <div class="dr-section-title">Comprobante</div>
-      <button id="dr-kasnet-btn-comp" class="btn-secundary" style="width:100%; justify-content:center; gap:8px;"><span class="mi sm">visibility</span> Ver Comprobante</button>
+    <div class="dr-section" id="dr-kasnet-comp-section" style="display:none; flex-direction:column; padding:12px;">
+      <div class="dr-section-title" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <span>Comprobante</span>
+        <a id="dr-kasnet-link-comp" href="#" target="_blank" style="font-size:11px; color:var(--azul); text-decoration:none; display:flex; align-items:center; gap:4px; font-weight:700;"><span class="mi xs">open_in_new</span> Abrir</a>
+      </div>
+      <iframe id="dr-kasnet-iframe" src="" style="width:100%; height:250px; border:1px solid var(--gris2); border-radius:10px; background:#f8fafc;"></iframe>
     </div>
   </div>
   <div class="drawer-actions" id="dr-kasnet-actions"></div>
@@ -2645,11 +2651,14 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     
     // Comprobante
     if (m.sustentoUrl) {
-      document.getElementById('dr-caja-comp-section').style.display = 'block';
+      document.getElementById('dr-caja-comp-section').style.display = 'flex';
       const safeUrl = m.sustentoUrl.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-      document.getElementById('dr-caja-btn-comp').onclick = function() { verSustento(safeUrl); };
+      const previewUrl = safeUrl.includes('/view') ? safeUrl.replace('/view', '/preview') : safeUrl;
+      document.getElementById('dr-caja-iframe').src = previewUrl;
+      document.getElementById('dr-caja-link-comp').href = safeUrl;
     } else {
       document.getElementById('dr-caja-comp-section').style.display = 'none';
+      document.getElementById('dr-caja-iframe').src = '';
     }
     
     // Actions
@@ -3261,11 +3270,14 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     
     // Comprobante
     if (m.comprobante) {
-      document.getElementById('dr-kasnet-comp-section').style.display = 'block';
+      document.getElementById('dr-kasnet-comp-section').style.display = 'flex';
       const safeUrl = m.comprobante.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-      document.getElementById('dr-kasnet-btn-comp').onclick = function() { verSustento(safeUrl); };
+      const previewUrl = safeUrl.includes('/view') ? safeUrl.replace('/view', '/preview') : safeUrl;
+      document.getElementById('dr-kasnet-iframe').src = previewUrl;
+      document.getElementById('dr-kasnet-link-comp').href = safeUrl;
     } else {
       document.getElementById('dr-kasnet-comp-section').style.display = 'none';
+      document.getElementById('dr-kasnet-iframe').src = '';
     }
     
     // Actions
