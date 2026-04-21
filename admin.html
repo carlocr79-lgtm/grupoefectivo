@@ -3030,21 +3030,20 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         '<div class="mov-left">' +
           '<div class="mov-icon ' + iconBg + '"><span class="mi sm">receipt_long</span></div>' +
           '<div class="mov-info">' +
-            '<div class="mov-desc" style="font-weight:700;">Registro ' + escapeHtml(m.fecha) + '</div>' +
+            '<div class="mov-desc" style="font-weight:700;">Registro KASNET</div>' +
             '<div class="mov-cat">' +
               '<span style="background:var(--gris);padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;">Ops: ' + m.numOps + '</span>' +
-              '<span style="background:var(--gris);padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;">Virtual: S/. ' + (m.posVirtual + m.pagayaVirtual).toFixed(2) + '</span>' +
-              '<span style="background:var(--gris);padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;">Físico: S/. ' + m.efectivoFisico.toFixed(2) + '</span>' +
+              '<span style="background:var(--gris);padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;">Virt: S/. ' + (m.posVirtual + m.pagayaVirtual).toFixed(2) + '</span>' +
+              '<span style="background:var(--gris);padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;">Fís: S/. ' + m.efectivoFisico.toFixed(2) + '</span>' +
+              '<span class="tag ' + (m.estado === 'SOBRANTE' ? 'tag-vencido' : m.estado === 'FALTANTE' ? 'tag-critico' : 'tag-verificado') + '">' + m.estado + ' (' + sign + 'S/. ' + Math.abs(m.diferencia).toFixed(2) + ')</span>' +
               (m.comprobante ? '<span style="color:var(--azul);background:var(--azul-claro);padding:3px 8px;border-radius:6px;font-weight:700;font-size:10px;display:inline-flex;align-items:center;gap:4px;"><span class="mi xs" style="margin:0;vertical-align:bottom;">attach_file</span> Adjunto</span>' : '') +
             '</div>' +
           '</div>' +
         '</div>' +
-        '<div class="mov-right" style="text-align:right;">' +
-          '<div class="mov-monto">Total: S/. ' + m.total.toLocaleString('es-PE', {minimumFractionDigits:2}) + '</div>' +
-          '<div style="font-size:11px; font-weight:700; color:' + (m.estado === 'SOBRANTE' ? 'var(--verde)' : m.estado === 'FALTANTE' ? 'var(--rojo)' : 'var(--texto2)') + ';">' + 
-             m.estado + ' (' + sign + 'S/. ' + m.diferencia.toFixed(2) + ')' +
-          '</div>' +
-          '<div style="display:flex; justify-content:flex-end; width:100%; align-items:center; gap:10px; margin-top:4px;">' +
+        '<div class="mov-right">' +
+          '<div class="mov-monto ' + iconBg + '">S/. ' + m.total.toLocaleString('es-PE', {minimumFractionDigits:2}) + '</div>' +
+          '<div style="display:flex; justify-content:flex-end; width:100%; align-items:center; gap:10px;">' +
+            '<div class="mov-fecha">' + escapeHtml(m.fecha) + '</div>' +
             '<div class="mov-acciones">' +
               (m.comprobante ? '<button class="mov-btn" onclick="verSustento(\'' + compUrlSafe + '\')" title="Ver comprobante"><span class="mi sm">attach_file</span></button>' : '') +
               '<button class="mov-btn" data-movid="' + mDataId + '" onclick="kasnetShowModalById(this.dataset.movid)" title="Editar"><span class="mi sm">edit</span></button>' +
