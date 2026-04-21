@@ -816,11 +816,6 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
         <!-- SECTION: KASNET -->
         <div id="section-kasnet" class="section">
-          <div class="caja-grid">
-            <div class="caja-card"><div class="caja-card-title">Saldo Asignado (Base)</div><div class="caja-monto azul" id="kasnet-total-hoy">S/. 3,000.00</div></div>
-            <div class="caja-card"><div class="caja-card-title">Último Cierre (Diff)</div><div class="caja-monto" id="kasnet-diff-hoy" style="color:var(--texto);">S/. 0.00</div></div>
-            <div class="caja-card"><div class="caja-card-title">Registros Mes</div><div class="caja-monto verde" id="kasnet-ops-mes">0</div></div>
-          </div>
           <div class="caja-toolbar">
             <button class="btn-main" onclick="kasnetShowModal()" style="width:auto;padding:9px 16px;font-size:13px;">+ Nuevo Registro Diario</button>
             <input type="text" id="kasnet-buscar" placeholder="Buscar fecha..." oninput="kasnetFiltrar()" style="flex:1;padding:8px 12px;border:1.5px solid var(--gris2);border-radius:10px;font-size:13px;max-width:300px;">
@@ -1588,6 +1583,34 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     html += '</div>';
     html += '</div>'; // close dash-row
 
+    // ── BLOQUE 4: Resumen KASNET ──
+    html += '<div style="margin-bottom:18px;">';
+    html += '<h3 style="font-family:\\'Montserrat\\',sans-serif; font-size:14px; color:var(--azul); margin-bottom:10px; display:flex; align-items:center; gap:6px;"><span class="mi sm">point_of_sale</span> Resumen KASNET</h3>';
+    html += '<div class="caja-grid">';
+    
+    let mesActualOps = 0;
+    const mesActualStr = new Date().toISOString().substring(0, 7);
+    let ultimaDiff = 0;
+    let fontColor = 'var(--texto)';
+    
+    if (typeof kasnetRegistros !== 'undefined' && kasnetRegistros && kasnetRegistros.length > 0) {
+      const u = kasnetRegistros[0];
+      ultimaDiff = u.diferencia;
+      if (ultimaDiff > 0) fontColor = 'var(--verde)';
+      else if (ultimaDiff < 0) fontColor = 'var(--rojo)';
+      
+      kasnetRegistros.forEach(function(r) {
+        if (r.fecha && r.fecha.startsWith(mesActualStr)) mesActualOps++;
+      });
+    }
+    
+    const diffText = (ultimaDiff > 0 ? '+' : '') + 'S/. ' + ultimaDiff.toLocaleString('es-PE', {minimumFractionDigits:2});
+
+    html += '<div class="caja-card"><div class="caja-card-title">Saldo Asignado (Base)</div><div class="caja-monto azul">S/. 3,000.00</div></div>';
+    html += '<div class="caja-card"><div class="caja-card-title">Último Cierre (Diff)</div><div class="caja-monto" style="color:' + fontColor + ';">' + diffText + '</div></div>';
+    html += '<div class="caja-card"><div class="caja-card-title">Registros Mes</div><div class="caja-monto verde">' + mesActualOps + '</div></div>';
+    html += '</div></div>';
+
     container.innerHTML = html;
   }
 
@@ -1595,6 +1618,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     try {
       const pV = apiFetch({ admin: 'vouchers', sedeContexto: sedeParam });
       const pH = apiFetch({ admin: 'historial', sedeContexto: sedeParam });
+      const pK = apiFetch({ admin: 'kasnet_datos', sedeContexto: sedeParam });
       
       const resV = await pV;
       if (Array.isArray(resV)) {
@@ -1612,7 +1636,13 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         poblarFiltrosHistorial();
         renderHistorial();
       }
-      // Re-renderizar dashboard con datos completos (vouchers + historial)
+      
+      const resK = await pK;
+      if (resK && !resK.error) {
+        kasnetRegistros = resK.registros || [];
+      }
+      
+      // Re-renderizar dashboard con datos completos (vouchers + historial + kasnet)
       renderDashboard();
     } catch(e) { console.error("Adicionales error: ", e); }
   }
@@ -2978,28 +3008,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   }
 
   function kasnetRenderResumen(regs) {
-    let mesActualOps = 0;
-    const mesActualStr = new Date().toISOString().substring(0, 7); // yyyy-MM
-    let ultimaDiff = 0;
-    let fontColor = 'var(--texto)';
-
-    if (regs.length > 0) {
-      const u = regs[0]; // el más reciente por fecha (asumiendo sort desc desde backend)
-      ultimaDiff = u.diferencia;
-      if (ultimaDiff > 0) fontColor = 'var(--verde)';
-      else if (ultimaDiff < 0) fontColor = 'var(--rojo)';
-      else fontColor = 'var(--texto)';
-      
-      regs.forEach(r => {
-        if (r.fecha && r.fecha.startsWith(mesActualStr)) mesActualOps++;
-      });
-    }
-
-    document.getElementById('kasnet-total-hoy').textContent = 'S/. ' + KASNET_BASE_DEFAULT.toLocaleString('es-PE', {minimumFractionDigits:2});
-    const elDiff = document.getElementById('kasnet-diff-hoy');
-    elDiff.textContent = (ultimaDiff > 0 ? '+' : '') + 'S/. ' + ultimaDiff.toLocaleString('es-PE', {minimumFractionDigits:2});
-    elDiff.style.color = fontColor;
-    document.getElementById('kasnet-ops-mes').textContent = mesActualOps;
+    // Resumen movido al dashboard principal
   }
 
   function kasnetRenderOperaciones(regs) {
