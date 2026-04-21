@@ -905,9 +905,10 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     <div class="dr-section" id="dr-caja-comp-section" style="display:none; flex-direction:column; padding:12px;">
       <div class="dr-section-title" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
         <span>Comprobante</span>
-        <a id="dr-caja-link-comp" href="#" target="_blank" style="font-size:11px; color:var(--azul); text-decoration:none; display:flex; align-items:center; gap:4px; font-weight:700;"><span class="mi xs">open_in_new</span> Abrir</a>
+        <a id="dr-caja-link-comp" href="#" target="_blank" style="font-size:11px; color:var(--azul); text-decoration:none; display:none; align-items:center; gap:4px; font-weight:700;"><span class="mi xs">open_in_new</span> Abrir</a>
       </div>
-      <iframe id="dr-caja-iframe" src="" style="width:100%; height:250px; border:1px solid var(--gris2); border-radius:10px; background:#f8fafc;"></iframe>
+      <button id="dr-caja-btn-show-comp" class="btn-secundary" style="width:100%; justify-content:center; gap:8px;" onclick="mostrarIframeCaja()"><span class="mi sm">visibility</span> Ver Comprobante</button>
+      <iframe id="dr-caja-iframe" src="" style="width:100%; height:250px; border:1px solid var(--gris2); border-radius:10px; background:#f8fafc; display:none;"></iframe>
     </div>
   </div>
   <div class="drawer-actions" id="dr-caja-actions"></div>
@@ -941,9 +942,10 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     <div class="dr-section" id="dr-kasnet-comp-section" style="display:none; flex-direction:column; padding:12px;">
       <div class="dr-section-title" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
         <span>Comprobante</span>
-        <a id="dr-kasnet-link-comp" href="#" target="_blank" style="font-size:11px; color:var(--azul); text-decoration:none; display:flex; align-items:center; gap:4px; font-weight:700;"><span class="mi xs">open_in_new</span> Abrir</a>
+        <a id="dr-kasnet-link-comp" href="#" target="_blank" style="font-size:11px; color:var(--azul); text-decoration:none; display:none; align-items:center; gap:4px; font-weight:700;"><span class="mi xs">open_in_new</span> Abrir</a>
       </div>
-      <iframe id="dr-kasnet-iframe" src="" style="width:100%; height:250px; border:1px solid var(--gris2); border-radius:10px; background:#f8fafc;"></iframe>
+      <button id="dr-kasnet-btn-show-comp" class="btn-secundary" style="width:100%; justify-content:center; gap:8px;" onclick="mostrarIframeKasnet()"><span class="mi sm">visibility</span> Ver Comprobante</button>
+      <iframe id="dr-kasnet-iframe" src="" style="width:100%; height:250px; border:1px solid var(--gris2); border-radius:10px; background:#f8fafc; display:none;"></iframe>
     </div>
   </div>
   <div class="drawer-actions" id="dr-kasnet-actions"></div>
@@ -2656,10 +2658,21 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       const previewUrl = safeUrl.includes('/view') ? safeUrl.replace('/view', '/preview') : safeUrl;
       document.getElementById('dr-caja-iframe').src = previewUrl;
       document.getElementById('dr-caja-link-comp').href = safeUrl;
+      
+      // Reset visibility
+      document.getElementById('dr-caja-btn-show-comp').style.display = 'flex';
+      document.getElementById('dr-caja-iframe').style.display = 'none';
+      document.getElementById('dr-caja-link-comp').style.display = 'none';
     } else {
       document.getElementById('dr-caja-comp-section').style.display = 'none';
       document.getElementById('dr-caja-iframe').src = '';
     }
+    
+  function mostrarIframeCaja() {
+    document.getElementById('dr-caja-btn-show-comp').style.display = 'none';
+    document.getElementById('dr-caja-iframe').style.display = 'block';
+    document.getElementById('dr-caja-link-comp').style.display = 'flex';
+  }
     
     // Actions
     const isPastMonth = typeof m.fecha === 'string' && (function(){
@@ -3275,10 +3288,21 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       const previewUrl = safeUrl.includes('/view') ? safeUrl.replace('/view', '/preview') : safeUrl;
       document.getElementById('dr-kasnet-iframe').src = previewUrl;
       document.getElementById('dr-kasnet-link-comp').href = safeUrl;
+      
+      // Reset visibility
+      document.getElementById('dr-kasnet-btn-show-comp').style.display = 'flex';
+      document.getElementById('dr-kasnet-iframe').style.display = 'none';
+      document.getElementById('dr-kasnet-link-comp').style.display = 'none';
     } else {
       document.getElementById('dr-kasnet-comp-section').style.display = 'none';
       document.getElementById('dr-kasnet-iframe').src = '';
     }
+    
+  function mostrarIframeKasnet() {
+    document.getElementById('dr-kasnet-btn-show-comp').style.display = 'none';
+    document.getElementById('dr-kasnet-iframe').style.display = 'block';
+    document.getElementById('dr-kasnet-link-comp').style.display = 'flex';
+  }
     
     // Actions
     const actionsEl = document.getElementById('dr-kasnet-actions');
