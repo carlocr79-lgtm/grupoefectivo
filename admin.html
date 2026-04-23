@@ -2426,9 +2426,12 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     }
 
     // Sin cache: mostrar spinner y esperar
-    document.getElementById('caja-saldo').textContent = '...';
-    document.getElementById('caja-ingresos').textContent = '...';
-    document.getElementById('caja-egresos').textContent = '...';
+    const elSaldo = document.getElementById('caja-saldo');
+    const elIng = document.getElementById('caja-ingresos');
+    const elEgr = document.getElementById('caja-egresos');
+    if (elSaldo) elSaldo.textContent = '...';
+    if (elIng) elIng.textContent = '...';
+    if (elEgr) elEgr.textContent = '...';
     const tbody = document.getElementById('caja-tabla-body');
     if(tbody) tbody.innerHTML = '<div class="empty" style="padding:20px;"><div class="spinner-sm"></div>Cargando...</div>';
 
