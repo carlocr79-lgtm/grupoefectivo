@@ -1439,20 +1439,47 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       const globalSel = document.getElementById('global-sede-select');
       const sedeReq = globalSel ? globalSel.value : ''; // snapshot de la sede al momento de iniciar
 
-      // Lanzar ambas peticiones en paralelo
+      // ── TÉCNICA 1: Mostrar cache inmediatamente (stale-while-revalidate) para Dashboard/Mora ──
+      const dashCached = dashCacheLeer(sedeReq);
+      if (dashCached) {
+        if (Array.isArray(dashCached.clientes)) {
+          clientes = dashCached.clientes;
+          renderAsesoresFiltros();
+          renderClientes();
+        }
+        // Poblar sedes precargadas
+        if (dashCached.sedes && dashCached.sedes.length > 0 && globalSel.options.length === 0) {
+          globalSel.innerHTML = '';
+          const rolActual = sessionStorage.getItem('ge_rol') || 'asesor';
+          if (rolActual === 'admin') { const o = document.createElement('option'); o.value=''; o.textContent='Todas las sedes'; globalSel.appendChild(o); }
+          dashCached.sedes.forEach(function(s) { const o = document.createElement('option'); o.value=s; o.textContent=s; globalSel.appendChild(o); });
+          if (rolActual !== 'admin' && dashCached.sedes.length === 1 && globalSel.parentElement) globalSel.parentElement.style.display = 'none';
+          if (dashCached.sedeActiva !== undefined && dashCached.sedeActiva !== null) {
+            globalSel.value = dashCached.sedeActiva;
+            cajaSedeActual = dashCached.sedeActiva;
+          }
+        }
+        renderDashboard();
+      }
+
+      // Lanzar peticiones en paralelo
       const pDash = apiFetch({ admin: 'dashboard', sedeContexto: sedeReq });
       const pCaja = apiFetch({ admin: 'caja_datos', sede: sedeReq, sedeContexto: sedeReq });
+      const pKasnet = apiFetch({ admin: 'kasnet_datos', sedeContexto: sedeReq });
 
       const resp = await pDash;
-
       // ⚠️ Guard: si llegó una carga más nueva mientras esperábamos, ignorar esta respuesta
       if (myReqId !== _loadRequestId) { console.log('[cargarTodo] descartando respuesta obsoleta (req ' + myReqId + ')'); return; }
 
       if (!resp || resp.error) {
-        console.error('Dashboard error:', resp);
-        document.getElementById('lista-clientes').innerHTML = '<div class="empty">Error de conexión con el servidor.</div>';
+        if (!dashCached) {
+          console.error('Dashboard error:', resp);
+          document.getElementById('lista-clientes').innerHTML = '<div class="empty">Error de conexión con el servidor.</div>';
+        }
         return;
       }
+      
+      dashCacheGuardar(sedeReq, resp);
 
       // Poblar selector de sedes solo la primera vez (cuando está vacío)
       if (resp.sedes && resp.sedes.length > 0 && globalSel.options.length === 0) {
@@ -1498,6 +1525,16 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
           if (txtT) txtT.textContent = 'S/. ' + cajaSaldoTeorico.toLocaleString('es-PE', {minimumFractionDigits:2});
           cajaRenderArqueoBanner(cajaDatos);
           cajaCalcArqueo();
+        }
+      } catch(ex) { console.error(ex); }
+
+      // Datos KASNET en paralelo (Precarga silenciosa)
+      try {
+        const respKasnet = await pKasnet;
+        if (myReqId === _loadRequestId && respKasnet && !respKasnet.error) {
+          kasnetRegistros = respKasnet.registros || [];
+          const secKasnet = document.getElementById('section-kasnet');
+          if (secKasnet && secKasnet.classList.contains('active')) kasnetRenderOperaciones(kasnetRegistros);
         }
       } catch(ex) { console.error(ex); }
 
@@ -2387,13 +2424,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
   // ── CACHE HELPERS ──
   function cajaCacheKey(sede) { return 'caja_cache_' + (sede || 'todas'); }
-
-  function cajaCacheGuardar(sede, data) {
-    try {
-      sessionStorage.setItem(cajaCacheKey(sede), JSON.stringify({ ts: Date.now(), data: data }));
-    } catch(e) { /* sessionStorage lleno, ignorar */ }
-  }
-
+  function cajaCacheGuardar(sede, data) { try { sessionStorage.setItem(cajaCacheKey(sede), JSON.stringify({ ts: Date.now(), data: data })); } catch(e) {} }
   function cajaCacheLeer(sede) {
     try {
       const raw = sessionStorage.getItem(cajaCacheKey(sede));
@@ -2403,9 +2434,18 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       return obj.data;
     } catch(e) { return null; }
   }
+  function cajaCacheInvalidar(sede) { try { sessionStorage.removeItem(cajaCacheKey(sede)); } catch(e) {} }
 
-  function cajaCacheInvalidar(sede) {
-    try { sessionStorage.removeItem(cajaCacheKey(sede)); } catch(e) {}
+  function dashCacheKey(sede) { return 'dash_cache_' + (sede || 'todas'); }
+  function dashCacheGuardar(sede, data) { try { sessionStorage.setItem(dashCacheKey(sede), JSON.stringify({ ts: Date.now(), data: data })); } catch(e) {} }
+  function dashCacheLeer(sede) {
+    try {
+      const raw = sessionStorage.getItem(dashCacheKey(sede));
+      if (!raw) return null;
+      const obj = JSON.parse(raw);
+      if (Date.now() - obj.ts > CAJA_CACHE_TTL) return null; // Mismo TTL (60s)
+      return obj.data;
+    } catch(e) { return null; }
   }
 
   async function cajaCargarDatos() {
@@ -3214,16 +3254,26 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   const KASNET_BASE_DEFAULT = 3000; // Podría venir de config en el futuro
 
   async function kasnetCargarDatos() {
+    // Renderizado instántaneo si ya hay datos precargados
+    if (kasnetRegistros && kasnetRegistros.length > 0) {
+      kasnetRenderOperaciones(kasnetRegistros);
+    } else {
+      document.getElementById('kasnet-lista').innerHTML = '<div class="empty" style="padding:20px;"><div class="spinner-sm"></div>Cargando registros...</div>';
+    }
+
     try {
       const resp = await apiFetch({ admin: 'kasnet_datos', sedeContexto: cajaSedeActual });
       if (!resp || resp.error) {
-        showToast('Error cargando KASNET: ' + (resp && resp.error ? resp.error : 'Sin respuesta'));
+        if (!kasnetRegistros || kasnetRegistros.length === 0) {
+          showToast('Error cargando KASNET: ' + (resp && resp.error ? resp.error : 'Sin respuesta'));
+        }
         return;
       }
       kasnetRegistros = resp.registros || [];
-      kasnetRenderResumen(kasnetRegistros);
       kasnetRenderOperaciones(kasnetRegistros);
-    } catch(e) { showToast('Error: ' + e.message); }
+    } catch(e) { 
+      if (!kasnetRegistros || kasnetRegistros.length === 0) showToast('Error: ' + e.message); 
+    }
   }
 
   function kasnetRenderResumen(regs) {
