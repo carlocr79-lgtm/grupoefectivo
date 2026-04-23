@@ -735,100 +735,17 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
             </div>
           </div>
 
-          <!-- PANEL: ARQUEO DE CAJA (Incluye Nuevo e Historial) -->
+          <!-- PANEL: ARQUEOS -->
           <div id="cc-panel-arqueo" style="display:none;">
-            <!-- SUB-SWITCHER -->
-            <div style="display:flex;gap:0;margin-bottom:12px;border-bottom:1px solid var(--gris2);">
-              <button id="arq-subtab-nuevo" onclick="cajaArqSubToggle('nuevo')" style="padding:8px 14px;background:none;border:none;border-bottom:2px solid var(--azul2);color:var(--azul2);font-weight:700;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:4px;"><span class="mi sm">add_box</span> Nuevo Arqueo</button>
-              <button id="arq-subtab-historial" onclick="cajaArqSubToggle('historial')" style="padding:8px 14px;background:none;border:none;border-bottom:2px solid transparent;color:var(--texto2);font-weight:600;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:4px;"><span class="mi sm">history</span> Historial</button>
+            <div class="caja-toolbar">
+              <button class="btn-main" onclick="cajaShowArqueoModal()" style="width:auto;padding:9px 16px;font-size:13px;">+ Nuevo Arqueo</button>
             </div>
-
-            <!-- VISTA: NUEVO ARQUEO -->
-            <div id="arq-subpanel-nuevo">
-              <!-- VISTA CAJERA -->
-          <div id="arq-vista-cajera" style="display:none;">
-            <div style="background:linear-gradient(135deg,var(--azul),var(--azul2));border-radius:14px;padding:14px;margin-bottom:12px;display:flex;flex-direction:column;align-items:center;gap:6px;">
-              <span id="badge-arq-cajera" style="display:none; background:rgba(255,255,255,0.2); color:white; font-size:10px; font-weight:700; padding:3px 10px; border-radius:12px;"><span class="mi" style="font-size:12px;vertical-align:text-bottom;margin-right:4px;">history</span>Último: <span id="lbl-arq-cajera"></span></span>
-              <div style="text-align:center;"><div style="font-size:10px;color:rgba(255,255,255,0.7);">Saldo Físico</div><div style="font-size:20px;font-weight:900;color:white;" id="arq-fisico-cajera">S/. 0.00</div></div>
+            <div class="movimientos-list" id="caja-hist-body">
+              <div class="empty" style="padding:20px;"><div class="spinner-sm"></div>Cargando historial...</div>
             </div>
-            <div class="diff-card" id="arq-diff-cajera" style="margin-bottom:12px;">
-              <div style="font-size:10px;font-weight:700;">Total contado</div>
-              <div style="font-size:22px;font-weight:900;" id="arq-total-cajera">S/. 0.00</div>
-              <div style="font-size:11px;" id="arq-msg-cajera">Ingresa el conteo</div>
+            <div style="text-align:center;margin-top:14px;display:none;" id="caja-hist-mas-container">
+              <button class="btn-main" id="btn-arqueos-mas" onclick="cajaLoadHistorial(true)" style="background:white;color:var(--azul2);border:1.5px solid var(--azul2);width:auto;padding:8px 24px;border-radius:30px;font-size:13px;font-weight:700;"><span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">expand_more</span> Ver más arqueos</button>
             </div>
-            <div class="arqueo-grid">
-              <div class="denom-section">
-                <h4>Billetes</h4>
-                <div class="denom-row"><span class="denom-label">S/ 200</span><input type="number" class="denom-input arq-input-cajera" data-val="200" placeholder="0" oninput="cajaCalcArqueoCajera()"><span class="denom-subtotal" id="sub-cajera-b200">0.00</span></div>
-                <div class="denom-row"><span class="denom-label">S/ 100</span><input type="number" class="denom-input arq-input-cajera" data-val="100" placeholder="0" oninput="cajaCalcArqueoCajera()"><span class="denom-subtotal" id="sub-cajera-b100">0.00</span></div>
-                <div class="denom-row"><span class="denom-label">S/ 50</span><input type="number" class="denom-input arq-input-cajera" data-val="50" placeholder="0" oninput="cajaCalcArqueoCajera()"><span class="denom-subtotal" id="sub-cajera-b50">0.00</span></div>
-                <div class="denom-row"><span class="denom-label">S/ 20</span><input type="number" class="denom-input arq-input-cajera" data-val="20" placeholder="0" oninput="cajaCalcArqueoCajera()"><span class="denom-subtotal" id="sub-cajera-b20">0.00</span></div>
-                <div class="denom-row"><span class="denom-label">S/ 10</span><input type="number" class="denom-input arq-input-cajera" data-val="10" placeholder="0" oninput="cajaCalcArqueoCajera()"><span class="denom-subtotal" id="sub-cajera-b10">0.00</span></div>
-              </div>
-              <div class="denom-section">
-                <h4>Monedas</h4>
-                <div class="denom-row"><span class="denom-label">S/ 5</span><input type="number" class="denom-input arq-input-cajera" data-val="5" placeholder="0" oninput="cajaCalcArqueoCajera()"><span class="denom-subtotal" id="sub-cajera-m5">0.00</span></div>
-                <div class="denom-row"><span class="denom-label">S/ 2</span><input type="number" class="denom-input arq-input-cajera" data-val="2" placeholder="0" oninput="cajaCalcArqueoCajera()"><span class="denom-subtotal" id="sub-cajera-m2">0.00</span></div>
-                <div class="denom-row"><span class="denom-label">S/ 1</span><input type="number" class="denom-input arq-input-cajera" data-val="1" placeholder="0" oninput="cajaCalcArqueoCajera()"><span class="denom-subtotal" id="sub-cajera-m1">0.00</span></div>
-                <div class="denom-row"><span class="denom-label">S/ 0.50</span><input type="number" class="denom-input arq-input-cajera" data-val="0.50" placeholder="0" oninput="cajaCalcArqueoCajera()"><span class="denom-subtotal" id="sub-cajera-m050">0.00</span></div>
-                <div class="denom-row"><span class="denom-label">S/ 0.20</span><input type="number" class="denom-input arq-input-cajera" data-val="0.20" placeholder="0" oninput="cajaCalcArqueoCajera()"><span class="denom-subtotal" id="sub-cajera-m020">0.00</span></div>
-                <div class="denom-row"><span class="denom-label">S/ 0.10</span><input type="number" class="denom-input arq-input-cajera" data-val="0.10" placeholder="0" oninput="cajaCalcArqueoCajera()"><span class="denom-subtotal" id="sub-cajera-m010">0.00</span></div>
-              </div>
-            </div>
-            <button class="btn-main" id="arq-btn-diario" onclick="cajaSubmitArqueo('Cierre Diario')" disabled style="width:100%;padding:12px;font-size:13px;margin-top:14px;"><span class="mi sm" style="vertical-align:text-bottom;margin-right:4px;">fact_check</span> Guardar Cierre Diario</button>
-          </div>
-          <!-- VISTA ADMIN -->
-          <div id="arq-vista-admin" style="display:none;">
-            <div style="background:white;border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 2px 10px rgba(0,48,135,0.07);">
-              <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
-                <div>
-                  <div style="font-size:11px;color:var(--texto2);display:flex;align-items:center;gap:6px;">Saldo Teórico <span id="badge-arq-admin" style="display:none;background:var(--azul-claro);color:var(--azul);padding:2px 6px;border-radius:6px;font-size:9px;font-weight:700;"><span class="mi" style="font-size:10px;vertical-align:text-bottom;margin-right:2px;">history</span>Último: <span id="lbl-arq-admin"></span></span></div>
-                  <div style="font-size:18px;font-weight:800;color:var(--azul);" id="arq-teorico">S/. 0.00</div>
-                </div>
-                <div><div style="font-size:11px;color:var(--texto2);text-align:right;">Saldo Físico</div><div style="font-size:18px;font-weight:800;color:var(--verde);text-align:right;" id="arq-fisico">S/. 0.00</div></div>
-              </div>
-              <div class="diff-card" id="arq-diff-card">
-                <div style="font-size:10px;font-weight:700;">Diferencia</div>
-                <div style="font-size:22px;font-weight:900;" id="arq-diferencia">S/. 0.00</div>
-                <div style="font-size:11px;" id="arq-msg">Ingresa el conteo</div>
-              </div>
-            </div>
-            <div class="arqueo-grid">
-              <div class="denom-section">
-                <h4>Billetes</h4>
-                <div class="denom-row"><span class="denom-label">S/ 200</span><input type="number" class="denom-input arq-input" id="arq-b200" data-val="200" placeholder="0" oninput="cajaCalcArqueo()"><span class="denom-subtotal" id="sub-b200">0.00</span></div>
-                <div class="denom-row"><span class="denom-label">S/ 100</span><input type="number" class="denom-input arq-input" id="arq-b100" data-val="100" placeholder="0" oninput="cajaCalcArqueo()"><span class="denom-subtotal" id="sub-b100">0.00</span></div>
-                <div class="denom-row"><span class="denom-label">S/ 50</span><input type="number" class="denom-input arq-input" id="arq-b50" data-val="50" placeholder="0" oninput="cajaCalcArqueo()"><span class="denom-subtotal" id="sub-b50">0.00</span></div>
-                <div class="denom-row"><span class="denom-label">S/ 20</span><input type="number" class="denom-input arq-input" id="arq-b20" data-val="20" placeholder="0" oninput="cajaCalcArqueo()"><span class="denom-subtotal" id="sub-b20">0.00</span></div>
-                <div class="denom-row"><span class="denom-label">S/ 10</span><input type="number" class="denom-input arq-input" id="arq-b10" data-val="10" placeholder="0" oninput="cajaCalcArqueo()"><span class="denom-subtotal" id="sub-b10">0.00</span></div>
-              </div>
-              <div class="denom-section">
-                <h4>Monedas</h4>
-                <div class="denom-row"><span class="denom-label">S/ 5</span><input type="number" class="denom-input arq-input" id="arq-m5" data-val="5" placeholder="0" oninput="cajaCalcArqueo()"><span class="denom-subtotal" id="sub-m5">0.00</span></div>
-                <div class="denom-row"><span class="denom-label">S/ 2</span><input type="number" class="denom-input arq-input" id="arq-m2" data-val="2" placeholder="0" oninput="cajaCalcArqueo()"><span class="denom-subtotal" id="sub-m2">0.00</span></div>
-                <div class="denom-row"><span class="denom-label">S/ 1</span><input type="number" class="denom-input arq-input" id="arq-m1" data-val="1" placeholder="0" oninput="cajaCalcArqueo()"><span class="denom-subtotal" id="sub-m1">0.00</span></div>
-                <div class="denom-row"><span class="denom-label">S/ 0.50</span><input type="number" class="denom-input arq-input" id="arq-m050" data-val="0.50" placeholder="0" oninput="cajaCalcArqueo()"><span class="denom-subtotal" id="sub-m050">0.00</span></div>
-                <div class="denom-row"><span class="denom-label">S/ 0.20</span><input type="number" class="denom-input arq-input" id="arq-m020" data-val="0.20" placeholder="0" oninput="cajaCalcArqueo()"><span class="denom-subtotal" id="sub-m020">0.00</span></div>
-                <div class="denom-row"><span class="denom-label">S/ 0.10</span><input type="number" class="denom-input arq-input" id="arq-m010" data-val="0.10" placeholder="0" oninput="cajaCalcArqueo()"><span class="denom-subtotal" id="sub-m010">0.00</span></div>
-              </div>
-            </div>
-            <div style="display:flex;gap:10px;margin-top:14px;">
-              <button class="btn-main" id="arq-btn-preventivo" onclick="cajaSubmitArqueo('Arqueo Preventivo')" disabled style="flex:1;padding:12px;font-size:13px;background:linear-gradient(135deg,#ff8800,#ffaa00);"><span class="mi sm" style="vertical-align:text-bottom;margin-right:4px;">search</span> Arqueo Preventivo</button>
-              <button class="btn-main" id="arq-btn-mes" onclick="cajaSubmitArqueo('Cierre de Mes')" disabled style="flex:1;padding:12px;font-size:13px;background:linear-gradient(135deg,var(--rojo),#ff4444);"><span class="mi sm" style="vertical-align:text-bottom;margin-right:4px;">lock</span> Cerrar Mes</button>
-            </div>
-              </div>
-            </div><!-- /arq-subpanel-nuevo -->
-
-            <!-- VISTA: HISTORIAL ARQUEOS -->
-            <div id="arq-subpanel-historial" style="display:none;">
-              <div class="movimientos-list" id="caja-hist-body">
-                <div class="empty" style="padding:20px;"><div class="spinner-sm"></div>Cargando historial...</div>
-              </div>
-              <div style="text-align:center;margin-top:14px;display:none;" id="caja-hist-mas-container">
-                <button class="btn-main" id="btn-arqueos-mas" onclick="cajaLoadHistorial(true)" style="background:white;color:var(--azul2);border:1.5px solid var(--azul2);width:auto;padding:8px 24px;border-radius:30px;font-size:13px;font-weight:700;"><span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">expand_more</span> Ver más arqueos</button>
-              </div>
-            </div><!-- /arq-subpanel-historial -->
-
           </div><!-- /cc-panel-arqueo -->
 
         </div><!-- /section-cajachica -->
@@ -1064,6 +981,75 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     </div>
     <div style="margin-top:20px;">
       <button class="btn-secundary" onclick="document.getElementById('modal-detalle-arqueo').classList.remove('show')" style="width:100%;">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ARQUEO -->
+<div class="modal-caja" id="modal-arqueo">
+  <div class="modal-caja-box" style="max-width:850px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h3 id="modal-arq-titulo"><span class="mi" style="font-size:18px;vertical-align:middle;">inventory</span> Nuevo Arqueo</h3>
+      <button onclick="cajaHideArqueoModal()" style="background:none;border:none;font-size:18px;cursor:pointer;">x</button>
+    </div>
+
+    <div style="display:grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap:16px; align-items: stretch;">
+      <!-- COLUMNA IZQUIERDA: Saldos y Diferencia -->
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <div id="arq-bloque-teorico" style="background:white; border:1px solid var(--gris2); padding:14px; border-radius:10px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+          <div style="font-size:11px;color:var(--texto2);display:flex;align-items:center;gap:6px;margin-bottom:4px;">Saldo Teórico <span id="badge-arq-admin" style="display:none;background:var(--azul-claro);color:var(--azul);padding:2px 6px;border-radius:6px;font-size:9px;font-weight:700;"><span class="mi" style="font-size:10px;vertical-align:text-bottom;margin-right:2px;">history</span>Último: <span id="lbl-arq-admin"></span></span></div>
+          <div style="font-size:24px;font-weight:800;color:var(--azul);" id="arq-teorico">S/. 0.00</div>
+        </div>
+        
+        <div class="diff-card" id="arq-diff-card" style="padding:14px; flex:1; display:flex; flex-direction:column; justify-content:center;">
+          <div style="font-size:11px;font-weight:700;margin-bottom:4px;" id="arq-diff-label">Diferencia VS Base</div>
+          <div style="font-size:28px;font-weight:900;margin-bottom:8px;" id="arq-diferencia">S/. 0.00</div>
+          <div style="font-size:12px;font-weight:600;" id="arq-msg">Ingresa el conteo físico</div>
+        </div>
+      </div>
+
+      <!-- COLUMNA DERECHA: Efectivo Físico -->
+      <div style="display:flex; flex-direction:column; gap:10px; min-width: 0;">
+        <div style="background:white; border:1px solid var(--gris2); padding:10px; border-radius:10px; flex:1; display:flex; flex-direction:column; box-shadow: 0 2px 8px rgba(0,0,0,0.02); min-width: 0;">
+          <h4 style="font-size:11px; margin-bottom:10px; color:var(--azul); font-weight:800; display:flex; align-items:center; gap:4px;"><span class="mi xs">payments</span> Efectivo Físico</h4>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px; flex:1; min-width: 0;">
+            <!-- Billetes -->
+            <div style="min-width: 0;">
+              <div style="font-size:9px; border-bottom:1px solid var(--gris); padding-bottom:2px; font-weight:800; color:var(--texto2); margin-bottom:8px; letter-spacing:0.5px;">BILLETES</div>
+              <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:38px; font-size:11px; font-weight:600; color:var(--texto);">S/ 200</span><input type="number" id="arq-m-b200" data-val="200" placeholder="0" min="0" class="mini-input arq-modal-input" oninput="cajaCalcArqueo()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
+              <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:38px; font-size:11px; font-weight:600; color:var(--texto);">S/ 100</span><input type="number" id="arq-m-b100" data-val="100" placeholder="0" min="0" class="mini-input arq-modal-input" oninput="cajaCalcArqueo()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
+              <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:38px; font-size:11px; font-weight:600; color:var(--texto);">S/ 50</span><input type="number" id="arq-m-b50" data-val="50" placeholder="0" min="0" class="mini-input arq-modal-input" oninput="cajaCalcArqueo()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
+              <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:38px; font-size:11px; font-weight:600; color:var(--texto);">S/ 20</span><input type="number" id="arq-m-b20" data-val="20" placeholder="0" min="0" class="mini-input arq-modal-input" oninput="cajaCalcArqueo()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
+              <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:38px; font-size:11px; font-weight:600; color:var(--texto);">S/ 10</span><input type="number" id="arq-m-b10" data-val="10" placeholder="0" min="0" class="mini-input arq-modal-input" oninput="cajaCalcArqueo()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
+            </div>
+            <!-- Monedas -->
+            <div style="min-width: 0;">
+              <div style="font-size:9px; border-bottom:1px solid var(--gris); padding-bottom:2px; font-weight:800; color:var(--texto2); margin-bottom:8px; letter-spacing:0.5px;">MONEDAS</div>
+              <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:40px; font-size:11px; font-weight:600; color:var(--texto);">S/ 5.00</span><input type="number" id="arq-m-m5" data-val="5" placeholder="0" min="0" class="mini-input arq-modal-input" oninput="cajaCalcArqueo()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
+              <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:40px; font-size:11px; font-weight:600; color:var(--texto);">S/ 2.00</span><input type="number" id="arq-m-m2" data-val="2" placeholder="0" min="0" class="mini-input arq-modal-input" oninput="cajaCalcArqueo()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
+              <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:40px; font-size:11px; font-weight:600; color:var(--texto);">S/ 1.00</span><input type="number" id="arq-m-m1" data-val="1" placeholder="0" min="0" class="mini-input arq-modal-input" oninput="cajaCalcArqueo()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
+              <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:40px; font-size:11px; font-weight:600; color:var(--texto);">S/ 0.50</span><input type="number" id="arq-m-m050" data-val="0.5" placeholder="0" min="0" class="mini-input arq-modal-input" oninput="cajaCalcArqueo()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
+              <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:40px; font-size:11px; font-weight:600; color:var(--texto);">S/ 0.20</span><input type="number" id="arq-m-m020" data-val="0.2" placeholder="0" min="0" class="mini-input arq-modal-input" oninput="cajaCalcArqueo()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
+              <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:40px; font-size:11px; font-weight:600; color:var(--texto);">S/ 0.10</span><input type="number" id="arq-m-m010" data-val="0.1" placeholder="0" min="0" class="mini-input arq-modal-input" oninput="cajaCalcArqueo()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
+            </div>
+          </div>
+          <div style="margin-top:auto; padding-top:10px; border-top:1px dashed var(--gris2); font-size:12px; font-weight:800; color:var(--texto); display:flex; justify-content:space-between; align-items:center;">
+             <span>Total Físico en Caja:</span>
+             <span id="arq-fisico" style="color:var(--verde); font-size:16px;">S/. 0.00</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTONES -->
+    <div style="display:flex;gap:10px;margin-top:14px;" id="arq-btns-admin">
+      <button class="btn-secundary" onclick="cajaHideArqueoModal()" style="flex:1;padding:12px;font-size:13px;">Cancelar</button>
+      <button class="btn-main" id="arq-btn-preventivo" onclick="cajaSubmitArqueo('Arqueo Preventivo')" disabled style="flex:1;padding:12px;font-size:13px;background:linear-gradient(135deg,#ff8800,#ffaa00);"><span class="mi sm" style="vertical-align:text-bottom;margin-right:4px;">search</span> Arqueo Preventivo</button>
+      <button class="btn-main" id="arq-btn-mes" onclick="cajaSubmitArqueo('Cierre de Mes')" disabled style="flex:1;padding:12px;font-size:13px;background:linear-gradient(135deg,var(--rojo),#ff4444);"><span class="mi sm" style="vertical-align:text-bottom;margin-right:4px;">lock</span> Cerrar Mes</button>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:14px;display:none;" id="arq-btns-cajera">
+      <button class="btn-secundary" onclick="cajaHideArqueoModal()" style="flex:1;padding:12px;font-size:13px;">Cancelar</button>
+      <button class="btn-main" id="arq-btn-diario" onclick="cajaSubmitArqueo('Cierre Diario')" disabled style="flex:1;padding:12px;font-size:13px;"><span class="mi sm" style="vertical-align:text-bottom;margin-right:4px;">fact_check</span> Guardar Cierre Diario</button>
     </div>
   </div>
 </div>
@@ -1408,36 +1394,12 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     if (tab === 'mesanterior' && !cajaVistaArchivo) { cajaVistaArchivo = true; cajaCargarArchivo(); }
     else if (tab === 'mesactual') { cajaVistaArchivo = false; cajaRenderTabla(cajaMovimientos, false); }
     else if (tab === 'arqueo') {
-      // Por defecto al entrar a Arqueos, mostramos "Nuevo" o cargamos ambos si es necesario
-      cajaLoadArqueo();
-      // Resetear sub-toggle a 'nuevo'
-      cajaArqSubToggle('nuevo');
+      cajaLoadHistorial();
     }
     // Actualizar título topbar
     var titulos = {mesactual:'Caja Chica — Mes Actual', mesanterior:'Caja Chica — Meses Anteriores', arqueo:'Caja Chica — Arqueos'};
     var tt = document.getElementById('topbar-title');
     if (tt) tt.textContent = titulos[tab] || 'Caja Chica';
-  }
-
-  // ── SUB-TOGGLE DE ARQUEO ──
-  function cajaArqSubToggle(vista) {
-    const btnNuevo  = document.getElementById('arq-subtab-nuevo');
-    const btnHist   = document.getElementById('arq-subtab-historial');
-    const panelNuevo = document.getElementById('arq-subpanel-nuevo');
-    const panelHist  = document.getElementById('arq-subpanel-historial');
-    
-    if (vista === 'historial') {
-      btnNuevo.style.borderBottomColor = 'transparent'; btnNuevo.style.color = 'var(--texto2)'; btnNuevo.style.fontWeight = '600';
-      btnHist.style.borderBottomColor = 'var(--azul2)'; btnHist.style.color = 'var(--azul2)'; btnHist.style.fontWeight = '700';
-      panelNuevo.style.display = 'none';
-      panelHist.style.display = 'block';
-      cajaLoadHistorial(); // Carga bajo demanda
-    } else {
-      btnHist.style.borderBottomColor = 'transparent'; btnHist.style.color = 'var(--texto2)'; btnHist.style.fontWeight = '600';
-      btnNuevo.style.borderBottomColor = 'var(--azul2)'; btnNuevo.style.color = 'var(--azul2)'; btnNuevo.style.fontWeight = '700';
-      panelHist.style.display = 'none';
-      panelNuevo.style.display = 'block';
-    }
   }
 
   // ── NAV HELPER: ir a cajachica y activar tab correcto ──
@@ -2978,87 +2940,83 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
   function cajaCalcArqueo() {
     let total = 0;
-    document.querySelectorAll('.arq-input').forEach(function(inp) {
+    document.querySelectorAll('.arq-modal-input').forEach(function(inp) {
       const cant = parseFloat(inp.value) || 0;
       const val = parseFloat(inp.dataset.val) || 0;
-      const sub = cant * val;
-      total += sub;
-      const subId = 'sub-' + inp.id.replace('arq-','');
-      const subEl = document.getElementById(subId);
-      if (subEl) subEl.textContent = sub.toFixed(2);
+      total += (cant * val);
     });
     total = Math.round(total * 100) / 100;
-    const arqFisicoEl = document.getElementById('arq-fisico');
-    if (!arqFisicoEl) return { total: total, diff: 0, cuadre: false };
-    arqFisicoEl.textContent = 'S/. ' + total.toLocaleString('es-PE', {minimumFractionDigits:2});
-    const diff = Math.round((total - cajaSaldoTeorico) * 100) / 100;
+    
+    document.getElementById('arq-fisico').textContent = 'S/. ' + total.toLocaleString('es-PE', {minimumFractionDigits:2});
+    
+    const rol = sessionStorage.getItem('ge_rol') || 'asesor';
+    const esAdmin = rol === 'admin';
+    const tieneConteo = total > 0;
+    
     const diffCard = document.getElementById('arq-diff-card');
     const diffEl = document.getElementById('arq-diferencia');
     const msgEl = document.getElementById('arq-msg');
-    if (diffEl) diffEl.textContent = 'S/. ' + Math.abs(diff).toLocaleString('es-PE', {minimumFractionDigits:2});
-    const cuadre = Math.abs(diff) < 0.01;
-    if (diffCard) diffCard.className = 'diff-card ' + (cuadre ? 'cuadre' : diff > 0 ? 'sobrante' : 'faltante');
-    const quadradText = '<span class="mi" style="vertical-align:text-bottom;margin-right:4px;">check_circle</span> ¡CUADRE EXACTO!';
-    const sobranteText = '<span class="mi" style="vertical-align:text-bottom;margin-right:4px;">warning</span> Sobrante';
-    const faltanteText = '<span class="mi" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> Faltante';
-    if (msgEl) msgEl.innerHTML = cuadre ? quadradText : diff > 0 ? sobranteText : faltanteText;
-    const btnPrev = document.getElementById('arq-btn-preventivo');
-    const btnMes  = document.getElementById('arq-btn-mes');
-    if (btnPrev) btnPrev.disabled = !cuadre;
-    if (btnMes)  btnMes.disabled  = !cuadre;
+    
+    let cuadre = false;
+    let diff = 0;
+    
+    if (esAdmin) {
+      diff = Math.round((total - cajaSaldoTeorico) * 100) / 100;
+      cuadre = Math.abs(diff) < 0.01;
+      
+      if (diffEl) diffEl.textContent = 'S/. ' + Math.abs(diff).toLocaleString('es-PE', {minimumFractionDigits:2});
+      if (diffCard) diffCard.className = 'diff-card ' + (cuadre ? 'cuadre' : diff > 0 ? 'sobrante' : 'faltante');
+      
+      const quadradText = '<span class="mi" style="vertical-align:text-bottom;margin-right:4px;">check_circle</span> ¡CUADRE EXACTO!';
+      const sobranteText = '<span class="mi" style="vertical-align:text-bottom;margin-right:4px;">warning</span> Sobrante';
+      const faltanteText = '<span class="mi" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> Faltante';
+      
+      if (msgEl) msgEl.innerHTML = cuadre ? quadradText : diff > 0 ? sobranteText : faltanteText;
+      
+      document.getElementById('arq-btn-preventivo').disabled = !cuadre;
+      document.getElementById('arq-btn-mes').disabled = !cuadre;
+    } else {
+      diffEl.textContent = 'S/. ' + total.toLocaleString('es-PE', {minimumFractionDigits:2});
+      diffCard.className = 'diff-card ' + (tieneConteo ? 'cuadre' : '');
+      const conteoText = '<span class="mi" style="vertical-align:text-bottom;margin-right:4px;">check_circle</span> Conteo registrado';
+      msgEl.innerHTML = tieneConteo ? conteoText : 'Ingresa el conteo físico';
+      
+      document.getElementById('arq-btn-diario').disabled = !tieneConteo;
+    }
+    
     return {total: total, diff: diff, cuadre: cuadre};
   }
 
-  function cajaCalcArqueoCajera() {
-    let total = 0;
-    document.querySelectorAll('.arq-input-cajera').forEach(function(inp) {
-      const cant = parseFloat(inp.value) || 0;
-      const val  = parseFloat(inp.dataset.val) || 0;
-      const sub  = cant * val;
-      total += sub;
-      // Los subtotales de cajera usan IDs tipo sub-cajera-b200
-      const valNum = parseFloat(inp.dataset.val) || 0;
-      const denom = valNum === 200 ? 'b200' : valNum === 100 ? 'b100' :
-                    valNum === 50  ? 'b50'  : valNum === 20  ? 'b20'  :
-                    valNum === 10  ? 'b10'  : valNum === 5   ? 'm5'   :
-                    valNum === 2   ? 'm2'   : valNum === 1   ? 'm1'   :
-                    valNum === 0.5 ? 'm050' : valNum === 0.2 ? 'm020' : 'm010';
-      const subEl = document.getElementById('sub-cajera-' + denom);
-      if (subEl) subEl.textContent = sub.toFixed(2);
-    });
-    total = Math.round(total * 100) / 100;
-    document.getElementById('arq-fisico-cajera').textContent = 'S/. ' + total.toLocaleString('es-PE', {minimumFractionDigits:2});
-    document.getElementById('arq-total-cajera').textContent  = 'S/. ' + total.toLocaleString('es-PE', {minimumFractionDigits:2});
-    const msgEl = document.getElementById('arq-msg-cajera');
-    const diffCard = document.getElementById('arq-diff-cajera');
-    const tieneConteo = total > 0;
-    diffCard.className = 'diff-card ' + (tieneConteo ? 'cuadre' : '');
-    const conteoText = '<span class="mi" style="vertical-align:text-bottom;margin-right:4px;">check_circle</span> Conteo registrado';
-    msgEl.innerHTML = tieneConteo ? conteoText : 'Ingresa el conteo';
-    document.getElementById('arq-btn-diario').disabled = !tieneConteo;
-    return {total: total};
-  }
-
-  function cajaMostrarVistaArqueo() {
+  function cajaShowArqueoModal() {
     const rol = sessionStorage.getItem('ge_rol') || 'asesor';
     const esAdmin = rol === 'admin';
-    document.getElementById('arq-vista-cajera').style.display = esAdmin ? 'none' : 'block';
-    document.getElementById('arq-vista-admin').style.display  = esAdmin ? 'block' : 'none';
+    
+    document.getElementById('arq-bloque-teorico').style.display = esAdmin ? 'block' : 'none';
+    document.getElementById('arq-diff-label').textContent = esAdmin ? 'Diferencia VS Base' : 'Total Declarado';
+    
+    document.getElementById('arq-btns-admin').style.display = esAdmin ? 'flex' : 'none';
+    document.getElementById('arq-btns-cajera').style.display = esAdmin ? 'none' : 'flex';
+    
+    // Limpiar campos y recalcular
+    document.querySelectorAll('.arq-modal-input').forEach(function(i) { i.value = ''; });
+    cajaCalcArqueo();
+    
+    // Actualizar Saldo Teórico visual
+    if (esAdmin) {
+       document.getElementById('arq-teorico').textContent = 'S/. ' + cajaSaldoTeorico.toLocaleString('es-PE', {minimumFractionDigits:2});
+       cajaCalcArqueo();
+    }
+    
+    document.getElementById('modal-arqueo').classList.add('show');
+  }
+
+  function cajaHideArqueoModal() {
+    document.getElementById('modal-arqueo').classList.remove('show');
   }
 
   async function cajaLoadArqueo() {
-    cajaMostrarVistaArqueo();
     const rol = sessionStorage.getItem('ge_rol') || 'asesor';
     const esAdmin = rol === 'admin';
-
-    if (esAdmin) {
-      document.getElementById('arq-teorico').textContent = 'S/. ' + cajaSaldoTeorico.toLocaleString('es-PE', {minimumFractionDigits:2});
-      document.querySelectorAll('.arq-input').forEach(function(i) { i.value = ''; });
-      cajaCalcArqueo();
-    } else {
-      document.querySelectorAll('.arq-input-cajera').forEach(function(i) { i.value = ''; });
-      cajaCalcArqueoCajera();
-    }
 
     // Refrescar saldo del servidor en segundo plano
     try {
@@ -3066,7 +3024,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       if (resp && !resp.error) {
         cajaSaldoTeorico = resp.saldo;
         cajaMovimientos = resp.movimientos || [];
-        if (esAdmin) {
+        if (esAdmin && document.getElementById('modal-arqueo').classList.contains('show')) {
           document.getElementById('arq-teorico').textContent = 'S/. ' + resp.saldo.toLocaleString('es-PE', {minimumFractionDigits:2});
           cajaCalcArqueo();
         }
@@ -3075,31 +3033,25 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   }
 
   async function cajaSubmitArqueo(tipoTexto) {
-    const esAdmin = (sessionStorage.getItem('ge_rol') || '') === 'admin';
-    let calc;
-
+    const calc = cajaCalcArqueo();
     if (tipoTexto === 'Cierre Diario') {
-      calc = cajaCalcArqueoCajera();
       if (!calc.total || calc.total <= 0) { showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">warning</span> Ingresa el conteo primero'); return; }
     } else {
-      calc = cajaCalcArqueo();
       if (!calc.cuadre) { showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">warning</span> Debe cuadrar la caja primero'); return; }
     }
 
     if (!confirm('¿Confirmar ' + tipoTexto + '?')) return;
 
     showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">hourglass_empty</span> Procesando ' + tipoTexto + '...');
-    const tabCaja = document.getElementById('section-arqueo');
-    if (tabCaja) { tabCaja.style.opacity = '0.6'; tabCaja.style.pointerEvents = 'none'; }
+    const btn = event.target ? event.target.closest('button') : null;
+    if (btn) btn.disabled = true;
 
     const _denomMap = {'200':'b200','100':'b100','50':'b50','20':'b20','10':'b10',
-      '5':'m5','2':'m2','1':'m1','0.50':'m050','0.20':'m020','0.10':'m010'};
+      '5':'m5','2':'m2','1':'m1','0.5':'m050','0.2':'m020','0.1':'m010'};
     const detalle = {};
-    const inputs = tipoTexto === 'Cierre Diario'
-      ? document.querySelectorAll('.arq-input-cajera')
-      : document.querySelectorAll('.arq-input');
+    const inputs = document.querySelectorAll('.arq-modal-input');
     inputs.forEach(function(inp) {
-      const key = inp.id ? inp.id.replace('arq-','') : (_denomMap[inp.dataset.val] || 'val-' + inp.dataset.val);
+      const key = _denomMap[inp.dataset.val] || 'val-' + inp.dataset.val;
       detalle[key] = parseFloat(inp.value) || 0;
     });
 
@@ -3117,15 +3069,14 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       });
       if (resp && resp.status === 'ok') {
         showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">check_circle</span> ' + resp.message);
+        cajaHideArqueoModal();
+        cajaLoadHistorial();
         await cajaCargarDatos();
-        document.querySelectorAll('.arq-input, .arq-input-cajera').forEach(function(i) { i.value = ''; });
-        cajaCalcArqueoCajera();
-        cajaCalcArqueo();
       } else { showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> ' + (resp && resp.message ? resp.message : 'Error')); }
     } catch(e) { 
       showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> Error: ' + e.message); 
     } finally {
-      if (tabCaja) { tabCaja.style.opacity = ''; tabCaja.style.pointerEvents = ''; }
+      if (btn) btn.disabled = false;
     }
   }
 
