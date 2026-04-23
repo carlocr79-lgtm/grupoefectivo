@@ -2591,8 +2591,29 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
   async function cajaCargarArchivo() {
     const contenedor = document.getElementById('caja-tabla-body');
+    const myReqId = ++_cajaMovRequestId;
+    const cacheKey = 'caja_archivo_cache_' + (cajaSedeActual || 'todos');
+
+    // 1. Mostrar cache de sessionStorage inmediatamente si existe
+    try {
+      const raw = sessionStorage.getItem(cacheKey);
+      if (raw) {
+        const obj = JSON.parse(raw);
+        // Cache válido por 10 minutos
+        if (Date.now() - obj.ts < 600000) {
+          cajaMovArchivo = obj.data;
+          if (cajaMovArchivo.length === 0) {
+            contenedor.innerHTML = '<div class="empty"><span class="mi" style="font-size:40px;color:var(--texto2);">inventory_2</span><br>No hay movimientos archivados</div>';
+          } else {
+            cajaRenderTabla(cajaMovArchivo, true);
+          }
+          return; // Servido desde cache local, no llamar al servidor
+        }
+      }
+    } catch(e) {}
+
     contenedor.innerHTML = '<div class="empty" style="padding:20px;"><div class="spinner-sm"></div>Cargando historial de meses anteriores...</div>';
-    const myReqId = _cajaMovRequestId;
+
     try {
       const resp = await apiFetch({ admin: 'caja_archivo', sede: cajaSedeActual, sedeContexto: cajaSedeActual });
       if (_cajaMovRequestId !== myReqId) return;
@@ -2601,6 +2622,10 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         return;
       }
       cajaMovArchivo = Array.isArray(resp) ? resp : [];
+
+      // Guardar en sessionStorage para siguiente acceso
+      try { sessionStorage.setItem(cacheKey, JSON.stringify({ ts: Date.now(), data: cajaMovArchivo })); } catch(e) {}
+
       if (cajaMovArchivo.length === 0) {
         contenedor.innerHTML = '<div class="empty"><span class="mi" style="font-size:40px;color:var(--texto2);">inventory_2</span><br>No hay movimientos archivados</div>';
         return;
