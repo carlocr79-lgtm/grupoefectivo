@@ -969,19 +969,20 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   </div>
 </div>
 
-<!-- MODAL DETALLE ARQUEO -->
-<div class="modal-caja" id="modal-detalle-arqueo">
-  <div class="modal-caja-box">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-      <h3 style="display:flex;align-items:center;gap:6px;"><span class="mi">info</span> Detalle de Arqueo</h3>
-      <button onclick="document.getElementById('modal-detalle-arqueo').classList.remove('show')" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button>
+<!-- ARQUEO DRAWER -->
+<div class="drawer-overlay" id="drawer-overlay-arqueo" onclick="cajaCerrarArqueoDrawer()"></div>
+<div class="drawer-panel" id="drawer-arqueo">
+  <div class="drawer-header">
+    <div class="avatar-group">
+      <div class="avatar" style="background:#eaf2ff; color:var(--azul); width:46px; height:46px; font-size:20px;"><span class="mi">inventory_2</span></div>
+      <div>
+        <h2 id="dr-arq-titulo">Detalle de Arqueo</h2>
+        <div class="subtitle" id="dr-arq-sub"></div>
+      </div>
     </div>
-    <div id="detalle-arqueo-contenido" style="font-size:14px; color:var(--texto);">
-      <!-- Table populated by JS -->
-    </div>
-    <div style="margin-top:20px;">
-      <button class="btn-secundary" onclick="document.getElementById('modal-detalle-arqueo').classList.remove('show')" style="width:100%;">Cerrar</button>
-    </div>
+    <button class="drawer-close" onclick="cajaCerrarArqueoDrawer()"><span class="mi">close</span></button>
+  </div>
+  <div class="drawer-content" id="dr-arq-content">
   </div>
 </div>
 
@@ -3171,64 +3172,70 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     }
   }
 
+  function cajaCerrarArqueoDrawer() {
+    document.getElementById('drawer-overlay-arqueo').classList.remove('open');
+    document.getElementById('drawer-arqueo').classList.remove('open');
+  }
+
   function cajaShowArqueoDetalle(index) {
     const arq = cajaArqueosData[index];
     if (!arq || !arq.detalle) return;
     const d = arq.detalle;
     
-    // Generar tabla HTML del detalle
+    document.getElementById('dr-arq-sub').textContent = arq.fecha || '';
+    
+    // Generar HTML del detalle
     let html = `
-      <div style="background:var(--azul); color:white; padding:12px; border-radius:12px; margin-bottom:16px; font-size:13px;">
-        <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
-          <span class="mi sm">account_circle</span>
-          <span><strong>Encargado:</strong> ${arq.usuario ? String(arq.usuario).split('@')[0] : 'S/U'}</span>
-        </div>
-        <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
-          <span class="mi sm">category</span>
-          <span><strong>Tipo:</strong> ${arq.tipo || 'Arqueo'}</span>
-        </div>
-        <div style="display:flex; align-items:center; gap:8px;">
-          <span class="mi sm">calendar_today</span>
-          <span><strong>Fecha:</strong> ${arq.fecha || '-'}</span>
+      <div class="dr-section">
+        <div class="dr-section-title">Datos del Arqueo</div>
+        <div class="dr-item"><span class="lbl">Encargado</span><span class="val" style="font-weight:700;">${arq.usuario ? String(arq.usuario).split('@')[0] : 'S/U'}</span></div>
+        <div class="dr-item"><span class="lbl">Tipo</span><span class="val">${arq.tipo || 'Arqueo'}</span></div>
+        <div class="dr-item"><span class="lbl">Fecha</span><span class="val">${arq.fecha || '-'}</span></div>
+      </div>
+
+      <div class="dr-section">
+        <div class="dr-section-title">Conteo Físico</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+          <div>
+            <div style="font-size:11px; font-weight:800; color:var(--texto2); margin-bottom:8px; border-bottom:1px solid var(--gris2); padding-bottom:4px; letter-spacing:0.5px;">BILLETES</div>
+            <table style="width:100%; border-collapse:collapse; font-size:12px;">
+              <tr><td style="color:var(--texto2); padding:3px 0;">S/ 200</td><td style="text-align:right; font-weight:700;">${d.b200||0}</td></tr>
+              <tr><td style="color:var(--texto2); padding:3px 0;">S/ 100</td><td style="text-align:right; font-weight:700;">${d.b100||0}</td></tr>
+              <tr><td style="color:var(--texto2); padding:3px 0;">S/ 50</td><td style="text-align:right; font-weight:700;">${d.b50||0}</td></tr>
+              <tr><td style="color:var(--texto2); padding:3px 0;">S/ 20</td><td style="text-align:right; font-weight:700;">${d.b20||0}</td></tr>
+              <tr><td style="color:var(--texto2); padding:3px 0;">S/ 10</td><td style="text-align:right; font-weight:700;">${d.b10||0}</td></tr>
+            </table>
+          </div>
+          <div>
+            <div style="font-size:11px; font-weight:800; color:var(--texto2); margin-bottom:8px; border-bottom:1px solid var(--gris2); padding-bottom:4px; letter-spacing:0.5px;">MONEDAS</div>
+            <table style="width:100%; border-collapse:collapse; font-size:12px;">
+              <tr><td style="color:var(--texto2); padding:3px 0;">S/ 5.00</td><td style="text-align:right; font-weight:700;">${d.m5||0}</td></tr>
+              <tr><td style="color:var(--texto2); padding:3px 0;">S/ 2.00</td><td style="text-align:right; font-weight:700;">${d.m2||0}</td></tr>
+              <tr><td style="color:var(--texto2); padding:3px 0;">S/ 1.00</td><td style="text-align:right; font-weight:700;">${d.m1||0}</td></tr>
+              <tr><td style="color:var(--texto2); padding:3px 0;">S/ 0.50</td><td style="text-align:right; font-weight:700;">${d.m050||0}</td></tr>
+              <tr><td style="color:var(--texto2); padding:3px 0;">S/ 0.20</td><td style="text-align:right; font-weight:700;">${d.m020||0}</td></tr>
+              <tr><td style="color:var(--texto2); padding:3px 0;">S/ 0.10</td><td style="text-align:right; font-weight:700;">${d.m010||0}</td></tr>
+            </table>
+          </div>
         </div>
       </div>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
-        <div>
-          <h4 style="border-bottom:2px solid var(--gris2); padding-bottom:5px; margin-bottom:10px;"><span class="mi sm">payments</span> Billetes</h4>
-          <table style="width:100%; border-collapse:collapse; text-align:right;">
-            <tr><td style="text-align:left; color:var(--texto2);">S/ 200</td><td>${d.b200||0}</td></tr>
-            <tr><td style="text-align:left; color:var(--texto2);">S/ 100</td><td>${d.b100||0}</td></tr>
-            <tr><td style="text-align:left; color:var(--texto2);">S/ 50</td><td>${d.b50||0}</td></tr>
-            <tr><td style="text-align:left; color:var(--texto2);">S/ 20</td><td>${d.b20||0}</td></tr>
-            <tr><td style="text-align:left; color:var(--texto2);">S/ 10</td><td>${d.b10||0}</td></tr>
-          </table>
+
+      <div style="background:var(--gris2); padding:16px; border-radius:12px; margin-top:24px;">
+        <div style="display:flex;justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <span style="font-weight:700; font-size:12px; color:var(--texto2);">Total Físico Contado:</span>
+          <span style="font-weight:900; font-size:18px; color:var(--verde);">S/. ${(parseFloat(arq.fisico)||0).toLocaleString('es-PE', {minimumFractionDigits: 2})}</span>
         </div>
-        <div>
-          <h4 style="border-bottom:2px solid var(--gris2); padding-bottom:5px; margin-bottom:10px;"><span class="mi sm">monetization_on</span> Monedas</h4>
-          <table style="width:100%; border-collapse:collapse; text-align:right;">
-            <tr><td style="text-align:left; color:var(--texto2);">S/ 5</td><td>${d.m5||0}</td></tr>
-            <tr><td style="text-align:left; color:var(--texto2);">S/ 2</td><td>${d.m2||0}</td></tr>
-            <tr><td style="text-align:left; color:var(--texto2);">S/ 1</td><td>${d.m1||0}</td></tr>
-            <tr><td style="text-align:left; color:var(--texto2);">S/ 0.50</td><td>${d.m050||0}</td></tr>
-            <tr><td style="text-align:left; color:var(--texto2);">S/ 0.20</td><td>${d.m020||0}</td></tr>
-            <tr><td style="text-align:left; color:var(--texto2);">S/ 0.10</td><td>${d.m010||0}</td></tr>
-          </table>
-        </div>
-      </div>
-      <div style="background:var(--gris2); padding:12px; border-radius:10px; margin-top:20px;">
-        <div style="display:flex;justify-content:space-between; margin-bottom:4px;">
-          <span style="font-weight:600; font-size:12px; color:var(--texto2);">Total Físico Contado:</span>
-          <span style="font-weight:800; color:var(--verde);">S/. ${(parseFloat(arq.fisico)||0).toLocaleString('es-PE', {minimumFractionDigits: 2})}</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;">
-          <span style="font-weight:600; font-size:12px; color:var(--texto2);">Saldo Teórico Sistema:</span>
-          <span style="font-weight:800; color:var(--azul);">S/. ${(parseFloat(arq.teorico)||0).toLocaleString('es-PE', {minimumFractionDigits: 2})}</span>
+        <div style="display:flex;justify-content:space-between; align-items:center;">
+          <span style="font-weight:700; font-size:12px; color:var(--texto2);">Saldo Teórico Sistema:</span>
+          <span style="font-weight:900; font-size:18px; color:var(--azul);">S/. ${(parseFloat(arq.teorico)||0).toLocaleString('es-PE', {minimumFractionDigits: 2})}</span>
         </div>
       </div>
     `;
     
-    document.getElementById('detalle-arqueo-contenido').innerHTML = html;
-    document.getElementById('modal-detalle-arqueo').classList.add('show');
+    document.getElementById('dr-arq-content').innerHTML = html;
+    
+    document.getElementById('drawer-overlay-arqueo').classList.add('open');
+    document.getElementById('drawer-arqueo').classList.add('open');
   }
 
   // ════════════════════════════════════
