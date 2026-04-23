@@ -1406,86 +1406,101 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     if (btn) btn.classList.toggle('subnav-open');
   }
 
+  // ── CONTROL DE RACE CONDITIONS ──
+  let _loadRequestId = 0;        // incrementa con cada cargarTodo()
+  let _sedeChangeTimer = null;   // debounce al cambiar sede
+
   // ── ON CHANGE SEDE GLOBAL ──
   function globalOnChangeSede() {
-    cajaSedeActual = document.getElementById('global-sede-select').value;
-    // Forzamos el refresh total desde el servidor guardando estado de loading
-    const btn = document.getElementById('btn-refresh');
-    const txt = document.getElementById('btn-refresh-text');
-    if(btn) btn.classList.add('is-refreshing');
-    if(txt) txt.textContent = 'Actualizando...';
-    
-    // Invalidamos el cache de la caja
-    cajaCacheInvalidar(cajaSedeActual);
-    
-    // Recargamos el dashboard filtrado (Gestiones + Caja)
-    cargarTodo().then(() => {
-      if(btn) btn.classList.remove('is-refreshing');
-      const h = String(new Date().getHours()).padStart(2,'0');
-      const m = String(new Date().getMinutes()).padStart(2,'0');
-      if(txt) txt.textContent = 'Actualizado ' + h + ':' + m;
-    });
+    // Debounce: si el usuario cambia sede rápido, esperar 300ms antes de disparar
+    clearTimeout(_sedeChangeTimer);
+    _sedeChangeTimer = setTimeout(function() {
+      cajaSedeActual = document.getElementById('global-sede-select').value;
+      cajaCacheInvalidar(cajaSedeActual);
+      const btn = document.getElementById('btn-refresh');
+      const txt = document.getElementById('btn-refresh-text');
+      if(btn) btn.classList.add('is-refreshing');
+      if(txt) txt.textContent = 'Actualizando...';
+      cargarTodo().then(() => {
+        if(btn) btn.classList.remove('is-refreshing');
+        const h = String(new Date().getHours()).padStart(2,'0');
+        const m = String(new Date().getMinutes()).padStart(2,'0');
+        if(txt) txt.textContent = 'Actualizado ' + h + ':' + m;
+      });
+    }, 300);
   }
 
-  // ── CARGA INICIAL ──
+  // ── CARGA INICIAL (con protección anti race-condition) ──
   async function cargarTodo() {
+    // Capturar el ID de esta petición. Si llega una más nueva, descartamos esta.
+    const myReqId = ++_loadRequestId;
+
     try {
       const globalSel = document.getElementById('global-sede-select');
-      const sedeReq = globalSel ? globalSel.value : '';
+      const sedeReq = globalSel ? globalSel.value : ''; // snapshot de la sede al momento de iniciar
 
+      // Lanzar ambas peticiones en paralelo
       const pDash = apiFetch({ admin: 'dashboard', sedeContexto: sedeReq });
       const pCaja = apiFetch({ admin: 'caja_datos', sede: sedeReq, sedeContexto: sedeReq });
-      
+
       const resp = await pDash;
+
+      // ⚠️ Guard: si llegó una carga más nueva mientras esperábamos, ignorar esta respuesta
+      if (myReqId !== _loadRequestId) { console.log('[cargarTodo] descartando respuesta obsoleta (req ' + myReqId + ')'); return; }
+
       if (!resp || resp.error) {
         console.error('Dashboard error:', resp);
         document.getElementById('lista-clientes').innerHTML = '<div class="empty">Error de conexión con el servidor.</div>';
         return;
       }
-      
-      // Actualizar el selector global basándose en lo que devolvió el servidor (sedes + sedeActiva)
+
+      // Poblar selector de sedes solo la primera vez (cuando está vacío)
       if (resp.sedes && resp.sedes.length > 0 && globalSel.options.length === 0) {
         globalSel.innerHTML = '';
         const rolActual = sessionStorage.getItem('ge_rol') || 'asesor';
         if (rolActual === 'admin') { const o = document.createElement('option'); o.value=''; o.textContent='Todas las sedes'; globalSel.appendChild(o); }
         resp.sedes.forEach(function(s) { const o = document.createElement('option'); o.value=s; o.textContent=s; globalSel.appendChild(o); });
       }
-      if (resp.sedeActiva !== undefined && resp.sedeActiva !== null) {
+      // Solo actualizar la sede si coincide con la que pedimos (evita sobreescribir si el usuario cambió mientras tanto)
+      if (resp.sedeActiva !== undefined && resp.sedeActiva !== null && sedeReq === (globalSel ? globalSel.value : sedeReq)) {
         globalSel.value = resp.sedeActiva;
         cajaSedeActual = resp.sedeActiva;
       }
 
-      // Distribuir datos del endpoint unificado
-      if (Array.isArray(resp.clientes)) {
+      // Actualizar clientes solo si la sede sigue siendo la misma
+      if (myReqId === _loadRequestId && Array.isArray(resp.clientes)) {
         clientes = resp.clientes;
         renderAsesoresFiltros();
         renderClientes();
       }
-      
-      // Cargar Adicionales en Background
-      cargarAdicionales(sedeReq);
 
-      // Datos de CAJA recibidos concurrentemente
+      // Cargar adicionales en background (vouchers, historial)
+      if (myReqId === _loadRequestId) cargarAdicionales(sedeReq);
+
+      // Datos de CAJA en paralelo
       try {
         const respCaja = await pCaja;
-        if(respCaja && !respCaja.error) {
-          cajaDatos = respCaja; 
-          cajaSaldoTeorico = respCaja.saldo || 0; 
+        // Guard nuevamente después de await
+        if (myReqId !== _loadRequestId) return;
+        if (respCaja && !respCaja.error) {
+          cajaDatos = respCaja;
+          cajaSaldoTeorico = respCaja.saldo || 0;
           cajaMovimientos = respCaja.movimientos || [];
           cajaCacheGuardar(cajaSedeActual, respCaja);
-          cajaRenderTabla(cajaMovimientos); 
+          cajaRenderTabla(cajaMovimientos);
           cajaRenderCategorias(cajaDatos.categorias || []);
           const txtT = document.getElementById('arq-teorico');
-          if(txtT) txtT.textContent = 'S/. ' + cajaSaldoTeorico.toLocaleString('es-PE', {minimumFractionDigits:2});
+          if (txtT) txtT.textContent = 'S/. ' + cajaSaldoTeorico.toLocaleString('es-PE', {minimumFractionDigits:2});
           cajaRenderArqueoBanner(cajaDatos);
           cajaCalcArqueo();
         }
       } catch(ex) { console.error(ex); }
 
-      // Renderizar dashboard con toda la data disponible
-      renderDashboard();
+      // Guard final antes de renderizar dashboard
+      if (myReqId === _loadRequestId) renderDashboard();
 
     } catch(e) {
+      if (myReqId !== _loadRequestId) return; // ignorar si ya hay una carga más nueva
       console.error('Error fatal de conexión:', e);
       document.getElementById('lista-clientes').innerHTML = '<div class="empty">Error de conexión.</div>';
       cajaCargarDatos();
