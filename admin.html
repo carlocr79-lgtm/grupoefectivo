@@ -612,24 +612,9 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         </button>
         <div class="nav-divider"></div>
         <div class="nav-section">Caja</div>
-        <button class="nav-item" id="nav-cajachica-parent" onclick="toggleSubnav('cajachica-subnav',this)">
+        <button class="nav-item" id="nav-cajachica-parent" onclick="navTo('cajachica',this)">
           <span class="mi sm">account_balance_wallet</span> Caja Chica
-          <span class="mi sm nav-arrow">expand_more</span>
         </button>
-        <div class="nav-subitems" id="cajachica-subnav">
-          <button class="nav-subitem" id="nav-sub-mesactual" onclick="navToMov('actual',this)">
-            <span class="mi sm">swap_vert</span> Mes Actual
-          </button>
-          <button class="nav-subitem" id="nav-sub-mesanterior" onclick="navToMov('archivo',this)">
-            <span class="mi sm">history</span> Meses Anteriores
-          </button>
-          <button class="nav-subitem" id="nav-sub-arqueo" onclick="navTo('arqueo',this)">
-            <span class="mi sm">inventory</span> Arqueo
-          </button>
-          <button class="nav-subitem" id="nav-sub-historial-arq" onclick="navTo('historial-arq',this)">
-            <span class="mi sm">calendar_month</span> Historial Arqueos
-          </button>
-        </div>
         <button class="nav-item" onclick="navTo('kasnet',this)">
           <span class="mi sm">point_of_sale</span> KASNET
         </button>
@@ -713,32 +698,46 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
           </div>
         </div>
 
-        <!-- SECTION: MOVIMIENTOS -->
-        <div id="section-movimientos" class="section">
-          <div style="display:flex;gap:0;margin-bottom:12px;border-bottom:1px solid var(--gris2);">
-            <button id="mov-tab-actual" onclick="cajaMovToggle('actual',this)" style="padding:8px 14px;background:none;border:none;border-bottom:2px solid var(--azul2);color:var(--azul2);font-weight:700;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:4px;"><span class="mi sm">swap_vert</span> Mes Actual</button>
-            <button id="mov-tab-archivo" onclick="cajaMovToggle('archivo',this)" style="padding:8px 14px;background:none;border:none;border-bottom:2px solid transparent;color:var(--texto2);font-weight:600;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:4px;"><span class="mi sm">inventory_2</span> Meses Anteriores</button>
-          </div>
-          <div class="caja-toolbar" id="caja-toolbar-actual">
-            <button class="btn-main" onclick="cajaShowModal()" style="width:auto;padding:9px 16px;font-size:13px;">+ Nuevo</button>
-            <div style="position:relative; flex:1; max-width:300px;">
-              <span class="mi" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:16px; color:var(--texto2); pointer-events:none;">search</span>
-              <input type="text" id="caja-buscar" placeholder="Buscar..." oninput="cajaFiltrar()" style="width:100%; padding:8px 12px 8px 34px; border:1.5px solid var(--gris2); border-radius:10px; font-size:13px; outline:none; transition:border-color 0.2s;">
-            </div>
-          </div>
-          <div class="caja-toolbar" id="caja-toolbar-archivo" style="display:none;">
-            <div style="position:relative; flex:1; max-width:300px;">
-              <span class="mi" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:16px; color:var(--texto2); pointer-events:none;">search</span>
-              <input type="text" id="caja-buscar-archivo" placeholder="Buscar en archivo..." oninput="cajaFiltrar()" style="width:100%; padding:8px 12px 8px 34px; border:1.5px solid var(--gris2); border-radius:10px; font-size:13px; outline:none; transition:border-color 0.2s;">
-            </div>
-          </div>
-          <div class="movimientos-list" id="caja-tabla-body">
-            <div class="empty" style="padding:20px;"><div class="spinner-sm"></div>Cargando movimientos...</div>
-          </div>
-        </div>
+        <!-- SECTION: CAJA CHICA (tabs unificados) -->
+        <div id="section-cajachica" class="section">
 
-        <!-- SECTION: ARQUEO -->
-        <div id="section-arqueo" class="section">
+          <!-- TABS HORIZONTALES (mismo patrón que Mora) -->
+          <div style="display:flex;gap:0;margin-bottom:12px;border-bottom:1px solid var(--gris2);">
+            <button id="cc-tab-mesactual"  class="btn-mora-tab active" onclick="cajaSwitchTab('mesactual')"><span class="mi sm">swap_vert</span> Mes Actual</button>
+            <button id="cc-tab-mesanterior" class="btn-mora-tab" onclick="cajaSwitchTab('mesanterior')"><span class="mi sm">history</span> Meses Anteriores</button>
+            <button id="cc-tab-arqueo"     class="btn-mora-tab" onclick="cajaSwitchTab('arqueo')"><span class="mi sm">inventory</span> Arqueo</button>
+            <button id="cc-tab-historial"  class="btn-mora-tab" onclick="cajaSwitchTab('historial')"><span class="mi sm">calendar_month</span> Historial Arqueos</button>
+          </div>
+
+          <!-- PANEL: MES ACTUAL -->
+          <div id="cc-panel-mesactual">
+            <div class="caja-toolbar" id="caja-toolbar-actual">
+              <button class="btn-main" onclick="cajaShowModal()" style="width:auto;padding:9px 16px;font-size:13px;">+ Nuevo</button>
+              <div style="position:relative;flex:1;max-width:300px;">
+                <span class="mi" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--texto2);pointer-events:none;">search</span>
+                <input type="text" id="caja-buscar" placeholder="Buscar..." oninput="cajaFiltrar()" style="width:100%;padding:8px 12px 8px 34px;border:1.5px solid var(--gris2);border-radius:10px;font-size:13px;outline:none;">
+              </div>
+            </div>
+            <div class="movimientos-list" id="caja-tabla-body">
+              <div class="empty" style="padding:20px;"><div class="spinner-sm"></div>Cargando movimientos...</div>
+            </div>
+          </div>
+
+          <!-- PANEL: MESES ANTERIORES -->
+          <div id="cc-panel-mesanterior" style="display:none;">
+            <div class="caja-toolbar" id="caja-toolbar-archivo">
+              <div style="position:relative;flex:1;max-width:300px;">
+                <span class="mi" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--texto2);pointer-events:none;">search</span>
+                <input type="text" id="caja-buscar-archivo" placeholder="Buscar en archivo..." oninput="cajaFiltrar()" style="width:100%;padding:8px 12px 8px 34px;border:1.5px solid var(--gris2);border-radius:10px;font-size:13px;outline:none;">
+              </div>
+            </div>
+            <div class="movimientos-list" id="caja-tabla-body-archivo">
+              <div class="empty" style="padding:20px;"><div class="spinner-sm"></div>Cargando...</div>
+            </div>
+          </div>
+
+          <!-- PANEL: ARQUEO -->
+          <div id="cc-panel-arqueo" style="display:none;">
           <!-- VISTA CAJERA -->
           <div id="arq-vista-cajera" style="display:none;">
             <div style="background:linear-gradient(135deg,var(--azul),var(--azul2));border-radius:14px;padding:14px;margin-bottom:12px;display:flex;flex-direction:column;align-items:center;gap:6px;">
@@ -810,18 +809,20 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
               <button class="btn-main" id="arq-btn-preventivo" onclick="cajaSubmitArqueo('Arqueo Preventivo')" disabled style="flex:1;padding:12px;font-size:13px;background:linear-gradient(135deg,#ff8800,#ffaa00);"><span class="mi sm" style="vertical-align:text-bottom;margin-right:4px;">search</span> Arqueo Preventivo</button>
               <button class="btn-main" id="arq-btn-mes" onclick="cajaSubmitArqueo('Cierre de Mes')" disabled style="flex:1;padding:12px;font-size:13px;background:linear-gradient(135deg,var(--rojo),#ff4444);"><span class="mi sm" style="vertical-align:text-bottom;margin-right:4px;">lock</span> Cerrar Mes</button>
             </div>
-          </div>
-        </div>
+            </div>
+          </div><!-- /cc-panel-arqueo -->
 
-        <!-- SECTION: HISTORIAL ARQUEOS -->
-        <div id="section-historial-arq" class="section">
-          <div class="movimientos-list" id="caja-hist-body">
-            <div class="empty" style="padding:20px;"><div class="spinner-sm"></div>Cargando historial...</div>
-          </div>
-          <div style="text-align:center; margin-top:14px; display:none;" id="caja-hist-mas-container">
-            <button class="btn-main" id="btn-arqueos-mas" onclick="cajaLoadHistorial(true)" style="background:white; color:var(--azul2); border:1.5px solid var(--azul2); width:auto; padding:8px 24px; border-radius:30px; font-size:13px; font-weight:700;"><span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">expand_more</span> Ver más arqueos</button>
-          </div>
-        </div>
+          <!-- PANEL: HISTORIAL ARQUEOS -->
+          <div id="cc-panel-historial" style="display:none;">
+            <div class="movimientos-list" id="caja-hist-body">
+              <div class="empty" style="padding:20px;"><div class="spinner-sm"></div>Cargando historial...</div>
+            </div>
+            <div style="text-align:center;margin-top:14px;display:none;" id="caja-hist-mas-container">
+              <button class="btn-main" id="btn-arqueos-mas" onclick="cajaLoadHistorial(true)" style="background:white;color:var(--azul2);border:1.5px solid var(--azul2);width:auto;padding:8px 24px;border-radius:30px;font-size:13px;font-weight:700;"><span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">expand_more</span> Ver más arqueos</button>
+            </div>
+          </div><!-- /cc-panel-historial -->
+
+        </div><!-- /section-cajachica -->
 
         <!-- SECTION: KASNET -->
         <div id="section-kasnet" class="section">
@@ -1329,11 +1330,10 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   // ── SIDEBAR NAVIGATION ──
   const _sectionTitles = {
     'dashboard': 'Dashboard', 'mora': 'Gestión de Mora',
-    'movimientos': 'Movimientos', 'arqueo': 'Arqueo de Caja',
-    'historial-arq': 'Historial de Arqueos', 'kasnet': 'KASNET'
+    'cajachica': 'Caja Chica', 'kasnet': 'KASNET'
   };
-  const _allSections = ['dashboard','mora','movimientos','arqueo','historial-arq','kasnet'];
-  const _cajaSections = ['movimientos','arqueo','historial-arq','kasnet'];
+  const _allSections = ['dashboard','mora','cajachica','kasnet'];
+  const _cajaSections = ['cajachica','kasnet'];
 
   function switchMoraTab(tab) {
     // Actualizar botones tab
@@ -1372,33 +1372,44 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         if (parent) parent.classList.add('active');
       }
     }
-    // Auto-open caja chica subnav if selecting a caja chica subsection
-    if (['movimientos','arqueo','historial-arq'].indexOf(section) >= 0) {
-      var subnav = document.getElementById('cajachica-subnav');
-      if (subnav) subnav.classList.add('open');
+    // Auto-open caja chica section
+    if (section === 'cajachica') {
       var parentBtn = document.getElementById('nav-cajachica-parent');
-      if (parentBtn) { parentBtn.classList.add('active'); parentBtn.classList.add('subnav-open'); }
+      if (parentBtn) parentBtn.classList.add('active');
     }
     // Close sidebar on mobile
     if (window.innerWidth <= 900) toggleSidebar(false);
 
     // Load data for sections
     if (section === 'dashboard') renderDashboard();
-    else if (section === 'movimientos') { cajaCargarDatos(); cajaRenderTabla(cajaVistaArchivo ? cajaMovArchivo : cajaMovimientos, cajaVistaArchivo); }
-    else if (section === 'arqueo') { cajaCargarDatos(); cajaLoadArqueo(); }
-    else if (section === 'historial-arq') cajaLoadHistorial();
+    else if (section === 'cajachica') { cajaCargarDatos(); cajaLoadArqueo(); cajaRenderTabla(cajaMovimientos, false); }
     else if (section === 'kasnet') kasnetCargarDatos();
   }
 
-  // ── NAV HELPER: ir a Movimientos y activar el tab correcto (Mes Actual / Meses Anteriores) ──
+  // ── SWITCH TAB DENTRO DE CAJA CHICA ──
+  function cajaSwitchTab(tab) {
+    var tabs = ['mesactual','mesanterior','arqueo','historial'];
+    tabs.forEach(function(t) {
+      var btn = document.getElementById('cc-tab-' + t);
+      var panel = document.getElementById('cc-panel-' + t);
+      if (btn)   btn.classList.toggle('active', t === tab);
+      if (panel) panel.style.display = (t === tab) ? 'block' : 'none';
+    });
+    // Cargar datos según el tab
+    if (tab === 'mesanterior' && !cajaVistaArchivo) { cajaVistaArchivo = true; cajaCargarArchivo(); }
+    else if (tab === 'mesactual') { cajaVistaArchivo = false; cajaRenderTabla(cajaMovimientos, false); }
+    else if (tab === 'arqueo') { cajaLoadArqueo(); }
+    else if (tab === 'historial') { cajaLoadHistorial(); }
+    // Actualizar título topbar
+    var titulos = {mesactual:'Caja Chica — Mes Actual', mesanterior:'Caja Chica — Meses Anteriores', arqueo:'Caja Chica — Arqueo', historial:'Caja Chica — Historial Arqueos'};
+    var tt = document.getElementById('topbar-title');
+    if (tt) tt.textContent = titulos[tab] || 'Caja Chica';
+  }
+
+  // ── NAV HELPER: ir a cajachica y activar tab correcto ──
   function navToMov(vista, btn) {
-    navTo('movimientos', btn);
-    cajaMovToggle(vista);
-    // Marcar visualmente el sub-item correcto
-    var subActual   = document.getElementById('nav-sub-mesactual');
-    var subAnterior = document.getElementById('nav-sub-mesanterior');
-    if (subActual)   subActual.classList.toggle('active',   vista === 'actual');
-    if (subAnterior) subAnterior.classList.toggle('active', vista === 'archivo');
+    navTo('cajachica', btn);
+    cajaSwitchTab(vista === 'archivo' ? 'mesanterior' : 'mesactual');
   }
 
   function toggleSidebar(forceState) {
