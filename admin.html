@@ -617,14 +617,17 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
           <span class="mi sm nav-arrow">expand_more</span>
         </button>
         <div class="nav-subitems" id="cajachica-subnav">
-          <button class="nav-subitem" onclick="navTo('movimientos',this)">
-            <span class="mi sm">swap_vert</span> Movimientos
+          <button class="nav-subitem" id="nav-sub-mesactual" onclick="navToMov('actual',this)">
+            <span class="mi sm">swap_vert</span> Mes Actual
           </button>
-          <button class="nav-subitem" onclick="navTo('arqueo',this)">
+          <button class="nav-subitem" id="nav-sub-mesanterior" onclick="navToMov('archivo',this)">
+            <span class="mi sm">history</span> Meses Anteriores
+          </button>
+          <button class="nav-subitem" id="nav-sub-arqueo" onclick="navTo('arqueo',this)">
             <span class="mi sm">inventory</span> Arqueo
           </button>
-          <button class="nav-subitem" onclick="navTo('historial-arq',this)">
-            <span class="mi sm">calendar_month</span> Hist. Arqueos
+          <button class="nav-subitem" id="nav-sub-historial-arq" onclick="navTo('historial-arq',this)">
+            <span class="mi sm">calendar_month</span> Historial Arqueos
           </button>
         </div>
         <button class="nav-item" onclick="navTo('kasnet',this)">
@@ -1374,10 +1377,10 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       var subnav = document.getElementById('cajachica-subnav');
       if (subnav) subnav.classList.add('open');
       var parentBtn = document.getElementById('nav-cajachica-parent');
-      if (parentBtn) parentBtn.classList.add('subnav-open');
+      if (parentBtn) { parentBtn.classList.add('active'); parentBtn.classList.add('subnav-open'); }
     }
     // Close sidebar on mobile
-    if (window.innerWidth <= 768) toggleSidebar(true);
+    if (window.innerWidth <= 900) toggleSidebar(false);
 
     // Load data for sections
     if (section === 'dashboard') renderDashboard();
@@ -1385,8 +1388,17 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     else if (section === 'arqueo') { cajaCargarDatos(); cajaLoadArqueo(); }
     else if (section === 'historial-arq') cajaLoadHistorial();
     else if (section === 'kasnet') kasnetCargarDatos();
-    // Close sidebar on mobile
-    if (window.innerWidth <= 900) toggleSidebar(false);
+  }
+
+  // ── NAV HELPER: ir a Movimientos y activar el tab correcto (Mes Actual / Meses Anteriores) ──
+  function navToMov(vista, btn) {
+    navTo('movimientos', btn);
+    cajaMovToggle(vista);
+    // Marcar visualmente el sub-item correcto
+    var subActual   = document.getElementById('nav-sub-mesactual');
+    var subAnterior = document.getElementById('nav-sub-mesanterior');
+    if (subActual)   subActual.classList.toggle('active',   vista === 'actual');
+    if (subAnterior) subAnterior.classList.toggle('active', vista === 'archivo');
   }
 
   function toggleSidebar(forceState) {
