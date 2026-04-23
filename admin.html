@@ -1245,7 +1245,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('app').style.display = 'block';
         const rolLabel = data.rol === 'admin' ? 'Admin' : data.rol === 'cajero' ? 'Cajero' : 'Asesor';
-        const ofLabel = data.oficina && data.oficina !== 'TODOS' ? data.oficina : 'Todas las oficinas';
+        const ofLabel = data.oficina && data.oficina !== 'TODOS' ? data.oficina : 'Acceso General';
         document.getElementById('navbar-rol').textContent = rolLabel;
         document.getElementById('navbar-oficina').textContent = ofLabel;
         document.getElementById('navbar-user').textContent = data.nombre;
@@ -1437,7 +1437,8 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
     try {
       const globalSel = document.getElementById('global-sede-select');
-      const sedeReq = globalSel ? globalSel.value : ''; // snapshot de la sede al momento de iniciar
+      // Si el selector está vacío (primer login), usar cajaSedeActual de carga anterior; '' solo si nunca se cargó
+      const sedeReq = (globalSel && globalSel.value) ? globalSel.value : (cajaSedeActual || '');
 
       // ── TÉCNICA 1: Mostrar cache inmediatamente (stale-while-revalidate) para Dashboard/Mora ──
       const dashCached = dashCacheLeer(sedeReq);
@@ -1451,21 +1452,22 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         if (dashCached.sedes && dashCached.sedes.length > 0 && globalSel.options.length === 0) {
           globalSel.innerHTML = '';
           const rolActual = sessionStorage.getItem('ge_rol') || 'asesor';
-          if (rolActual === 'admin') { const o = document.createElement('option'); o.value=''; o.textContent='Todas las sedes'; globalSel.appendChild(o); }
           dashCached.sedes.forEach(function(s) { const o = document.createElement('option'); o.value=s; o.textContent=s; globalSel.appendChild(o); });
           if (rolActual !== 'admin' && dashCached.sedes.length === 1 && globalSel.parentElement) globalSel.parentElement.style.display = 'none';
-          if (dashCached.sedeActiva !== undefined && dashCached.sedeActiva !== null) {
+          // Admin: seleccionar por defecto la primera sede real (no 'Todas')
+          if (dashCached.sedeActiva !== undefined && dashCached.sedeActiva !== null && dashCached.sedeActiva !== '') {
             globalSel.value = dashCached.sedeActiva;
             cajaSedeActual = dashCached.sedeActiva;
+          } else if (rolActual === 'admin' && dashCached.sedes.length > 0) {
+            globalSel.value = dashCached.sedes[0];
+            cajaSedeActual = dashCached.sedes[0];
           }
         }
         renderDashboard();
       }
 
-      // Lanzar peticiones en paralelo
+      // Lanzar solo dashboard primero para conocer la sede real antes de pedir caja/kasnet
       const pDash = apiFetch({ admin: 'dashboard', sedeContexto: sedeReq });
-      const pCaja = apiFetch({ admin: 'caja_datos', sede: sedeReq, sedeContexto: sedeReq });
-      const pKasnet = apiFetch({ admin: 'kasnet_datos', sedeContexto: sedeReq });
 
       const resp = await pDash;
       // ⚠️ Guard: si llegó una carga más nueva mientras esperábamos, ignorar esta respuesta
@@ -1485,16 +1487,21 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       if (resp.sedes && resp.sedes.length > 0 && globalSel.options.length === 0) {
         globalSel.innerHTML = '';
         const rolActual = sessionStorage.getItem('ge_rol') || 'asesor';
-        if (rolActual === 'admin') { const o = document.createElement('option'); o.value=''; o.textContent='Todas las sedes'; globalSel.appendChild(o); }
         resp.sedes.forEach(function(s) { const o = document.createElement('option'); o.value=s; o.textContent=s; globalSel.appendChild(o); });
         
         // Si el usuario no es admin y solo tiene 1 sede disponible, ocultar el selector
         if (rolActual !== 'admin' && resp.sedes.length === 1) {
           if (globalSel.parentElement) globalSel.parentElement.style.display = 'none';
         }
+
+        // Seleccionar por defecto la primera sede real
+        if (resp.sedes.length > 0) {
+          if (globalSel) globalSel.value = resp.sedes[0];
+          cajaSedeActual = resp.sedes[0];
+        }
       }
       // Solo actualizar la sede si coincide con la que pedimos (o si fue la carga inicial donde pedimos '')
-      if (resp.sedeActiva !== undefined && resp.sedeActiva !== null && (sedeReq === '' || sedeReq === (globalSel ? globalSel.value : sedeReq))) {
+      if (resp.sedeActiva !== undefined && resp.sedeActiva !== null && resp.sedeActiva !== '' && (sedeReq === '' || sedeReq === (globalSel ? globalSel.value : sedeReq))) {
         if (globalSel) globalSel.value = resp.sedeActiva;
         cajaSedeActual = resp.sedeActiva;
       }
@@ -1506,10 +1513,14 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         renderClientes();
       }
 
-      // Cargar adicionales en background (vouchers, historial)
-      if (myReqId === _loadRequestId) cargarAdicionales(sedeReq);
+      // Sede efectiva ya resuelta: lo que devolvió el dashboard (primera oficina para admin)
+      const sedeEfectiva = (cajaSedeActual && cajaSedeActual !== '') ? cajaSedeActual : sedeReq;
 
-      // Datos de CAJA en paralelo
+      // Cargar adicionales con la sede efectiva ya conocida
+      if (myReqId === _loadRequestId) cargarAdicionales(sedeEfectiva);
+
+      // Datos de CAJA con la sede correcta
+      const pCaja = apiFetch({ admin: 'caja_datos', sede: sedeEfectiva, sedeContexto: sedeEfectiva });
       try {
         const respCaja = await pCaja;
         // Guard nuevamente después de await
@@ -1528,7 +1539,8 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         }
       } catch(ex) { console.error(ex); }
 
-      // Datos KASNET en paralelo (Precarga silenciosa)
+      // Datos KASNET con la sede efectiva
+      const pKasnet = apiFetch({ admin: 'kasnet_datos', sedeContexto: sedeEfectiva });
       try {
         const respKasnet = await pKasnet;
         if (myReqId === _loadRequestId && respKasnet && !respKasnet.error) {
@@ -2481,13 +2493,10 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
       if (esPrimeraVez && resp.sedes && resp.sedes.length > 0) {
         sel.innerHTML = '';
-        const rolActual = sessionStorage.getItem('ge_rol') || 'asesor';
-        if (rolActual === 'admin') { const o = document.createElement('option'); o.value=''; o.textContent='Todas las sedes'; sel.appendChild(o); }
         resp.sedes.forEach(function(s) { const o = document.createElement('option'); o.value=s; o.textContent=s; sel.appendChild(o); });
-        if (resp.sedeActiva !== undefined && resp.sedeActiva !== null) {
-          sel.value = resp.sedeActiva;
-          cajaSedeActual = resp.sedeActiva;
-        }
+        // Seleccionar la sede activa o la primera disponible
+        const sedeASeleccionar = (resp.sedeActiva && resp.sedeActiva !== '') ? resp.sedeActiva : (resp.sedes.length > 0 ? resp.sedes[0] : '');
+        if (sedeASeleccionar) { sel.value = sedeASeleccionar; cajaSedeActual = sedeASeleccionar; }
       }
 
       cajaSedeActual = sel.value;
