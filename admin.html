@@ -2468,7 +2468,8 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       if (cajaSedeActual !== sede) return;
       cajaDatos = resp; cajaSaldoTeorico = resp.saldo; cajaMovimientos = resp.movimientos || [];
       cajaRenderResumen(resp); if (!cajaVistaArchivo) cajaRenderTabla(cajaMovimientos); cajaRenderCategorias(resp.categorias || []);
-      document.getElementById('arq-teorico').textContent = 'S/. ' + resp.saldo.toLocaleString('es-PE', {minimumFractionDigits:2});
+      const arqTeoricoEl = document.getElementById('arq-teorico');
+      if (arqTeoricoEl) arqTeoricoEl.textContent = 'S/. ' + resp.saldo.toLocaleString('es-PE', {minimumFractionDigits:2});
       cajaRenderArqueoBanner(resp);
       cajaCalcArqueo();
     } catch(e) { /* silencioso */ }
