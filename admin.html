@@ -705,8 +705,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
           <div style="display:flex;gap:0;margin-bottom:12px;border-bottom:1px solid var(--gris2);">
             <button id="cc-tab-mesactual"  class="btn-mora-tab active" onclick="cajaSwitchTab('mesactual')"><span class="mi sm">swap_vert</span> Mes Actual</button>
             <button id="cc-tab-mesanterior" class="btn-mora-tab" onclick="cajaSwitchTab('mesanterior')"><span class="mi sm">history</span> Meses Anteriores</button>
-            <button id="cc-tab-arqueo"     class="btn-mora-tab" onclick="cajaSwitchTab('arqueo')"><span class="mi sm">inventory</span> Arqueo</button>
-            <button id="cc-tab-historial"  class="btn-mora-tab" onclick="cajaSwitchTab('historial')"><span class="mi sm">calendar_month</span> Historial Arqueos</button>
+            <button id="cc-tab-arqueo"     class="btn-mora-tab" onclick="cajaSwitchTab('arqueo')"><span class="mi sm">inventory</span> Arqueos</button>
           </div>
 
           <!-- PANEL: MES ACTUAL -->
@@ -736,9 +735,17 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
             </div>
           </div>
 
-          <!-- PANEL: ARQUEO -->
+          <!-- PANEL: ARQUEO DE CAJA (Incluye Nuevo e Historial) -->
           <div id="cc-panel-arqueo" style="display:none;">
-          <!-- VISTA CAJERA -->
+            <!-- SUB-SWITCHER -->
+            <div style="display:flex;gap:0;margin-bottom:12px;border-bottom:1px solid var(--gris2);">
+              <button id="arq-subtab-nuevo" onclick="cajaArqSubToggle('nuevo')" style="padding:8px 14px;background:none;border:none;border-bottom:2px solid var(--azul2);color:var(--azul2);font-weight:700;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:4px;"><span class="mi sm">add_box</span> Nuevo Arqueo</button>
+              <button id="arq-subtab-historial" onclick="cajaArqSubToggle('historial')" style="padding:8px 14px;background:none;border:none;border-bottom:2px solid transparent;color:var(--texto2);font-weight:600;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:4px;"><span class="mi sm">history</span> Historial</button>
+            </div>
+
+            <!-- VISTA: NUEVO ARQUEO -->
+            <div id="arq-subpanel-nuevo">
+              <!-- VISTA CAJERA -->
           <div id="arq-vista-cajera" style="display:none;">
             <div style="background:linear-gradient(135deg,var(--azul),var(--azul2));border-radius:14px;padding:14px;margin-bottom:12px;display:flex;flex-direction:column;align-items:center;gap:6px;">
               <span id="badge-arq-cajera" style="display:none; background:rgba(255,255,255,0.2); color:white; font-size:10px; font-weight:700; padding:3px 10px; border-radius:12px;"><span class="mi" style="font-size:12px;vertical-align:text-bottom;margin-right:4px;">history</span>Último: <span id="lbl-arq-cajera"></span></span>
@@ -809,18 +816,20 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
               <button class="btn-main" id="arq-btn-preventivo" onclick="cajaSubmitArqueo('Arqueo Preventivo')" disabled style="flex:1;padding:12px;font-size:13px;background:linear-gradient(135deg,#ff8800,#ffaa00);"><span class="mi sm" style="vertical-align:text-bottom;margin-right:4px;">search</span> Arqueo Preventivo</button>
               <button class="btn-main" id="arq-btn-mes" onclick="cajaSubmitArqueo('Cierre de Mes')" disabled style="flex:1;padding:12px;font-size:13px;background:linear-gradient(135deg,var(--rojo),#ff4444);"><span class="mi sm" style="vertical-align:text-bottom;margin-right:4px;">lock</span> Cerrar Mes</button>
             </div>
-            </div>
-          </div><!-- /cc-panel-arqueo -->
+              </div>
+            </div><!-- /arq-subpanel-nuevo -->
 
-          <!-- PANEL: HISTORIAL ARQUEOS -->
-          <div id="cc-panel-historial" style="display:none;">
-            <div class="movimientos-list" id="caja-hist-body">
-              <div class="empty" style="padding:20px;"><div class="spinner-sm"></div>Cargando historial...</div>
-            </div>
-            <div style="text-align:center;margin-top:14px;display:none;" id="caja-hist-mas-container">
-              <button class="btn-main" id="btn-arqueos-mas" onclick="cajaLoadHistorial(true)" style="background:white;color:var(--azul2);border:1.5px solid var(--azul2);width:auto;padding:8px 24px;border-radius:30px;font-size:13px;font-weight:700;"><span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">expand_more</span> Ver más arqueos</button>
-            </div>
-          </div><!-- /cc-panel-historial -->
+            <!-- VISTA: HISTORIAL ARQUEOS -->
+            <div id="arq-subpanel-historial" style="display:none;">
+              <div class="movimientos-list" id="caja-hist-body">
+                <div class="empty" style="padding:20px;"><div class="spinner-sm"></div>Cargando historial...</div>
+              </div>
+              <div style="text-align:center;margin-top:14px;display:none;" id="caja-hist-mas-container">
+                <button class="btn-main" id="btn-arqueos-mas" onclick="cajaLoadHistorial(true)" style="background:white;color:var(--azul2);border:1.5px solid var(--azul2);width:auto;padding:8px 24px;border-radius:30px;font-size:13px;font-weight:700;"><span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">expand_more</span> Ver más arqueos</button>
+              </div>
+            </div><!-- /arq-subpanel-historial -->
+
+          </div><!-- /cc-panel-arqueo -->
 
         </div><!-- /section-cajachica -->
 
@@ -1388,7 +1397,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
   // ── SWITCH TAB DENTRO DE CAJA CHICA ──
   function cajaSwitchTab(tab) {
-    var tabs = ['mesactual','mesanterior','arqueo','historial'];
+    var tabs = ['mesactual','mesanterior','arqueo'];
     tabs.forEach(function(t) {
       var btn = document.getElementById('cc-tab-' + t);
       var panel = document.getElementById('cc-panel-' + t);
@@ -1398,12 +1407,37 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     // Cargar datos según el tab
     if (tab === 'mesanterior' && !cajaVistaArchivo) { cajaVistaArchivo = true; cajaCargarArchivo(); }
     else if (tab === 'mesactual') { cajaVistaArchivo = false; cajaRenderTabla(cajaMovimientos, false); }
-    else if (tab === 'arqueo') { cajaLoadArqueo(); }
-    else if (tab === 'historial') { cajaLoadHistorial(); }
+    else if (tab === 'arqueo') {
+      // Por defecto al entrar a Arqueos, mostramos "Nuevo" o cargamos ambos si es necesario
+      cajaLoadArqueo();
+      // Resetear sub-toggle a 'nuevo'
+      cajaArqSubToggle('nuevo');
+    }
     // Actualizar título topbar
-    var titulos = {mesactual:'Caja Chica — Mes Actual', mesanterior:'Caja Chica — Meses Anteriores', arqueo:'Caja Chica — Arqueo', historial:'Caja Chica — Historial Arqueos'};
+    var titulos = {mesactual:'Caja Chica — Mes Actual', mesanterior:'Caja Chica — Meses Anteriores', arqueo:'Caja Chica — Arqueos'};
     var tt = document.getElementById('topbar-title');
     if (tt) tt.textContent = titulos[tab] || 'Caja Chica';
+  }
+
+  // ── SUB-TOGGLE DE ARQUEO ──
+  function cajaArqSubToggle(vista) {
+    const btnNuevo  = document.getElementById('arq-subtab-nuevo');
+    const btnHist   = document.getElementById('arq-subtab-historial');
+    const panelNuevo = document.getElementById('arq-subpanel-nuevo');
+    const panelHist  = document.getElementById('arq-subpanel-historial');
+    
+    if (vista === 'historial') {
+      btnNuevo.style.borderBottomColor = 'transparent'; btnNuevo.style.color = 'var(--texto2)'; btnNuevo.style.fontWeight = '600';
+      btnHist.style.borderBottomColor = 'var(--azul2)'; btnHist.style.color = 'var(--azul2)'; btnHist.style.fontWeight = '700';
+      panelNuevo.style.display = 'none';
+      panelHist.style.display = 'block';
+      cajaLoadHistorial(); // Carga bajo demanda
+    } else {
+      btnHist.style.borderBottomColor = 'transparent'; btnHist.style.color = 'var(--texto2)'; btnHist.style.fontWeight = '600';
+      btnNuevo.style.borderBottomColor = 'var(--azul2)'; btnNuevo.style.color = 'var(--azul2)'; btnNuevo.style.fontWeight = '700';
+      panelHist.style.display = 'none';
+      panelNuevo.style.display = 'block';
+    }
   }
 
   // ── NAV HELPER: ir a cajachica y activar tab correcto ──
