@@ -1461,9 +1461,9 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         if (rolActual === 'admin') { const o = document.createElement('option'); o.value=''; o.textContent='Todas las sedes'; globalSel.appendChild(o); }
         resp.sedes.forEach(function(s) { const o = document.createElement('option'); o.value=s; o.textContent=s; globalSel.appendChild(o); });
       }
-      // Solo actualizar la sede si coincide con la que pedimos (evita sobreescribir si el usuario cambió mientras tanto)
-      if (resp.sedeActiva !== undefined && resp.sedeActiva !== null && sedeReq === (globalSel ? globalSel.value : sedeReq)) {
-        globalSel.value = resp.sedeActiva;
+      // Solo actualizar la sede si coincide con la que pedimos (o si fue la carga inicial donde pedimos '')
+      if (resp.sedeActiva !== undefined && resp.sedeActiva !== null && (sedeReq === '' || sedeReq === (globalSel ? globalSel.value : sedeReq))) {
+        if (globalSel) globalSel.value = resp.sedeActiva;
         cajaSedeActual = resp.sedeActiva;
       }
 
