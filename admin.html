@@ -1460,6 +1460,11 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         const rolActual = sessionStorage.getItem('ge_rol') || 'asesor';
         if (rolActual === 'admin') { const o = document.createElement('option'); o.value=''; o.textContent='Todas las sedes'; globalSel.appendChild(o); }
         resp.sedes.forEach(function(s) { const o = document.createElement('option'); o.value=s; o.textContent=s; globalSel.appendChild(o); });
+        
+        // Si el usuario no es admin y solo tiene 1 sede disponible, ocultar el selector
+        if (rolActual !== 'admin' && resp.sedes.length === 1) {
+          if (globalSel.parentElement) globalSel.parentElement.style.display = 'none';
+        }
       }
       // Solo actualizar la sede si coincide con la que pedimos (o si fue la carga inicial donde pedimos '')
       if (resp.sedeActiva !== undefined && resp.sedeActiva !== null && (sedeReq === '' || sedeReq === (globalSel ? globalSel.value : sedeReq))) {
