@@ -2593,7 +2593,8 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
   function cajaRenderTabla(movs, readOnly) {
     _cajaMovMap = {};
-    const contenedor = document.getElementById('caja-tabla-body');
+    const contenedor = document.getElementById(readOnly ? 'caja-tabla-body-archivo' : 'caja-tabla-body');
+    if (!contenedor) return;
     if (!movs || movs.length === 0) {
       contenedor.innerHTML = '<div class="empty"><div class="icon"><span class="mi" style="font-size:40px;color:var(--texto2);">search_off</span></div>' + (readOnly ? 'Sin movimientos archivados' : 'Sin movimientos') + '</div>';
       return;
@@ -2653,40 +2654,10 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     cajaRenderTabla(filtrados, cajaVistaArchivo);
   }
 
-  function cajaMovToggle(vista) {
-    _cajaMovRequestId++;
-    const btnActual  = document.getElementById('mov-tab-actual');
-    const btnArchivo = document.getElementById('mov-tab-archivo');
-    const toolActual  = document.getElementById('caja-toolbar-actual');
-    const toolArchivo = document.getElementById('caja-toolbar-archivo');
-
-    if (vista === 'archivo') {
-      cajaVistaArchivo = true;
-      btnActual.style.borderBottomColor  = 'transparent';
-      btnActual.style.color = 'var(--texto2)';
-      btnActual.style.fontWeight = '600';
-      btnArchivo.style.borderBottomColor = 'var(--azul2)';
-      btnArchivo.style.color = 'var(--azul2)';
-      btnArchivo.style.fontWeight = '700';
-      toolActual.style.display  = 'none';
-      toolArchivo.style.display = 'flex';
-      cajaCargarArchivo();
-    } else {
-      cajaVistaArchivo = false;
-      btnArchivo.style.borderBottomColor = 'transparent';
-      btnArchivo.style.color = 'var(--texto2)';
-      btnArchivo.style.fontWeight = '600';
-      btnActual.style.borderBottomColor  = 'var(--azul2)';
-      btnActual.style.color = 'var(--azul2)';
-      btnActual.style.fontWeight = '700';
-      toolActual.style.display  = 'flex';
-      toolArchivo.style.display = 'none';
-      cajaRenderTabla(cajaMovimientos, false);
-    }
   }
 
   async function cajaCargarArchivo() {
-    const contenedor = document.getElementById('caja-tabla-body');
+    const contenedor = document.getElementById('caja-tabla-body-archivo');
     const myReqId = ++_cajaMovRequestId;
     const cacheKey = 'caja_archivo_cache_' + (cajaSedeActual || 'todos');
 
