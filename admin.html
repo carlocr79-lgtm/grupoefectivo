@@ -2452,7 +2452,8 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       cajaDatos = resp; cajaSaldoTeorico = resp.saldo; cajaMovimientos = resp.movimientos || [];
       cajaRenderResumen(resp); cajaRenderTabla(cajaMovimientos); cajaRenderCategorias(resp.categorias || []);
       cajaSaldoTeorico = resp.saldo;
-      document.getElementById('arq-teorico').textContent = 'S/. ' + resp.saldo.toLocaleString('es-PE', {minimumFractionDigits:2});
+      var elArq = document.getElementById('arq-teorico');
+      if (elArq) elArq.textContent = 'S/. ' + resp.saldo.toLocaleString('es-PE', {minimumFractionDigits:2});
       cajaRenderArqueoBanner(resp);
       cajaCalcArqueo();
     } catch(e) { console.error('caja error', e); }
@@ -2866,15 +2867,16 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         archivoMimeType: archivoMimeType || '',
         archivoNombre: archivoNombre || ''
       });
-      cajaHideSavingOverlay();
+      
       if (resp && resp.status === 'ok') {
         showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">check_circle</span> ' + resp.message);
         cajaHideModal();
         cajaCacheInvalidar(cajaSedeActual);
-        await cajaCargarDatos();
+        await cajaCargarDatos(); // Actualizamos la tabla
       } else {
         showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> ' + (resp && resp.message ? resp.message : 'Error'));
       }
+      cajaHideSavingOverlay(); // Ocultar overlay al final de todo el proceso
     } catch(e) { 
       cajaHideSavingOverlay();
       showToast('❌ Error: ' + e.message); 
@@ -2884,6 +2886,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
   async function cajaEliminar(id) {
     if (!confirm('¿Eliminar este movimiento?')) return;
+    cajaShowSavingOverlay('Eliminando...', 'Actualizando sistema');
     try {
       const resp = await apiPost({ _method: 'POST', cajaAction: 'eliminar', id: id });
       if (resp && resp.status === 'ok') {
@@ -2892,6 +2895,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         await cajaCargarDatos();
       } else { showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> ' + (resp && resp.message ? resp.message : 'Error')); }
     } catch(e) { showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> Error: ' + e.message); }
+    cajaHideSavingOverlay();
   }
 
   function cajaCalcArqueo() {
