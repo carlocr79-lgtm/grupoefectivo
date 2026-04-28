@@ -563,7 +563,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       <input type="email" id="inp-correo" placeholder="tucorreo@gmail.com" autocomplete="email"
         onkeydown="if(event.key==='Enter')solicitarCodigo()">
     </div>
-    <button class="btn-login" id="btn-solicitar" onclick="solicitarCodigo()">Enviar Código â†’</button>
+    <button class="btn-login" id="btn-solicitar" onclick="solicitarCodigo()">Enviar Código →</button>
     <div class="login-error" id="login-error">Correo no autorizado</div>
     <div class="login-success" id="login-ok"><span class="mi sm">check_circle</span> Código enviado a tu correo</div>
   </div>
@@ -580,7 +580,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       <input type="tel" maxlength="1" class="cod-input" id="c5" oninput="avanzarCodigo(this,'c6')" onkeydown="retrocederCodigo(event,'c4')">
       <input type="tel" maxlength="1" class="cod-input" id="c6" oninput="avanzarCodigo(this,null)" onkeydown="retrocederCodigo(event,'c5')">
     </div>
-    <button class="btn-login" id="btn-verificar-cod" onclick="verificarCodigo()">Verificar â†’</button>
+    <button class="btn-login" id="btn-verificar-cod" onclick="verificarCodigo()">Verificar →</button>
     <div class="login-error" id="codigo-error">Código incorrecto o expirado</div>
     <div class="timer" id="timer-txt"></div>
     <button class="btn-reenviar" onclick="volverCorreo()">â† Cambiar correo / Reenviar</button>
@@ -822,16 +822,16 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     </div>
     <div class="dr-section">
       <div class="dr-section-title">Datos Generales</div>
-      <div class="dr-item"><span class="lbl">C&oacute;digo</span><span class="val" id="dr-cod"></span></div>
+      <div class="dr-item"><span class="lbl">Código</span><span class="val" id="dr-cod"></span></div>
       <div class="dr-item"><span class="lbl">Celular</span><span class="val" id="dr-cel"></span></div>
-      <div class="dr-item"><span class="lbl">Direcci&oacute;n</span><span class="val" id="dr-dir" style="text-align:right; max-width:60%;"></span></div>
-      <div class="dr-item"><span class="lbl">Pr&oacute;x. Vencimiento</span><span class="val" id="dr-venc"></span></div>
+      <div class="dr-item"><span class="lbl">Dirección</span><span class="val" id="dr-dir" style="text-align:right; max-width:60%;"></span></div>
+      <div class="dr-item"><span class="lbl">Próx. Vencimiento</span><span class="val" id="dr-venc"></span></div>
     </div>
     <div class="dr-section">
-      <div class="dr-section-title">Gesti&oacute;n Interna</div>
+      <div class="dr-section-title">Gestión Interna</div>
       <div class="dr-item"><span class="lbl">Asesor Asignado</span><span class="val" id="dr-asesor"></span></div>
       <div class="dr-item"><span class="lbl">Oficina</span><span class="val" id="dr-ofi"></span></div>
-      <div class="dr-item"><span class="lbl">Tipo de Cr&eacute;dito</span><span class="val" id="dr-tipo"></span></div>
+      <div class="dr-item"><span class="lbl">Tipo de Crédito</span><span class="val" id="dr-tipo"></span></div>
     </div>
     <div id="dr-obs-container"></div>
   </div>
@@ -1267,7 +1267,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     } catch(e) {
       mostrarError('login-error', 'Error de conexión. Intenta de nuevo.');
     }
-    btn.textContent = 'Enviar Código â†’'; btn.disabled = false;
+    btn.textContent = 'Enviar Código →'; btn.disabled = false;
   }
 
   // â”€â”€ AUTH: PASO 2 â€” VERIFICAR CÃ“DIGO â”€â”€
@@ -1309,7 +1309,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     } catch(e) {
       mostrarError('codigo-error', 'Error de conexión.');
     }
-    btn.textContent = 'Verificar â†’'; btn.disabled = false;
+    btn.textContent = 'Verificar →'; btn.disabled = false;
   }
 
   function volverCorreo() {
@@ -1995,7 +1995,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       return;
     }
 
-    // Ordenar por días de atraso desc
+    // Ordenar por dias de atraso desc
     lista.sort((a, b) => b.dias - a.dias);
     clientesFiltrados = lista;
 
@@ -2028,7 +2028,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
               ${diasTag}
               ${tieneVoucher}
               ${notificadoTag}
-              <span style="background:var(--gris);padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;">Cód. ${escapeHtml(c.cod)}</span>
+              <span style="background:var(--gris);padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;">C&oacute;d. ${escapeHtml(c.cod)}</span>
             </div>
           </div>
         </div>
@@ -2057,7 +2057,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     // Configurar tags rápidos de cabecera
     const diasTag = c.dias > 90 ? `<span style="color:var(--rojo);"><span class="mi xs">error</span> ${c.dias} d atraso</span>` :
                     c.dias > 0  ? `<span style="color:var(--naranja);"><span class="mi xs">warning</span> ${c.dias} d atraso</span>` :
-                                  `<span style="color:var(--verde);"><span class="mi xs">check_circle</span> Al d&iacute;a</span>`;
+                                  `<span style="color:var(--verde);"><span class="mi xs">check_circle</span> Al día</span>`;
     document.getElementById('dr-tags').innerHTML = diasTag + (c.voucher ? ` | <span style="color:#cc8800"><span class="mi xs">hourglass_top</span> Voucher</span>` : '');
 
     // Finanzas
@@ -2065,7 +2065,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     document.getElementById('dr-cuota').textContent = c.cuota ? 'S/. ' + parseFloat(c.cuota).toLocaleString('es-PE',{minimumFractionDigits:2}) : '-';
     const numCuotas = c.cuotas > 0 ? `<span style="color:var(--rojo);font-weight:900;background:#fff0f0;padding:2px 8px;border-radius:12px;">${c.cuotas} cuota(s)</span>` : '0 cuotas';
     document.getElementById('dr-cuotas').innerHTML = numCuotas;
-    document.getElementById('dr-dias').textContent = c.dias + ' d\u00EDa(s)';
+    document.getElementById('dr-dias').textContent = c.dias + ' día(s)';
 
     // Datos Generales
     document.getElementById('dr-cod').textContent = escapeHtml(c.cod);
@@ -2304,7 +2304,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         <div class="cliente-header">
           <div>
             <div class="cliente-nombre">${safeNombre}</div>
-            <div class="cliente-cod">Cód. ${safeCod}</div>
+            <div class="cliente-cod">C&oacute;d. ${safeCod}</div>
           </div>
           <div>
             <div class="cliente-monto">S/. ${parseFloat(v.monto).toLocaleString('es-PE',{minimumFractionDigits:2})}</div>
@@ -2422,7 +2422,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       <div class="hist-card">
         <div class="hist-left">
           <div class="nombre">${escapeHtml(h.nombre) || '-'}</div>
-          <div class="det">${h.asesor ? escapeHtml(h.asesor.toString().split(' ')[0]) : '-'} Â· ${escapeHtml(h.tipo) || '-'} Â· Cód. ${escapeHtml(h.cod) || '-'}</div>
+          <div class="det">${h.asesor ? escapeHtml(h.asesor.toString().split(' ')[0]) : '-'} &middot; ${escapeHtml(h.tipo) || '-'} &middot; C&oacute;d. ${escapeHtml(h.cod) || '-'}</div>
           <div class="det" style="margin-top:3px;">
             <span class="tag ${h.estado && h.estado.toString().includes('VERIFICADO') ? 'tag-verificado' : 'tag-pendiente'}" style="display:inline-block;font-size:10px;">
               ${escapeHtml(h.estado) || 'PENDIENTE'}
