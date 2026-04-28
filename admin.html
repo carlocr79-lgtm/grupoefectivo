@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -553,7 +553,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 <!-- LOGIN -->
 <div id="login-screen">
   <div class="login-logo"><span class="mi" style="font-size:24px;vertical-align:middle;margin-right:4px;">work</span> Grupo Efectivo</div>
-  <div class="login-sub">Panel de AdministraciÃ³n</div>
+  <div class="login-sub">Panel de Administración</div>
 
   <!-- PASO 1: CORREO -->
   <div class="login-box" id="box-correo">
@@ -563,15 +563,15 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       <input type="email" id="inp-correo" placeholder="tucorreo@gmail.com" autocomplete="email"
         onkeydown="if(event.key==='Enter')solicitarCodigo()">
     </div>
-    <button class="btn-login" id="btn-solicitar" onclick="solicitarCodigo()">Enviar cÃ³digo â†’</button>
+    <button class="btn-login" id="btn-solicitar" onclick="solicitarCodigo()">Enviar Código â†’</button>
     <div class="login-error" id="login-error">Correo no autorizado</div>
-    <div class="login-success" id="login-ok"><span class="mi sm">check_circle</span> CÃ³digo enviado a tu correo</div>
+    <div class="login-success" id="login-ok"><span class="mi sm">check_circle</span> Código enviado a tu correo</div>
   </div>
 
   <!-- PASO 2: CÃ“DIGO -->
   <div class="login-box" id="box-codigo" style="display:none;">
-    <h2><span class="mi" style="font-size:20px;vertical-align:middle;margin-right:4px;">pin</span> Ingresa el cÃ³digo</h2>
-    <div class="correo-display">CÃ³digo enviado a <strong id="correo-display-txt"></strong></div>
+    <h2><span class="mi" style="font-size:20px;vertical-align:middle;margin-right:4px;">pin</span> Ingresa el Código</h2>
+    <div class="correo-display">Código enviado a <strong id="correo-display-txt"></strong></div>
     <div class="codigo-inputs">
       <input type="tel" maxlength="1" class="cod-input" id="c1" oninput="avanzarCodigo(this,'c2')">
       <input type="tel" maxlength="1" class="cod-input" id="c2" oninput="avanzarCodigo(this,'c3')" onkeydown="retrocederCodigo(event,'c1')">
@@ -581,7 +581,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       <input type="tel" maxlength="1" class="cod-input" id="c6" oninput="avanzarCodigo(this,null)" onkeydown="retrocederCodigo(event,'c5')">
     </div>
     <button class="btn-login" id="btn-verificar-cod" onclick="verificarCodigo()">Verificar â†’</button>
-    <div class="login-error" id="codigo-error">CÃ³digo incorrecto o expirado</div>
+    <div class="login-error" id="codigo-error">Código incorrecto o expirado</div>
     <div class="timer" id="timer-txt"></div>
     <button class="btn-reenviar" onclick="volverCorreo()">â† Cambiar correo / Reenviar</button>
   </div>
@@ -626,7 +626,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       </nav>
       <div class="sidebar-footer">
         <button class="btn-sidebar-logout" onclick="logout()">
-          <span class="mi sm">logout</span> Cerrar sesiÃ³n
+          <span class="mi sm">logout</span> Cerrar sesión
         </button>
       </div>
     </aside>
@@ -706,7 +706,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         <!-- SECTION: CAJA CHICA (tabs unificados) -->
         <div id="section-cajachica" class="section">
 
-          <!-- TABS HORIZONTALES (mismo patrÃ³n que Mora) -->
+          <!-- TABS HORIZONTALES (mismo patrón que Mora) -->
           <div style="display:flex;gap:0;margin-bottom:12px;border-bottom:1px solid var(--gris2);">
             <button id="cc-tab-mesactual"  class="btn-mora-tab active" onclick="cajaSwitchTab('mesactual')"><span class="mi sm">swap_vert</span> Mes Actual</button>
             <button id="cc-tab-mesanterior" class="btn-mora-tab" onclick="cajaSwitchTab('mesanterior')"><span class="mi sm">history</span> Meses Anteriores</button>
@@ -774,7 +774,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
               <div class="empty" style="padding:20px;"><div class="spinner-sm"></div>Cargando historial...</div>
             </div>
             <div style="text-align:center;margin-top:14px;display:none;" id="caja-hist-mas-container">
-              <button class="btn-main" id="btn-arqueos-mas" onclick="cajaLoadHistorial(true)" style="background:white;color:var(--azul2);border:1.5px solid var(--azul2);width:auto;padding:8px 24px;border-radius:30px;font-size:13px;font-weight:700;"><span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">expand_more</span> Ver mÃ¡s arqueos</button>
+              <button class="btn-main" id="btn-arqueos-mas" onclick="cajaLoadHistorial(true)" style="background:white;color:var(--azul2);border:1.5px solid var(--azul2);width:auto;padding:8px 24px;border-radius:30px;font-size:13px;font-weight:700;"><span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">expand_more</span> Ver más arqueos</button>
             </div>
           </div><!-- /cc-panel-arqueo -->
 
@@ -818,20 +818,20 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       <div class="dr-item"><span class="lbl">Deuda Total</span><span class="val" id="dr-deuda" style="font-size:18px; font-weight:900; color:var(--azul);"></span></div>
       <div class="dr-item"><span class="lbl">Cuota Mensual</span><span class="val" id="dr-cuota"></span></div>
       <div class="dr-item"><span class="lbl">Cuotas Vencidas</span><span class="val" id="dr-cuotas"></span></div>
-      <div class="dr-item"><span class="lbl">DÃ­as de Atraso</span><span class="val" id="dr-dias"></span></div>
+      <div class="dr-item"><span class="lbl">d&iacute;as de Atraso</span><span class="val" id="dr-dias"></span></div>
     </div>
     <div class="dr-section">
       <div class="dr-section-title">Datos Generales</div>
-      <div class="dr-item"><span class="lbl">CÃ³digo</span><span class="val" id="dr-cod"></span></div>
+      <div class="dr-item"><span class="lbl">C&oacute;digo</span><span class="val" id="dr-cod"></span></div>
       <div class="dr-item"><span class="lbl">Celular</span><span class="val" id="dr-cel"></span></div>
-      <div class="dr-item"><span class="lbl">DirecciÃ³n</span><span class="val" id="dr-dir" style="text-align:right; max-width:60%;"></span></div>
-      <div class="dr-item"><span class="lbl">PrÃ³x. Vencimiento</span><span class="val" id="dr-venc"></span></div>
+      <div class="dr-item"><span class="lbl">Direcci&oacute;n</span><span class="val" id="dr-dir" style="text-align:right; max-width:60%;"></span></div>
+      <div class="dr-item"><span class="lbl">Pr&oacute;x. Vencimiento</span><span class="val" id="dr-venc"></span></div>
     </div>
     <div class="dr-section">
-      <div class="dr-section-title">GestiÃ³n Interna</div>
+      <div class="dr-section-title">Gesti&oacute;n Interna</div>
       <div class="dr-item"><span class="lbl">Asesor Asignado</span><span class="val" id="dr-asesor"></span></div>
       <div class="dr-item"><span class="lbl">Oficina</span><span class="val" id="dr-ofi"></span></div>
-      <div class="dr-item"><span class="lbl">Tipo de CrÃ©dito</span><span class="val" id="dr-tipo"></span></div>
+      <div class="dr-item"><span class="lbl">Tipo de Cr&eacute;dito</span><span class="val" id="dr-tipo"></span></div>
     </div>
     <div id="dr-obs-container"></div>
   </div>
@@ -854,12 +854,12 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     <div class="dr-section">
       <div class="dr-section-title">Detalles del Movimiento</div>
       <div class="dr-item"><span class="lbl">Monto</span><span class="val" id="dr-caja-monto" style="font-size:18px; font-weight:900;"></span></div>
-      <div class="dr-item"><span class="lbl">CategorÃ­a</span><span class="val" id="dr-caja-cat"></span></div>
+      <div class="dr-item"><span class="lbl">Categoría</span><span class="val" id="dr-caja-cat"></span></div>
       <div class="dr-item"><span class="lbl">Fecha</span><span class="val" id="dr-caja-fecha"></span></div>
       <div class="dr-item"><span class="lbl">Tipo</span><span class="val" id="dr-caja-tipo"></span></div>
     </div>
     <div class="dr-section" id="dr-caja-desc-section">
-      <div class="dr-section-title">DescripciÃ³n</div>
+      <div class="dr-section-title">Descripción</div>
       <div id="dr-caja-desc" style="font-size:13px; color:var(--texto); line-height:1.5;"></div>
     </div>
     <div class="dr-section" id="dr-caja-comp-section" style="display:none; flex-direction:column; padding:12px;">
@@ -890,13 +890,13 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   <div class="drawer-content" id="dr-kasnet-content">
     <div class="dr-section">
       <div class="dr-section-title">Resumen de Cuadre</div>
-      <div class="dr-item"><span class="lbl">Total FÃ­sico</span><span class="val" id="dr-kasnet-fis" style="font-size:18px; font-weight:900; color:var(--verde);"></span></div>
+      <div class="dr-item"><span class="lbl">Total Físico</span><span class="val" id="dr-kasnet-fis" style="font-size:18px; font-weight:900; color:var(--verde);"></span></div>
       <div class="dr-item"><span class="lbl">Total Virtual</span><span class="val" id="dr-kasnet-virt"></span></div>
       <div class="dr-item"><span class="lbl">Operaciones</span><span class="val" id="dr-kasnet-ops"></span></div>
       <div class="dr-item"><span class="lbl">Estado</span><span class="val" id="dr-kasnet-est"></span></div>
     </div>
     <div class="dr-section">
-      <div class="dr-section-title">Desglose FÃ­sico</div>
+      <div class="dr-section-title">Desglose Físico</div>
       <div id="dr-kasnet-desglose"></div>
     </div>
     <div class="dr-section" id="dr-kasnet-comp-section" style="display:none; flex-direction:column; padding:12px;">
@@ -1165,14 +1165,14 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
               }
             ">
           </div>
-          <div style="font-size:9px; color:var(--texto2); margin-top:8px; text-align:center;">Formatos aceptados: JPG, PNG, PDF (MÃ¡x. 3MB).</div>
+          <div style="font-size:9px; color:var(--texto2); margin-top:8px; text-align:center;">Formatos aceptados: JPG, PNG, PDF (Máx. 3MB).</div>
         </div>
       </div>
 
       <!-- COLUMNA DERECHA -->
       <div style="display:flex; flex-direction:column; gap:10px; min-width: 0;">
         <div style="background:white; border:1px solid var(--gris2); padding:10px; border-radius:10px; flex:1; display:flex; flex-direction:column; box-shadow: 0 2px 8px rgba(0,0,0,0.02); min-width: 0;">
-          <h4 style="font-size:11px; margin-bottom:10px; color:var(--azul); font-weight:800; display:flex; align-items:center; gap:4px;"><span class="mi xs">payments</span> Efectivo FÃ­sico</h4>
+          <h4 style="font-size:11px; margin-bottom:10px; color:var(--azul); font-weight:800; display:flex; align-items:center; gap:4px;"><span class="mi xs">payments</span> Efectivo Físico</h4>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px; flex:1; min-width: 0;">
             <!-- Billetes -->
             <div style="min-width: 0;">
@@ -1195,7 +1195,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
             </div>
           </div>
           <div style="margin-top:auto; padding-top:10px; border-top:1px dashed var(--gris2); font-size:12px; font-weight:800; color:var(--texto); display:flex; justify-content:space-between; align-items:center;">
-             <span>Total FÃ­sico en Caja:</span>
+             <span>Total Físico en Caja:</span>
              <span id="kasnet-total-fisico" style="color:var(--verde); font-size:14px;">S/. 0.00</span>
           </div>
         </div>
@@ -1241,7 +1241,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   async function solicitarCodigo() {
     const correo = document.getElementById('inp-correo').value.trim();
     if (!correo || !correo.includes('@')) {
-      mostrarError('login-error', 'Ingresa un correo vÃ¡lido'); return;
+      mostrarError('login-error', 'Ingresa un correo válido'); return;
     }
     const btn = document.getElementById('btn-solicitar');
     btn.textContent = 'â³ Enviando...'; btn.disabled = true;
@@ -1265,9 +1265,9 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         mostrarError('login-error', data.error || 'Correo no autorizado');
       }
     } catch(e) {
-      mostrarError('login-error', 'Error de conexiÃ³n. Intenta de nuevo.');
+      mostrarError('login-error', 'Error de conexión. Intenta de nuevo.');
     }
-    btn.textContent = 'Enviar cÃ³digo â†’'; btn.disabled = false;
+    btn.textContent = 'Enviar Código â†’'; btn.disabled = false;
   }
 
   // â”€â”€ AUTH: PASO 2 â€” VERIFICAR CÃ“DIGO â”€â”€
@@ -1276,7 +1276,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       .map(id => document.getElementById(id).value).join('');
 
     if (codigo.length < 6) {
-      mostrarError('codigo-error', 'Ingresa los 6 dÃ­gitos'); return;
+      mostrarError('codigo-error', 'Ingresa los 6 dígitos'); return;
     }
     const btn = document.getElementById('btn-verificar-cod');
     btn.textContent = 'â³ Verificando...'; btn.disabled = true;
@@ -1304,10 +1304,10 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         document.getElementById('navbar-user').textContent = data.nombre;
         cargarTodo();
       } else {
-        mostrarError('codigo-error', data.error || 'CÃ³digo incorrecto');
+        mostrarError('codigo-error', data.error || 'Código incorrecto');
       }
     } catch(e) {
-      mostrarError('codigo-error', 'Error de conexiÃ³n.');
+      mostrarError('codigo-error', 'Error de conexión.');
     }
     btn.textContent = 'Verificar â†’'; btn.disabled = false;
   }
@@ -1340,7 +1340,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       txt.textContent = 'Expira en ' + m + ':' + String(s).padStart(2,'0');
       if (--segundos < 0) {
         clearInterval(timerInterval);
-        txt.textContent = 'âš ï¸ CÃ³digo expirado. Solicita uno nuevo.';
+        txt.textContent = 'âš ï¸ Código expirado. Solicita uno nuevo.';
       }
     }, 1000);
   }
@@ -1378,7 +1378,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
   // â”€â”€ SIDEBAR NAVIGATION â”€â”€
   const _sectionTitles = {
-    'dashboard': 'Dashboard', 'mora': 'GestiÃ³n de Mora',
+    'dashboard': 'Dashboard', 'mora': 'Gestión de Mora',
     'cajachica': 'Caja Chica', 'kasnet': 'KASNET'
   };
   const _allSections = ['dashboard','mora','cajachica','kasnet'];
@@ -1436,7 +1436,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   }
 
   // â”€â”€ SWITCH TAB DENTRO DE CAJA CHICA â”€â”€
-  // Rastrea el Ãºltimo periodo cargado para evitar recargas innecesarias
+  // Rastrea el último periodo cargado para evitar recargas innecesarias
   let _cajaArchivoUltimoPeriodo = null;
 
   function cajaSwitchTab(tab) {
@@ -1447,7 +1447,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       if (btn)   btn.classList.toggle('active', t === tab);
       if (panel) panel.style.display = (t === tab) ? 'block' : 'none';
     });
-    // Cargar datos segÃºn el tab
+    // Cargar datos según el tab
     if (tab === 'mesanterior') {
       cajaVistaArchivo = true;
       const d = new Date();
@@ -1455,7 +1455,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       const mesActual  = (d.getMonth() + 1).toString();
       document.getElementById('hist-anio').value = anioActual;
       document.getElementById('hist-mes').value  = mesActual;
-      // Auto-cargar si el periodo no ha sido cargado aÃºn
+      // Auto-cargar si el periodo no ha sido cargado aún
       const periodoKey = anioActual + '_' + mesActual + '_MOVIMIENTOS_' + (cajaSedeActual || 'todos');
       if (_cajaArchivoUltimoPeriodo !== periodoKey) {
         _cajaArchivoUltimoPeriodo = periodoKey;
@@ -1466,7 +1466,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     else if (tab === 'arqueo') {
       cajaLoadHistorial();
     }
-    // Actualizar tÃ­tulo topbar
+    // Actualizar título topbar
     var titulos = {mesactual:'Caja Chica â€” Mes Actual', mesanterior:'Caja Chica â€” Meses Anteriores', arqueo:'Caja Chica â€” Arqueos'};
     var tt = document.getElementById('topbar-title');
     if (tt) tt.textContent = titulos[tab] || 'Caja Chica';
@@ -1501,7 +1501,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
   // â”€â”€ ON CHANGE SEDE GLOBAL â”€â”€
   function globalOnChangeSede() {
-    // Debounce: si el usuario cambia sede rÃ¡pido, esperar 300ms antes de disparar
+    // Debounce: si el usuario cambia sede rápido, esperar 300ms antes de disparar
     clearTimeout(_sedeChangeTimer);
     _sedeChangeTimer = setTimeout(function() {
       cajaSedeActual = document.getElementById('global-sede-select').value;
@@ -1521,14 +1521,14 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     }, 300);
   }
 
-  // â”€â”€ CARGA INICIAL (con protecciÃ³n anti race-condition) â”€â”€
+  // â”€â”€ CARGA INICIAL (con protección anti race-condition) â”€â”€
   async function cargarTodo() {
-    // Capturar el ID de esta peticiÃ³n. Si llega una mÃ¡s nueva, descartamos esta.
+    // Capturar el ID de esta petición. Si llega una más nueva, descartamos esta.
     const myReqId = ++_loadRequestId;
 
     try {
       const globalSel = document.getElementById('global-sede-select');
-      // Si el selector estÃ¡ vacÃ­o (primer login), usar cajaSedeActual de carga anterior; '' solo si nunca se cargÃ³
+      // Si el selector está vacío (primer login), usar cajaSedeActual de carga anterior; '' solo si nunca se cargó
       const sedeReq = (globalSel && globalSel.value) ? globalSel.value : (cajaSedeActual || '');
 
       // â”€â”€ TÃ‰CNICA 1: Mostrar cache inmediatamente (stale-while-revalidate) para Dashboard/Mora â”€â”€
@@ -1561,20 +1561,20 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       const pDash = apiFetch({ admin: 'dashboard', sedeContexto: sedeReq });
 
       const resp = await pDash;
-      // âš ï¸ Guard: si llegÃ³ una carga mÃ¡s nueva mientras esperÃ¡bamos, ignorar esta respuesta
+      // âš ï¸ Guard: si llegó una carga más nueva mientras esperábamos, ignorar esta respuesta
       if (myReqId !== _loadRequestId) { console.log('[cargarTodo] descartando respuesta obsoleta (req ' + myReqId + ')'); return; }
 
       if (!resp || resp.error) {
         if (!dashCached) {
           console.error('Dashboard error:', resp);
-          document.getElementById('lista-clientes').innerHTML = '<div class="empty">Error de conexiÃ³n con el servidor.</div>';
+          document.getElementById('lista-clientes').innerHTML = '<div class="empty">Error de conexión con el servidor.</div>';
         }
         return;
       }
       
       dashCacheGuardar(sedeReq, resp);
 
-      // Poblar selector de sedes solo la primera vez (cuando estÃ¡ vacÃ­o)
+      // Poblar selector de sedes solo la primera vez (cuando está vacío)
       if (resp.sedes && resp.sedes.length > 0 && globalSel.options.length === 0) {
         globalSel.innerHTML = '';
         const rolActual = sessionStorage.getItem('ge_rol') || 'asesor';
@@ -1604,7 +1604,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         renderClientes();
       }
 
-      // Sede efectiva ya resuelta: lo que devolviÃ³ el dashboard (primera oficina para admin)
+      // Sede efectiva ya resuelta: lo que devolvió el dashboard (primera oficina para admin)
       const sedeEfectiva = (cajaSedeActual && cajaSedeActual !== '') ? cajaSedeActual : sedeReq;
 
       // Cargar adicionales con la sede efectiva ya conocida
@@ -1614,7 +1614,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       const pCaja = apiFetch({ admin: 'caja_datos', sede: sedeEfectiva, sedeContexto: sedeEfectiva });
       try {
         const respCaja = await pCaja;
-        // Guard nuevamente despuÃ©s de await
+        // Guard nuevamente después de await
         if (myReqId !== _loadRequestId) return;
         if (respCaja && !respCaja.error) {
           cajaDatos = respCaja;
@@ -1645,9 +1645,9 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       if (myReqId === _loadRequestId) renderDashboard();
 
     } catch(e) {
-      if (myReqId !== _loadRequestId) return; // ignorar si ya hay una carga mÃ¡s nueva
-      console.error('Error fatal de conexiÃ³n:', e);
-      document.getElementById('lista-clientes').innerHTML = '<div class="empty">Error de conexiÃ³n.</div>';
+      if (myReqId !== _loadRequestId) return; // ignorar si ya hay una carga más nueva
+      console.error('Error fatal de conexión:', e);
+      document.getElementById('lista-clientes').innerHTML = '<div class="empty">Error de conexión.</div>';
       cajaCargarDatos();
     }
   }
@@ -1668,7 +1668,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     const cajaIngresos = cajaDatos && cajaDatos.metricas ? (cajaDatos.metricas.totalIngresos || 0) : 0;
     const cajaEgresos = cajaDatos && cajaDatos.metricas ? (cajaDatos.metricas.totalEgresos || 0) : 0;
 
-    // â”€â”€ DistribuciÃ³n de riesgo â”€â”€
+    // â”€â”€ Distribución de riesgo â”€â”€
     var dist = { normal:0, cpp:0, deficiente:0, dudoso:0, perdida:0 };
     clientes.forEach(function(c) {
       var d = parseInt(c.dias) || 0;
@@ -1750,18 +1750,18 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     '</div>';
     html += '</div>';
 
-    // â”€â”€ BLOQUE 2: DistribuciÃ³n de Riesgo + Resumen Por Asesor â”€â”€
+    // â”€â”€ BLOQUE 2: Distribución de Riesgo + Resumen Por Asesor â”€â”€
     html += '<div class="dash-row">';
 
-    // Panel izquierda: DistribuciÃ³n
+    // Panel izquierda: Distribución
     html += '<div class="dash-panel">';
-    html += '<div class="dash-panel-title"><span class="mi sm">shield</span> DistribuciÃ³n de Cartera por Riesgo</div>';
+    html += '<div class="dash-panel-title"><span class="mi sm">shield</span> Distribución de Cartera por Riesgo</div>';
     var riskData = [
       { name:'Normal (0-8d)', count:dist.normal, color:'var(--verde)', pct:Math.round(dist.normal/totalDist*100) },
       { name:'CPP (9-30d)', count:dist.cpp, color:'#cc8800', pct:Math.round(dist.cpp/totalDist*100) },
       { name:'Deficiente (31-60d)', count:dist.deficiente, color:'var(--naranja)', pct:Math.round(dist.deficiente/totalDist*100) },
       { name:'Dudoso (61-120d)', count:dist.dudoso, color:'var(--rojo)', pct:Math.round(dist.dudoso/totalDist*100) },
-      { name:'PÃ©rdida (>120d)', count:dist.perdida, color:'#333', pct:Math.round(dist.perdida/totalDist*100) }
+      { name:'Pérdida (>120d)', count:dist.perdida, color:'#333', pct:Math.round(dist.perdida/totalDist*100) }
     ];
     riskData.forEach(function(r) {
       html += '<div class="risk-bar-wrap">';
@@ -1778,7 +1778,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       html += '<div style="text-align:center;color:var(--texto2);padding:20px;">Sin datos</div>';
     } else {
       html += '<div style="overflow-x:auto;"><table class="asesor-table">';
-      html += '<thead><tr><th>Asesor</th><th>Clientes</th><th>Deuda Total</th><th>Prom. DÃ­as</th><th>Peor</th></tr></thead><tbody>';
+      html += '<thead><tr><th>Asesor</th><th>Clientes</th><th>Deuda Total</th><th>Prom. d&iacute;as</th><th>Peor</th></tr></thead><tbody>';
       asesores.forEach(function(a) {
         var peorColor = a.peor > 60 ? 'var(--rojo)' : a.peor > 30 ? 'var(--naranja)' : 'var(--texto)';
         html += '<tr>';
@@ -1849,7 +1849,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     const diffText = (ultimaDiff > 0 ? '+' : '') + 'S/. ' + ultimaDiff.toLocaleString('es-PE', {minimumFractionDigits:2});
 
     html += '<div class="caja-card"><div class="caja-card-title">Saldo Asignado (Base)</div><div class="caja-monto azul">S/. 3,000.00</div></div>';
-    html += '<div class="caja-card"><div class="caja-card-title">Ãšltimo Cierre (Diff)</div><div class="caja-monto" style="color:' + fontColor + ';">' + diffText + '</div></div>';
+    html += '<div class="caja-card"><div class="caja-card-title">Último Cierre (Diff)</div><div class="caja-monto" style="color:' + fontColor + ';">' + diffText + '</div></div>';
     html += '<div class="caja-card"><div class="caja-card-title">Registros Mes</div><div class="caja-monto verde">' + mesActualOps + '</div></div>';
     html += '</div></div>';
 
@@ -1907,7 +1907,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     let data;
     try { data = JSON.parse(text); }
     catch(e) { console.error('No JSON:', text.substring(0,300)); throw new Error('Error del servidor'); }
-    if (data && data.error === 'SesiÃ³n invÃ¡lida o expirada') { logout(); return null; }
+    if (data && data.error === 'Sesión inválida o expirada') { logout(); return null; }
     return data;
   }
 
@@ -1921,7 +1921,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     let data;
     try { data = JSON.parse(text); }
     catch(e) { console.error('No JSON:', text.substring(0,300)); throw new Error('Error del servidor'); }
-    if (data && data.error === 'SesiÃ³n invÃ¡lida o expirada') { logout(); return null; }
+    if (data && data.error === 'Sesión inválida o expirada') { logout(); return null; }
     return data;
   }
 
@@ -1931,7 +1931,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       const resp = await apiFetch({ admin: 'clientes' });
       if (!Array.isArray(resp)) {
         console.error('Respuesta inesperada:', resp);
-        document.getElementById('lista-clientes').innerHTML = '<div class="empty"><div class="icon"><span class="mi" style="font-size:40px;color:var(--naranja);">warning</span></div>Error: ' + (resp && resp.error ? resp.error : 'Respuesta invÃ¡lida') + '</div>';
+        document.getElementById('lista-clientes').innerHTML = '<div class="empty"><div class="icon"><span class="mi" style="font-size:40px;color:var(--naranja);">warning</span></div>Error: ' + (resp && resp.error ? resp.error : 'Respuesta inválida') + '</div>';
         return;
       }
       clientes = resp;
@@ -1995,13 +1995,13 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       return;
     }
 
-    // Ordenar por dÃ­as de atraso desc
+    // Ordenar por días de atraso desc
     lista.sort((a, b) => b.dias - a.dias);
     clientesFiltrados = lista;
 
     document.getElementById('lista-clientes').innerHTML = clientesFiltrados.map((c, idx) => {
-      const diasTag = c.dias > 90 ? `<span class="tag tag-critico"><span class="mi xs">error</span> ${c.dias} dÃ­as</span>` :
-                      c.dias > 0  ? `<span class="tag tag-vencido"><span class="mi xs">warning</span> ${c.dias} dÃ­as</span>` :
+      const diasTag = c.dias > 90 ? `<span class="tag tag-critico"><span class="mi xs">error</span> ${c.dias} d&iacute;as</span>` :
+                      c.dias > 0  ? `<span class="tag tag-vencido"><span class="mi xs">warning</span> ${c.dias} d&iacute;as</span>` :
                                     `<span class="tag tag-pendiente"><span class="mi xs">schedule</span> Vence hoy</span>`;
       const tieneVoucher = c.voucher ? `<span class="tag tag-pendiente"><span class="mi xs">hourglass_top</span> Voucher enviado</span>` : '';
       const isNotificado = esNotificado(c.telefono || c.celular);
@@ -2028,7 +2028,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
               ${diasTag}
               ${tieneVoucher}
               ${notificadoTag}
-              <span style="background:var(--gris);padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;">CÃ³d. ${escapeHtml(c.cod)}</span>
+              <span style="background:var(--gris);padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;">Cód. ${escapeHtml(c.cod)}</span>
             </div>
           </div>
         </div>
@@ -2054,10 +2054,10 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     document.getElementById('dr-avatar').textContent = getInitials(c.nombre);
     document.getElementById('dr-nombre').textContent = escapeHtml(c.nombre);
     
-    // Configurar tags rÃ¡pidos de cabecera
+    // Configurar tags rápidos de cabecera
     const diasTag = c.dias > 90 ? `<span style="color:var(--rojo);"><span class="mi xs">error</span> ${c.dias} d atraso</span>` :
                     c.dias > 0  ? `<span style="color:var(--naranja);"><span class="mi xs">warning</span> ${c.dias} d atraso</span>` :
-                                  `<span style="color:var(--verde);"><span class="mi xs">check_circle</span> Al dÃ­a</span>`;
+                                  `<span style="color:var(--verde);"><span class="mi xs">check_circle</span> Al d&iacute;a</span>`;
     document.getElementById('dr-tags').innerHTML = diasTag + (c.voucher ? ` | <span style="color:#cc8800"><span class="mi xs">hourglass_top</span> Voucher</span>` : '');
 
     // Finanzas
@@ -2065,7 +2065,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     document.getElementById('dr-cuota').textContent = c.cuota ? 'S/. ' + parseFloat(c.cuota).toLocaleString('es-PE',{minimumFractionDigits:2}) : '-';
     const numCuotas = c.cuotas > 0 ? `<span style="color:var(--rojo);font-weight:900;background:#fff0f0;padding:2px 8px;border-radius:12px;">${c.cuotas} cuota(s)</span>` : '0 cuotas';
     document.getElementById('dr-cuotas').innerHTML = numCuotas;
-    document.getElementById('dr-dias').textContent = c.dias + ' dÃ­a(s)';
+    document.getElementById('dr-dias').textContent = c.dias + ' d\u00EDa(s)';
 
     // Datos Generales
     document.getElementById('dr-cod').textContent = escapeHtml(c.cod);
@@ -2123,7 +2123,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   function iniciarRecordatorios() {
     const conWA = clientesFiltrados.filter(c => c.telefono && c.mensaje);
     if (!conWA.length) {
-      alert('No hay clientes con telÃ©fono y mensaje configurado en la lista actual.');
+      alert('No hay clientes con teléfono y mensaje configurado en la lista actual.');
       return;
     }
     _recLista = conWA;
@@ -2162,7 +2162,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       return;
     }
     
-    // Configurar Payload para nuestra ExtensiÃ³n de Chrome
+    // Configurar Payload para nuestra Extensión de Chrome
     let exportData = [];
     
     // Text CSV Fallback
@@ -2177,18 +2177,18 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       csvContent += `"${phone}","${msg}"\n`;
     });
 
-    // Intentar comunicarse con la ExtensiÃ³n primero:
-    // Guardamos la lista en memoria para poder deducir cuÃ¡les fallaron despuÃ©s.
+    // Intentar comunicarse con la Extensión primero:
+    // Guardamos la lista en memoria para poder deducir cuáles fallaron después.
     window._lastBulkPayload = exportData;
-    // Disparamos un evento personalizado que el content_crm.js estarÃ¡ escuchando.
+    // Disparamos un evento personalizado que el content_crm.js estará escuchando.
     let evt = new CustomEvent("GE_WA_BOT_SEND_BULK", { detail: exportData });
     window.dispatchEvent(evt);
 
     // Damos un mensaje de consola
-    console.log("Evento enviado al Robot. Si la extensiÃ³n no atrapa esto en 1s, el navegador descargarÃ¡ el CSV por seguridad.");
+    console.log("Evento enviado al Robot. Si la extensión no atrapa esto en 1s, el navegador descargará el CSV por seguridad.");
     
-    // (Opcional) Si quisieramos descargar el CSV como backup, lo hacemos aquÃ­, 
-    // pero para no confundir al robot, ignoraremos el backup a menos que aprieten otro botÃ³n.
+    // (Opcional) Si quisieramos descargar el CSV como backup, lo hacemos aquí, 
+    // pero para no confundir al robot, ignoraremos el backup a menos que aprieten otro botón.
   }
 
   function descargarCSVBackup() {
@@ -2260,10 +2260,10 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     const data = e.detail;
     if (!window._lastBulkPayload) return;
     
-    // Extraer telÃ©fonos que fallaron
+    // Extraer teléfonos que fallaron
     const failedPhones = (data.failedItems || []).map(item => item.phone);
     
-    // Filtrar los que sÃ­ se enviaron (estaban en el payload pero no en failedItems)
+    // Filtrar los que sí se enviaron (estaban en el payload pero no en failedItems)
     const exitosos = window._lastBulkPayload.filter(item => !failedPhones.includes(item.phone));
     
     if (exitosos.length > 0) {
@@ -2291,7 +2291,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
   function renderVouchers() {
     if (vouchers.length === 0) {
-      document.getElementById('lista-vouchers').innerHTML = '<div class="empty"><div class="icon"><span class="mi" style="font-size:40px;color:var(--verde);">check_circle</span></div><strong>Sin vouchers pendientes</strong><br><small>Todos los pagos estÃ¡n verificados</small></div>';
+      document.getElementById('lista-vouchers').innerHTML = '<div class="empty"><div class="icon"><span class="mi" style="font-size:40px;color:var(--verde);">check_circle</span></div><strong>Sin vouchers pendientes</strong><br><small>Todos los pagos están verificados</small></div>';
       return;
     }
     document.getElementById('lista-vouchers').innerHTML = vouchers.map((v, vi) => {
@@ -2304,7 +2304,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         <div class="cliente-header">
           <div>
             <div class="cliente-nombre">${safeNombre}</div>
-            <div class="cliente-cod">CÃ³d. ${safeCod}</div>
+            <div class="cliente-cod">Cód. ${safeCod}</div>
           </div>
           <div>
             <div class="cliente-monto">S/. ${parseFloat(v.monto).toLocaleString('es-PE',{minimumFractionDigits:2})}</div>
@@ -2344,7 +2344,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     document.getElementById('modal-img').src = imgUrl;
     document.getElementById('modal-info').innerHTML = `
       <div><span class="lbl">Cliente</span><span class="val">${nombre}</span></div>
-      <div><span class="lbl">CÃ³digo</span><span class="val">${cod}</span></div>
+      <div><span class="lbl">Código</span><span class="val">${cod}</span></div>
       <div><span class="lbl">Asesor</span><span class="val">${asesor}</span></div>
       <div><span class="lbl">Monto</span><span class="val" style="color:var(--verde);font-weight:900;">S/. ${parseFloat(monto).toLocaleString('es-PE',{minimumFractionDigits:2})}</span></div>
       <div><span class="lbl">Ver original</span><span class="val"><a href="${link}" target="_blank" style="color:var(--azul2)">Abrir en Drive â†—</a></span></div>
@@ -2422,7 +2422,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       <div class="hist-card">
         <div class="hist-left">
           <div class="nombre">${escapeHtml(h.nombre) || '-'}</div>
-          <div class="det">${h.asesor ? escapeHtml(h.asesor.toString().split(' ')[0]) : '-'} Â· ${escapeHtml(h.tipo) || '-'} Â· CÃ³d. ${escapeHtml(h.cod) || '-'}</div>
+          <div class="det">${h.asesor ? escapeHtml(h.asesor.toString().split(' ')[0]) : '-'} Â· ${escapeHtml(h.tipo) || '-'} Â· Cód. ${escapeHtml(h.cod) || '-'}</div>
           <div class="det" style="margin-top:3px;">
             <span class="tag ${h.estado && h.estado.toString().includes('VERIFICADO') ? 'tag-verificado' : 'tag-pendiente'}" style="display:inline-block;font-size:10px;">
               ${escapeHtml(h.estado) || 'PENDIENTE'}
@@ -2523,7 +2523,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   let cajaDatos = null;
   let cajaSedeActual = '';
   let cajaSaldoTeorico = 0;
-  const CAJA_CACHE_TTL = 60000; // 60 segundos de cache vÃ¡lido
+  const CAJA_CACHE_TTL = 60000; // 60 segundos de cache válido
 
   // â”€â”€ CACHE HELPERS â”€â”€
   function cajaCacheKey(sede) { return 'caja_cache_' + (sede || 'todas'); }
@@ -2628,7 +2628,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       const resp = await apiFetch({ admin: 'caja_datos', sede: sede, sedeContexto: sede });
       if (!resp || resp.error) return;
       cajaCacheGuardar(sede, resp);
-      // Solo re-renderizar si la sede no cambiÃ³ mientras esperÃ¡bamos
+      // Solo re-renderizar si la sede no cambió mientras esperábamos
       if (cajaSedeActual !== sede) return;
       cajaDatos = resp; cajaSaldoTeorico = resp.saldo; cajaMovimientos = resp.movimientos || [];
       cajaRenderResumen(resp); if (!cajaVistaArchivo) cajaRenderTabla(cajaMovimientos); cajaRenderCategorias(resp.categorias || []);
@@ -2730,7 +2730,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     
     const myReqId = ++_cajaMovRequestId;
     const cacheKey = 'caja_archivo_v3_' + anio + '_' + mes + '_' + tipo + '_' + (cajaSedeActual || 'todos');
-    const CACHE_TTL_ARCHIVO = 1800000; // 30 minutos â€” datos histÃ³ricos no cambian
+    const CACHE_TTL_ARCHIVO = 1800000; // 30 minutos â€” datos históricos no cambian
 
     // Actualizar tracker del periodo cargado
     _cajaArchivoUltimoPeriodo = anio + '_' + mes + '_' + tipo + '_' + (cajaSedeActual || 'todos');
@@ -2905,7 +2905,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       document.getElementById('caja-monto').value = editData.monto;
       document.getElementById('caja-categoria').value = editData.categoria;
       document.getElementById('caja-descripcion').value = editData.descripcion;
-      // Mostrar botÃ³n de archivo existente
+      // Mostrar botón de archivo existente
       var archivoActualEl = document.getElementById('caja-archivo-actual');
       if (editData.sustentoUrl) {
         archivoActualEl.dataset.url = editData.sustentoUrl;
@@ -2960,7 +2960,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       archivoMimeType = file.type;
       archivoNombre = file.name;
       if (file.size > 5 * 1024 * 1024) {
-        showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">warning</span> El archivo es muy grande (MÃ¡x 5MB)'); return;
+        showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">warning</span> El archivo es muy grande (Máx 5MB)'); return;
       }
       const getBase64 = (f) => new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -2983,7 +2983,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     btn.disabled = true;
     cajaShowSavingOverlay(
       tieneArchivo ? 'Subiendo archivo y guardando...' : 'Guardando movimiento...',
-      tieneArchivo ? 'El archivo se estÃ¡ subiendo a Drive' : 'Registrando en el sistema'
+      tieneArchivo ? 'El archivo se está subiendo a Drive' : 'Registrando en el sistema'
     );
 
     try {
@@ -3069,7 +3069,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       diffEl.textContent = 'S/. ' + total.toLocaleString('es-PE', {minimumFractionDigits:2});
       diffCard.className = 'diff-card ' + (tieneConteo ? 'cuadre' : '');
       const conteoText = '<span class="mi" style="vertical-align:text-bottom;margin-right:4px;">check_circle</span> Conteo registrado';
-      msgEl.innerHTML = tieneConteo ? conteoText : 'Ingresa el conteo fÃ­sico';
+      msgEl.innerHTML = tieneConteo ? conteoText : 'Ingresa el conteo físico';
       
       document.getElementById('arq-btn-diario').disabled = !tieneConteo;
     }
@@ -3091,7 +3091,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     document.querySelectorAll('.arq-modal-input').forEach(function(i) { i.value = ''; });
     cajaCalcArqueo();
     
-    // Actualizar Saldo TeÃ³rico visual
+    // Actualizar Saldo Teórico visual
     if (esAdmin) {
        document.getElementById('arq-teorico').textContent = 'S/. ' + cajaSaldoTeorico.toLocaleString('es-PE', {minimumFractionDigits:2});
        cajaCalcArqueo();
@@ -3241,13 +3241,13 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       } else {
         cajaArqueosData = cajaArqueosData.concat(dataArr);
         contenedor.innerHTML += html;
-        btnMas.innerHTML = '<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">expand_more</span> Ver mÃ¡s arqueos';
+        btnMas.innerHTML = '<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">expand_more</span> Ver más arqueos';
         btnMas.disabled = false;
       }
 
       cajaArqueosOffset += dataArr.length;
       
-      // Mostrar botÃ³n "Ver mÃ¡s" si todavÃ­a hay items
+      // Mostrar botón "Ver más" si todavía hay items
       if (cajaArqueosOffset < total) {
         btnMasCont.style.display = 'block';
       } else {
@@ -3258,8 +3258,8 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       if (!append) {
         contenedor.innerHTML = '<div class="empty"><div class="icon"><span class="mi" style="font-size:40px;color:var(--rojo);">warning</span></div>Error al cargar historial</div>';
       } else {
-        showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> Error al cargar mÃ¡s');
-        btnMas.innerHTML = '<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">expand_more</span> Ver mÃ¡s arqueos';
+        showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> Error al cargar más');
+        btnMas.innerHTML = '<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">expand_more</span> Ver más arqueos';
         btnMas.disabled = false;
       }
     }
@@ -3287,7 +3287,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       </div>
 
       <div class="dr-section">
-        <div class="dr-section-title">Conteo FÃ­sico</div>
+        <div class="dr-section-title">Conteo Físico</div>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
           <div>
             <div style="font-size:11px; font-weight:800; color:var(--texto2); margin-bottom:8px; border-bottom:1px solid var(--gris2); padding-bottom:4px; letter-spacing:0.5px;">BILLETES</div>
@@ -3315,11 +3315,11 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
       <div style="background:var(--gris2); padding:16px; border-radius:12px; margin-top:24px;">
         <div style="display:flex;justify-content:space-between; align-items:center; margin-bottom:8px;">
-          <span style="font-weight:700; font-size:12px; color:var(--texto2);">Total FÃ­sico Contado:</span>
+          <span style="font-weight:700; font-size:12px; color:var(--texto2);">Total Físico Contado:</span>
           <span style="font-weight:900; font-size:18px; color:var(--verde);">S/. ${(parseFloat(arq.fisico)||0).toLocaleString('es-PE', {minimumFractionDigits: 2})}</span>
         </div>
         <div style="display:flex;justify-content:space-between; align-items:center;">
-          <span style="font-weight:700; font-size:12px; color:var(--texto2);">Saldo TeÃ³rico Sistema:</span>
+          <span style="font-weight:700; font-size:12px; color:var(--texto2);">Saldo Teórico Sistema:</span>
           <span style="font-weight:900; font-size:18px; color:var(--azul);">S/. ${(parseFloat(arq.teorico)||0).toLocaleString('es-PE', {minimumFractionDigits: 2})}</span>
         </div>
       </div>
@@ -3337,10 +3337,10 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
   let kasnetRegistros = [];
   let _kasnetRegMap = {};
-  const KASNET_BASE_DEFAULT = 3000; // PodrÃ­a venir de config en el futuro
+  const KASNET_BASE_DEFAULT = 3000; // Podría venir de config en el futuro
 
   async function kasnetCargarDatos() {
-    // Renderizado instÃ¡ntaneo si ya hay datos precargados
+    // Renderizado instántaneo si ya hay datos precargados
     if (kasnetRegistros && kasnetRegistros.length > 0) {
       kasnetRenderOperaciones(kasnetRegistros);
     } else {
@@ -3389,7 +3389,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
             '<div class="mov-cat">' +
               '<span style="background:var(--gris);padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;">Ops: ' + m.numOps + '</span>' +
               '<span style="background:var(--gris);padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;">Virt: S/. ' + (m.posVirtual + m.pagayaVirtual).toFixed(2) + '</span>' +
-              '<span style="background:var(--gris);padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;">FÃ­s: S/. ' + m.efectivoFisico.toFixed(2) + '</span>' +
+              '<span style="background:var(--gris);padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;">Fís: S/. ' + m.efectivoFisico.toFixed(2) + '</span>' +
               '<span class="tag ' + (m.estado === 'SOBRANTE' ? 'tag-vencido' : m.estado === 'FALTANTE' ? 'tag-critico' : 'tag-verificado') + '">' + m.estado + ' (' + sign + 'S/. ' + Math.abs(m.diferencia).toFixed(2) + ')</span>' +
               (m.comprobante ? '<span style="color:var(--azul);background:var(--azul-claro);padding:3px 8px;border-radius:6px;font-weight:700;font-size:10px;display:inline-flex;align-items:center;gap:4px;"><span class="mi xs" style="margin:0;vertical-align:bottom;">attach_file</span> Adjunto</span>' : '') +
             '</div>' +
@@ -3697,7 +3697,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">check_circle</span> ' + resp.message);
         kasnetHideModal();
         await kasnetCargarDatos();
-        // Si hay un sobrante y se creo en caja, vale la pena recargar caja tambiÃ©n si estamos viendola
+        // Si hay un sobrante y se creo en caja, vale la pena recargar caja también si estamos viendola
         if (!editId && diffPreview > 0) cajaCargarDatos(); 
       } else {
         showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> ' + (resp && resp.message ? resp.message : 'Error'));
@@ -3740,7 +3740,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     document.addEventListener('touchstart', e => { if(e.touches.length>1) e.preventDefault(); }, {passive:false});
     document.addEventListener('gesturestart', e => e.preventDefault(), {passive:false});
 
-    // Auto-refresh al volver a la pestaÃ±a (cooldown 30s)
+    // Auto-refresh al volver a la pestaña (cooldown 30s)
     let _lastRefresh = Date.now();
     document.addEventListener('visibilitychange', function() {
       if (document.visibilityState === 'visible' && sessionStorage.getItem('ge_session')) {
@@ -3810,7 +3810,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
               <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
               <strong>Tiempo estimado:</strong> <span id="rec-tiempo">~0 min</span>
           </div>
-          <div style="color: #cc0000; font-weight: 600; font-size: 11.5px; line-height: 1.3;">âš ï¸ IMPORTANTE: No abras ni interactÃºes con la pestaÃ±a de WhatsApp Web mientras el Bot estÃ© trabajando.</div>
+          <div style="color: #cc0000; font-weight: 600; font-size: 11.5px; line-height: 1.3;">âš ï¸ IMPORTANTE: No abras ni interactúes con la pestaña de WhatsApp Web mientras el Bot esté trabajando.</div>
       </div>
       <button onclick="exportarWhatsAppCSV()" style="width:100%;background:linear-gradient(135deg, var(--azul) 0%, var(--azul2) 100%);color:white;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 10px rgba(0,82,204,0.25);">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="16" height="16" fill="white"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg>
