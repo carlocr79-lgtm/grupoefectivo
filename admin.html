@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -23,7 +23,7 @@
 .mi.xs { font-size:12px; }
 html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris); color:var(--texto); overflow-y:auto; }
 
-/* ── LOGIN ── */
+/* â”€â”€ LOGIN â”€â”€ */
 #login-screen {
   min-height:100vh; display:flex; flex-direction:column;
   align-items:center; justify-content:center; padding:24px;
@@ -52,7 +52,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 .btn-reenviar { background:none; border:none; color:var(--azul2); font-size:12px; cursor:pointer; margin-top:8px; display:block; width:100%; text-align:center; font-weight:600; }
 .timer { font-size:11px; color:var(--texto2); text-align:center; margin-top:6px; }
 
-/* ── APP ── */
+/* â”€â”€ APP â”€â”€ */
 #app { display:none; min-height:100vh; flex-direction:column; }
 
 /* NAVBAR */
@@ -312,6 +312,11 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 .diff-card.cuadre { background:#e8f0ff; border-color:var(--verde); }
 .diff-card.sobrante { background:#fff8e6; border-color:#ffaa00; }
 .diff-card.faltante { background:#fff0f0; border-color:var(--rojo); }
+/* DENOMINACIONES ARQUEO */
+.arq-denom-row { display:flex; align-items:center; justify-content:space-between; padding:5px 0; border-bottom:1px solid var(--gris2); gap:8px; }
+.arq-denom-row span { font-size:12px; font-weight:700; color:var(--texto); min-width:44px; }
+.arq-modal-input { width:70px; padding:5px 8px; border:1.5px solid var(--gris2); border-radius:8px; text-align:right; font-weight:700; font-size:12px; font-family:'DM Sans',sans-serif; outline:none; transition:border-color 0.2s; color:var(--azul); background:var(--gris); }
+.arq-modal-input:focus { border-color:var(--azul2); background:white; }
 
 /* MODAL CAJA */
 .modal-caja { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:999; display:none; align-items:center; justify-content:center; padding:20px; }
@@ -374,7 +379,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:var(--azul); color:white; padding:10px 20px; border-radius:30px; font-size:13px; font-weight:600; opacity:0; transition:opacity 0.3s; z-index:9999; pointer-events:none; white-space:nowrap; }
 .toast.show { opacity:1; }
 
-/* ══════ SIDEBAR LAYOUT ══════ */
+/* â•â•â•â•â•â• SIDEBAR LAYOUT â•â•â•â•â•â• */
 .app-layout { display:flex; height:100vh; overflow:hidden; }
 .sidebar {
   width:250px; min-width:250px; background:linear-gradient(180deg,#001a4d 0%,#002266 40%,#003087 100%);
@@ -484,7 +489,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   .content-body { padding:14px 16px; }
 }
 
-/* ══════ DASHBOARD ══════ */
+/* â•â•â•â•â•â• DASHBOARD â•â•â•â•â•â• */
 .dash-kpis { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:18px; }
 @media(max-width:900px) { .dash-kpis { grid-template-columns:repeat(2,1fr); } }
 @media(max-width:480px) { .dash-kpis { grid-template-columns:1fr; } }
@@ -548,7 +553,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 <!-- LOGIN -->
 <div id="login-screen">
   <div class="login-logo"><span class="mi" style="font-size:24px;vertical-align:middle;margin-right:4px;">work</span> Grupo Efectivo</div>
-  <div class="login-sub">Panel de Administración</div>
+  <div class="login-sub">Panel de AdministraciÃ³n</div>
 
   <!-- PASO 1: CORREO -->
   <div class="login-box" id="box-correo">
@@ -558,15 +563,15 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       <input type="email" id="inp-correo" placeholder="tucorreo@gmail.com" autocomplete="email"
         onkeydown="if(event.key==='Enter')solicitarCodigo()">
     </div>
-    <button class="btn-login" id="btn-solicitar" onclick="solicitarCodigo()">Enviar código →</button>
+    <button class="btn-login" id="btn-solicitar" onclick="solicitarCodigo()">Enviar cÃ³digo â†’</button>
     <div class="login-error" id="login-error">Correo no autorizado</div>
-    <div class="login-success" id="login-ok"><span class="mi sm">check_circle</span> Código enviado a tu correo</div>
+    <div class="login-success" id="login-ok"><span class="mi sm">check_circle</span> CÃ³digo enviado a tu correo</div>
   </div>
 
-  <!-- PASO 2: CÓDIGO -->
+  <!-- PASO 2: CÃ“DIGO -->
   <div class="login-box" id="box-codigo" style="display:none;">
-    <h2><span class="mi" style="font-size:20px;vertical-align:middle;margin-right:4px;">pin</span> Ingresa el código</h2>
-    <div class="correo-display">Código enviado a <strong id="correo-display-txt"></strong></div>
+    <h2><span class="mi" style="font-size:20px;vertical-align:middle;margin-right:4px;">pin</span> Ingresa el cÃ³digo</h2>
+    <div class="correo-display">CÃ³digo enviado a <strong id="correo-display-txt"></strong></div>
     <div class="codigo-inputs">
       <input type="tel" maxlength="1" class="cod-input" id="c1" oninput="avanzarCodigo(this,'c2')">
       <input type="tel" maxlength="1" class="cod-input" id="c2" oninput="avanzarCodigo(this,'c3')" onkeydown="retrocederCodigo(event,'c1')">
@@ -575,10 +580,10 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       <input type="tel" maxlength="1" class="cod-input" id="c5" oninput="avanzarCodigo(this,'c6')" onkeydown="retrocederCodigo(event,'c4')">
       <input type="tel" maxlength="1" class="cod-input" id="c6" oninput="avanzarCodigo(this,null)" onkeydown="retrocederCodigo(event,'c5')">
     </div>
-    <button class="btn-login" id="btn-verificar-cod" onclick="verificarCodigo()">Verificar →</button>
-    <div class="login-error" id="codigo-error">Código incorrecto o expirado</div>
+    <button class="btn-login" id="btn-verificar-cod" onclick="verificarCodigo()">Verificar â†’</button>
+    <div class="login-error" id="codigo-error">CÃ³digo incorrecto o expirado</div>
     <div class="timer" id="timer-txt"></div>
-    <button class="btn-reenviar" onclick="volverCorreo()">← Cambiar correo / Reenviar</button>
+    <button class="btn-reenviar" onclick="volverCorreo()">â† Cambiar correo / Reenviar</button>
   </div>
 </div>
 
@@ -621,7 +626,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       </nav>
       <div class="sidebar-footer">
         <button class="btn-sidebar-logout" onclick="logout()">
-          <span class="mi sm">logout</span> Cerrar sesión
+          <span class="mi sm">logout</span> Cerrar sesiÃ³n
         </button>
       </div>
     </aside>
@@ -701,7 +706,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         <!-- SECTION: CAJA CHICA (tabs unificados) -->
         <div id="section-cajachica" class="section">
 
-          <!-- TABS HORIZONTALES (mismo patrón que Mora) -->
+          <!-- TABS HORIZONTALES (mismo patrÃ³n que Mora) -->
           <div style="display:flex;gap:0;margin-bottom:12px;border-bottom:1px solid var(--gris2);">
             <button id="cc-tab-mesactual"  class="btn-mora-tab active" onclick="cajaSwitchTab('mesactual')"><span class="mi sm">swap_vert</span> Mes Actual</button>
             <button id="cc-tab-mesanterior" class="btn-mora-tab" onclick="cajaSwitchTab('mesanterior')"><span class="mi sm">history</span> Meses Anteriores</button>
@@ -769,7 +774,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
               <div class="empty" style="padding:20px;"><div class="spinner-sm"></div>Cargando historial...</div>
             </div>
             <div style="text-align:center;margin-top:14px;display:none;" id="caja-hist-mas-container">
-              <button class="btn-main" id="btn-arqueos-mas" onclick="cajaLoadHistorial(true)" style="background:white;color:var(--azul2);border:1.5px solid var(--azul2);width:auto;padding:8px 24px;border-radius:30px;font-size:13px;font-weight:700;"><span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">expand_more</span> Ver más arqueos</button>
+              <button class="btn-main" id="btn-arqueos-mas" onclick="cajaLoadHistorial(true)" style="background:white;color:var(--azul2);border:1.5px solid var(--azul2);width:auto;padding:8px 24px;border-radius:30px;font-size:13px;font-weight:700;"><span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">expand_more</span> Ver mÃ¡s arqueos</button>
             </div>
           </div><!-- /cc-panel-arqueo -->
 
@@ -813,20 +818,20 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       <div class="dr-item"><span class="lbl">Deuda Total</span><span class="val" id="dr-deuda" style="font-size:18px; font-weight:900; color:var(--azul);"></span></div>
       <div class="dr-item"><span class="lbl">Cuota Mensual</span><span class="val" id="dr-cuota"></span></div>
       <div class="dr-item"><span class="lbl">Cuotas Vencidas</span><span class="val" id="dr-cuotas"></span></div>
-      <div class="dr-item"><span class="lbl">Días de Atraso</span><span class="val" id="dr-dias"></span></div>
+      <div class="dr-item"><span class="lbl">DÃ­as de Atraso</span><span class="val" id="dr-dias"></span></div>
     </div>
     <div class="dr-section">
       <div class="dr-section-title">Datos Generales</div>
-      <div class="dr-item"><span class="lbl">Código</span><span class="val" id="dr-cod"></span></div>
+      <div class="dr-item"><span class="lbl">CÃ³digo</span><span class="val" id="dr-cod"></span></div>
       <div class="dr-item"><span class="lbl">Celular</span><span class="val" id="dr-cel"></span></div>
-      <div class="dr-item"><span class="lbl">Dirección</span><span class="val" id="dr-dir" style="text-align:right; max-width:60%;"></span></div>
-      <div class="dr-item"><span class="lbl">Próx. Vencimiento</span><span class="val" id="dr-venc"></span></div>
+      <div class="dr-item"><span class="lbl">DirecciÃ³n</span><span class="val" id="dr-dir" style="text-align:right; max-width:60%;"></span></div>
+      <div class="dr-item"><span class="lbl">PrÃ³x. Vencimiento</span><span class="val" id="dr-venc"></span></div>
     </div>
     <div class="dr-section">
-      <div class="dr-section-title">Gestión Interna</div>
+      <div class="dr-section-title">GestiÃ³n Interna</div>
       <div class="dr-item"><span class="lbl">Asesor Asignado</span><span class="val" id="dr-asesor"></span></div>
       <div class="dr-item"><span class="lbl">Oficina</span><span class="val" id="dr-ofi"></span></div>
-      <div class="dr-item"><span class="lbl">Tipo de Crédito</span><span class="val" id="dr-tipo"></span></div>
+      <div class="dr-item"><span class="lbl">Tipo de CrÃ©dito</span><span class="val" id="dr-tipo"></span></div>
     </div>
     <div id="dr-obs-container"></div>
   </div>
@@ -849,12 +854,12 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     <div class="dr-section">
       <div class="dr-section-title">Detalles del Movimiento</div>
       <div class="dr-item"><span class="lbl">Monto</span><span class="val" id="dr-caja-monto" style="font-size:18px; font-weight:900;"></span></div>
-      <div class="dr-item"><span class="lbl">Categoría</span><span class="val" id="dr-caja-cat"></span></div>
+      <div class="dr-item"><span class="lbl">CategorÃ­a</span><span class="val" id="dr-caja-cat"></span></div>
       <div class="dr-item"><span class="lbl">Fecha</span><span class="val" id="dr-caja-fecha"></span></div>
       <div class="dr-item"><span class="lbl">Tipo</span><span class="val" id="dr-caja-tipo"></span></div>
     </div>
     <div class="dr-section" id="dr-caja-desc-section">
-      <div class="dr-section-title">Descripción</div>
+      <div class="dr-section-title">DescripciÃ³n</div>
       <div id="dr-caja-desc" style="font-size:13px; color:var(--texto); line-height:1.5;"></div>
     </div>
     <div class="dr-section" id="dr-caja-comp-section" style="display:none; flex-direction:column; padding:12px;">
@@ -885,13 +890,13 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   <div class="drawer-content" id="dr-kasnet-content">
     <div class="dr-section">
       <div class="dr-section-title">Resumen de Cuadre</div>
-      <div class="dr-item"><span class="lbl">Total Físico</span><span class="val" id="dr-kasnet-fis" style="font-size:18px; font-weight:900; color:var(--verde);"></span></div>
+      <div class="dr-item"><span class="lbl">Total FÃ­sico</span><span class="val" id="dr-kasnet-fis" style="font-size:18px; font-weight:900; color:var(--verde);"></span></div>
       <div class="dr-item"><span class="lbl">Total Virtual</span><span class="val" id="dr-kasnet-virt"></span></div>
       <div class="dr-item"><span class="lbl">Operaciones</span><span class="val" id="dr-kasnet-ops"></span></div>
       <div class="dr-item"><span class="lbl">Estado</span><span class="val" id="dr-kasnet-est"></span></div>
     </div>
     <div class="dr-section">
-      <div class="dr-section-title">Desglose Físico</div>
+      <div class="dr-section-title">Desglose FÃ­sico</div>
       <div id="dr-kasnet-desglose"></div>
     </div>
     <div class="dr-section" id="dr-kasnet-comp-section" style="display:none; flex-direction:column; padding:12px;">
@@ -925,7 +930,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   <div class="modal-sustento-box">
     <div class="ms-title">
       <span><span class="mi sm">attach_file</span> Sustento</span>
-      <button onclick="cerrarSustento()">✕</button>
+      <button onclick="cerrarSustento()">âœ•</button>
     </div>
     <div id="ms-contenido"></div>
   </div>
@@ -1013,70 +1018,93 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
 <!-- MODAL ARQUEO -->
 <div class="modal-caja" id="modal-arqueo">
-  <div class="modal-caja-box" style="max-width:850px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-      <h3 id="modal-arq-titulo"><span class="mi" style="font-size:18px;vertical-align:middle;">inventory</span> Nuevo Arqueo</h3>
-      <button onclick="cajaHideArqueoModal()" style="background:none;border:none;font-size:18px;cursor:pointer;">x</button>
-    </div>
+  <div class="modal-caja-box" style="max-width:820px;padding:0;border-radius:20px;overflow:hidden;">
 
-    <div style="display:grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap:16px; align-items: stretch;">
-      <!-- COLUMNA IZQUIERDA: Saldos y Diferencia -->
-      <div style="display:flex; flex-direction:column; gap:10px;">
-        <div id="arq-bloque-teorico" style="background:white; border:1px solid var(--gris2); padding:14px; border-radius:10px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
-          <div style="font-size:11px;color:var(--texto2);display:flex;align-items:center;gap:6px;margin-bottom:4px;">Saldo Teórico <span id="badge-arq-admin" style="display:none;background:var(--azul-claro);color:var(--azul);padding:2px 6px;border-radius:6px;font-size:9px;font-weight:700;"><span class="mi" style="font-size:10px;vertical-align:text-bottom;margin-right:2px;">history</span>Último: <span id="lbl-arq-admin"></span></span></div>
-          <div style="font-size:24px;font-weight:800;color:var(--azul);" id="arq-teorico">S/. 0.00</div>
+    <!-- HEADER -->
+    <div style="background:linear-gradient(135deg,var(--azul),var(--azul2));padding:18px 24px;display:flex;align-items:center;justify-content:space-between;">
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div style="width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;">
+          <span class="mi" style="font-size:22px;color:white;">inventory</span>
         </div>
-        
-        <div class="diff-card" id="arq-diff-card" style="padding:14px; flex:1; display:flex; flex-direction:column; justify-content:center;">
-          <div style="font-size:11px;font-weight:700;margin-bottom:4px;" id="arq-diff-label">Diferencia VS Base</div>
-          <div style="font-size:28px;font-weight:900;margin-bottom:8px;" id="arq-diferencia">S/. 0.00</div>
-          <div style="font-size:12px;font-weight:600;" id="arq-msg">Ingresa el conteo físico</div>
+        <div>
+          <div id="modal-arq-titulo" style="font-family:'Montserrat',sans-serif;font-weight:800;font-size:15px;color:white;">Nuevo Arqueo de Caja</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.7);margin-top:1px;">Conteo fÃ­sico de efectivo</div>
         </div>
       </div>
+      <button onclick="cajaHideArqueoModal()" style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.15);border:none;color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.28)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">
+        <span class="mi" style="font-size:18px;">close</span>
+      </button>
+    </div>
 
-      <!-- COLUMNA DERECHA: Efectivo Físico -->
-      <div style="display:flex; flex-direction:column; gap:10px; min-width: 0;">
-        <div style="background:white; border:1px solid var(--gris2); padding:10px; border-radius:10px; flex:1; display:flex; flex-direction:column; box-shadow: 0 2px 8px rgba(0,0,0,0.02); min-width: 0;">
-          <h4 style="font-size:11px; margin-bottom:10px; color:var(--azul); font-weight:800; display:flex; align-items:center; gap:4px;"><span class="mi xs">payments</span> Efectivo Físico</h4>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px; flex:1; min-width: 0;">
+    <!-- BODY -->
+    <div style="padding:18px 20px;background:#f8fafc;">
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);gap:14px;align-items:start;">
+
+        <!-- COL IZQUIERDA -->
+        <div style="display:flex;flex-direction:column;gap:12px;">
+
+          <!-- Saldo TeÃ³rico -->
+          <div style="background:white;border-radius:14px;padding:16px;box-shadow:0 2px 12px rgba(0,48,135,0.06);border:1px solid var(--gris2);">
+            <div style="font-size:10px;font-weight:700;color:var(--texto2);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px;display:flex;align-items:center;gap:5px;"><span class="mi xs" style="color:var(--azul);">account_balance_wallet</span>Saldo TeÃ³rico</div>
+            <div style="font-family:'Montserrat',sans-serif;font-size:26px;font-weight:900;color:var(--azul);" id="arq-teorico">S/. 0.00</div>
+            <span id="badge-arq-admin" style="display:none;margin-top:8px;background:var(--azul-claro);color:var(--azul);padding:3px 8px;border-radius:8px;font-size:10px;font-weight:700;align-items:center;gap:4px;"><span class="mi xs">history</span> Ãšltimo: <span id="lbl-arq-admin"></span></span>
+          </div>
+
+          <!-- Total FÃ­sico -->
+          <div style="background:white;border-radius:14px;padding:16px;box-shadow:0 2px 12px rgba(0,48,135,0.06);border:1px solid var(--gris2);">
+            <div style="font-size:10px;font-weight:700;color:var(--texto2);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px;display:flex;align-items:center;gap:5px;"><span class="mi xs" style="color:#0052cc;">payments</span>Total FÃ­sico</div>
+            <div style="font-family:'Montserrat',sans-serif;font-size:26px;font-weight:900;color:#0052cc;" id="arq-fisico">S/. 0.00</div>
+          </div>
+
+          <!-- Diferencia -->
+          <div class="diff-card" id="arq-diff-card" style="border-radius:14px;padding:16px;border-width:2px;margin-top:0;">
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px;opacity:0.7;" id="arq-diff-label">Diferencia VS TeÃ³rico</div>
+            <div style="font-family:'Montserrat',sans-serif;font-size:28px;font-weight:900;margin-bottom:6px;" id="arq-diferencia">S/. 0.00</div>
+            <div style="font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:4px;" id="arq-msg"><span class="mi sm">info</span> Ingresa el conteo</div>
+          </div>
+        </div>
+
+        <!-- COL DERECHA: Denominaciones -->
+        <div style="background:white;border-radius:14px;padding:16px;box-shadow:0 2px 12px rgba(0,48,135,0.06);border:1px solid var(--gris2);">
+          <div style="font-size:10px;font-weight:700;color:var(--texto2);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px;display:flex;align-items:center;gap:5px;"><span class="mi xs" style="color:var(--azul);">calculate</span>Conteo de Efectivo</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 18px;">
             <!-- Billetes -->
-            <div style="min-width: 0;">
-              <div style="font-size:9px; border-bottom:1px solid var(--gris); padding-bottom:2px; font-weight:800; color:var(--texto2); margin-bottom:8px; letter-spacing:0.5px;">BILLETES</div>
-              <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:38px; font-size:11px; font-weight:600; color:var(--texto);">S/ 200</span><input type="number" id="arq-m-b200" data-val="200" placeholder="0" min="0" class="mini-input arq-modal-input" oninput="cajaCalcArqueo()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
-              <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:38px; font-size:11px; font-weight:600; color:var(--texto);">S/ 100</span><input type="number" id="arq-m-b100" data-val="100" placeholder="0" min="0" class="mini-input arq-modal-input" oninput="cajaCalcArqueo()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
-              <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:38px; font-size:11px; font-weight:600; color:var(--texto);">S/ 50</span><input type="number" id="arq-m-b50" data-val="50" placeholder="0" min="0" class="mini-input arq-modal-input" oninput="cajaCalcArqueo()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
-              <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:38px; font-size:11px; font-weight:600; color:var(--texto);">S/ 20</span><input type="number" id="arq-m-b20" data-val="20" placeholder="0" min="0" class="mini-input arq-modal-input" oninput="cajaCalcArqueo()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
-              <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:38px; font-size:11px; font-weight:600; color:var(--texto);">S/ 10</span><input type="number" id="arq-m-b10" data-val="10" placeholder="0" min="0" class="mini-input arq-modal-input" oninput="cajaCalcArqueo()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
+            <div>
+              <div style="font-size:9px;font-weight:800;color:var(--azul);text-transform:uppercase;letter-spacing:1px;padding:4px 0;border-bottom:2px solid var(--azul-claro);margin-bottom:8px;">Billetes</div>
+              <div class="arq-denom-row"><span>S/ 200</span><input type="number" id="arq-m-b200" data-val="200" placeholder="0" min="0" class="arq-modal-input" oninput="cajaCalcArqueo()"></div>
+              <div class="arq-denom-row"><span>S/ 100</span><input type="number" id="arq-m-b100" data-val="100" placeholder="0" min="0" class="arq-modal-input" oninput="cajaCalcArqueo()"></div>
+              <div class="arq-denom-row"><span>S/ 50</span><input type="number" id="arq-m-b50" data-val="50" placeholder="0" min="0" class="arq-modal-input" oninput="cajaCalcArqueo()"></div>
+              <div class="arq-denom-row"><span>S/ 20</span><input type="number" id="arq-m-b20" data-val="20" placeholder="0" min="0" class="arq-modal-input" oninput="cajaCalcArqueo()"></div>
+              <div class="arq-denom-row" style="border-bottom:none;"><span>S/ 10</span><input type="number" id="arq-m-b10" data-val="10" placeholder="0" min="0" class="arq-modal-input" oninput="cajaCalcArqueo()"></div>
             </div>
             <!-- Monedas -->
-            <div style="min-width: 0;">
-              <div style="font-size:9px; border-bottom:1px solid var(--gris); padding-bottom:2px; font-weight:800; color:var(--texto2); margin-bottom:8px; letter-spacing:0.5px;">MONEDAS</div>
-              <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:40px; font-size:11px; font-weight:600; color:var(--texto);">S/ 5.00</span><input type="number" id="arq-m-m5" data-val="5" placeholder="0" min="0" class="mini-input arq-modal-input" oninput="cajaCalcArqueo()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
-              <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:40px; font-size:11px; font-weight:600; color:var(--texto);">S/ 2.00</span><input type="number" id="arq-m-m2" data-val="2" placeholder="0" min="0" class="mini-input arq-modal-input" oninput="cajaCalcArqueo()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
-              <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:40px; font-size:11px; font-weight:600; color:var(--texto);">S/ 1.00</span><input type="number" id="arq-m-m1" data-val="1" placeholder="0" min="0" class="mini-input arq-modal-input" oninput="cajaCalcArqueo()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
-              <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:40px; font-size:11px; font-weight:600; color:var(--texto);">S/ 0.50</span><input type="number" id="arq-m-m050" data-val="0.5" placeholder="0" min="0" class="mini-input arq-modal-input" oninput="cajaCalcArqueo()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
-              <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:40px; font-size:11px; font-weight:600; color:var(--texto);">S/ 0.20</span><input type="number" id="arq-m-m020" data-val="0.2" placeholder="0" min="0" class="mini-input arq-modal-input" oninput="cajaCalcArqueo()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
-              <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:40px; font-size:11px; font-weight:600; color:var(--texto);">S/ 0.10</span><input type="number" id="arq-m-m010" data-val="0.1" placeholder="0" min="0" class="mini-input arq-modal-input" oninput="cajaCalcArqueo()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
+            <div>
+              <div style="font-size:9px;font-weight:800;color:var(--azul);text-transform:uppercase;letter-spacing:1px;padding:4px 0;border-bottom:2px solid var(--azul-claro);margin-bottom:8px;">Monedas</div>
+              <div class="arq-denom-row"><span>S/ 5.00</span><input type="number" id="arq-m-m5" data-val="5" placeholder="0" min="0" class="arq-modal-input" oninput="cajaCalcArqueo()"></div>
+              <div class="arq-denom-row"><span>S/ 2.00</span><input type="number" id="arq-m-m2" data-val="2" placeholder="0" min="0" class="arq-modal-input" oninput="cajaCalcArqueo()"></div>
+              <div class="arq-denom-row"><span>S/ 1.00</span><input type="number" id="arq-m-m1" data-val="1" placeholder="0" min="0" class="arq-modal-input" oninput="cajaCalcArqueo()"></div>
+              <div class="arq-denom-row"><span>S/ 0.50</span><input type="number" id="arq-m-m050" data-val="0.5" placeholder="0" min="0" class="arq-modal-input" oninput="cajaCalcArqueo()"></div>
+              <div class="arq-denom-row"><span>S/ 0.20</span><input type="number" id="arq-m-m020" data-val="0.2" placeholder="0" min="0" class="arq-modal-input" oninput="cajaCalcArqueo()"></div>
+              <div class="arq-denom-row" style="border-bottom:none;"><span>S/ 0.10</span><input type="number" id="arq-m-m010" data-val="0.1" placeholder="0" min="0" class="arq-modal-input" oninput="cajaCalcArqueo()"></div>
             </div>
-          </div>
-          <div style="margin-top:auto; padding-top:10px; border-top:1px dashed var(--gris2); font-size:12px; font-weight:800; color:var(--texto); display:flex; justify-content:space-between; align-items:center;">
-             <span>Total Físico en Caja:</span>
-             <span id="arq-fisico" style="color:var(--verde); font-size:16px;">S/. 0.00</span>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- BOTONES -->
-    <div style="display:flex;gap:10px;margin-top:14px;" id="arq-btns-admin">
-      <button class="btn-secundary" onclick="cajaHideArqueoModal()" style="flex:1;padding:12px;font-size:13px;">Cancelar</button>
-      <button class="btn-main" id="arq-btn-preventivo" onclick="cajaSubmitArqueo('Arqueo Preventivo')" disabled style="flex:1;padding:12px;font-size:13px;background:linear-gradient(135deg,#ff8800,#ffaa00);"><span class="mi sm" style="vertical-align:text-bottom;margin-right:4px;">search</span> Arqueo Preventivo</button>
-      <button class="btn-main" id="arq-btn-mes" onclick="cajaSubmitArqueo('Cierre de Mes')" disabled style="flex:1;padding:12px;font-size:13px;background:linear-gradient(135deg,var(--rojo),#ff4444);"><span class="mi sm" style="vertical-align:text-bottom;margin-right:4px;">lock</span> Cerrar Mes</button>
+    <!-- FOOTER -->
+    <div style="padding:14px 20px 18px;background:white;border-top:1px solid var(--gris2);">
+      <div style="display:flex;gap:10px;" id="arq-btns-admin">
+        <button class="btn-secundary" onclick="cajaHideArqueoModal()" style="flex:1;padding:11px;font-size:13px;border-radius:12px;">Cancelar</button>
+        <button class="btn-main" id="arq-btn-preventivo" onclick="cajaSubmitArqueo('Arqueo Preventivo')" disabled style="flex:1;padding:11px;font-size:13px;border-radius:12px;background:linear-gradient(135deg,#e67e00,#ff9a00);box-shadow:0 4px 12px rgba(230,126,0,0.25);"><span class="mi sm" style="vertical-align:text-bottom;margin-right:4px;">search</span>Arqueo Preventivo</button>
+        <button class="btn-main" id="arq-btn-mes" onclick="cajaSubmitArqueo('Cierre de Mes')" disabled style="flex:1;padding:11px;font-size:13px;border-radius:12px;background:linear-gradient(135deg,#b30000,#e60000);box-shadow:0 4px 12px rgba(180,0,0,0.25);"><span class="mi sm" style="vertical-align:text-bottom;margin-right:4px;">lock</span>Cerrar Mes</button>
+      </div>
+      <div style="display:flex;gap:10px;" id="arq-btns-cajera">
+        <button class="btn-secundary" onclick="cajaHideArqueoModal()" style="flex:1;padding:11px;font-size:13px;border-radius:12px;">Cancelar</button>
+        <button class="btn-main" id="arq-btn-diario" onclick="cajaSubmitArqueo('Cierre Diario')" disabled style="flex:1;padding:11px;font-size:13px;border-radius:12px;"><span class="mi sm" style="vertical-align:text-bottom;margin-right:4px;">fact_check</span>Guardar Cierre Diario</button>
+      </div>
     </div>
-    <div style="display:flex;gap:10px;margin-top:14px;display:none;" id="arq-btns-cajera">
-      <button class="btn-secundary" onclick="cajaHideArqueoModal()" style="flex:1;padding:12px;font-size:13px;">Cancelar</button>
-      <button class="btn-main" id="arq-btn-diario" onclick="cajaSubmitArqueo('Cierre Diario')" disabled style="flex:1;padding:12px;font-size:13px;"><span class="mi sm" style="vertical-align:text-bottom;margin-right:4px;">fact_check</span> Guardar Cierre Diario</button>
-    </div>
+
   </div>
 </div>
 
@@ -1096,7 +1124,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
           <h4 style="font-size:11px; margin-bottom:8px; color:var(--azul); font-weight:800; display:flex; align-items:center; gap:4px;"><span class="mi xs">info</span> Datos Generales</h4>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
             <div class="form-caja-group"><label style="margin-bottom:2px;font-size:9px;">Fecha</label><input type="date" id="kasnet-fecha" style="padding:6px; font-size:11px; border-radius:6px; border:1px solid var(--gris2);"></div>
-            <div class="form-caja-group"><label style="margin-bottom:2px;font-size:9px;">N° Operaciones</label><input type="number" id="kasnet-num-ops" placeholder="0" min="0" step="1" style="padding:6px; font-size:11px; border-radius:6px; border:1px solid var(--gris2);"></div>
+            <div class="form-caja-group"><label style="margin-bottom:2px;font-size:9px;">NÂ° Operaciones</label><input type="number" id="kasnet-num-ops" placeholder="0" min="0" step="1" style="padding:6px; font-size:11px; border-radius:6px; border:1px solid var(--gris2);"></div>
           </div>
         </div>
         
@@ -1137,14 +1165,14 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
               }
             ">
           </div>
-          <div style="font-size:9px; color:var(--texto2); margin-top:8px; text-align:center;">Formatos aceptados: JPG, PNG, PDF (Máx. 3MB).</div>
+          <div style="font-size:9px; color:var(--texto2); margin-top:8px; text-align:center;">Formatos aceptados: JPG, PNG, PDF (MÃ¡x. 3MB).</div>
         </div>
       </div>
 
       <!-- COLUMNA DERECHA -->
       <div style="display:flex; flex-direction:column; gap:10px; min-width: 0;">
         <div style="background:white; border:1px solid var(--gris2); padding:10px; border-radius:10px; flex:1; display:flex; flex-direction:column; box-shadow: 0 2px 8px rgba(0,0,0,0.02); min-width: 0;">
-          <h4 style="font-size:11px; margin-bottom:10px; color:var(--azul); font-weight:800; display:flex; align-items:center; gap:4px;"><span class="mi xs">payments</span> Efectivo Físico</h4>
+          <h4 style="font-size:11px; margin-bottom:10px; color:var(--azul); font-weight:800; display:flex; align-items:center; gap:4px;"><span class="mi xs">payments</span> Efectivo FÃ­sico</h4>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px; flex:1; min-width: 0;">
             <!-- Billetes -->
             <div style="min-width: 0;">
@@ -1167,7 +1195,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
             </div>
           </div>
           <div style="margin-top:auto; padding-top:10px; border-top:1px dashed var(--gris2); font-size:12px; font-weight:800; color:var(--texto); display:flex; justify-content:space-between; align-items:center;">
-             <span>Total Físico en Caja:</span>
+             <span>Total FÃ­sico en Caja:</span>
              <span id="kasnet-total-fisico" style="color:var(--verde); font-size:14px;">S/. 0.00</span>
           </div>
         </div>
@@ -1209,14 +1237,14 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   let correoActual = '';
   let timerInterval = null;
 
-  // ── AUTH: PASO 1 — SOLICITAR CÓDIGO ──
+  // â”€â”€ AUTH: PASO 1 â€” SOLICITAR CÃ“DIGO â”€â”€
   async function solicitarCodigo() {
     const correo = document.getElementById('inp-correo').value.trim();
     if (!correo || !correo.includes('@')) {
-      mostrarError('login-error', 'Ingresa un correo válido'); return;
+      mostrarError('login-error', 'Ingresa un correo vÃ¡lido'); return;
     }
     const btn = document.getElementById('btn-solicitar');
-    btn.textContent = '⏳ Enviando...'; btn.disabled = true;
+    btn.textContent = 'â³ Enviando...'; btn.disabled = true;
     ocultarError('login-error'); ocultarError('login-ok');
 
     try {
@@ -1237,21 +1265,21 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         mostrarError('login-error', data.error || 'Correo no autorizado');
       }
     } catch(e) {
-      mostrarError('login-error', 'Error de conexión. Intenta de nuevo.');
+      mostrarError('login-error', 'Error de conexiÃ³n. Intenta de nuevo.');
     }
-    btn.textContent = 'Enviar código →'; btn.disabled = false;
+    btn.textContent = 'Enviar cÃ³digo â†’'; btn.disabled = false;
   }
 
-  // ── AUTH: PASO 2 — VERIFICAR CÓDIGO ──
+  // â”€â”€ AUTH: PASO 2 â€” VERIFICAR CÃ“DIGO â”€â”€
   async function verificarCodigo() {
     const codigo = ['c1','c2','c3','c4','c5','c6']
       .map(id => document.getElementById(id).value).join('');
 
     if (codigo.length < 6) {
-      mostrarError('codigo-error', 'Ingresa los 6 dígitos'); return;
+      mostrarError('codigo-error', 'Ingresa los 6 dÃ­gitos'); return;
     }
     const btn = document.getElementById('btn-verificar-cod');
-    btn.textContent = '⏳ Verificando...'; btn.disabled = true;
+    btn.textContent = 'â³ Verificando...'; btn.disabled = true;
     ocultarError('codigo-error');
 
     try {
@@ -1276,12 +1304,12 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         document.getElementById('navbar-user').textContent = data.nombre;
         cargarTodo();
       } else {
-        mostrarError('codigo-error', data.error || 'Código incorrecto');
+        mostrarError('codigo-error', data.error || 'CÃ³digo incorrecto');
       }
     } catch(e) {
-      mostrarError('codigo-error', 'Error de conexión.');
+      mostrarError('codigo-error', 'Error de conexiÃ³n.');
     }
-    btn.textContent = 'Verificar →'; btn.disabled = false;
+    btn.textContent = 'Verificar â†’'; btn.disabled = false;
   }
 
   function volverCorreo() {
@@ -1312,7 +1340,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       txt.textContent = 'Expira en ' + m + ':' + String(s).padStart(2,'0');
       if (--segundos < 0) {
         clearInterval(timerInterval);
-        txt.textContent = '⚠️ Código expirado. Solicita uno nuevo.';
+        txt.textContent = 'âš ï¸ CÃ³digo expirado. Solicita uno nuevo.';
       }
     }, 1000);
   }
@@ -1331,7 +1359,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     location.reload();
   }
 
-  // ── REFRESH MANUAL ──
+  // â”€â”€ REFRESH MANUAL â”€â”€
   async function refrescarDatos() {
     const btn = document.getElementById('btn-refresh');
     const txt = document.getElementById('btn-refresh-text');
@@ -1348,9 +1376,9 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     txt.textContent = 'Actualizado ' + h + ':' + m;
   }
 
-  // ── SIDEBAR NAVIGATION ──
+  // â”€â”€ SIDEBAR NAVIGATION â”€â”€
   const _sectionTitles = {
-    'dashboard': 'Dashboard', 'mora': 'Gestión de Mora',
+    'dashboard': 'Dashboard', 'mora': 'GestiÃ³n de Mora',
     'cajachica': 'Caja Chica', 'kasnet': 'KASNET'
   };
   const _allSections = ['dashboard','mora','cajachica','kasnet'];
@@ -1407,8 +1435,8 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     else if (section === 'kasnet') kasnetCargarDatos();
   }
 
-  // ── SWITCH TAB DENTRO DE CAJA CHICA ──
-  // Rastrea el último periodo cargado para evitar recargas innecesarias
+  // â”€â”€ SWITCH TAB DENTRO DE CAJA CHICA â”€â”€
+  // Rastrea el Ãºltimo periodo cargado para evitar recargas innecesarias
   let _cajaArchivoUltimoPeriodo = null;
 
   function cajaSwitchTab(tab) {
@@ -1419,7 +1447,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       if (btn)   btn.classList.toggle('active', t === tab);
       if (panel) panel.style.display = (t === tab) ? 'block' : 'none';
     });
-    // Cargar datos según el tab
+    // Cargar datos segÃºn el tab
     if (tab === 'mesanterior') {
       cajaVistaArchivo = true;
       const d = new Date();
@@ -1427,7 +1455,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       const mesActual  = (d.getMonth() + 1).toString();
       document.getElementById('hist-anio').value = anioActual;
       document.getElementById('hist-mes').value  = mesActual;
-      // Auto-cargar si el periodo no ha sido cargado aún
+      // Auto-cargar si el periodo no ha sido cargado aÃºn
       const periodoKey = anioActual + '_' + mesActual + '_MOVIMIENTOS_' + (cajaSedeActual || 'todos');
       if (_cajaArchivoUltimoPeriodo !== periodoKey) {
         _cajaArchivoUltimoPeriodo = periodoKey;
@@ -1438,13 +1466,13 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     else if (tab === 'arqueo') {
       cajaLoadHistorial();
     }
-    // Actualizar título topbar
-    var titulos = {mesactual:'Caja Chica — Mes Actual', mesanterior:'Caja Chica — Meses Anteriores', arqueo:'Caja Chica — Arqueos'};
+    // Actualizar tÃ­tulo topbar
+    var titulos = {mesactual:'Caja Chica â€” Mes Actual', mesanterior:'Caja Chica â€” Meses Anteriores', arqueo:'Caja Chica â€” Arqueos'};
     var tt = document.getElementById('topbar-title');
     if (tt) tt.textContent = titulos[tab] || 'Caja Chica';
   }
 
-  // ── NAV HELPER: ir a cajachica y activar tab correcto ──
+  // â”€â”€ NAV HELPER: ir a cajachica y activar tab correcto â”€â”€
   function navToMov(vista, btn) {
     navTo('cajachica', btn);
     cajaSwitchTab(vista === 'archivo' ? 'mesanterior' : 'mesactual');
@@ -1467,13 +1495,13 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     if (btn) btn.classList.toggle('subnav-open');
   }
 
-  // ── CONTROL DE RACE CONDITIONS ──
+  // â”€â”€ CONTROL DE RACE CONDITIONS â”€â”€
   let _loadRequestId = 0;        // incrementa con cada cargarTodo()
   let _sedeChangeTimer = null;   // debounce al cambiar sede
 
-  // ── ON CHANGE SEDE GLOBAL ──
+  // â”€â”€ ON CHANGE SEDE GLOBAL â”€â”€
   function globalOnChangeSede() {
-    // Debounce: si el usuario cambia sede rápido, esperar 300ms antes de disparar
+    // Debounce: si el usuario cambia sede rÃ¡pido, esperar 300ms antes de disparar
     clearTimeout(_sedeChangeTimer);
     _sedeChangeTimer = setTimeout(function() {
       cajaSedeActual = document.getElementById('global-sede-select').value;
@@ -1493,17 +1521,17 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     }, 300);
   }
 
-  // ── CARGA INICIAL (con protección anti race-condition) ──
+  // â”€â”€ CARGA INICIAL (con protecciÃ³n anti race-condition) â”€â”€
   async function cargarTodo() {
-    // Capturar el ID de esta petición. Si llega una más nueva, descartamos esta.
+    // Capturar el ID de esta peticiÃ³n. Si llega una mÃ¡s nueva, descartamos esta.
     const myReqId = ++_loadRequestId;
 
     try {
       const globalSel = document.getElementById('global-sede-select');
-      // Si el selector está vacío (primer login), usar cajaSedeActual de carga anterior; '' solo si nunca se cargó
+      // Si el selector estÃ¡ vacÃ­o (primer login), usar cajaSedeActual de carga anterior; '' solo si nunca se cargÃ³
       const sedeReq = (globalSel && globalSel.value) ? globalSel.value : (cajaSedeActual || '');
 
-      // ── TÉCNICA 1: Mostrar cache inmediatamente (stale-while-revalidate) para Dashboard/Mora ──
+      // â”€â”€ TÃ‰CNICA 1: Mostrar cache inmediatamente (stale-while-revalidate) para Dashboard/Mora â”€â”€
       const dashCached = dashCacheLeer(sedeReq);
       if (dashCached) {
         if (Array.isArray(dashCached.clientes)) {
@@ -1533,20 +1561,20 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       const pDash = apiFetch({ admin: 'dashboard', sedeContexto: sedeReq });
 
       const resp = await pDash;
-      // ⚠️ Guard: si llegó una carga más nueva mientras esperábamos, ignorar esta respuesta
+      // âš ï¸ Guard: si llegÃ³ una carga mÃ¡s nueva mientras esperÃ¡bamos, ignorar esta respuesta
       if (myReqId !== _loadRequestId) { console.log('[cargarTodo] descartando respuesta obsoleta (req ' + myReqId + ')'); return; }
 
       if (!resp || resp.error) {
         if (!dashCached) {
           console.error('Dashboard error:', resp);
-          document.getElementById('lista-clientes').innerHTML = '<div class="empty">Error de conexión con el servidor.</div>';
+          document.getElementById('lista-clientes').innerHTML = '<div class="empty">Error de conexiÃ³n con el servidor.</div>';
         }
         return;
       }
       
       dashCacheGuardar(sedeReq, resp);
 
-      // Poblar selector de sedes solo la primera vez (cuando está vacío)
+      // Poblar selector de sedes solo la primera vez (cuando estÃ¡ vacÃ­o)
       if (resp.sedes && resp.sedes.length > 0 && globalSel.options.length === 0) {
         globalSel.innerHTML = '';
         const rolActual = sessionStorage.getItem('ge_rol') || 'asesor';
@@ -1576,7 +1604,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         renderClientes();
       }
 
-      // Sede efectiva ya resuelta: lo que devolvió el dashboard (primera oficina para admin)
+      // Sede efectiva ya resuelta: lo que devolviÃ³ el dashboard (primera oficina para admin)
       const sedeEfectiva = (cajaSedeActual && cajaSedeActual !== '') ? cajaSedeActual : sedeReq;
 
       // Cargar adicionales con la sede efectiva ya conocida
@@ -1586,7 +1614,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       const pCaja = apiFetch({ admin: 'caja_datos', sede: sedeEfectiva, sedeContexto: sedeEfectiva });
       try {
         const respCaja = await pCaja;
-        // Guard nuevamente después de await
+        // Guard nuevamente despuÃ©s de await
         if (myReqId !== _loadRequestId) return;
         if (respCaja && !respCaja.error) {
           cajaDatos = respCaja;
@@ -1617,21 +1645,21 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       if (myReqId === _loadRequestId) renderDashboard();
 
     } catch(e) {
-      if (myReqId !== _loadRequestId) return; // ignorar si ya hay una carga más nueva
-      console.error('Error fatal de conexión:', e);
-      document.getElementById('lista-clientes').innerHTML = '<div class="empty">Error de conexión.</div>';
+      if (myReqId !== _loadRequestId) return; // ignorar si ya hay una carga mÃ¡s nueva
+      console.error('Error fatal de conexiÃ³n:', e);
+      document.getElementById('lista-clientes').innerHTML = '<div class="empty">Error de conexiÃ³n.</div>';
       cajaCargarDatos();
     }
   }
 
-  // ══════════════════════════════════════
-  // ──── DASHBOARD GENERAL ─────────────
-  // ══════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // â”€â”€â”€â”€ DASHBOARD GENERAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   function renderDashboard() {
     const container = document.getElementById('dash-content');
     if (!container) return;
 
-    // ── Calcular KPIs desde data ya cargada ──
+    // â”€â”€ Calcular KPIs desde data ya cargada â”€â”€
     const totalClientes = clientes.length;
     const totalDeuda = clientes.reduce(function(s,c) { return s + (parseFloat(c.deuda)||0); }, 0);
     const morosos = clientes.filter(function(c) { return (parseInt(c.dias)||0) > 0; }).length;
@@ -1640,7 +1668,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     const cajaIngresos = cajaDatos && cajaDatos.metricas ? (cajaDatos.metricas.totalIngresos || 0) : 0;
     const cajaEgresos = cajaDatos && cajaDatos.metricas ? (cajaDatos.metricas.totalEgresos || 0) : 0;
 
-    // ── Distribución de riesgo ──
+    // â”€â”€ DistribuciÃ³n de riesgo â”€â”€
     var dist = { normal:0, cpp:0, deficiente:0, dudoso:0, perdida:0 };
     clientes.forEach(function(c) {
       var d = parseInt(c.dias) || 0;
@@ -1652,7 +1680,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     });
     const totalDist = totalClientes || 1;
 
-    // ── Resumen por asesor ──
+    // â”€â”€ Resumen por asesor â”€â”€
     var porAsesor = {};
     clientes.forEach(function(c) {
       var a = c.asesor || 'Sin asesor';
@@ -1668,7 +1696,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       a.promDias = a.dias.length > 0 ? Math.round(a.dias.reduce(function(s,v){return s+v;},0) / a.dias.length) : 0;
     });
 
-    // ── Historial del mes ──
+    // â”€â”€ Historial del mes â”€â”€
     var mesStr = new Date().toISOString().substring(0,7);
     var pagosMes = 0, montoMes = 0, pendientesMes = 0;
     historial.forEach(function(h) {
@@ -1688,13 +1716,13 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       }
     });
 
-    // ── Top gastos de caja ──
+    // â”€â”€ Top gastos de caja â”€â”€
     var topGastos = cajaDatos && cajaDatos.metricas && cajaDatos.metricas.topGastos ? cajaDatos.metricas.topGastos : [];
 
-    // ═══ RENDER HTML ═══
+    // â•â•â• RENDER HTML â•â•â•
     var html = '';
 
-    // ── BLOQUE 1: KPI CARDS ──
+    // â”€â”€ BLOQUE 1: KPI CARDS â”€â”€
     html += '<div class="dash-kpis">';
     html += '<div class="dash-kpi blue">' +
       '<div class="kpi-icon"><span class="mi">account_balance</span></div>' +
@@ -1722,18 +1750,18 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     '</div>';
     html += '</div>';
 
-    // ── BLOQUE 2: Distribución de Riesgo + Resumen Por Asesor ──
+    // â”€â”€ BLOQUE 2: DistribuciÃ³n de Riesgo + Resumen Por Asesor â”€â”€
     html += '<div class="dash-row">';
 
-    // Panel izquierda: Distribución
+    // Panel izquierda: DistribuciÃ³n
     html += '<div class="dash-panel">';
-    html += '<div class="dash-panel-title"><span class="mi sm">shield</span> Distribución de Cartera por Riesgo</div>';
+    html += '<div class="dash-panel-title"><span class="mi sm">shield</span> DistribuciÃ³n de Cartera por Riesgo</div>';
     var riskData = [
       { name:'Normal (0-8d)', count:dist.normal, color:'var(--verde)', pct:Math.round(dist.normal/totalDist*100) },
       { name:'CPP (9-30d)', count:dist.cpp, color:'#cc8800', pct:Math.round(dist.cpp/totalDist*100) },
       { name:'Deficiente (31-60d)', count:dist.deficiente, color:'var(--naranja)', pct:Math.round(dist.deficiente/totalDist*100) },
       { name:'Dudoso (61-120d)', count:dist.dudoso, color:'var(--rojo)', pct:Math.round(dist.dudoso/totalDist*100) },
-      { name:'Pérdida (>120d)', count:dist.perdida, color:'#333', pct:Math.round(dist.perdida/totalDist*100) }
+      { name:'PÃ©rdida (>120d)', count:dist.perdida, color:'#333', pct:Math.round(dist.perdida/totalDist*100) }
     ];
     riskData.forEach(function(r) {
       html += '<div class="risk-bar-wrap">';
@@ -1750,7 +1778,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       html += '<div style="text-align:center;color:var(--texto2);padding:20px;">Sin datos</div>';
     } else {
       html += '<div style="overflow-x:auto;"><table class="asesor-table">';
-      html += '<thead><tr><th>Asesor</th><th>Clientes</th><th>Deuda Total</th><th>Prom. Días</th><th>Peor</th></tr></thead><tbody>';
+      html += '<thead><tr><th>Asesor</th><th>Clientes</th><th>Deuda Total</th><th>Prom. DÃ­as</th><th>Peor</th></tr></thead><tbody>';
       asesores.forEach(function(a) {
         var peorColor = a.peor > 60 ? 'var(--rojo)' : a.peor > 30 ? 'var(--naranja)' : 'var(--texto)';
         html += '<tr>';
@@ -1766,7 +1794,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     html += '</div>';
     html += '</div>'; // close dash-row
 
-    // ── BLOQUE 3: Cobranza del Mes + Resumen Financiero ──
+    // â”€â”€ BLOQUE 3: Cobranza del Mes + Resumen Financiero â”€â”€
     html += '<div class="dash-row">';
 
     // Panel izquierda: Cobranza
@@ -1797,7 +1825,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     html += '</div>';
     html += '</div>'; // close dash-row
 
-    // ── BLOQUE 4: Resumen KASNET ──
+    // â”€â”€ BLOQUE 4: Resumen KASNET â”€â”€
     html += '<div style="margin-bottom:18px;">';
     html += '<h3 style="font-family: Montserrat, sans-serif; font-size:14px; color:var(--azul); margin-bottom:10px; display:flex; align-items:center; gap:6px;"><span class="mi sm">point_of_sale</span> Resumen KASNET</h3>';
     html += '<div class="caja-grid">';
@@ -1821,7 +1849,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     const diffText = (ultimaDiff > 0 ? '+' : '') + 'S/. ' + ultimaDiff.toLocaleString('es-PE', {minimumFractionDigits:2});
 
     html += '<div class="caja-card"><div class="caja-card-title">Saldo Asignado (Base)</div><div class="caja-monto azul">S/. 3,000.00</div></div>';
-    html += '<div class="caja-card"><div class="caja-card-title">Último Cierre (Diff)</div><div class="caja-monto" style="color:' + fontColor + ';">' + diffText + '</div></div>';
+    html += '<div class="caja-card"><div class="caja-card-title">Ãšltimo Cierre (Diff)</div><div class="caja-monto" style="color:' + fontColor + ';">' + diffText + '</div></div>';
     html += '<div class="caja-card"><div class="caja-card-title">Registros Mes</div><div class="caja-monto verde">' + mesActualOps + '</div></div>';
     html += '</div></div>';
 
@@ -1869,7 +1897,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   }
 
   async function apiFetch(params) {
-    // Usamos POST para todo — evita CORS en Apps Script
+    // Usamos POST para todo â€” evita CORS en Apps Script
     const body = {...params, sessionToken: getSession(), _method: 'GET', _t: Date.now()};
     const res = await fetch(API_URL, {
       method: 'POST',
@@ -1879,7 +1907,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     let data;
     try { data = JSON.parse(text); }
     catch(e) { console.error('No JSON:', text.substring(0,300)); throw new Error('Error del servidor'); }
-    if (data && data.error === 'Sesión inválida o expirada') { logout(); return null; }
+    if (data && data.error === 'SesiÃ³n invÃ¡lida o expirada') { logout(); return null; }
     return data;
   }
 
@@ -1893,17 +1921,17 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     let data;
     try { data = JSON.parse(text); }
     catch(e) { console.error('No JSON:', text.substring(0,300)); throw new Error('Error del servidor'); }
-    if (data && data.error === 'Sesión inválida o expirada') { logout(); return null; }
+    if (data && data.error === 'SesiÃ³n invÃ¡lida o expirada') { logout(); return null; }
     return data;
   }
 
-  // ── CLIENTES ──
+  // â”€â”€ CLIENTES â”€â”€
   async function cargarClientes() {
     try {
       const resp = await apiFetch({ admin: 'clientes' });
       if (!Array.isArray(resp)) {
         console.error('Respuesta inesperada:', resp);
-        document.getElementById('lista-clientes').innerHTML = '<div class="empty"><div class="icon"><span class="mi" style="font-size:40px;color:var(--naranja);">warning</span></div>Error: ' + (resp && resp.error ? resp.error : 'Respuesta inválida') + '</div>';
+        document.getElementById('lista-clientes').innerHTML = '<div class="empty"><div class="icon"><span class="mi" style="font-size:40px;color:var(--naranja);">warning</span></div>Error: ' + (resp && resp.error ? resp.error : 'Respuesta invÃ¡lida') + '</div>';
         return;
       }
       clientes = resp;
@@ -1967,13 +1995,13 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       return;
     }
 
-    // Ordenar por días de atraso desc
+    // Ordenar por dÃ­as de atraso desc
     lista.sort((a, b) => b.dias - a.dias);
     clientesFiltrados = lista;
 
     document.getElementById('lista-clientes').innerHTML = clientesFiltrados.map((c, idx) => {
-      const diasTag = c.dias > 90 ? `<span class="tag tag-critico"><span class="mi xs">error</span> ${c.dias} días</span>` :
-                      c.dias > 0  ? `<span class="tag tag-vencido"><span class="mi xs">warning</span> ${c.dias} días</span>` :
+      const diasTag = c.dias > 90 ? `<span class="tag tag-critico"><span class="mi xs">error</span> ${c.dias} dÃ­as</span>` :
+                      c.dias > 0  ? `<span class="tag tag-vencido"><span class="mi xs">warning</span> ${c.dias} dÃ­as</span>` :
                                     `<span class="tag tag-pendiente"><span class="mi xs">schedule</span> Vence hoy</span>`;
       const tieneVoucher = c.voucher ? `<span class="tag tag-pendiente"><span class="mi xs">hourglass_top</span> Voucher enviado</span>` : '';
       const isNotificado = esNotificado(c.telefono || c.celular);
@@ -2000,7 +2028,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
               ${diasTag}
               ${tieneVoucher}
               ${notificadoTag}
-              <span style="background:var(--gris);padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;">Cód. ${escapeHtml(c.cod)}</span>
+              <span style="background:var(--gris);padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;">CÃ³d. ${escapeHtml(c.cod)}</span>
             </div>
           </div>
         </div>
@@ -2026,10 +2054,10 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     document.getElementById('dr-avatar').textContent = getInitials(c.nombre);
     document.getElementById('dr-nombre').textContent = escapeHtml(c.nombre);
     
-    // Configurar tags rápidos de cabecera
+    // Configurar tags rÃ¡pidos de cabecera
     const diasTag = c.dias > 90 ? `<span style="color:var(--rojo);"><span class="mi xs">error</span> ${c.dias} d atraso</span>` :
                     c.dias > 0  ? `<span style="color:var(--naranja);"><span class="mi xs">warning</span> ${c.dias} d atraso</span>` :
-                                  `<span style="color:var(--verde);"><span class="mi xs">check_circle</span> Al día</span>`;
+                                  `<span style="color:var(--verde);"><span class="mi xs">check_circle</span> Al dÃ­a</span>`;
     document.getElementById('dr-tags').innerHTML = diasTag + (c.voucher ? ` | <span style="color:#cc8800"><span class="mi xs">hourglass_top</span> Voucher</span>` : '');
 
     // Finanzas
@@ -2037,7 +2065,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     document.getElementById('dr-cuota').textContent = c.cuota ? 'S/. ' + parseFloat(c.cuota).toLocaleString('es-PE',{minimumFractionDigits:2}) : '-';
     const numCuotas = c.cuotas > 0 ? `<span style="color:var(--rojo);font-weight:900;background:#fff0f0;padding:2px 8px;border-radius:12px;">${c.cuotas} cuota(s)</span>` : '0 cuotas';
     document.getElementById('dr-cuotas').innerHTML = numCuotas;
-    document.getElementById('dr-dias').textContent = c.dias + ' día(s)';
+    document.getElementById('dr-dias').textContent = c.dias + ' dÃ­a(s)';
 
     // Datos Generales
     document.getElementById('dr-cod').textContent = escapeHtml(c.cod);
@@ -2087,7 +2115,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     window.open(esMobil ? linkMovil : linkWeb, '_blank');
   }
 
-  // ── RECORDATORIOS MASIVOS ──
+  // â”€â”€ RECORDATORIOS MASIVOS â”€â”€
   let _recLista = [];
   let _recIdx = 0;
   let _recEnviados = [];
@@ -2095,7 +2123,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   function iniciarRecordatorios() {
     const conWA = clientesFiltrados.filter(c => c.telefono && c.mensaje);
     if (!conWA.length) {
-      alert('No hay clientes con teléfono y mensaje configurado en la lista actual.');
+      alert('No hay clientes con telÃ©fono y mensaje configurado en la lista actual.');
       return;
     }
     _recLista = conWA;
@@ -2134,7 +2162,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       return;
     }
     
-    // Configurar Payload para nuestra Extensión de Chrome
+    // Configurar Payload para nuestra ExtensiÃ³n de Chrome
     let exportData = [];
     
     // Text CSV Fallback
@@ -2149,18 +2177,18 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       csvContent += `"${phone}","${msg}"\n`;
     });
 
-    // Intentar comunicarse con la Extensión primero:
-    // Guardamos la lista en memoria para poder deducir cuáles fallaron después.
+    // Intentar comunicarse con la ExtensiÃ³n primero:
+    // Guardamos la lista en memoria para poder deducir cuÃ¡les fallaron despuÃ©s.
     window._lastBulkPayload = exportData;
-    // Disparamos un evento personalizado que el content_crm.js estará escuchando.
+    // Disparamos un evento personalizado que el content_crm.js estarÃ¡ escuchando.
     let evt = new CustomEvent("GE_WA_BOT_SEND_BULK", { detail: exportData });
     window.dispatchEvent(evt);
 
     // Damos un mensaje de consola
-    console.log("Evento enviado al Robot. Si la extensión no atrapa esto en 1s, el navegador descargará el CSV por seguridad.");
+    console.log("Evento enviado al Robot. Si la extensiÃ³n no atrapa esto en 1s, el navegador descargarÃ¡ el CSV por seguridad.");
     
-    // (Opcional) Si quisieramos descargar el CSV como backup, lo hacemos aquí, 
-    // pero para no confundir al robot, ignoraremos el backup a menos que aprieten otro botón.
+    // (Opcional) Si quisieramos descargar el CSV como backup, lo hacemos aquÃ­, 
+    // pero para no confundir al robot, ignoraremos el backup a menos que aprieten otro botÃ³n.
   }
 
   function descargarCSVBackup() {
@@ -2186,7 +2214,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     document.getElementById('modal-rec').style.display = 'none';
   }
 
-  // ── GESTIÓN DE NOTIFICADOS (LOCALSTORAGE) ──
+  // â”€â”€ GESTIÃ“N DE NOTIFICADOS (LOCALSTORAGE) â”€â”€
   function getNotificadosKey() {
     const today = new Date().toISOString().slice(0,10);
     return 'ge_wa_notificados_' + today;
@@ -2232,10 +2260,10 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     const data = e.detail;
     if (!window._lastBulkPayload) return;
     
-    // Extraer teléfonos que fallaron
+    // Extraer telÃ©fonos que fallaron
     const failedPhones = (data.failedItems || []).map(item => item.phone);
     
-    // Filtrar los que sí se enviaron (estaban en el payload pero no en failedItems)
+    // Filtrar los que sÃ­ se enviaron (estaban en el payload pero no en failedItems)
     const exitosos = window._lastBulkPayload.filter(item => !failedPhones.includes(item.phone));
     
     if (exitosos.length > 0) {
@@ -2246,7 +2274,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     window._lastBulkPayload = null; // Limpiar memoria
   });
 
-  // ── VOUCHERS ──
+  // â”€â”€ VOUCHERS â”€â”€
   async function cargarVouchers() {
     try {
       const resp = await apiFetch({ admin: 'vouchers' });
@@ -2263,7 +2291,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
   function renderVouchers() {
     if (vouchers.length === 0) {
-      document.getElementById('lista-vouchers').innerHTML = '<div class="empty"><div class="icon"><span class="mi" style="font-size:40px;color:var(--verde);">check_circle</span></div><strong>Sin vouchers pendientes</strong><br><small>Todos los pagos están verificados</small></div>';
+      document.getElementById('lista-vouchers').innerHTML = '<div class="empty"><div class="icon"><span class="mi" style="font-size:40px;color:var(--verde);">check_circle</span></div><strong>Sin vouchers pendientes</strong><br><small>Todos los pagos estÃ¡n verificados</small></div>';
       return;
     }
     document.getElementById('lista-vouchers').innerHTML = vouchers.map((v, vi) => {
@@ -2276,7 +2304,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         <div class="cliente-header">
           <div>
             <div class="cliente-nombre">${safeNombre}</div>
-            <div class="cliente-cod">Cód. ${safeCod}</div>
+            <div class="cliente-cod">CÃ³d. ${safeCod}</div>
           </div>
           <div>
             <div class="cliente-monto">S/. ${parseFloat(v.monto).toLocaleString('es-PE',{minimumFractionDigits:2})}</div>
@@ -2316,10 +2344,10 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     document.getElementById('modal-img').src = imgUrl;
     document.getElementById('modal-info').innerHTML = `
       <div><span class="lbl">Cliente</span><span class="val">${nombre}</span></div>
-      <div><span class="lbl">Código</span><span class="val">${cod}</span></div>
+      <div><span class="lbl">CÃ³digo</span><span class="val">${cod}</span></div>
       <div><span class="lbl">Asesor</span><span class="val">${asesor}</span></div>
       <div><span class="lbl">Monto</span><span class="val" style="color:var(--verde);font-weight:900;">S/. ${parseFloat(monto).toLocaleString('es-PE',{minimumFractionDigits:2})}</span></div>
-      <div><span class="lbl">Ver original</span><span class="val"><a href="${link}" target="_blank" style="color:var(--azul2)">Abrir en Drive ↗</a></span></div>
+      <div><span class="lbl">Ver original</span><span class="val"><a href="${link}" target="_blank" style="color:var(--azul2)">Abrir en Drive â†—</a></span></div>
     `;
     document.getElementById('modal-voucher').classList.add('show');
   }
@@ -2340,13 +2368,13 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     try {
       const data = await apiPost({ adminAction: 'verificar', fila: fila, nombre: nombre, monto: monto, cod: cod });
       if (data.success) {
-        showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">check_circle</span> Pago verificado — ' + nombre.split(' ')[0]);
+        showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">check_circle</span> Pago verificado â€” ' + nombre.split(' ')[0]);
         await cargarTodo();
       }
     } catch(e) { showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> Error al verificar'); }
   }
 
-  // ── HISTORIAL ──
+  // â”€â”€ HISTORIAL â”€â”€
   async function cargarHistorial() {
     try {
       const resp = await apiFetch({ admin: 'historial' });
@@ -2394,7 +2422,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       <div class="hist-card">
         <div class="hist-left">
           <div class="nombre">${escapeHtml(h.nombre) || '-'}</div>
-          <div class="det">${h.asesor ? escapeHtml(h.asesor.toString().split(' ')[0]) : '-'} · ${escapeHtml(h.tipo) || '-'} · Cód. ${escapeHtml(h.cod) || '-'}</div>
+          <div class="det">${h.asesor ? escapeHtml(h.asesor.toString().split(' ')[0]) : '-'} Â· ${escapeHtml(h.tipo) || '-'} Â· CÃ³d. ${escapeHtml(h.cod) || '-'}</div>
           <div class="det" style="margin-top:3px;">
             <span class="tag ${h.estado && h.estado.toString().includes('VERIFICADO') ? 'tag-verificado' : 'tag-pendiente'}" style="display:inline-block;font-size:10px;">
               ${escapeHtml(h.estado) || 'PENDIENTE'}
@@ -2404,13 +2432,13 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         <div class="hist-right">
           <div class="monto">S/. ${parseFloat(h.monto||0).toLocaleString('es-PE',{minimumFractionDigits:2})}</div>
           <div class="fecha">${formatFechaSolo(h.fecha)} ${escapeHtml(h.hora) || ''}</div>
-          ${h.voucher ? `<a href="${escapeHtml(h.voucher)}" target="_blank">Ver voucher ↗</a>` : ''}
+          ${h.voucher ? `<a href="${escapeHtml(h.voucher)}" target="_blank">Ver voucher â†—</a>` : ''}
         </div>
       </div>
     `).join('');
   }
 
-  // ── UTILS ──
+  // â”€â”€ UTILS â”€â”€
   function formatFecha(str) {
     if (!str) return '-';
     try {
@@ -2484,9 +2512,9 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     setTimeout(() => t.classList.remove('show'), 2800);
   }
 
-  // ════════════════════════════════════
-  // ──── MÓDULO CAJA CHICA JS ─────────
-  // ════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // â”€â”€â”€â”€ MÃ“DULO CAJA CHICA JS â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
   let cajaMovimientos = [];
   let cajaMovArchivo = [];
@@ -2495,9 +2523,9 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   let cajaDatos = null;
   let cajaSedeActual = '';
   let cajaSaldoTeorico = 0;
-  const CAJA_CACHE_TTL = 60000; // 60 segundos de cache válido
+  const CAJA_CACHE_TTL = 60000; // 60 segundos de cache vÃ¡lido
 
-  // ── CACHE HELPERS ──
+  // â”€â”€ CACHE HELPERS â”€â”€
   function cajaCacheKey(sede) { return 'caja_cache_' + (sede || 'todas'); }
   function cajaCacheGuardar(sede, data) { try { sessionStorage.setItem(cajaCacheKey(sede), JSON.stringify({ ts: Date.now(), data: data })); } catch(e) {} }
   function cajaCacheLeer(sede) {
@@ -2530,7 +2558,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     const sedeElegida = sel.value;
     cajaSedeActual = sedeElegida;
 
-    // ── TÉCNICA 1: Mostrar cache inmediatamente (stale-while-revalidate) ──
+    // â”€â”€ TÃ‰CNICA 1: Mostrar cache inmediatamente (stale-while-revalidate) â”€â”€
     const cached = cajaCacheLeer(sedeElegida);
     if (cached) {
       cajaDatos = cached; cajaSaldoTeorico = cached.saldo; cajaMovimientos = cached.movimientos || [];
@@ -2600,7 +2628,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       const resp = await apiFetch({ admin: 'caja_datos', sede: sede, sedeContexto: sede });
       if (!resp || resp.error) return;
       cajaCacheGuardar(sede, resp);
-      // Solo re-renderizar si la sede no cambió mientras esperábamos
+      // Solo re-renderizar si la sede no cambiÃ³ mientras esperÃ¡bamos
       if (cajaSedeActual !== sede) return;
       cajaDatos = resp; cajaSaldoTeorico = resp.saldo; cajaMovimientos = resp.movimientos || [];
       cajaRenderResumen(resp); if (!cajaVistaArchivo) cajaRenderTabla(cajaMovimientos); cajaRenderCategorias(resp.categorias || []);
@@ -2644,7 +2672,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       const esIngreso = m.tipo === 'Ingreso';
       const sustentoUrlSafe = m.sustentoUrl ? m.sustentoUrl.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;') : '';
       
-      const icon = esIngreso ? '↓' : '↑';
+      const icon = esIngreso ? 'â†“' : 'â†‘';
       const sign = esIngreso ? '+' : '-';
       
       const mDataId = 'mov-' + m.id;
@@ -2702,7 +2730,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     
     const myReqId = ++_cajaMovRequestId;
     const cacheKey = 'caja_archivo_v3_' + anio + '_' + mes + '_' + tipo + '_' + (cajaSedeActual || 'todos');
-    const CACHE_TTL_ARCHIVO = 1800000; // 30 minutos — datos históricos no cambian
+    const CACHE_TTL_ARCHIVO = 1800000; // 30 minutos â€” datos histÃ³ricos no cambian
 
     // Actualizar tracker del periodo cargado
     _cajaArchivoUltimoPeriodo = anio + '_' + mes + '_' + tipo + '_' + (cajaSedeActual || 'todos');
@@ -2877,7 +2905,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       document.getElementById('caja-monto').value = editData.monto;
       document.getElementById('caja-categoria').value = editData.categoria;
       document.getElementById('caja-descripcion').value = editData.descripcion;
-      // Mostrar botón de archivo existente
+      // Mostrar botÃ³n de archivo existente
       var archivoActualEl = document.getElementById('caja-archivo-actual');
       if (editData.sustentoUrl) {
         archivoActualEl.dataset.url = editData.sustentoUrl;
@@ -2932,7 +2960,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       archivoMimeType = file.type;
       archivoNombre = file.name;
       if (file.size > 5 * 1024 * 1024) {
-        showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">warning</span> El archivo es muy grande (Máx 5MB)'); return;
+        showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">warning</span> El archivo es muy grande (MÃ¡x 5MB)'); return;
       }
       const getBase64 = (f) => new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -2955,7 +2983,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     btn.disabled = true;
     cajaShowSavingOverlay(
       tieneArchivo ? 'Subiendo archivo y guardando...' : 'Guardando movimiento...',
-      tieneArchivo ? 'El archivo se está subiendo a Drive' : 'Registrando en el sistema'
+      tieneArchivo ? 'El archivo se estÃ¡ subiendo a Drive' : 'Registrando en el sistema'
     );
 
     try {
@@ -2981,13 +3009,13 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       cajaHideSavingOverlay(); // Ocultar overlay al final de todo el proceso
     } catch(e) { 
       cajaHideSavingOverlay();
-      showToast('❌ Error: ' + e.message); 
+      showToast('âŒ Error: ' + e.message); 
     }
     btn.textContent = 'Guardar'; btn.disabled = false;
   }
 
   async function cajaEliminar(id) {
-    if (!confirm('¿Eliminar este movimiento?')) return;
+    if (!confirm('Â¿Eliminar este movimiento?')) return;
     cajaShowSavingOverlay('Eliminando...', 'Actualizando sistema');
     try {
       const resp = await apiPost({ _method: 'POST', cajaAction: 'eliminar', id: id });
@@ -3029,7 +3057,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       if (diffEl) diffEl.textContent = 'S/. ' + Math.abs(diff).toLocaleString('es-PE', {minimumFractionDigits:2});
       if (diffCard) diffCard.className = 'diff-card ' + (cuadre ? 'cuadre' : diff > 0 ? 'sobrante' : 'faltante');
       
-      const quadradText = '<span class="mi" style="vertical-align:text-bottom;margin-right:4px;">check_circle</span> ¡CUADRE EXACTO!';
+      const quadradText = '<span class="mi" style="vertical-align:text-bottom;margin-right:4px;">check_circle</span> Â¡CUADRE EXACTO!';
       const sobranteText = '<span class="mi" style="vertical-align:text-bottom;margin-right:4px;">warning</span> Sobrante';
       const faltanteText = '<span class="mi" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> Faltante';
       
@@ -3041,7 +3069,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       diffEl.textContent = 'S/. ' + total.toLocaleString('es-PE', {minimumFractionDigits:2});
       diffCard.className = 'diff-card ' + (tieneConteo ? 'cuadre' : '');
       const conteoText = '<span class="mi" style="vertical-align:text-bottom;margin-right:4px;">check_circle</span> Conteo registrado';
-      msgEl.innerHTML = tieneConteo ? conteoText : 'Ingresa el conteo físico';
+      msgEl.innerHTML = tieneConteo ? conteoText : 'Ingresa el conteo fÃ­sico';
       
       document.getElementById('arq-btn-diario').disabled = !tieneConteo;
     }
@@ -3063,7 +3091,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     document.querySelectorAll('.arq-modal-input').forEach(function(i) { i.value = ''; });
     cajaCalcArqueo();
     
-    // Actualizar Saldo Teórico visual
+    // Actualizar Saldo TeÃ³rico visual
     if (esAdmin) {
        document.getElementById('arq-teorico').textContent = 'S/. ' + cajaSaldoTeorico.toLocaleString('es-PE', {minimumFractionDigits:2});
        cajaCalcArqueo();
@@ -3102,7 +3130,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       if (!calc.cuadre) { showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">warning</span> Debe cuadrar la caja primero'); return; }
     }
 
-    if (!confirm('¿Confirmar ' + tipoTexto + '?')) return;
+    if (!confirm('Â¿Confirmar ' + tipoTexto + '?')) return;
 
     showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">hourglass_empty</span> Procesando ' + tipoTexto + '...');
     const btn = event.target ? event.target.closest('button') : null;
@@ -3213,13 +3241,13 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       } else {
         cajaArqueosData = cajaArqueosData.concat(dataArr);
         contenedor.innerHTML += html;
-        btnMas.innerHTML = '<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">expand_more</span> Ver más arqueos';
+        btnMas.innerHTML = '<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">expand_more</span> Ver mÃ¡s arqueos';
         btnMas.disabled = false;
       }
 
       cajaArqueosOffset += dataArr.length;
       
-      // Mostrar botón "Ver más" si todavía hay items
+      // Mostrar botÃ³n "Ver mÃ¡s" si todavÃ­a hay items
       if (cajaArqueosOffset < total) {
         btnMasCont.style.display = 'block';
       } else {
@@ -3230,8 +3258,8 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       if (!append) {
         contenedor.innerHTML = '<div class="empty"><div class="icon"><span class="mi" style="font-size:40px;color:var(--rojo);">warning</span></div>Error al cargar historial</div>';
       } else {
-        showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> Error al cargar más');
-        btnMas.innerHTML = '<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">expand_more</span> Ver más arqueos';
+        showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> Error al cargar mÃ¡s');
+        btnMas.innerHTML = '<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">expand_more</span> Ver mÃ¡s arqueos';
         btnMas.disabled = false;
       }
     }
@@ -3259,7 +3287,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       </div>
 
       <div class="dr-section">
-        <div class="dr-section-title">Conteo Físico</div>
+        <div class="dr-section-title">Conteo FÃ­sico</div>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
           <div>
             <div style="font-size:11px; font-weight:800; color:var(--texto2); margin-bottom:8px; border-bottom:1px solid var(--gris2); padding-bottom:4px; letter-spacing:0.5px;">BILLETES</div>
@@ -3287,11 +3315,11 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
       <div style="background:var(--gris2); padding:16px; border-radius:12px; margin-top:24px;">
         <div style="display:flex;justify-content:space-between; align-items:center; margin-bottom:8px;">
-          <span style="font-weight:700; font-size:12px; color:var(--texto2);">Total Físico Contado:</span>
+          <span style="font-weight:700; font-size:12px; color:var(--texto2);">Total FÃ­sico Contado:</span>
           <span style="font-weight:900; font-size:18px; color:var(--verde);">S/. ${(parseFloat(arq.fisico)||0).toLocaleString('es-PE', {minimumFractionDigits: 2})}</span>
         </div>
         <div style="display:flex;justify-content:space-between; align-items:center;">
-          <span style="font-weight:700; font-size:12px; color:var(--texto2);">Saldo Teórico Sistema:</span>
+          <span style="font-weight:700; font-size:12px; color:var(--texto2);">Saldo TeÃ³rico Sistema:</span>
           <span style="font-weight:900; font-size:18px; color:var(--azul);">S/. ${(parseFloat(arq.teorico)||0).toLocaleString('es-PE', {minimumFractionDigits: 2})}</span>
         </div>
       </div>
@@ -3303,16 +3331,16 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     document.getElementById('drawer-arqueo').classList.add('open');
   }
 
-  // ════════════════════════════════════
-  // ──── MÓDULO KASNET JS ────────────
-  // ════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // â”€â”€â”€â”€ MÃ“DULO KASNET JS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
   let kasnetRegistros = [];
   let _kasnetRegMap = {};
-  const KASNET_BASE_DEFAULT = 3000; // Podría venir de config en el futuro
+  const KASNET_BASE_DEFAULT = 3000; // PodrÃ­a venir de config en el futuro
 
   async function kasnetCargarDatos() {
-    // Renderizado instántaneo si ya hay datos precargados
+    // Renderizado instÃ¡ntaneo si ya hay datos precargados
     if (kasnetRegistros && kasnetRegistros.length > 0) {
       kasnetRenderOperaciones(kasnetRegistros);
     } else {
@@ -3361,7 +3389,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
             '<div class="mov-cat">' +
               '<span style="background:var(--gris);padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;">Ops: ' + m.numOps + '</span>' +
               '<span style="background:var(--gris);padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;">Virt: S/. ' + (m.posVirtual + m.pagayaVirtual).toFixed(2) + '</span>' +
-              '<span style="background:var(--gris);padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;">Fís: S/. ' + m.efectivoFisico.toFixed(2) + '</span>' +
+              '<span style="background:var(--gris);padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;">FÃ­s: S/. ' + m.efectivoFisico.toFixed(2) + '</span>' +
               '<span class="tag ' + (m.estado === 'SOBRANTE' ? 'tag-vencido' : m.estado === 'FALTANTE' ? 'tag-critico' : 'tag-verificado') + '">' + m.estado + ' (' + sign + 'S/. ' + Math.abs(m.diferencia).toFixed(2) + ')</span>' +
               (m.comprobante ? '<span style="color:var(--azul);background:var(--azul-claro);padding:3px 8px;border-radius:6px;font-weight:700;font-size:10px;display:inline-flex;align-items:center;gap:4px;"><span class="mi xs" style="margin:0;vertical-align:bottom;">attach_file</span> Adjunto</span>' : '') +
             '</div>' +
@@ -3669,7 +3697,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">check_circle</span> ' + resp.message);
         kasnetHideModal();
         await kasnetCargarDatos();
-        // Si hay un sobrante y se creo en caja, vale la pena recargar caja también si estamos viendola
+        // Si hay un sobrante y se creo en caja, vale la pena recargar caja tambiÃ©n si estamos viendola
         if (!editId && diffPreview > 0) cajaCargarDatos(); 
       } else {
         showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> ' + (resp && resp.message ? resp.message : 'Error'));
@@ -3689,7 +3717,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     } catch(e) { showToast('Error: ' + e.message); }
   }
 
-  // ── INIT ──
+  // â”€â”€ INIT â”€â”€
   window.addEventListener('load', function() {
     const session = sessionStorage.getItem('ge_session');
     const nombre = sessionStorage.getItem('ge_nombre');
@@ -3712,7 +3740,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     document.addEventListener('touchstart', e => { if(e.touches.length>1) e.preventDefault(); }, {passive:false});
     document.addEventListener('gesturestart', e => e.preventDefault(), {passive:false});
 
-    // Auto-refresh al volver a la pestaña (cooldown 30s)
+    // Auto-refresh al volver a la pestaÃ±a (cooldown 30s)
     let _lastRefresh = Date.now();
     document.addEventListener('visibilitychange', function() {
       if (document.visibilityState === 'visible' && sessionStorage.getItem('ge_session')) {
@@ -3749,7 +3777,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
           <div id="rec-tel" style="font-size:13px;color:#667781;line-height:1.2;margin-top:2px;">-</div>
         </div>
       </div>
-      <button onclick="cerrarRecModal()" style="background:transparent;border:none;color:#54656f;cursor:pointer;font-size:20px;padding:4px;display:flex;align-items:center;justify-content:center;">✕</button>
+      <button onclick="cerrarRecModal()" style="background:transparent;border:none;color:#54656f;cursor:pointer;font-size:20px;padding:4px;display:flex;align-items:center;justify-content:center;">âœ•</button>
     </div>
 
     <!-- Paginator & Progress -->
@@ -3782,7 +3810,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
               <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
               <strong>Tiempo estimado:</strong> <span id="rec-tiempo">~0 min</span>
           </div>
-          <div style="color: #cc0000; font-weight: 600; font-size: 11.5px; line-height: 1.3;">⚠️ IMPORTANTE: No abras ni interactúes con la pestaña de WhatsApp Web mientras el Bot esté trabajando.</div>
+          <div style="color: #cc0000; font-weight: 600; font-size: 11.5px; line-height: 1.3;">âš ï¸ IMPORTANTE: No abras ni interactÃºes con la pestaÃ±a de WhatsApp Web mientras el Bot estÃ© trabajando.</div>
       </div>
       <button onclick="exportarWhatsAppCSV()" style="width:100%;background:linear-gradient(135deg, var(--azul) 0%, var(--azul2) 100%);color:white;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 10px rgba(0,82,204,0.25);">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="16" height="16" fill="white"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg>
