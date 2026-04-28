@@ -748,7 +748,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
                 <option value="11">Noviembre</option>
                 <option value="12">Diciembre</option>
               </select>
-              <button class="btn-primary" onclick="cajaCargarArchivo()" style="padding:8px 16px; border-radius:8px;"><span class="mi sm">search</span> Buscar</button>
+              <button class="btn-primary" onclick="_cajaArchivoUltimoPeriodo=null; cajaCargarArchivo()" style="padding:8px 16px; border-radius:8px;"><span class="mi sm">search</span> Buscar</button>
               
               <div style="position:relative;flex:1;min-width:200px;">
                 <span class="mi" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--texto2);pointer-events:none;">search</span>
@@ -756,7 +756,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
               </div>
             </div>
             <div class="movimientos-list" id="caja-tabla-body-archivo">
-              <div class="empty" style="padding:40px 20px;"><span class="mi" style="font-size:48px;color:var(--gris);">manage_search</span><br><span style="color:var(--texto2);font-weight:600;">Selecciona un periodo y haz clic en Buscar</span></div>
+              <div class="empty" style="padding:30px 20px;"><div class="spinner-sm" style="margin:0 auto 12px;"></div><div style="font-weight:700;color:var(--azul);font-size:13px;margin-bottom:4px;">Cargando historial...</div><div style="font-size:11px;color:var(--texto2);">Esto puede tomar unos segundos</div></div>
             </div>
           </div>
 
@@ -1408,6 +1408,9 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   }
 
   // ── SWITCH TAB DENTRO DE CAJA CHICA ──
+  // Rastrea el último periodo cargado para evitar recargas innecesarias
+  let _cajaArchivoUltimoPeriodo = null;
+
   function cajaSwitchTab(tab) {
     var tabs = ['mesactual','mesanterior','arqueo'];
     tabs.forEach(function(t) {
@@ -1417,11 +1420,19 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       if (panel) panel.style.display = (t === tab) ? 'block' : 'none';
     });
     // Cargar datos según el tab
-    if (tab === 'mesanterior' && !cajaVistaArchivo) { 
-      cajaVistaArchivo = true; 
+    if (tab === 'mesanterior') {
+      cajaVistaArchivo = true;
       const d = new Date();
-      document.getElementById('hist-anio').value = d.getFullYear().toString();
-      document.getElementById('hist-mes').value = (d.getMonth() + 1).toString();
+      const anioActual = d.getFullYear().toString();
+      const mesActual  = (d.getMonth() + 1).toString();
+      document.getElementById('hist-anio').value = anioActual;
+      document.getElementById('hist-mes').value  = mesActual;
+      // Auto-cargar si el periodo no ha sido cargado aún
+      const periodoKey = anioActual + '_' + mesActual + '_MOVIMIENTOS_' + (cajaSedeActual || 'todos');
+      if (_cajaArchivoUltimoPeriodo !== periodoKey) {
+        _cajaArchivoUltimoPeriodo = periodoKey;
+        cajaCargarArchivo();
+      }
     }
     else if (tab === 'mesactual') { cajaVistaArchivo = false; cajaRenderTabla(cajaMovimientos, false); }
     else if (tab === 'arqueo') {
@@ -1467,6 +1478,8 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     _sedeChangeTimer = setTimeout(function() {
       cajaSedeActual = document.getElementById('global-sede-select').value;
       cajaCacheInvalidar(cajaSedeActual);
+      // Resetear tracker de periodo para que se recargue al abrir meses anteriores
+      _cajaArchivoUltimoPeriodo = null;
       const btn = document.getElementById('btn-refresh');
       const txt = document.getElementById('btn-refresh-text');
       if(btn) btn.classList.add('is-refreshing');
@@ -2689,14 +2702,17 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     
     const myReqId = ++_cajaMovRequestId;
     const cacheKey = 'caja_archivo_v3_' + anio + '_' + mes + '_' + tipo + '_' + (cajaSedeActual || 'todos');
+    const CACHE_TTL_ARCHIVO = 1800000; // 30 minutos — datos históricos no cambian
+
+    // Actualizar tracker del periodo cargado
+    _cajaArchivoUltimoPeriodo = anio + '_' + mes + '_' + tipo + '_' + (cajaSedeActual || 'todos');
 
     // 1. Mostrar cache de sessionStorage inmediatamente si existe
     try {
       const raw = sessionStorage.getItem(cacheKey);
       if (raw) {
         const obj = JSON.parse(raw);
-        // Cache válido por 10 minutos
-        if (Date.now() - obj.ts < 600000) {
+        if (Date.now() - obj.ts < CACHE_TTL_ARCHIVO) {
           cajaMovArchivo = obj.data;
           if (cajaMovArchivo.length === 0) {
             contenedor.innerHTML = '<div class="empty"><span class="mi" style="font-size:40px;color:var(--texto2);">inventory_2</span><br>No hay registros archivados en este periodo</div>';
@@ -2713,7 +2729,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       }
     } catch(e) {}
 
-    contenedor.innerHTML = '<div class="empty" style="padding:20px;"><div class="spinner-sm"></div>Consultando base de datos histórica...</div>';
+    contenedor.innerHTML = '<div class="empty" style="padding:30px 20px;"><div class="spinner-sm" style="margin:0 auto 12px;"></div><div style="font-weight:700;color:var(--azul);font-size:13px;margin-bottom:4px;">Consultando historial...</div><div style="font-size:11px;color:var(--texto2);">Esto puede tomar unos segundos</div></div>';
 
     try {
       const resp = await apiFetch({ admin: 'caja_archivo', sede: cajaSedeActual, sedeContexto: cajaSedeActual, anio: anio, mes: mes, tipo: tipo });
