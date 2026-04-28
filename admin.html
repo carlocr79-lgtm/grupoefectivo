@@ -387,23 +387,38 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   border-right:1px solid rgba(255,255,255,0.06);
 }
 .sidebar-header {
-  padding:16px 18px 14px; border-bottom:1px solid rgba(255,255,255,0.08);
+  padding:14px 16px 12px; border-bottom:1px solid rgba(255,255,255,0.08);
   display:flex; flex-direction:column; gap:10px;
 }
-.sidebar-brand { font-family:'Montserrat',sans-serif; font-weight:900; font-size:15px; color:white; display:flex; align-items:center; gap:8px; }
+/* Fila 1: logo empresa */
+.sidebar-brand {
+  font-family:'Montserrat',sans-serif; font-weight:900; font-size:14px; color:white;
+  display:flex; align-items:center; gap:8px; padding-bottom:10px;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+}
+/* Fila 2: avatar + nombre + rol */
 .sidebar-user-info {
-  display:flex; flex-direction:column; gap:6px;
+  display:flex; align-items:center; gap:10px;
 }
-.sidebar-user-name { font-size:12px; font-weight:700; color:rgba(255,255,255,0.9); line-height:1.3; }
-.sidebar-user-badges {
-  display:flex; gap:5px; align-items:center; flex-wrap:nowrap;
+.sidebar-avatar {
+  width:36px; height:36px; border-radius:50%; flex-shrink:0;
+  background:linear-gradient(135deg,#4d9fff,#0052cc);
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Montserrat',sans-serif; font-weight:800; font-size:13px; color:white;
+  border:2px solid rgba(255,255,255,0.2); letter-spacing:0;
 }
+.sidebar-user-text { display:flex; flex-direction:column; gap:3px; min-width:0; }
+.sidebar-user-name {
+  font-size:11px; font-weight:700; color:white;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; line-height:1.2;
+}
+.sidebar-user-badges { display:flex; gap:4px; align-items:center; flex-wrap:nowrap; }
 .sidebar-user-role {
-  display:inline-flex; align-items:center; gap:3px; width:fit-content;
-  background:rgba(255,255,255,0.14); color:rgba(255,255,255,0.9); padding:3px 9px;
-  border-radius:5px; font-size:10px; font-weight:700; text-transform:uppercase;
+  display:inline-flex; align-items:center; width:fit-content;
+  background:rgba(255,255,255,0.13); color:rgba(255,255,255,0.85); padding:2px 7px;
+  border-radius:4px; font-size:9px; font-weight:700; text-transform:uppercase;
   white-space:nowrap; flex-shrink:0; letter-spacing:0.3px;
-  border:1px solid rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.1);
 }
 .sidebar-nav { flex:1; overflow-y:auto; padding:12px 0; }
 .nav-section {
@@ -444,21 +459,21 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 .sidebar-sede-top { width:100%; position:relative; }
 .sidebar-sede-top select {
   width:100%; padding:7px 28px 7px 10px;
-  border:1px solid rgba(255,255,255,0.25); border-radius:8px;
-  font-size:11px; font-weight:700; color:white;
-  background:rgba(255,255,255,0.12);
+  border:1px solid rgba(255,255,255,0.2); border-radius:8px;
+  font-size:11px; font-weight:600; color:white;
+  background:rgba(0,0,0,0.25);
   -webkit-appearance:none; -moz-appearance:none; appearance:none;
   font-family:'DM Sans',sans-serif; outline:none; cursor:pointer;
   transition:background 0.2s, border-color 0.2s;
-  backdrop-filter:blur(4px);
 }
-.sidebar-sede-top select:hover { background:rgba(255,255,255,0.2); border-color:rgba(255,255,255,0.4); }
+.sidebar-sede-top select:hover { background:rgba(0,0,0,0.4); border-color:rgba(255,255,255,0.35); }
 .sidebar-sede-top select option { color:#1a1a2e; background:white; font-weight:600; }
 .sidebar-sede-top::after {
-  content:''; pointer-events:none; position:absolute; right:9px; top:50%; transform:translateY(-50%);
+  content:''; pointer-events:none; position:absolute;
+  right:10px; top:50%; transform:translateY(-50%);
   width:0; height:0;
   border-left:4px solid transparent; border-right:4px solid transparent;
-  border-top:5px solid rgba(255,255,255,0.75);
+  border-top:5px solid rgba(255,255,255,0.6);
 }
 .btn-sidebar-logout {
   display:flex; align-items:center; justify-content:center; gap:6px;
@@ -609,16 +624,24 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     <!-- SIDEBAR -->
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-header">
-        <div class="sidebar-brand"><span class="mi" style="font-size:20px;">business</span> Grupo Efectivo</div>
+        <!-- Fila 1: Marca -->
+        <div class="sidebar-brand">
+          <span class="mi" style="font-size:18px;">business</span> Grupo Efectivo
+        </div>
+        <!-- Fila 2: Avatar + nombre + badges -->
         <div class="sidebar-user-info">
-          <div class="sidebar-user-name" id="navbar-user"></div>
-          <div class="sidebar-user-badges">
-            <span class="sidebar-user-role" id="navbar-rol">Panel</span>
-            <span class="sidebar-user-role" id="navbar-oficina" style="font-size:9px;max-width:110px;overflow:hidden;text-overflow:ellipsis;"></span>
+          <div class="sidebar-avatar" id="sidebar-avatar">GE</div>
+          <div class="sidebar-user-text">
+            <div class="sidebar-user-name" id="navbar-user"></div>
+            <div class="sidebar-user-badges">
+              <span class="sidebar-user-role" id="navbar-rol">Panel</span>
+              <span class="sidebar-user-role" id="navbar-oficina"></span>
+            </div>
           </div>
-          <div class="sidebar-sede-top">
-            <select id="global-sede-select" onchange="globalOnChangeSede()"></select>
-          </div>
+        </div>
+        <!-- Fila 3: Selector de sede -->
+        <div class="sidebar-sede-top">
+          <select id="global-sede-select" onchange="globalOnChangeSede()"></select>
         </div>
       </div>
       <nav class="sidebar-nav">
@@ -1318,6 +1341,10 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         document.getElementById('navbar-rol').textContent = rolLabel;
         document.getElementById('navbar-oficina').textContent = ofLabel;
         document.getElementById('navbar-user').textContent = data.nombre;
+        // Iniciales avatar
+        const parts = (data.nombre || '').trim().split(' ');
+        const initials = parts.length >= 2 ? parts[0][0] + parts[1][0] : (parts[0]||'U').slice(0,2);
+        document.getElementById('sidebar-avatar').textContent = initials.toUpperCase();
         cargarTodo();
       } else {
         mostrarError('codigo-error', data.error || 'Código incorrecto');
@@ -3748,6 +3775,10 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         document.getElementById('navbar-rol').textContent = rolLabel;
         document.getElementById('navbar-oficina').textContent = ofLabel;
         document.getElementById('navbar-user').textContent = nombre;
+        // Iniciales avatar
+        const parts = (nombre || '').trim().split(' ');
+        const initials = parts.length >= 2 ? parts[0][0] + parts[1][0] : (parts[0]||'U').slice(0,2);
+        document.getElementById('sidebar-avatar').textContent = initials.toUpperCase();
       }
       cargarTodo();
     }
