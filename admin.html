@@ -387,17 +387,22 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   border-right:1px solid rgba(255,255,255,0.06);
 }
 .sidebar-header {
-  padding:20px 18px 16px; border-bottom:1px solid rgba(255,255,255,0.08);
+  padding:16px 18px 14px; border-bottom:1px solid rgba(255,255,255,0.08);
+  display:flex; flex-direction:column; gap:10px;
 }
-.sidebar-brand { font-family:'Montserrat',sans-serif; font-weight:900; font-size:15px; color:white; margin-bottom:8px; display:flex; align-items:center; gap:8px; }
+.sidebar-brand { font-family:'Montserrat',sans-serif; font-weight:900; font-size:15px; color:white; display:flex; align-items:center; gap:8px; }
 .sidebar-user-info {
-  display:flex; flex-direction:column; gap:3px;
+  display:flex; flex-direction:column; gap:6px;
 }
-.sidebar-user-name { font-size:12px; font-weight:700; color:rgba(255,255,255,0.9); }
+.sidebar-user-name { font-size:12px; font-weight:700; color:rgba(255,255,255,0.9); line-height:1.3; }
+.sidebar-user-badges {
+  display:flex; gap:5px; align-items:center; flex-wrap:nowrap;
+}
 .sidebar-user-role {
   display:inline-flex; align-items:center; gap:3px; width:fit-content;
   background:rgba(255,255,255,0.12); color:rgba(255,255,255,0.85); padding:2px 8px;
   border-radius:5px; font-size:10px; font-weight:700; text-transform:uppercase;
+  white-space:nowrap; flex-shrink:0;
 }
 .sidebar-nav { flex:1; overflow-y:auto; padding:12px 0; }
 .nav-section {
@@ -435,14 +440,16 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   padding:12px 18px; border-top:1px solid rgba(255,255,255,0.08);
   display:flex; flex-direction:column; gap:10px;
 }
-.sidebar-sede-top { margin-left:auto; }
+.sidebar-sede-top { width:100%; }
 .sidebar-sede-top select {
-  padding:3px 20px 3px 8px; border:1px solid rgba(255,255,255,0.2); border-radius:5px;
-  font-size:10px; font-weight:700; color:white; background:rgba(255,255,255,0.1);
+  width:100%; padding:6px 24px 6px 10px; border:1px solid rgba(255,255,255,0.2); border-radius:7px;
+  font-size:11px; font-weight:700; color:white; background:rgba(255,255,255,0.1);
   font-family:'DM Sans',sans-serif; outline:none; cursor:pointer;
   appearance:none; background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
-  background-repeat:no-repeat; background-position:right 2px center; background-size:14px;
+  background-repeat:no-repeat; background-position:right 4px center; background-size:16px;
+  transition:background 0.2s;
 }
+.sidebar-sede-top select:hover { background-color:rgba(255,255,255,0.18); }
 .sidebar-sede-top select option { color:var(--texto); background:white; }
 .btn-sidebar-logout {
   display:flex; align-items:center; justify-content:center; gap:6px;
@@ -563,12 +570,12 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       <input type="email" id="inp-correo" placeholder="tucorreo@gmail.com" autocomplete="email"
         onkeydown="if(event.key==='Enter')solicitarCodigo()">
     </div>
-    <button class="btn-login" id="btn-solicitar" onclick="solicitarCodigo()">Enviar Código â†’</button>
+    <button class="btn-login" id="btn-solicitar" onclick="solicitarCodigo()">Enviar Código →</button>
     <div class="login-error" id="login-error">Correo no autorizado</div>
     <div class="login-success" id="login-ok"><span class="mi sm">check_circle</span> Código enviado a tu correo</div>
   </div>
 
-  <!-- PASO 2: CÃ“DIGO -->
+  <!-- PASO 2: CÓDIGO -->
   <div class="login-box" id="box-codigo" style="display:none;">
     <h2><span class="mi" style="font-size:20px;vertical-align:middle;margin-right:4px;">pin</span> Ingresa el Código</h2>
     <div class="correo-display">Código enviado a <strong id="correo-display-txt"></strong></div>
@@ -580,7 +587,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       <input type="tel" maxlength="1" class="cod-input" id="c5" oninput="avanzarCodigo(this,'c6')" onkeydown="retrocederCodigo(event,'c4')">
       <input type="tel" maxlength="1" class="cod-input" id="c6" oninput="avanzarCodigo(this,null)" onkeydown="retrocederCodigo(event,'c5')">
     </div>
-    <button class="btn-login" id="btn-verificar-cod" onclick="verificarCodigo()">Verificar â†’</button>
+    <button class="btn-login" id="btn-verificar-cod" onclick="verificarCodigo()">Verificar →</button>
     <div class="login-error" id="codigo-error">Código incorrecto o expirado</div>
     <div class="timer" id="timer-txt"></div>
     <button class="btn-reenviar" onclick="volverCorreo()">â† Cambiar correo / Reenviar</button>
@@ -595,13 +602,13 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       <div class="sidebar-header">
         <div class="sidebar-brand"><span class="mi" style="font-size:20px;">business</span> Grupo Efectivo</div>
         <div class="sidebar-user-info">
-          <div class="sidebar-user-name" id="navbar-user" style="line-height:1.2; margin-bottom:4px;"></div>
-          <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap; margin-bottom:8px;">
+          <div class="sidebar-user-name" id="navbar-user"></div>
+          <div class="sidebar-user-badges">
             <span class="sidebar-user-role" id="navbar-rol">Panel</span>
-            <span class="sidebar-user-role" id="navbar-oficina" style="font-size:9px;"></span>
+            <span class="sidebar-user-role" id="navbar-oficina" style="font-size:9px;max-width:110px;overflow:hidden;text-overflow:ellipsis;"></span>
           </div>
-          <div class="sidebar-sede-top" style="margin-left:0; width:100%;">
-            <select id="global-sede-select" onchange="globalOnChangeSede()" style="width:100%; box-sizing:border-box; background-position: calc(100% - 8px) center; padding-right:24px; padding-top:6px; padding-bottom:6px; font-size:11px;"></select>
+          <div class="sidebar-sede-top">
+            <select id="global-sede-select" onchange="globalOnChangeSede()"></select>
           </div>
         </div>
       </div>
@@ -822,16 +829,16 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     </div>
     <div class="dr-section">
       <div class="dr-section-title">Datos Generales</div>
-      <div class="dr-item"><span class="lbl">C&oacute;digo</span><span class="val" id="dr-cod"></span></div>
+      <div class="dr-item"><span class="lbl">Código</span><span class="val" id="dr-cod"></span></div>
       <div class="dr-item"><span class="lbl">Celular</span><span class="val" id="dr-cel"></span></div>
-      <div class="dr-item"><span class="lbl">Direcci&oacute;n</span><span class="val" id="dr-dir" style="text-align:right; max-width:60%;"></span></div>
-      <div class="dr-item"><span class="lbl">Pr&oacute;x. Vencimiento</span><span class="val" id="dr-venc"></span></div>
+      <div class="dr-item"><span class="lbl">Dirección</span><span class="val" id="dr-dir" style="text-align:right; max-width:60%;"></span></div>
+      <div class="dr-item"><span class="lbl">Próx. Vencimiento</span><span class="val" id="dr-venc"></span></div>
     </div>
     <div class="dr-section">
-      <div class="dr-section-title">Gesti&oacute;n Interna</div>
+      <div class="dr-section-title">Gestión Interna</div>
       <div class="dr-item"><span class="lbl">Asesor Asignado</span><span class="val" id="dr-asesor"></span></div>
       <div class="dr-item"><span class="lbl">Oficina</span><span class="val" id="dr-ofi"></span></div>
-      <div class="dr-item"><span class="lbl">Tipo de Cr&eacute;dito</span><span class="val" id="dr-tipo"></span></div>
+      <div class="dr-item"><span class="lbl">Tipo de Crédito</span><span class="val" id="dr-tipo"></span></div>
     </div>
     <div id="dr-obs-container"></div>
   </div>
@@ -1237,14 +1244,14 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   let correoActual = '';
   let timerInterval = null;
 
-  // â”€â”€ AUTH: PASO 1 â€” SOLICITAR CÃ“DIGO â”€â”€
+  // â”€â”€ AUTH: PASO 1 — SOLICITAR CÓDIGO â”€â”€
   async function solicitarCodigo() {
     const correo = document.getElementById('inp-correo').value.trim();
     if (!correo || !correo.includes('@')) {
       mostrarError('login-error', 'Ingresa un correo válido'); return;
     }
     const btn = document.getElementById('btn-solicitar');
-    btn.textContent = 'â³ Enviando...'; btn.disabled = true;
+    btn.textContent = '⏳ Enviando...'; btn.disabled = true;
     ocultarError('login-error'); ocultarError('login-ok');
 
     try {
@@ -1267,10 +1274,10 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     } catch(e) {
       mostrarError('login-error', 'Error de conexión. Intenta de nuevo.');
     }
-    btn.textContent = 'Enviar Código â†’'; btn.disabled = false;
+    btn.textContent = 'Enviar Código →'; btn.disabled = false;
   }
 
-  // â”€â”€ AUTH: PASO 2 â€” VERIFICAR CÃ“DIGO â”€â”€
+  // â”€â”€ AUTH: PASO 2 — VERIFICAR CÓDIGO â”€â”€
   async function verificarCodigo() {
     const codigo = ['c1','c2','c3','c4','c5','c6']
       .map(id => document.getElementById(id).value).join('');
@@ -1279,7 +1286,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       mostrarError('codigo-error', 'Ingresa los 6 dígitos'); return;
     }
     const btn = document.getElementById('btn-verificar-cod');
-    btn.textContent = 'â³ Verificando...'; btn.disabled = true;
+    btn.textContent = '⏳ Verificando...'; btn.disabled = true;
     ocultarError('codigo-error');
 
     try {
@@ -1309,7 +1316,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     } catch(e) {
       mostrarError('codigo-error', 'Error de conexión.');
     }
-    btn.textContent = 'Verificar â†’'; btn.disabled = false;
+    btn.textContent = 'Verificar →'; btn.disabled = false;
   }
 
   function volverCorreo() {
@@ -1467,7 +1474,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       cajaLoadHistorial();
     }
     // Actualizar título topbar
-    var titulos = {mesactual:'Caja Chica â€” Mes Actual', mesanterior:'Caja Chica â€” Meses Anteriores', arqueo:'Caja Chica â€” Arqueos'};
+    var titulos = {mesactual:'Caja Chica — Mes Actual', mesanterior:'Caja Chica — Meses Anteriores', arqueo:'Caja Chica — Arqueos'};
     var tt = document.getElementById('topbar-title');
     if (tt) tt.textContent = titulos[tab] || 'Caja Chica';
   }
@@ -1531,7 +1538,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       // Si el selector está vacío (primer login), usar cajaSedeActual de carga anterior; '' solo si nunca se cargó
       const sedeReq = (globalSel && globalSel.value) ? globalSel.value : (cajaSedeActual || '');
 
-      // â”€â”€ TÃ‰CNICA 1: Mostrar cache inmediatamente (stale-while-revalidate) para Dashboard/Mora â”€â”€
+      // â”€â”€ TÉCNICA 1: Mostrar cache inmediatamente (stale-while-revalidate) para Dashboard/Mora â”€â”€
       const dashCached = dashCacheLeer(sedeReq);
       if (dashCached) {
         if (Array.isArray(dashCached.clientes)) {
@@ -1897,7 +1904,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   }
 
   async function apiFetch(params) {
-    // Usamos POST para todo â€” evita CORS en Apps Script
+    // Usamos POST para todo — evita CORS en Apps Script
     const body = {...params, sessionToken: getSession(), _method: 'GET', _t: Date.now()};
     const res = await fetch(API_URL, {
       method: 'POST',
@@ -1995,7 +2002,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       return;
     }
 
-    // Ordenar por días de atraso desc
+    // Ordenar por dias de atraso desc
     lista.sort((a, b) => b.dias - a.dias);
     clientesFiltrados = lista;
 
@@ -2028,7 +2035,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
               ${diasTag}
               ${tieneVoucher}
               ${notificadoTag}
-              <span style="background:var(--gris);padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;">Cód. ${escapeHtml(c.cod)}</span>
+              <span style="background:var(--gris);padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;">C&oacute;d. ${escapeHtml(c.cod)}</span>
             </div>
           </div>
         </div>
@@ -2057,7 +2064,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     // Configurar tags rápidos de cabecera
     const diasTag = c.dias > 90 ? `<span style="color:var(--rojo);"><span class="mi xs">error</span> ${c.dias} d atraso</span>` :
                     c.dias > 0  ? `<span style="color:var(--naranja);"><span class="mi xs">warning</span> ${c.dias} d atraso</span>` :
-                                  `<span style="color:var(--verde);"><span class="mi xs">check_circle</span> Al d&iacute;a</span>`;
+                                  `<span style="color:var(--verde);"><span class="mi xs">check_circle</span> Al día</span>`;
     document.getElementById('dr-tags').innerHTML = diasTag + (c.voucher ? ` | <span style="color:#cc8800"><span class="mi xs">hourglass_top</span> Voucher</span>` : '');
 
     // Finanzas
@@ -2065,7 +2072,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     document.getElementById('dr-cuota').textContent = c.cuota ? 'S/. ' + parseFloat(c.cuota).toLocaleString('es-PE',{minimumFractionDigits:2}) : '-';
     const numCuotas = c.cuotas > 0 ? `<span style="color:var(--rojo);font-weight:900;background:#fff0f0;padding:2px 8px;border-radius:12px;">${c.cuotas} cuota(s)</span>` : '0 cuotas';
     document.getElementById('dr-cuotas').innerHTML = numCuotas;
-    document.getElementById('dr-dias').textContent = c.dias + ' d\u00EDa(s)';
+    document.getElementById('dr-dias').textContent = c.dias + ' día(s)';
 
     // Datos Generales
     document.getElementById('dr-cod').textContent = escapeHtml(c.cod);
@@ -2214,7 +2221,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     document.getElementById('modal-rec').style.display = 'none';
   }
 
-  // â”€â”€ GESTIÃ“N DE NOTIFICADOS (LOCALSTORAGE) â”€â”€
+  // â”€â”€ GESTIÓN DE NOTIFICADOS (LOCALSTORAGE) â”€â”€
   function getNotificadosKey() {
     const today = new Date().toISOString().slice(0,10);
     return 'ge_wa_notificados_' + today;
@@ -2304,7 +2311,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         <div class="cliente-header">
           <div>
             <div class="cliente-nombre">${safeNombre}</div>
-            <div class="cliente-cod">Cód. ${safeCod}</div>
+            <div class="cliente-cod">C&oacute;d. ${safeCod}</div>
           </div>
           <div>
             <div class="cliente-monto">S/. ${parseFloat(v.monto).toLocaleString('es-PE',{minimumFractionDigits:2})}</div>
@@ -2368,7 +2375,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     try {
       const data = await apiPost({ adminAction: 'verificar', fila: fila, nombre: nombre, monto: monto, cod: cod });
       if (data.success) {
-        showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">check_circle</span> Pago verificado â€” ' + nombre.split(' ')[0]);
+        showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">check_circle</span> Pago verificado — ' + nombre.split(' ')[0]);
         await cargarTodo();
       }
     } catch(e) { showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> Error al verificar'); }
@@ -2422,7 +2429,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       <div class="hist-card">
         <div class="hist-left">
           <div class="nombre">${escapeHtml(h.nombre) || '-'}</div>
-          <div class="det">${h.asesor ? escapeHtml(h.asesor.toString().split(' ')[0]) : '-'} Â· ${escapeHtml(h.tipo) || '-'} Â· Cód. ${escapeHtml(h.cod) || '-'}</div>
+          <div class="det">${h.asesor ? escapeHtml(h.asesor.toString().split(' ')[0]) : '-'} &middot; ${escapeHtml(h.tipo) || '-'} &middot; C&oacute;d. ${escapeHtml(h.cod) || '-'}</div>
           <div class="det" style="margin-top:3px;">
             <span class="tag ${h.estado && h.estado.toString().includes('VERIFICADO') ? 'tag-verificado' : 'tag-pendiente'}" style="display:inline-block;font-size:10px;">
               ${escapeHtml(h.estado) || 'PENDIENTE'}
@@ -2513,7 +2520,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   }
 
   // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  // â”€â”€â”€â”€ MÃ“DULO CAJA CHICA JS â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // â”€â”€â”€â”€ MÓDULO CAJA CHICA JS â”€â”€â”€â”€â”€â”€â”€â”€â”€
   // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
   let cajaMovimientos = [];
@@ -2558,7 +2565,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     const sedeElegida = sel.value;
     cajaSedeActual = sedeElegida;
 
-    // â”€â”€ TÃ‰CNICA 1: Mostrar cache inmediatamente (stale-while-revalidate) â”€â”€
+    // â”€â”€ TÉCNICA 1: Mostrar cache inmediatamente (stale-while-revalidate) â”€â”€
     const cached = cajaCacheLeer(sedeElegida);
     if (cached) {
       cajaDatos = cached; cajaSaldoTeorico = cached.saldo; cajaMovimientos = cached.movimientos || [];
@@ -2730,7 +2737,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     
     const myReqId = ++_cajaMovRequestId;
     const cacheKey = 'caja_archivo_v3_' + anio + '_' + mes + '_' + tipo + '_' + (cajaSedeActual || 'todos');
-    const CACHE_TTL_ARCHIVO = 1800000; // 30 minutos â€” datos históricos no cambian
+    const CACHE_TTL_ARCHIVO = 1800000; // 30 minutos — datos históricos no cambian
 
     // Actualizar tracker del periodo cargado
     _cajaArchivoUltimoPeriodo = anio + '_' + mes + '_' + tipo + '_' + (cajaSedeActual || 'todos');
@@ -3009,7 +3016,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       cajaHideSavingOverlay(); // Ocultar overlay al final de todo el proceso
     } catch(e) { 
       cajaHideSavingOverlay();
-      showToast('âŒ Error: ' + e.message); 
+      showToast('❌ Error: ' + e.message); 
     }
     btn.textContent = 'Guardar'; btn.disabled = false;
   }
@@ -3332,7 +3339,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   }
 
   // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  // â”€â”€â”€â”€ MÃ“DULO KASNET JS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // â”€â”€â”€â”€ MÓDULO KASNET JS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
   let kasnetRegistros = [];
