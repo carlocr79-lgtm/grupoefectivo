@@ -568,7 +568,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     <div class="login-success" id="login-ok"><span class="mi sm">check_circle</span> Código enviado a tu correo</div>
   </div>
 
-  <!-- PASO 2: CÃ“DIGO -->
+  <!-- PASO 2: CÓDIGO -->
   <div class="login-box" id="box-codigo" style="display:none;">
     <h2><span class="mi" style="font-size:20px;vertical-align:middle;margin-right:4px;">pin</span> Ingresa el Código</h2>
     <div class="correo-display">Código enviado a <strong id="correo-display-txt"></strong></div>
@@ -1237,14 +1237,14 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   let correoActual = '';
   let timerInterval = null;
 
-  // â”€â”€ AUTH: PASO 1 â€” SOLICITAR CÃ“DIGO â”€â”€
+  // â”€â”€ AUTH: PASO 1 — SOLICITAR CÓDIGO â”€â”€
   async function solicitarCodigo() {
     const correo = document.getElementById('inp-correo').value.trim();
     if (!correo || !correo.includes('@')) {
       mostrarError('login-error', 'Ingresa un correo válido'); return;
     }
     const btn = document.getElementById('btn-solicitar');
-    btn.textContent = 'â³ Enviando...'; btn.disabled = true;
+    btn.textContent = '⏳ Enviando...'; btn.disabled = true;
     ocultarError('login-error'); ocultarError('login-ok');
 
     try {
@@ -1270,7 +1270,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     btn.textContent = 'Enviar Código →'; btn.disabled = false;
   }
 
-  // â”€â”€ AUTH: PASO 2 â€” VERIFICAR CÃ“DIGO â”€â”€
+  // â”€â”€ AUTH: PASO 2 — VERIFICAR CÓDIGO â”€â”€
   async function verificarCodigo() {
     const codigo = ['c1','c2','c3','c4','c5','c6']
       .map(id => document.getElementById(id).value).join('');
@@ -1279,7 +1279,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       mostrarError('codigo-error', 'Ingresa los 6 dígitos'); return;
     }
     const btn = document.getElementById('btn-verificar-cod');
-    btn.textContent = 'â³ Verificando...'; btn.disabled = true;
+    btn.textContent = '⏳ Verificando...'; btn.disabled = true;
     ocultarError('codigo-error');
 
     try {
@@ -1467,7 +1467,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       cajaLoadHistorial();
     }
     // Actualizar título topbar
-    var titulos = {mesactual:'Caja Chica â€” Mes Actual', mesanterior:'Caja Chica â€” Meses Anteriores', arqueo:'Caja Chica â€” Arqueos'};
+    var titulos = {mesactual:'Caja Chica — Mes Actual', mesanterior:'Caja Chica — Meses Anteriores', arqueo:'Caja Chica — Arqueos'};
     var tt = document.getElementById('topbar-title');
     if (tt) tt.textContent = titulos[tab] || 'Caja Chica';
   }
@@ -1531,7 +1531,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       // Si el selector está vacío (primer login), usar cajaSedeActual de carga anterior; '' solo si nunca se cargó
       const sedeReq = (globalSel && globalSel.value) ? globalSel.value : (cajaSedeActual || '');
 
-      // â”€â”€ TÃ‰CNICA 1: Mostrar cache inmediatamente (stale-while-revalidate) para Dashboard/Mora â”€â”€
+      // â”€â”€ TÉCNICA 1: Mostrar cache inmediatamente (stale-while-revalidate) para Dashboard/Mora â”€â”€
       const dashCached = dashCacheLeer(sedeReq);
       if (dashCached) {
         if (Array.isArray(dashCached.clientes)) {
@@ -1897,7 +1897,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   }
 
   async function apiFetch(params) {
-    // Usamos POST para todo â€” evita CORS en Apps Script
+    // Usamos POST para todo — evita CORS en Apps Script
     const body = {...params, sessionToken: getSession(), _method: 'GET', _t: Date.now()};
     const res = await fetch(API_URL, {
       method: 'POST',
@@ -2214,7 +2214,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     document.getElementById('modal-rec').style.display = 'none';
   }
 
-  // â”€â”€ GESTIÃ“N DE NOTIFICADOS (LOCALSTORAGE) â”€â”€
+  // â”€â”€ GESTIÓN DE NOTIFICADOS (LOCALSTORAGE) â”€â”€
   function getNotificadosKey() {
     const today = new Date().toISOString().slice(0,10);
     return 'ge_wa_notificados_' + today;
@@ -2368,7 +2368,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     try {
       const data = await apiPost({ adminAction: 'verificar', fila: fila, nombre: nombre, monto: monto, cod: cod });
       if (data.success) {
-        showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">check_circle</span> Pago verificado â€” ' + nombre.split(' ')[0]);
+        showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">check_circle</span> Pago verificado — ' + nombre.split(' ')[0]);
         await cargarTodo();
       }
     } catch(e) { showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> Error al verificar'); }
@@ -2513,7 +2513,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   }
 
   // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  // â”€â”€â”€â”€ MÃ“DULO CAJA CHICA JS â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // â”€â”€â”€â”€ MÓDULO CAJA CHICA JS â”€â”€â”€â”€â”€â”€â”€â”€â”€
   // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
   let cajaMovimientos = [];
@@ -2558,7 +2558,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     const sedeElegida = sel.value;
     cajaSedeActual = sedeElegida;
 
-    // â”€â”€ TÃ‰CNICA 1: Mostrar cache inmediatamente (stale-while-revalidate) â”€â”€
+    // â”€â”€ TÉCNICA 1: Mostrar cache inmediatamente (stale-while-revalidate) â”€â”€
     const cached = cajaCacheLeer(sedeElegida);
     if (cached) {
       cajaDatos = cached; cajaSaldoTeorico = cached.saldo; cajaMovimientos = cached.movimientos || [];
@@ -2730,7 +2730,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     
     const myReqId = ++_cajaMovRequestId;
     const cacheKey = 'caja_archivo_v3_' + anio + '_' + mes + '_' + tipo + '_' + (cajaSedeActual || 'todos');
-    const CACHE_TTL_ARCHIVO = 1800000; // 30 minutos â€” datos históricos no cambian
+    const CACHE_TTL_ARCHIVO = 1800000; // 30 minutos — datos históricos no cambian
 
     // Actualizar tracker del periodo cargado
     _cajaArchivoUltimoPeriodo = anio + '_' + mes + '_' + tipo + '_' + (cajaSedeActual || 'todos');
@@ -3009,7 +3009,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       cajaHideSavingOverlay(); // Ocultar overlay al final de todo el proceso
     } catch(e) { 
       cajaHideSavingOverlay();
-      showToast('âŒ Error: ' + e.message); 
+      showToast('❌ Error: ' + e.message); 
     }
     btn.textContent = 'Guardar'; btn.disabled = false;
   }
@@ -3332,7 +3332,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   }
 
   // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  // â”€â”€â”€â”€ MÃ“DULO KASNET JS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // â”€â”€â”€â”€ MÓDULO KASNET JS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
   let kasnetRegistros = [];
