@@ -18,7 +18,7 @@
   --gris: #f5f7fc; --gris2: #e0e6f0; --texto: #1a1a2e; --texto2: #5a6475;
 }
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-.mi { font-family:'Material Symbols Rounded'; font-size:18px; vertical-align:middle; font-weight:normal; font-style:normal; line-height:1; letter-spacing:normal; text-transform:none; display:inline-block; white-space:nowrap; word-wrap:normal; direction:ltr; -webkit-font-smoothing:antialiased; }
+.mi { font-family:'Material Symbols Rounded'; font-size:18px; vertical-align:middle; font-weight:normal !important; font-style:normal; line-height:1; letter-spacing:normal; text-transform:none; display:inline-block; white-space:nowrap; word-wrap:normal; direction:ltr; -webkit-font-smoothing:antialiased; font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; }
 .mi.sm { font-size:14px; }
 .mi.xs { font-size:12px; }
 html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris); color:var(--texto); overflow-y:auto; }
@@ -338,6 +338,8 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 .btn-main:hover:not(:disabled) { transform:translateY(-2px); box-shadow: 0 8px 16px rgba(0,48,135,0.35); filter:brightness(1.1); }
 .btn-main:active:not(:disabled) { transform:scale(0.97); box-shadow: 0 2px 6px rgba(0,48,135,0.25); }
 .btn-main:disabled { opacity:0.5; filter:grayscale(0.8); cursor:not-allowed; box-shadow:none; }
+.btn-primary { padding:8px 16px; background:linear-gradient(135deg,var(--azul),var(--azul2)); color:white; border:none; border-radius:10px; font-family:'Montserrat',sans-serif; font-weight:700; font-size:13px; cursor:pointer; transition:all 0.2s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 10px rgba(0,48,135,0.2); display:inline-flex; align-items:center; gap:4px; }
+.btn-primary:hover { transform:translateY(-2px); box-shadow: 0 8px 16px rgba(0,48,135,0.35); filter:brightness(1.1); }
 .btn-secundary { padding:12px; background:var(--gris2); color:var(--texto); border:none; border-radius:10px; font-family:'Montserrat',sans-serif; font-weight:700; font-size:14px; cursor:pointer; transition:all 0.2s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
 .btn-secundary:hover:not(:disabled) { background:#cfdbf2; color:var(--azul); transform:translateY(-2px); box-shadow: 0 6px 12px rgba(0,48,135,0.15); }
 .btn-secundary:active:not(:disabled) { transform:scale(0.97); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
@@ -784,7 +786,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
               
               <div style="position:relative;flex:1;min-width:200px;">
                 <span class="mi" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--texto2);pointer-events:none;">search</span>
-                <input type="text" id="caja-buscar-archivo" placeholder="Filtrar resultados..." oninput="cajaFiltrarArchivo()" style="width:100%;padding:8px 12px 8px 34px;border:1.5px solid var(--gris2);border-radius:10px;font-size:13px;outline:none;">
+                <input type="text" id="caja-buscar-archivo" placeholder="Filtrar resultados..." oninput="cajaFiltrar()" style="width:100%;padding:8px 12px 8px 34px;border:1.5px solid var(--gris2);border-radius:10px;font-size:13px;outline:none;">
               </div>
             </div>
             <div class="movimientos-list" id="caja-tabla-body-archivo">
@@ -2641,11 +2643,13 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       const txt = (resp.ultimoArqueo.tipo || 'Arqueo') + ' - ' + (resp.ultimoArqueo.fecha || '');
       if (bCajera) {
         bCajera.style.display = 'inline-block';
-        document.getElementById('lbl-arq-cajera').textContent = txt;
+        const lblCajera = document.getElementById('lbl-arq-cajera');
+        if (lblCajera) lblCajera.textContent = txt;
       }
       if (bAdmin) {
         bAdmin.style.display = 'inline-block';
-        document.getElementById('lbl-arq-admin').textContent = txt;
+        const lblAdmin = document.getElementById('lbl-arq-admin');
+        if (lblAdmin) lblAdmin.textContent = txt;
       }
     } else {
       if (bCajera) bCajera.style.display = 'none';
