@@ -381,6 +381,39 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:var(--azul); color:white; padding:10px 20px; border-radius:30px; font-size:13px; font-weight:600; opacity:0; transition:opacity 0.3s; z-index:9999; pointer-events:none; white-space:nowrap; }
 .toast.show { opacity:1; }
 
+/* SEDE TRANSITION OVERLAY */
+.sede-transition {
+  position:fixed; inset:0; z-index:9998; pointer-events:none;
+  display:flex; align-items:center; justify-content:center; flex-direction:column; gap:8px;
+  background:linear-gradient(135deg,rgba(0,26,77,0.95),rgba(0,48,135,0.92));
+  opacity:0; transform:scale(1.02);
+  transition:opacity 0.35s cubic-bezier(0.4,0,0.2,1), transform 0.35s cubic-bezier(0.4,0,0.2,1);
+}
+.sede-transition.active {
+  opacity:1; transform:scale(1); pointer-events:auto;
+}
+.sede-transition .sede-icon {
+  width:52px; height:52px; border-radius:16px;
+  background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.15);
+  display:flex; align-items:center; justify-content:center;
+  font-size:24px; color:rgba(255,255,255,0.9);
+  animation:sede-icon-pop 0.4s cubic-bezier(0.34,1.56,0.64,1) 0.1s both;
+}
+@keyframes sede-icon-pop { from { transform:scale(0.5); opacity:0; } to { transform:scale(1); opacity:1; } }
+.sede-transition .sede-name {
+  font-family:'Montserrat',sans-serif; font-weight:900; font-size:18px;
+  color:white; letter-spacing:1px; text-transform:uppercase;
+  animation:sede-text-up 0.4s cubic-bezier(0.34,1.56,0.64,1) 0.15s both;
+}
+@keyframes sede-text-up { from { transform:translateY(10px); opacity:0; } to { transform:translateY(0); opacity:1; } }
+.sede-transition .sede-sub {
+  font-size:12px; color:rgba(255,255,255,0.5); font-weight:600;
+  animation:sede-text-up 0.4s cubic-bezier(0.34,1.56,0.64,1) 0.22s both;
+}
+/* Content fade for sede change */
+.content-body.sede-fading { opacity:0.3; transition:opacity 0.25s ease; }
+.content-body.sede-fadein { opacity:1; transition:opacity 0.4s ease 0.05s; }
+
 /* ═════════ SIDEBAR LAYOUT ═════════ */
 .app-layout { display:flex; height:100vh; overflow:hidden; }
 .sidebar {
@@ -1335,6 +1368,13 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
 <div class="toast" id="toast"></div>
 
+<!-- SEDE TRANSITION OVERLAY -->
+<div class="sede-transition" id="sede-transition">
+  <div class="sede-icon"><span class="mi">location_on</span></div>
+  <div class="sede-name" id="sede-transition-name"></div>
+  <div class="sede-sub">Cambiando de oficina...</div>
+</div>
+
 <script>
   const API_URL = "/api";
 
@@ -1631,25 +1671,45 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   let _loadRequestId = 0;        // incrementa con cada cargarTodo()
   let _sedeChangeTimer = null;   // debounce al cambiar sede
 
-  // â”€â”€ ON CHANGE SEDE GLOBAL â”€â”€
+  // ── ON CHANGE SEDE GLOBAL ──
   function globalOnChangeSede() {
-    // Debounce: si el usuario cambia sede rápido, esperar 300ms antes de disparar
     clearTimeout(_sedeChangeTimer);
     _sedeChangeTimer = setTimeout(function() {
       cajaSedeActual = document.getElementById('global-sede-select').value;
       cajaCacheInvalidar(cajaSedeActual);
-      // Resetear tracker de periodo para que se recargue al abrir meses anteriores
       _cajaArchivoUltimoPeriodo = null;
-      const btn = document.getElementById('btn-refresh');
-      const txt = document.getElementById('btn-refresh-text');
+
+      // ── EFECTO VISUAL DE CAMBIO DE SEDE ──
+      var sel = document.getElementById('global-sede-select');
+      var sedeName = sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].text : cajaSedeActual;
+      var overlay = document.getElementById('sede-transition');
+      var nameEl = document.getElementById('sede-transition-name');
+      var contentBody = document.querySelector('.content-body');
+      if (nameEl) nameEl.textContent = sedeName;
+      if (contentBody) contentBody.classList.add('sede-fading');
+      if (overlay) overlay.classList.add('active');
+
+      var btn = document.getElementById('btn-refresh');
+      var txt = document.getElementById('btn-refresh-text');
       if(btn) btn.classList.add('is-refreshing');
       if(txt) txt.textContent = 'Actualizando...';
-      cargarTodo().then(() => {
-        if(btn) btn.classList.remove('is-refreshing');
-        const h = String(new Date().getHours()).padStart(2,'0');
-        const m = String(new Date().getMinutes()).padStart(2,'0');
-        if(txt) txt.textContent = 'Actualizado ' + h + ':' + m;
-      });
+
+      // Mostrar overlay 700ms, luego cargar datos
+      setTimeout(function() {
+        cargarTodo().then(function() {
+          if(btn) btn.classList.remove('is-refreshing');
+          var h = String(new Date().getHours()).padStart(2,'0');
+          var m = String(new Date().getMinutes()).padStart(2,'0');
+          if(txt) txt.textContent = 'Actualizado ' + h + ':' + m;
+          // Cerrar overlay
+          if (overlay) overlay.classList.remove('active');
+          if (contentBody) {
+            contentBody.classList.remove('sede-fading');
+            contentBody.classList.add('sede-fadein');
+            setTimeout(function() { contentBody.classList.remove('sede-fadein'); }, 500);
+          }
+        });
+      }, 700);
     }, 300);
   }
 
