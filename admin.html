@@ -497,20 +497,17 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 .sidebar.collapsed .btn-sidebar-logout { padding:9px 6px; }
 .sidebar.collapsed .btn-sidebar-logout .logout-label { display:none; }
 .btn-sidebar-logout:hover { background:rgba(255,60,60,0.15); color:#ff8888; border-color:rgba(255,60,60,0.2); }
-/* Toggle button */
+/* Toggle button — small circular icon in header */
 .btn-sidebar-toggle {
-  display:flex; align-items:center; justify-content:center; gap:6px;
-  padding:9px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1);
-  border-radius:8px; color:rgba(255,255,255,0.5); font-size:12px; font-weight:600;
-  cursor:pointer; transition:all 0.2s; font-family:'DM Sans',sans-serif; white-space:nowrap; overflow:hidden;
+  width:24px; height:24px; border-radius:50%; border:none;
+  background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.5);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; transition:all 0.25s; flex-shrink:0; padding:0;
 }
-.btn-sidebar-toggle:hover { background:rgba(255,255,255,0.12); color:rgba(255,255,255,0.9); }
-.btn-sidebar-toggle .toggle-label { transition:opacity 0.2s; }
-.sidebar.collapsed .btn-sidebar-toggle .toggle-label { display:none; }
-.btn-sidebar-toggle .toggle-icon { transition:transform 0.3s; }
+.btn-sidebar-toggle:hover { background:rgba(255,255,255,0.2); color:white; transform:scale(1.1); }
+.btn-sidebar-toggle .toggle-icon { font-size:16px !important; transition:transform 0.3s; line-height:1; }
 .sidebar.collapsed .btn-sidebar-toggle .toggle-icon { transform:rotate(180deg); }
-/* Tooltip for collapsed sidebar */
-.sidebar.collapsed .nav-item[title] { position:relative; }
+.sidebar.collapsed .btn-sidebar-toggle { margin:0 auto; }
 .sidebar-overlay {
   display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55);
   z-index:199; backdrop-filter:blur(2px);
@@ -662,16 +659,21 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     <!-- SIDEBAR -->
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-header">
-        <div class="sidebar-user-info">
-          <div class="sidebar-avatar" id="sidebar-avatar">GE</div>
-          <div class="sidebar-user-text">
-            <div class="sidebar-user-name" id="navbar-user"></div>
-            <div class="sidebar-user-badges">
-              <span class="sidebar-user-role" id="navbar-rol"></span>
-              <span class="sidebar-user-role" style="color:rgba(255,255,255,0.2);">·</span>
-              <span class="sidebar-user-role" id="navbar-oficina"></span>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div class="sidebar-user-info">
+            <div class="sidebar-avatar" id="sidebar-avatar">GE</div>
+            <div class="sidebar-user-text">
+              <div class="sidebar-user-name" id="navbar-user"></div>
+              <div class="sidebar-user-badges">
+                <span class="sidebar-user-role" id="navbar-rol"></span>
+                <span class="sidebar-user-role" style="color:rgba(255,255,255,0.2);">·</span>
+                <span class="sidebar-user-role" id="navbar-oficina"></span>
+              </div>
             </div>
           </div>
+          <button class="btn-sidebar-toggle" onclick="toggleSidebarCollapse()" title="Contraer menú">
+            <span class="mi sm toggle-icon">chevron_left</span>
+          </button>
         </div>
         <div class="sidebar-sede-top">
           <select id="global-sede-select" onchange="globalOnChangeSede()"></select>
@@ -697,9 +699,6 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         </button>
       </nav>
       <div class="sidebar-footer">
-        <button class="btn-sidebar-toggle" onclick="toggleSidebarCollapse()" title="Contraer menú">
-          <span class="mi sm toggle-icon">chevron_left</span> <span class="toggle-label">Contraer</span>
-        </button>
         <button class="btn-sidebar-logout" onclick="logout()" title="Cerrar sesión">
           <span class="mi sm">logout</span> <span class="logout-label">Cerrar sesión</span>
         </button>
