@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -203,8 +203,8 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 /* CLIENTE DRAWER */
 .drawer-overlay { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,32,96,0.3); backdrop-filter:blur(4px); z-index:1000; opacity:0; pointer-events:none; transition:opacity 0.4s ease; }
 .drawer-overlay.open { opacity:1; pointer-events:auto; }
-.drawer-panel { position:fixed; top:0; right:0; bottom:0; width:100%; max-width:440px; background:white; z-index:1001; transform:translateX(100%); transition:transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); display:flex; flex-direction:column; box-shadow:-10px 0 40px rgba(0,0,0,0.1); }
-.drawer-panel.open { transform:translateX(0); }
+.drawer-panel { position:fixed; top:0; right:0; bottom:0; width:100%; max-width:440px; background:white; z-index:1001; transform:translateX(100%); transition:transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.4s ease; display:flex; flex-direction:column; box-shadow:none; }
+.drawer-panel.open { transform:translateX(0); box-shadow:-10px 0 40px rgba(0,0,0,0.1); }
 .drawer-header { padding:24px 24px 20px; border-bottom:1px solid var(--gris2); display:flex; justify-content:space-between; align-items:flex-start; }
 .drawer-header .avatar-group { display:flex; align-items:center; gap:16px; flex:1; }
 .drawer-header h2 { font-family:'Montserrat',sans-serif; font-size:16px; font-weight:800; color:var(--texto); margin:0; line-height:1.3; }
