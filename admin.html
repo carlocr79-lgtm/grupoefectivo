@@ -381,17 +381,20 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:var(--azul); color:white; padding:10px 20px; border-radius:30px; font-size:13px; font-weight:600; opacity:0; transition:opacity 0.3s; z-index:9999; pointer-events:none; white-space:nowrap; }
 .toast.show { opacity:1; }
 
-/* â•â•â•â•â•â• SIDEBAR LAYOUT â•â•â•â•â•â• */
+/* ═════════ SIDEBAR LAYOUT ═════════ */
 .app-layout { display:flex; height:100vh; overflow:hidden; }
 .sidebar {
   width:250px; min-width:250px; background:linear-gradient(180deg,#001a4d 0%,#002266 40%,#003087 100%);
   display:flex; flex-direction:column; overflow:hidden; z-index:200;
   border-right:1px solid rgba(255,255,255,0.06);
+  transition:width 0.3s cubic-bezier(0.4,0,0.2,1), min-width 0.3s cubic-bezier(0.4,0,0.2,1);
 }
+.sidebar.collapsed { width:68px; min-width:68px; }
 .sidebar-header {
   padding:14px 16px; border-bottom:1px solid rgba(255,255,255,0.08);
   display:flex; flex-direction:column; gap:12px;
 }
+.sidebar.collapsed .sidebar-header { padding:14px 10px; align-items:center; }
 .sidebar-brand {
   font-family:'Montserrat',sans-serif; font-weight:900; font-size:14px; color:white;
   display:flex; align-items:center; gap:8px;
@@ -399,13 +402,17 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 .sidebar-user-info {
   display:flex; align-items:center; gap:10px;
 }
+.sidebar.collapsed .sidebar-user-info { justify-content:center; }
 .sidebar-avatar {
   width:32px; height:32px; border-radius:50%; flex-shrink:0;
   background:rgba(255,255,255,0.15);
   display:flex; align-items:center; justify-content:center;
   font-family:'Montserrat',sans-serif; font-weight:800; font-size:11px; color:white;
+  transition:width 0.3s, height 0.3s;
 }
-.sidebar-user-text { display:flex; flex-direction:column; gap:2px; min-width:0; }
+.sidebar.collapsed .sidebar-avatar { width:36px; height:36px; font-size:12px; }
+.sidebar-user-text { display:flex; flex-direction:column; gap:2px; min-width:0; transition:opacity 0.2s, max-width 0.3s; overflow:hidden; }
+.sidebar.collapsed .sidebar-user-text { opacity:0; max-width:0; pointer-events:none; }
 .sidebar-user-name {
   font-size:11px; font-weight:600; color:rgba(255,255,255,0.9);
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis; line-height:1.3;
@@ -418,20 +425,28 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 .sidebar-nav { flex:1; overflow-y:auto; padding:12px 0; }
 .nav-section {
   padding:10px 18px 5px; font-size:9px; font-weight:800; letter-spacing:1.5px;
-  color:rgba(255,255,255,0.35); text-transform:uppercase;
+  color:rgba(255,255,255,0.35); text-transform:uppercase; white-space:nowrap; overflow:hidden;
+  transition:opacity 0.2s;
 }
+.sidebar.collapsed .nav-section { opacity:0; height:0; padding:0; margin:0; pointer-events:none; }
 .nav-item {
   display:flex; align-items:center; gap:10px; width:100%; padding:10px 18px;
   background:none; border:none; color:rgba(255,255,255,0.6); font-family:'DM Sans',sans-serif;
   font-size:13px; font-weight:500; cursor:pointer; transition:all 0.15s;
-  text-align:left; position:relative;
+  text-align:left; position:relative; white-space:nowrap; overflow:hidden;
 }
+.sidebar.collapsed .nav-item { padding:12px 0; justify-content:center; }
+.sidebar.collapsed .nav-item .mi { font-size:20px; }
+.nav-item-label { transition:opacity 0.2s, max-width 0.3s; overflow:hidden; display:inline; }
+.sidebar.collapsed .nav-item-label { opacity:0; max-width:0; pointer-events:none; position:absolute; }
 .nav-item:hover { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.9); }
 .nav-item.active {
   background:rgba(255,255,255,0.1); color:white; font-weight:700;
   border-left:3px solid #4d9fff;
 }
+.sidebar.collapsed .nav-item.active { border-left:none; border-bottom:2px solid #4d9fff; }
 .nav-item .tab-badge { position:absolute; right:16px; top:50%; transform:translateY(-50%); }
+.sidebar.collapsed .nav-item .tab-badge { right:auto; top:6px; left:50%; transform:translateX(8px); font-size:8px; padding:1px 4px; }
 .nav-arrow { margin-left:auto; transition:transform 0.25s; font-size:16px !important; }
 .nav-item.subnav-open .nav-arrow { transform:rotate(180deg); }
 .nav-subitems {
@@ -447,11 +462,14 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 .nav-subitem:hover { background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.85); }
 .nav-subitem.active { color:white; font-weight:700; background:rgba(255,255,255,0.08); }
 .nav-divider { height:1px; background:rgba(255,255,255,0.06); margin:8px 16px; }
+.sidebar.collapsed .nav-divider { margin:4px 12px; }
 .sidebar-footer {
   padding:12px 18px; border-top:1px solid rgba(255,255,255,0.08);
   display:flex; flex-direction:column; gap:10px;
 }
-.sidebar-sede-top { width:100%; position:relative; }
+.sidebar.collapsed .sidebar-footer { padding:10px 8px; align-items:center; }
+.sidebar-sede-top { width:100%; position:relative; overflow:hidden; transition:opacity 0.2s, max-height 0.3s; }
+.sidebar.collapsed .sidebar-sede-top { opacity:0; max-height:0; pointer-events:none; overflow:hidden; margin:0; }
 .sidebar-sede-top select {
   width:100%; padding:7px 28px 7px 10px;
   border:1px solid rgba(255,255,255,0.2); border-radius:8px;
@@ -474,9 +492,25 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   display:flex; align-items:center; justify-content:center; gap:6px;
   padding:9px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1);
   border-radius:8px; color:rgba(255,255,255,0.7); font-size:12px; font-weight:600;
-  cursor:pointer; transition:all 0.2s; font-family:'DM Sans',sans-serif;
+  cursor:pointer; transition:all 0.2s; font-family:'DM Sans',sans-serif; white-space:nowrap; overflow:hidden;
 }
+.sidebar.collapsed .btn-sidebar-logout { padding:9px 6px; }
+.sidebar.collapsed .btn-sidebar-logout .logout-label { display:none; }
 .btn-sidebar-logout:hover { background:rgba(255,60,60,0.15); color:#ff8888; border-color:rgba(255,60,60,0.2); }
+/* Toggle button */
+.btn-sidebar-toggle {
+  display:flex; align-items:center; justify-content:center; gap:6px;
+  padding:9px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1);
+  border-radius:8px; color:rgba(255,255,255,0.5); font-size:12px; font-weight:600;
+  cursor:pointer; transition:all 0.2s; font-family:'DM Sans',sans-serif; white-space:nowrap; overflow:hidden;
+}
+.btn-sidebar-toggle:hover { background:rgba(255,255,255,0.12); color:rgba(255,255,255,0.9); }
+.btn-sidebar-toggle .toggle-label { transition:opacity 0.2s; }
+.sidebar.collapsed .btn-sidebar-toggle .toggle-label { display:none; }
+.btn-sidebar-toggle .toggle-icon { transition:transform 0.3s; }
+.sidebar.collapsed .btn-sidebar-toggle .toggle-icon { transform:rotate(180deg); }
+/* Tooltip for collapsed sidebar */
+.sidebar.collapsed .nav-item[title] { position:relative; }
 .sidebar-overlay {
   display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55);
   z-index:199; backdrop-filter:blur(2px);
@@ -506,16 +540,25 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 /* RESPONSIVE */
 @media(max-width:900px) {
   .sidebar {
-    position:fixed; left:-260px; top:0; bottom:0; width:250px;
+    position:fixed; left:-260px; top:0; bottom:0; width:250px !important; min-width:250px !important;
     transition:left 0.3s cubic-bezier(0.4,0,0.2,1); box-shadow:none;
   }
+  .sidebar.collapsed { width:250px !important; min-width:250px !important; }
   .sidebar.open { left:0; box-shadow:8px 0 30px rgba(0,0,0,0.3); }
   .sidebar-overlay.show { display:block; }
   .hamburger { display:flex; }
+  .btn-sidebar-toggle { display:none; }
+  .sidebar.collapsed .sidebar-user-text { opacity:1; max-width:200px; pointer-events:auto; }
+  .sidebar.collapsed .sidebar-sede-top { opacity:1; max-height:100px; pointer-events:auto; }
+  .sidebar.collapsed .nav-section { opacity:1; height:auto; padding:10px 18px 5px; }
+  .sidebar.collapsed .nav-item { padding:10px 18px; justify-content:flex-start; }
+  .sidebar.collapsed .nav-item-label { opacity:1; max-width:200px; position:static; }
+  .sidebar.collapsed .btn-sidebar-logout .logout-label { display:inline; }
+  .sidebar.collapsed .nav-item.active { border-left:3px solid #4d9fff; border-bottom:none; }
   .content-body { padding:14px 16px; }
 }
 
-/* â•â•â•â•â•â• DASHBOARD â•â•â•â•â•â• */
+/* ═════════ DASHBOARD ═════════ */
 .dash-kpis { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:18px; }
 @media(max-width:900px) { .dash-kpis { grid-template-columns:repeat(2,1fr); } }
 @media(max-width:480px) { .dash-kpis { grid-template-columns:1fr; } }
@@ -635,27 +678,30 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         </div>
       </div>
       <nav class="sidebar-nav">
-        <button class="nav-item active" onclick="navTo('dashboard',this)">
-          <span class="mi sm">dashboard</span> Dashboard
+        <button class="nav-item active" onclick="navTo('dashboard',this)" title="Dashboard">
+          <span class="mi sm">dashboard</span> <span class="nav-item-label">Dashboard</span>
         </button>
         <div class="nav-divider"></div>
         <div class="nav-section">Gestiones</div>
-        <button class="nav-item" onclick="navTo('mora',this)">
-          <span class="mi sm">account_balance</span> Mora
+        <button class="nav-item" onclick="navTo('mora',this)" title="Mora">
+          <span class="mi sm">account_balance</span> <span class="nav-item-label">Mora</span>
           <span class="tab-badge" id="badge-vouchers" style="display:none;">0</span>
         </button>
         <div class="nav-divider"></div>
         <div class="nav-section">Caja</div>
-        <button class="nav-item" id="nav-cajachica-parent" onclick="navTo('cajachica',this)">
-          <span class="mi sm">account_balance_wallet</span> Caja Chica
+        <button class="nav-item" id="nav-cajachica-parent" onclick="navTo('cajachica',this)" title="Caja Chica">
+          <span class="mi sm">account_balance_wallet</span> <span class="nav-item-label">Caja Chica</span>
         </button>
-        <button class="nav-item" onclick="navTo('kasnet',this)">
-          <span class="mi sm">point_of_sale</span> KASNET
+        <button class="nav-item" onclick="navTo('kasnet',this)" title="KASNET">
+          <span class="mi sm">point_of_sale</span> <span class="nav-item-label">KASNET</span>
         </button>
       </nav>
       <div class="sidebar-footer">
-        <button class="btn-sidebar-logout" onclick="logout()">
-          <span class="mi sm">logout</span> Cerrar sesión
+        <button class="btn-sidebar-toggle" onclick="toggleSidebarCollapse()" title="Contraer menú">
+          <span class="mi sm toggle-icon">chevron_left</span> <span class="toggle-label">Contraer</span>
+        </button>
+        <button class="btn-sidebar-logout" onclick="logout()" title="Cerrar sesión">
+          <span class="mi sm">logout</span> <span class="logout-label">Cerrar sesión</span>
         </button>
       </div>
     </aside>
@@ -1519,6 +1565,22 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     if (shouldOpen) { sidebar.classList.add('open'); overlay.classList.add('show'); }
     else { sidebar.classList.remove('open'); overlay.classList.remove('show'); }
   }
+
+  function toggleSidebarCollapse(forceState) {
+    var sidebar = document.getElementById('sidebar');
+    var isCollapsed = forceState !== undefined ? forceState : !sidebar.classList.contains('collapsed');
+    sidebar.classList.toggle('collapsed', isCollapsed);
+    try { localStorage.setItem('ge_sidebar_collapsed', isCollapsed ? '1' : '0'); } catch(e) {}
+  }
+
+  // Restore sidebar state on load (desktop only)
+  (function() {
+    try {
+      if (window.innerWidth > 900 && localStorage.getItem('ge_sidebar_collapsed') === '1') {
+        document.getElementById('sidebar').classList.add('collapsed');
+      }
+    } catch(e) {}
+  })();
 
   function toggleSubnav(id, btn) {
     var subnav = document.getElementById(id);
