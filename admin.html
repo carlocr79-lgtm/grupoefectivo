@@ -1587,7 +1587,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
     // Load data for sections
     if (section === 'dashboard') renderDashboard();
-    else if (section === 'cajachica') { cajaCargarDatos(); cajaLoadArqueo(); cajaRenderTabla(cajaMovimientos, false); }
+    else if (section === 'cajachica') { cajaCargarDatos(); cajaRenderTabla(cajaMovimientos, false); }
     else if (section === 'kasnet') kasnetCargarDatos();
   }
 
@@ -1676,7 +1676,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     clearTimeout(_sedeChangeTimer);
     _sedeChangeTimer = setTimeout(function() {
       cajaSedeActual = document.getElementById('global-sede-select').value;
-      cajaCacheInvalidar(cajaSedeActual);
+      cajaCacheInvalidar(cajaSedeActual); _cajaArqueosLoaded = false;
       _cajaArchivoUltimoPeriodo = null;
 
       // ── EFECTO VISUAL DE CAMBIO DE SEDE ──
@@ -3195,7 +3195,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       if (resp && resp.status === 'ok') {
         showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">check_circle</span> ' + resp.message);
         cajaHideModal();
-        cajaCacheInvalidar(cajaSedeActual);
+        cajaCacheInvalidar(cajaSedeActual); _cajaArqueosLoaded = false;
         await cajaCargarDatos(); // Actualizamos la tabla
       } else {
         showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> ' + (resp && resp.message ? resp.message : 'Error'));
@@ -3215,7 +3215,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       const resp = await apiPost({ _method: 'POST', cajaAction: 'eliminar', id: id });
       if (resp && resp.status === 'ok') {
         showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">check_circle</span> ' + resp.message);
-        cajaCacheInvalidar(cajaSedeActual);
+        cajaCacheInvalidar(cajaSedeActual); _cajaArqueosLoaded = false;
         await cajaCargarDatos();
       } else { showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> ' + (resp && resp.message ? resp.message : 'Error')); }
     } catch(e) { showToast('<span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">cancel</span> Error: ' + e.message); }
@@ -3366,6 +3366,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
   let cajaArqueosOffset = 0;
   const CAJA_ARQUEOS_LIMIT = 10;
+  let _cajaArqueosLoaded = false; // evita recargar cada vez que se abre el tab
 
   function renderArqueosHTML(dataArr, offsetIndex) {
     return dataArr.map(function(r, i) {
@@ -3401,10 +3402,16 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     }).join('');
   }
 
-  async function cajaLoadHistorial(append = false) {
+  async function cajaLoadHistorial(append = false, forceRefresh = false) {
     const contenedor = document.getElementById('caja-hist-body');
     const btnMasCont = document.getElementById('caja-hist-mas-container');
     const btnMas = document.getElementById('btn-arqueos-mas');
+
+    // Si ya se cargó y no es append ni force, no recargar
+    if (_cajaArqueosLoaded && !append && !forceRefresh && cajaArqueosData.length > 0) {
+      contenedor.innerHTML = renderArqueosHTML(cajaArqueosData, 0);
+      return;
+    }
 
     if (!append) {
       cajaArqueosOffset = 0;
@@ -3424,6 +3431,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       if (dataArr.length === 0 && !append) {
         contenedor.innerHTML = '<div class="empty"><div class="icon"><span class="mi" style="font-size:40px;color:var(--texto2);">history_toggle_off</span></div>Sin historial de arqueos</div>';
         btnMasCont.style.display = 'none';
+        _cajaArqueosLoaded = true;
         return;
       }
 
@@ -3440,6 +3448,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       }
 
       cajaArqueosOffset += dataArr.length;
+      _cajaArqueosLoaded = true;
       
       // Mostrar botón "Ver más" si todavía hay items
       if (cajaArqueosOffset < total) {
