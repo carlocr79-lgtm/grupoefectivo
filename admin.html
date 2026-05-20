@@ -4099,13 +4099,17 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
           <div class="detalle-item" style="grid-column:1/-1;"><div class="lbl">Observaciones</div><div class="val" style="color:var(--texto2);">${c.observaciones || 'Sin observaciones'}</div></div>
         </div>
         <div style="display:flex; gap:8px; margin-top:14px;">
-          ${c.celular ? `<a href="https://wa.me/51${c.celular.replace(/\s/g,'').replace(/^0+/,'')}" target="_blank" class="btn-detalle" style="text-decoration:none; background:#dcf8c6; color:#128c7e;"><span class="mi sm">chat</span> WhatsApp</a>` : ''}
-          ${c.celular ? `<a href="tel:${c.celular}" class="btn-detalle" style="text-decoration:none;"><span class="mi sm">call</span> Llamar</a>` : ''}
+          <button onclick="cartasSolicitarCarta('${c.codCliente}', '${c.nombres}')" class="btn-detalle" style="background:linear-gradient(135deg, var(--azul) 0%, var(--azul2) 100%); color:white; border:none; width:100%; box-shadow:0 4px 10px rgba(0,82,204,0.25);"><span class="mi sm">file_download</span> Generar Carta de No Adeudo</button>
         </div>
       </div>`;
     });
 
     container.innerHTML = html;
+  }
+
+  function cartasSolicitarCarta(codCliente, nombres) {
+    alert('Generación de carta para ' + nombres + ' (Cód: ' + codCliente + ') en desarrollo...');
+    // Aquí implementaremos la lógica para generar/imprimir el PDF
   }
 
   function cartasToggleDetalle(card) {
@@ -4125,6 +4129,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   window.cartasBuscarDebounce = cartasBuscarDebounce;
   window.cartasBuscar = cartasBuscar;
   window.cartasToggleDetalle = cartasToggleDetalle;
+  window.cartasSolicitarCarta = cartasSolicitarCarta;
 
   });
 </script>
