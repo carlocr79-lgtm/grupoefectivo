@@ -4050,6 +4050,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
     try {
       const resp = await apiFetch({ admin: 'cartas_pendientes', sedeContexto: cajaSedeActual || '' });
+      console.log('Respuesta de pendientes:', resp);
       
       if (!Array.isArray(resp) || resp.length === 0) {
         container.style.display = 'none';
