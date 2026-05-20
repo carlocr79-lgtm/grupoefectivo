@@ -4099,7 +4099,10 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
           <div class="detalle-item" style="grid-column:1/-1;"><div class="lbl">Observaciones</div><div class="val" style="color:var(--texto2);">${c.observaciones || 'Sin observaciones'}</div></div>
         </div>
         <div style="display:flex; gap:8px; margin-top:14px;">
-          <button onclick="cartasSolicitarCarta('${c.codCliente}', '${c.nombres}')" class="btn-detalle" style="background:linear-gradient(135deg, var(--azul) 0%, var(--azul2) 100%); color:white; border:none; width:100%; box-shadow:0 4px 10px rgba(0,82,204,0.25);"><span class="mi sm">file_download</span> Generar Carta de No Adeudo</button>
+          ${c.fileId 
+            ? `<button onclick="cartasDescargarExistente('${c.fileId}', '${c.nombres}', '${c.codCliente}', event)" class="btn-detalle" style="background:#f59e0b; color:white; border:none; width:100%; box-shadow:0 4px 10px rgba(245,158,11,0.25);"><span class="mi sm">history</span> Descargar Carta (Emitida el ${c.cartaEmitida})</button>`
+            : `<button onclick="cartasSolicitarCarta('${c.codCliente}', '${c.nombres}', event)" class="btn-detalle" style="background:linear-gradient(135deg, var(--azul) 0%, var(--azul2) 100%); color:white; border:none; width:100%; box-shadow:0 4px 10px rgba(0,82,204,0.25);"><span class="mi sm">file_download</span> Generar Carta de No Adeudo</button>`
+          }
         </div>
       </div>`;
     });
@@ -4107,7 +4110,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     container.innerHTML = html;
   }
 
-  async function cartasSolicitarCarta(codCliente, nombres) {
+  async function cartasSolicitarCarta(codCliente, nombres, event) {
     const btn = event.currentTarget;
     const originalHtml = btn.innerHTML;
     btn.innerHTML = '<div class="spinner-sm" style="border-color:white;border-right-color:transparent;width:14px;height:14px;"></div> Generando y enviando...';
@@ -4164,6 +4167,53 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     }
   }
 
+  async function cartasDescargarExistente(fileId, nombres, codCliente, event) {
+    const btn = event.currentTarget;
+    const originalHtml = btn.innerHTML;
+    btn.innerHTML = '<div class="spinner-sm" style="border-color:white;border-right-color:transparent;width:14px;height:14px;"></div> Descargando...';
+    btn.disabled = true;
+
+    try {
+      const resp = await apiPost({ 
+        adminAction: 'cartas_descargar_existente', 
+        fileId: fileId
+      });
+
+      if (resp && resp.error) {
+        alert('Error: ' + resp.error);
+        btn.innerHTML = originalHtml;
+        btn.disabled = false;
+        return;
+      }
+
+      if (resp && resp.success && resp.pdfBase64) {
+        // Convertir Base64 a Blob y descargar
+        const byteCharacters = atob(resp.pdfBase64);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], {type: 'application/pdf'});
+        
+        const link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        link.download = resp.filename || ('Carta_No_Adeudo_' + codCliente + '.pdf');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        btn.innerHTML = originalHtml;
+        btn.disabled = false;
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Ocurrió un error al descargar la carta.');
+      btn.innerHTML = originalHtml;
+      btn.disabled = false;
+    }
+  }
+
   function cartasToggleDetalle(card) {
     const detalle = card.nextElementSibling;
     if (!detalle || !detalle.classList.contains('carta-detalle')) return;
@@ -4182,6 +4232,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   window.cartasBuscar = cartasBuscar;
   window.cartasToggleDetalle = cartasToggleDetalle;
   window.cartasSolicitarCarta = cartasSolicitarCarta;
+  window.cartasDescargarExistente = cartasDescargarExistente;
 
   });
 </script>
