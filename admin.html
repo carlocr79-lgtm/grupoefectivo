@@ -853,6 +853,9 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
         <!-- SECTION: CARTAS DE NO ADEUDO -->
         <div id="section-cartas" class="section">
+          <!-- Solicitudes Pendientes (Solo Admin) -->
+          <div id="cartas-pendientes-container" style="display:none; margin-bottom: 24px;"></div>
+          
           <!-- Buscador -->
           <div class="caja-toolbar" style="display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-bottom:16px;">
             <div style="position:relative; flex:1; min-width:280px; max-width:450px;">
@@ -1613,6 +1616,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     if (section === 'dashboard') renderDashboard();
     else if (section === 'cajachica') { cajaCargarDatos(); cajaRenderTabla(cajaMovimientos, false); }
     else if (section === 'kasnet') kasnetCargarDatos();
+    else if (section === 'cartas') cartasCargarPendientes();
   }
 
   // â”€â”€ SWITCH TAB DENTRO DE CAJA CHICA â”€â”€
@@ -4036,6 +4040,60 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     }
   }
 
+  async function cartasCargarPendientes() {
+    const rol = sessionStorage.getItem('ge_rol') || 'asesor';
+    if (rol !== 'admin') return;
+
+    const container = document.getElementById('cartas-pendientes-container');
+    container.innerHTML = '<div class="loading" style="padding:16px;"><div class="spinner-sm"></div>Cargando solicitudes pendientes...</div>';
+    container.style.display = 'block';
+
+    try {
+      const resp = await apiFetch({ admin: 'cartas_pendientes', sedeContexto: cajaSedeActual || '' });
+      
+      if (!Array.isArray(resp) || resp.length === 0) {
+        container.style.display = 'none';
+        return;
+      }
+
+      let html = `
+        <div style="background:#fff5f5; border:1px solid #fecaca; border-radius:12px; overflow:hidden;">
+          <div style="background:#fee2e2; padding:10px 16px; font-weight:700; color:#991b1b; display:flex; align-items:center; gap:8px; font-size:14px; border-bottom:1px solid #fecaca;">
+            <span class="mi" style="font-size:18px;">notifications_active</span> Solicitudes Pendientes (${resp.length})
+          </div>
+          <div style="padding:12px 16px; display:flex; flex-direction:column; gap:8px;">
+      `;
+
+      resp.forEach(p => {
+        html += `
+          <div style="background:white; border:1px solid var(--gris2); border-radius:8px; padding:12px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+            <div>
+              <div style="font-weight:700; color:var(--texto); font-size:13px; display:flex; align-items:center; gap:6px;">
+                <span class="mi xs" style="color:var(--rojo);">warning</span> ${p.nombres}
+              </div>
+              <div style="font-size:11px; color:var(--texto2); margin-top:4px; display:flex; gap:8px; flex-wrap:wrap;">
+                <span style="background:var(--azul-claro); color:var(--azul); padding:2px 6px; border-radius:4px; font-weight:600;">Cód. ${p.codCliente}</span>
+                <span>Oficina: <b>${p.oficina}</b></span>
+                <span>Por: <b>${p.asesor}</b></span>
+                <span>${p.fecha}</span>
+              </div>
+            </div>
+            <button onclick="cartasSolicitarCarta('${p.codCliente}', '${p.nombres}', event)" style="background:#10b981; color:white; border:none; padding:8px 12px; border-radius:8px; font-weight:600; font-size:12px; cursor:pointer; display:flex; align-items:center; gap:4px; box-shadow:0 2px 5px rgba(16,185,129,0.25);">
+              <span class="mi xs">check_circle</span> Aprobar y Generar
+            </button>
+          </div>
+        `;
+      });
+
+      html += `</div></div>`;
+      container.innerHTML = html;
+      
+    } catch (e) {
+      console.error(e);
+      container.style.display = 'none';
+    }
+  }
+
   function cartasRenderResultados(data) {
     const container = document.getElementById('cartas-resultados');
     let html = '';
@@ -4166,6 +4224,9 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
           const tzDate = new Date();
           const fechaStr = String(tzDate.getDate()).padStart(2, '0') + '/' + String(tzDate.getMonth()+1).padStart(2, '0') + '/' + tzDate.getFullYear();
           btn.outerHTML = `<button onclick="cartasDescargarExistente('${resp.fileId}', '${nombres}', '${codCliente}', event)" class="btn-detalle" style="background:#f59e0b; color:white; border:none; width:100%; box-shadow:0 4px 10px rgba(245,158,11,0.25);"><span class="mi sm">history</span> Descargar Carta (Emitida el ${fechaStr})</button>`;
+          
+          // Actualizar la lista de pendientes si el botón estaba en esa sección
+          cartasCargarPendientes();
         }, 2000);
       }
     } catch (e) {
