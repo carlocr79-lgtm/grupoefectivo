@@ -4100,7 +4100,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         </div>
         <div style="display:flex; gap:8px; margin-top:14px;">
           ${(() => {
-            const esCajero = usuarioLogueado.rol === 'cajero';
+            const esCajero = (sessionStorage.getItem('ge_rol') || 'asesor') === 'cajero';
             if (c.estadoCarta === 'SOLICITADA') {
               if (esCajero) {
                 return `<button disabled class="btn-detalle" style="background:#cbd5e1; color:#475569; border:none; width:100%;"><span class="mi sm">hourglass_empty</span> Pendiente de Aprobación</button>`;
