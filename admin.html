@@ -4107,9 +4107,61 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     container.innerHTML = html;
   }
 
-  function cartasSolicitarCarta(codCliente, nombres) {
-    alert('Generación de carta para ' + nombres + ' (Cód: ' + codCliente + ') en desarrollo...');
-    // Aquí implementaremos la lógica para generar/imprimir el PDF
+  async function cartasSolicitarCarta(codCliente, nombres) {
+    const btn = event.currentTarget;
+    const originalHtml = btn.innerHTML;
+    btn.innerHTML = '<div class="spinner-sm" style="border-color:white;border-right-color:transparent;width:14px;height:14px;"></div> Generando y enviando...';
+    btn.disabled = true;
+
+    try {
+      const resp = await apiPost({ 
+        adminAction: 'cartas_solicitar', 
+        cliente: nombres, 
+        codigo: codCliente,
+        sede: cajaSedeActual || '' 
+      });
+
+      if (resp && resp.error) {
+        alert('Error: ' + resp.error);
+        btn.innerHTML = originalHtml;
+        btn.disabled = false;
+        return;
+      }
+
+      if (resp && resp.success && resp.pdfBase64) {
+        // Mostrar éxito en el botón temporalmente
+        btn.innerHTML = '<span class="mi sm">check_circle</span> Carta Enviada';
+        btn.style.background = 'var(--verde)';
+        
+        // Convertir Base64 a Blob y descargar
+        const byteCharacters = atob(resp.pdfBase64);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], {type: 'application/pdf'});
+        
+        const link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        link.download = resp.filename || ('Carta_No_Adeudo_' + codCliente + '.pdf');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        // Restaurar botón después de 3s
+        setTimeout(() => {
+          btn.innerHTML = originalHtml;
+          btn.style.background = 'linear-gradient(135deg, var(--azul) 0%, var(--azul2) 100%)';
+          btn.disabled = false;
+        }, 3000);
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Ocurrió un error al generar la carta.');
+      btn.innerHTML = originalHtml;
+      btn.disabled = false;
+    }
   }
 
   function cartasToggleDetalle(card) {
