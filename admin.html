@@ -760,6 +760,9 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
           <span class="mi sm">account_balance</span> <span class="nav-item-label">Mora</span>
           <span class="tab-badge" id="badge-vouchers" style="display:none;">0</span>
         </button>
+        <button class="nav-item" onclick="navTo('cartas',this)" title="Cartas de No Adeudo">
+          <span class="mi sm">description</span> <span class="nav-item-label">Cartas</span>
+        </button>
         <div class="nav-divider"></div>
         <div class="nav-section">Caja</div>
         <button class="nav-item" id="nav-cajachica-parent" onclick="navTo('cajachica',this)" title="Caja Chica">
@@ -845,6 +848,26 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
               <div class="resumen-item"><div class="val" id="res-count">-</div><div class="lbl">Pagos registrados</div></div>
             </div>
             <div id="lista-historial"><div class="loading"><div class="spinner-sm"></div>Cargando historial...</div></div>
+          </div>
+        </div>
+
+        <!-- SECTION: CARTAS DE NO ADEUDO -->
+        <div id="section-cartas" class="section">
+          <!-- Buscador -->
+          <div class="caja-toolbar" style="display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-bottom:16px;">
+            <div style="position:relative; flex:1; min-width:280px; max-width:450px;">
+              <span class="mi" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:18px; color:var(--texto2); pointer-events:none;">search</span>
+              <input type="text" id="cartas-buscar" placeholder="Buscar por nombre, código o celular..." oninput="cartasBuscarDebounce()" style="width:100%; padding:9px 14px 9px 38px; border:1.5px solid var(--gris2); border-radius:10px; font-size:13px; outline:none; transition:border-color 0.2s;">
+            </div>
+            <div id="cartas-count" style="font-size:12px; color:var(--texto2); font-weight:600;"></div>
+          </div>
+          <!-- Resultados -->
+          <div id="cartas-resultados" class="movimientos-list">
+            <div class="empty" style="padding:40px 20px;">
+              <div class="icon"><span class="mi" style="font-size:48px; color:var(--azul2);">description</span></div>
+              <div style="font-weight:700; color:var(--azul); font-size:14px; margin-top:8px;">Cartas de No Adeudo</div>
+              <div style="font-size:12px; color:var(--texto2); margin-top:4px;">Busca un cliente por nombre, código o celular para consultar su estado</div>
+            </div>
           </div>
         </div>
 
@@ -1535,9 +1558,10 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   // â”€â”€ SIDEBAR NAVIGATION â”€â”€
   const _sectionTitles = {
     'dashboard': 'Dashboard', 'mora': 'Gestión de Mora',
+    'cartas': 'Cartas de No Adeudo',
     'cajachica': 'Caja Chica', 'kasnet': 'KASNET'
   };
-  const _allSections = ['dashboard','mora','cajachica','kasnet'];
+  const _allSections = ['dashboard','mora','cartas','cajachica','kasnet'];
   const _cajaSections = ['cajachica','kasnet'];
 
   function switchMoraTab(tab) {
@@ -3968,6 +3992,130 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         }
       }
     });
+
+  // ═══════════════════════════════════════════
+  // ──── CARTAS DE NO ADEUDO ────────────────
+  // ═══════════════════════════════════════════
+  let _cartasData = [];
+  let _cartasTimer = null;
+
+  function cartasBuscarDebounce() {
+    clearTimeout(_cartasTimer);
+    _cartasTimer = setTimeout(cartasBuscar, 350);
+  }
+
+  async function cartasBuscar() {
+    const q = document.getElementById('cartas-buscar').value.trim();
+    const container = document.getElementById('cartas-resultados');
+    const countEl = document.getElementById('cartas-count');
+
+    // Mostrar loading
+    container.innerHTML = '<div class="loading"><div class="spinner-sm"></div>Buscando clientes...</div>';
+    countEl.textContent = '';
+
+    try {
+      const resp = await apiFetch({ admin: 'cartas_buscar', q: q, sedeContexto: cajaSedeActual || '' });
+
+      if (resp && resp.error) {
+        container.innerHTML = '<div class="empty"><div class="icon"><span class="mi" style="font-size:40px;color:var(--naranja);">warning</span></div>' + resp.error + '</div>';
+        return;
+      }
+
+      if (!Array.isArray(resp) || resp.length === 0) {
+        container.innerHTML = '<div class="empty" style="padding:30px 20px;"><div class="icon"><span class="mi" style="font-size:40px;color:var(--texto2);">search_off</span></div><div style="font-weight:700;color:var(--texto);margin-top:6px;">Sin resultados</div><div style="font-size:12px;color:var(--texto2);margin-top:2px;">No se encontraron clientes con esa búsqueda</div></div>';
+        countEl.textContent = '0 resultados';
+        return;
+      }
+
+      _cartasData = resp;
+      countEl.textContent = resp.length + ' resultado' + (resp.length > 1 ? 's' : '');
+      cartasRenderResultados(resp);
+    } catch(e) {
+      console.error('Error buscando cartas:', e);
+      container.innerHTML = '<div class="empty"><div class="icon"><span class="mi" style="font-size:40px;color:var(--rojo);">error</span></div>Error de conexión</div>';
+    }
+  }
+
+  function cartasRenderResultados(data) {
+    const container = document.getElementById('cartas-resultados');
+    let html = '';
+
+    data.forEach(function(c) {
+      // Color del avatar basado en calificación
+      const cal = (c.calificacion || '').toUpperCase();
+      let avatarBg = 'var(--azul)';
+      let calTag = '';
+      if (cal === 'PUNTUAL') {
+        avatarBg = '#0052cc';
+        calTag = '<span style="background:#e8f0ff;color:#0052cc;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;">PUNTUAL</span>';
+      } else if (cal === 'NORMAL') {
+        avatarBg = '#ff8800';
+        calTag = '<span style="background:#fff5e6;color:#e67e00;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;">NORMAL</span>';
+      } else if (cal) {
+        calTag = '<span style="background:var(--gris);color:var(--texto2);padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;">' + cal + '</span>';
+      }
+
+      // Iniciales
+      const partes = (c.nombres || '').trim().split(' ');
+      const iniciales = partes.length >= 2 ? partes[0][0] + partes[1][0] : (partes[0] || 'C').slice(0,2);
+
+      // T.Reac badge color
+      let reacColor = 'var(--verde)';
+      let reacBg = '#e8f0ff';
+      if (c.diasReactivacion > 180) { reacColor = 'var(--rojo)'; reacBg = '#fff0f0'; }
+      else if (c.diasReactivacion > 90) { reacColor = 'var(--naranja)'; reacBg = '#fff5e6'; }
+
+      html += `
+      <div class="mov-card" style="cursor:pointer; padding:14px 16px;" onclick="cartasToggleDetalle(this)">
+        <div class="mov-left" style="overflow:visible;">
+          <div class="avatar" style="background:${avatarBg}; width:40px; height:40px; font-size:13px; flex-shrink:0;">${iniciales.toUpperCase()}</div>
+          <div class="mov-info" style="overflow:visible; gap:4px;">
+            <div class="mov-desc" style="white-space:normal; overflow:visible;">${c.nombres}</div>
+            <div class="mov-cat" style="flex-wrap:wrap; gap:4px;">
+              <span style="background:var(--azul-claro);color:var(--azul);padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;">Cód. ${c.codCliente}</span>
+              ${calTag}
+              <span style="background:${reacBg};color:${reacColor};padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;">${c.diasReactivacion} días</span>
+            </div>
+          </div>
+        </div>
+        <div class="mov-right" style="gap:6px;">
+          <div style="font-size:11px; color:var(--texto2); font-weight:600; text-align:right;">${c.cancelados || ''}</div>
+          <div class="chevron-box" style="font-size:20px;"><span class="mi">chevron_right</span></div>
+        </div>
+      </div>
+      <div class="carta-detalle" style="display:none; background:var(--gris); border-radius:0 0 12px 12px; margin-top:-7px; margin-bottom:6px; padding:16px; border:1px solid var(--gris2); border-top:none; animation:fadeSection 0.25s ease;">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px 20px;">
+          <div class="detalle-item"><div class="lbl">Últ. Créditos</div><div class="val" style="font-family:'Montserrat',sans-serif; font-weight:800; color:var(--azul);">${c.ultCreditos || '-'}</div></div>
+          <div class="detalle-item"><div class="lbl">Celular</div><div class="val">${c.celular || '-'}</div></div>
+          <div class="detalle-item"><div class="lbl">F. Desembolso</div><div class="val">${c.fDesembolso || '-'}</div></div>
+          <div class="detalle-item"><div class="lbl">F. Cancelación</div><div class="val">${c.fCancelacion || '-'}</div></div>
+          <div class="detalle-item"><div class="lbl">Créditos Activos</div><div class="val">${c.activos || 'Ninguno'}</div></div>
+          <div class="detalle-item"><div class="lbl">Total Créditos</div><div class="val">${c.total || '-'}</div></div>
+          <div class="detalle-item" style="grid-column:1/-1;"><div class="lbl">Observaciones</div><div class="val" style="color:var(--texto2);">${c.observaciones || 'Sin observaciones'}</div></div>
+        </div>
+        <div style="display:flex; gap:8px; margin-top:14px;">
+          ${c.celular ? `<a href="https://wa.me/51${c.celular.replace(/\s/g,'').replace(/^0+/,'')}" target="_blank" class="btn-detalle" style="text-decoration:none; background:#dcf8c6; color:#128c7e;"><span class="mi sm">chat</span> WhatsApp</a>` : ''}
+          ${c.celular ? `<a href="tel:${c.celular}" class="btn-detalle" style="text-decoration:none;"><span class="mi sm">call</span> Llamar</a>` : ''}
+        </div>
+      </div>`;
+    });
+
+    container.innerHTML = html;
+  }
+
+  function cartasToggleDetalle(card) {
+    const detalle = card.nextElementSibling;
+    if (!detalle || !detalle.classList.contains('carta-detalle')) return;
+    const isOpen = detalle.style.display !== 'none';
+    // Cerrar todos
+    document.querySelectorAll('.carta-detalle').forEach(d => d.style.display = 'none');
+    document.querySelectorAll('.mov-card').forEach(c => c.style.borderRadius = '');
+    if (!isOpen) {
+      detalle.style.display = 'block';
+      card.style.borderRadius = '12px 12px 0 0';
+    }
+  }
+
   });
 </script>
 
