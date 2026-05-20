@@ -4152,11 +4152,11 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         link.click();
         document.body.removeChild(link);
         
-        // Restaurar botón después de 3s
+        // Transformar botón a estado "Descargar Existente" después de 3s
         setTimeout(() => {
-          btn.innerHTML = originalHtml;
-          btn.style.background = 'linear-gradient(135deg, var(--azul) 0%, var(--azul2) 100%)';
-          btn.disabled = false;
+          const tzDate = new Date();
+          const fechaStr = String(tzDate.getDate()).padStart(2, '0') + '/' + String(tzDate.getMonth()+1).padStart(2, '0') + '/' + tzDate.getFullYear();
+          btn.outerHTML = `<button onclick="cartasDescargarExistente('${resp.fileId}', '${nombres}', '${codCliente}', event)" class="btn-detalle" style="background:#f59e0b; color:white; border:none; width:100%; box-shadow:0 4px 10px rgba(245,158,11,0.25);"><span class="mi sm">history</span> Descargar Carta (Emitida el ${fechaStr})</button>`;
         }, 3000);
       }
     } catch (e) {
