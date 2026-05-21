@@ -1862,7 +1862,15 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       } catch(ex) { console.error(ex); }
 
       // Guard final antes de renderizar dashboard
-      if (myReqId === _loadRequestId) renderDashboard();
+      if (myReqId === _loadRequestId) {
+        renderDashboard();
+        
+        // Si la sección activa es Cartas, recargar también sus datos pendientes para la nueva sede
+        const secCartas = document.getElementById('section-cartas');
+        if (secCartas && secCartas.classList.contains('active')) {
+           cartasCargarPendientes();
+        }
+      }
 
     } catch(e) {
       if (myReqId !== _loadRequestId) return; // ignorar si ya hay una carga más nueva
