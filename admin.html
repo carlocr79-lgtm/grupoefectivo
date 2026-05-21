@@ -4395,14 +4395,21 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         fileId: fileId
       });
 
-      if (resp && resp.error) {
+      if (!resp) {
+        // Fallback si la sesión expiró o hubo un error silencioso
+        btn.innerHTML = originalHtml;
+        btn.disabled = false;
+        return;
+      }
+
+      if (resp.error) {
         alert('Error: ' + resp.error);
         btn.innerHTML = originalHtml;
         btn.disabled = false;
         return;
       }
 
-      if (resp && resp.success && resp.pdfBase64) {
+      if (resp.success && resp.pdfBase64) {
         // Convertir Base64 a Blob y descargar
         const byteCharacters = atob(resp.pdfBase64);
         const byteNumbers = new Array(byteCharacters.length);
@@ -4421,10 +4428,15 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         
         btn.innerHTML = originalHtml;
         btn.disabled = false;
+      } else {
+        // Si no hubo error pero tampoco éxito o faltó el pdfBase64
+        alert('No se pudo descargar el archivo. Respuesta incompleta.');
+        btn.innerHTML = originalHtml;
+        btn.disabled = false;
       }
     } catch (e) {
       console.error(e);
-      alert('Ocurrió un error al descargar la carta.');
+      alert('Ocurrió un error al descargar la carta. Verifica tu conexión o intenta nuevamente.');
       btn.innerHTML = originalHtml;
       btn.disabled = false;
     }
