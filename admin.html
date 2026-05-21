@@ -4058,7 +4058,8 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     container.style.display = 'block';
 
     try {
-      const resp = await apiFetch({ admin: 'cartas_pendientes', sedeContexto: cajaSedeActual || '' });
+      // Al no enviar sedeContexto, el backend devolverá las solicitudes pendientes de TODAS las sedes
+      const resp = await apiFetch({ admin: 'cartas_pendientes' });
       console.log('Respuesta de pendientes:', resp);
       
       if (!Array.isArray(resp) || resp.length === 0) {
