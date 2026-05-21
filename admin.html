@@ -3996,6 +3996,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         }
       }
     });
+  }); // ← Cierre del window.addEventListener('load')
 
   // ═══════════════════════════════════════════
   // ──── CARTAS DE NO ADEUDO ────────────────
@@ -4053,7 +4054,14 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       console.log('Respuesta de pendientes:', resp);
       
       if (!Array.isArray(resp) || resp.length === 0) {
-        container.style.display = 'none';
+        container.innerHTML = `
+          <div style="background:white; border:1px solid var(--gris2); border-radius:12px; padding:20px; text-align:center; color:var(--texto2); display:flex; flex-direction:column; align-items:center; gap:8px;">
+            <span class="mi" style="font-size:32px; color:var(--azul-claro);">notifications_off</span>
+            <div style="font-weight:600; font-size:13px;">No hay solicitudes pendientes</div>
+            <div style="font-size:11px;">Todas las solicitudes han sido atendidas</div>
+          </div>
+        `;
+        container.style.display = 'block';
         return;
       }
 
@@ -4091,7 +4099,14 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       
     } catch (e) {
       console.error(e);
-      container.style.display = 'none';
+      container.innerHTML = `
+        <div style="background:#fff0f0; border:1px solid #fecaca; border-radius:12px; padding:16px; text-align:center; color:#991b1b;">
+          <span class="mi" style="font-size:24px; margin-bottom:4px;">error</span>
+          <div style="font-weight:600; font-size:12px;">Error al cargar solicitudes</div>
+          <div style="font-size:11px; opacity:0.8;">Por favor intente nuevamente</div>
+        </div>
+      `;
+      container.style.display = 'block';
     }
   }
 
@@ -4337,7 +4352,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   window.cartasSolicitarAprobacion = cartasSolicitarAprobacion;
   window.cartasDescargarExistente = cartasDescargarExistente;
 
-  });
+
 </script>
 
 <!-- MODAL BULK WA -->
