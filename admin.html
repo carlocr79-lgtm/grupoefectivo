@@ -4044,10 +4044,15 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     _cartasTimer = setTimeout(cartasBuscar, 350);
   }
 
+  let _cartasReqId = 0;
+
   async function cartasBuscar() {
     const q = document.getElementById('cartas-buscar').value.trim();
     const container = document.getElementById('cartas-resultados');
     const countEl = document.getElementById('cartas-count');
+
+    // Incrementar ID de petición
+    const myReqId = ++_cartasReqId;
 
     // Si el buscador está vacío, mostramos el estado inicial
     if (q === '') {
@@ -4068,6 +4073,9 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
     try {
       const resp = await apiFetch({ admin: 'cartas_buscar', q: q, sedeContexto: cajaSedeActual || '' });
+      
+      // Guard anti-race-condition: si se hizo otra búsqueda mientras esperábamos, ignorar esta respuesta
+      if (myReqId !== _cartasReqId) return;
 
       if (resp && resp.error) {
         container.innerHTML = '<div class="empty"><div class="icon"><span class="mi" style="font-size:40px;color:var(--naranja);">warning</span></div>' + resp.error + '</div>';
