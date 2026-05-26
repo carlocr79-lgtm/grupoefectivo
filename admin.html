@@ -2756,6 +2756,8 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   function cerrarSustento() {
     document.getElementById('modal-sustento').classList.remove('show');
     document.getElementById('ms-contenido').innerHTML = '';
+    const box = document.querySelector('#modal-sustento .modal-sustento-box');
+    if (box) box.style.maxWidth = '';
   }
 
   function showToast(msg) {
@@ -4305,7 +4307,12 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
                 return `<button onclick="cartasSolicitarCarta('${c.codCliente}', '${c.nombres}', event)" class="btn-detalle" style="background:#10b981; color:white; border:none; width:100%; box-shadow:0 4px 10px rgba(16,185,129,0.25);"><span class="mi sm">check_circle</span> Aprobar y Generar Carta</button>`;
               }
             } else if (c.estadoCarta === 'EMITIDA' && c.fileId) {
-              return `<button onclick="cartasDescargarExistente('${c.fileId}', '${c.nombres}', '${c.codCliente}', event)" class="btn-detalle" style="background:#f59e0b; color:white; border:none; width:100%; box-shadow:0 4px 10px rgba(245,158,11,0.25);"><span class="mi sm">history</span> Descargar Carta (Emitida el ${c.cartaEmitida})</button>`;
+              return `
+                <div style="display:flex; gap:8px; width:100%;">
+                  <button onclick="cartasAbrirPreview('${c.fileId}', '${c.nombres}', '${c.codCliente}', event)" class="btn-detalle" style="background:#f59e0b; color:white; border:none; flex:1; box-shadow:0 4px 10px rgba(245,158,11,0.25); display:flex; align-items:center; justify-content:center; gap:6px;"><span class="mi sm">visibility</span> Vista Previa</button>
+                  <button onclick="cartasDescargarExistente('${c.fileId}', '${c.nombres}', '${c.codCliente}', event)" class="btn-detalle" style="background:var(--gris2); color:var(--texto); border:none; width:54px; display:flex; justify-content:center; align-items:center; flex-shrink:0;" title="Descargar PDF"><span class="mi">file_download</span></button>
+                </div>
+              `;
             } else {
               if (esCajero) {
                 return `<button onclick="cartasSolicitarAprobacion('${c.codCliente}', '${c.nombres}', event)" class="btn-detalle" style="background:linear-gradient(135deg, var(--azul) 0%, var(--azul2) 100%); color:white; border:none; width:100%; box-shadow:0 4px 10px rgba(0,82,204,0.25);"><span class="mi sm">send</span> Solicitar Carta a Gerencia</button>`;
@@ -4344,30 +4351,20 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
       if (resp && resp.success && resp.pdfBase64) {
         // Mostrar éxito en el botón temporalmente
-        btn.innerHTML = '<span class="mi sm">check_circle</span> Carta Enviada';
+        btn.innerHTML = '<span class="mi sm">check_circle</span> Carta Generada';
         btn.style.background = 'var(--verde)';
         
-        // Convertir Base64 a Blob y descargar
-        const byteCharacters = atob(resp.pdfBase64);
-        const byteNumbers = new Array(byteCharacters.length);
-        for (let i = 0; i < byteCharacters.length; i++) {
-          byteNumbers[i] = byteCharacters.charCodeAt(i);
-        }
-        const byteArray = new Uint8Array(byteNumbers);
-        const blob = new Blob([byteArray], {type: 'application/pdf'});
+        // Abrir vista previa integrada
+        cartasPreviewBase64(resp.pdfBase64, nombres, codCliente);
         
-        const link = document.createElement('a');
-        link.href = window.URL.createObjectURL(blob);
-        link.download = resp.filename || ('Carta_No_Adeudo_' + codCliente + '.pdf');
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
-        // Transformar botón a estado "Descargar Existente" después de 3s
+        // Transformar botón a estado de Vista Previa/Descargar después de 2s
         setTimeout(() => {
-          const tzDate = new Date();
-          const fechaStr = String(tzDate.getDate()).padStart(2, '0') + '/' + String(tzDate.getMonth()+1).padStart(2, '0') + '/' + tzDate.getFullYear();
-          btn.outerHTML = `<button onclick="cartasDescargarExistente('${resp.fileId}', '${nombres}', '${codCliente}', event)" class="btn-detalle" style="background:#f59e0b; color:white; border:none; width:100%; box-shadow:0 4px 10px rgba(245,158,11,0.25);"><span class="mi sm">history</span> Descargar Carta (Emitida el ${fechaStr})</button>`;
+          btn.outerHTML = `
+            <div style="display:flex; gap:8px; width:100%;">
+              <button onclick="cartasAbrirPreview('${resp.fileId}', '${nombres}', '${codCliente}', event)" class="btn-detalle" style="background:#f59e0b; color:white; border:none; flex:1; box-shadow:0 4px 10px rgba(245,158,11,0.25); display:flex; align-items:center; justify-content:center; gap:6px;"><span class="mi sm">visibility</span> Vista Previa</button>
+              <button onclick="cartasDescargarExistente('${resp.fileId}', '${nombres}', '${codCliente}', event)" class="btn-detalle" style="background:var(--gris2); color:var(--texto); border:none; width:54px; display:flex; justify-content:center; align-items:center; flex-shrink:0;" title="Descargar PDF"><span class="mi">file_download</span></button>
+            </div>
+          `;
           
           // Actualizar la lista de pendientes si el botón estaba en esa sección
           cartasCargarPendientes();
@@ -4471,6 +4468,73 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     }
   }
 
+  function cartasPreviewBase64(pdfBase64, nombres, codCliente) {
+    const byteCharacters = atob(pdfBase64);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    const blob = new Blob([byteArray], {type: 'application/pdf'});
+    const blobUrl = URL.createObjectURL(blob);
+    
+    // Aumentar el tamaño del modal para la carta de no adeudo
+    const box = document.querySelector('#modal-sustento .modal-sustento-box');
+    if (box) box.style.maxWidth = '760px';
+
+    // Mostrar en el visor del modal
+    const cont = document.getElementById('ms-contenido');
+    cont.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; background:#f8fafc; padding:8px 12px; border-radius:8px; border:1px solid var(--gris2);">
+        <span style="font-size:12px; font-weight:700; color:var(--texto);">Cliente: ${nombres} (${codCliente})</span>
+        <a href="${blobUrl}" download="Carta_No_Adeudo_${codCliente}.pdf" class="btn-main" style="padding:6px 12px; font-size:11px; text-decoration:none; display:inline-flex; align-items:center; gap:4px; border-radius:6px; cursor:pointer;">
+          <span class="mi xs" style="color:white; margin:0;">file_download</span> Descargar PDF
+        </a>
+      </div>
+      <iframe class="ms-pdf-embed" src="${blobUrl}" type="application/pdf" style="width:100%; height:550px; border:1px solid var(--gris2); border-radius:8px; background:#f8fafc;"></iframe>
+    `;
+    document.getElementById('modal-sustento').classList.add('show');
+  }
+
+  async function cartasAbrirPreview(fileId, nombres, codCliente, event) {
+    const btn = event.currentTarget;
+    const originalHtml = btn.innerHTML;
+    btn.innerHTML = '<div class="spinner-sm" style="border-color:white;border-right-color:transparent;width:14px;height:14px;margin:0 auto;"></div>';
+    btn.disabled = true;
+
+    try {
+      const resp = await apiPost({ 
+        adminAction: 'cartas_descargar_existente', 
+        fileId: fileId
+      });
+
+      if (!resp) {
+        btn.innerHTML = originalHtml;
+        btn.disabled = false;
+        return;
+      }
+
+      if (resp.error) {
+        alert('Error: ' + resp.error);
+        btn.innerHTML = originalHtml;
+        btn.disabled = false;
+        return;
+      }
+
+      if (resp.success && resp.pdfBase64) {
+        cartasPreviewBase64(resp.pdfBase64, nombres, codCliente);
+      } else {
+        alert('No se pudo descargar el archivo para la vista previa.');
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Error al abrir la vista previa.');
+    } finally {
+      btn.innerHTML = originalHtml;
+      btn.disabled = false;
+    }
+  }
+
   function cartasToggleDetalle(card) {
     const detalle = card.nextElementSibling;
     if (!detalle || !detalle.classList.contains('carta-detalle')) return;
@@ -4493,6 +4557,8 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   window.cartasSolicitarCarta = cartasSolicitarCarta;
   window.cartasSolicitarAprobacion = cartasSolicitarAprobacion;
   window.cartasDescargarExistente = cartasDescargarExistente;
+  window.cartasAbrirPreview = cartasAbrirPreview;
+  window.cartasPreviewBase64 = cartasPreviewBase64;
 
 
 </script>
