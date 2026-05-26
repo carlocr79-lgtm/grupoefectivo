@@ -4047,6 +4047,18 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   // ═══════════════════════════════════════════
   let _cartasData = [];
   let _cartasTimer = null;
+  let _cartasBlobUrl = null;       // FIX: rastrear blob URL para liberar memoria
+  let _cartasPendientesTs = 0;     // FIX: timestamp de última carga de pendientes
+
+  // Sanitizar valores del servidor antes de insertar en HTML (previene XSS)
+  function escHtml(str) {
+    return String(str == null ? '' : str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
 
   function toggleCartasClearBtn() {
     const q = document.getElementById('cartas-buscar').value;
@@ -4142,6 +4154,11 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     }
     if (tabPendientes) tabPendientes.style.display = 'flex'; // Mostrar la pestaña para admins
 
+    // FIX: caché de 30s — evita llamadas innecesarias al cambiar de sección
+    const _ahora = Date.now();
+    if (_ahora - _cartasPendientesTs < 30000) return;
+    _cartasPendientesTs = _ahora;
+
     const container = document.getElementById('cartas-pendientes-container');
     const badge = document.getElementById('cartas-pendientes-badge');
     
@@ -4154,7 +4171,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     try {
       // Al no enviar sedeContexto, el backend devolverá las solicitudes pendientes de TODAS las sedes
       const resp = await apiFetch({ admin: 'cartas_pendientes' });
-      console.log('Respuesta de pendientes:', resp);
+      // FIX: console.log removido — no exponer datos de clientes en producción
       
       const numPendientes = (Array.isArray(resp)) ? resp.length : 0;
       
@@ -4190,20 +4207,27 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       `;
 
       resp.forEach(p => {
+        // FIX XSS: escapar todos los valores del servidor
+        const eN = escHtml(p.nombres);
+        const eC = escHtml(p.codCliente);
+        const eCel = escHtml(p.celular || '');
+        const eOf = escHtml(p.oficina);
+        const eAs = escHtml(p.asesor);
+        const eFe = escHtml(p.fecha);
         html += `
           <div style="background:white; border:1px solid var(--gris2); border-radius:8px; padding:12px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
             <div>
               <div style="font-weight:700; color:var(--texto); font-size:13px; display:flex; align-items:center; gap:6px;">
-                <span class="mi xs" style="color:var(--rojo);">warning</span> ${p.nombres}
+                <span class="mi xs" style="color:var(--rojo);">warning</span> ${eN}
               </div>
               <div style="font-size:11px; color:var(--texto2); margin-top:4px; display:flex; gap:8px; flex-wrap:wrap;">
-                <span style="background:var(--azul-claro); color:var(--azul); padding:2px 6px; border-radius:4px; font-weight:600;">Cód. ${p.codCliente}</span>
-                <span>Oficina: <b>${p.oficina}</b></span>
-                <span>Por: <b>${p.asesor}</b></span>
-                <span>${p.fecha}</span>
+                <span style="background:var(--azul-claro); color:var(--azul); padding:2px 6px; border-radius:4px; font-weight:600;">Cód. ${eC}</span>
+                <span>Oficina: <b>${eOf}</b></span>
+                <span>Por: <b>${eAs}</b></span>
+                <span>${eFe}</span>
               </div>
             </div>
-            <button onclick="cartasSolicitarCarta('${p.codCliente}', '${p.nombres}', '${p.celular || ''}', event)" style="background:#10b981; color:white; border:none; padding:8px 12px; border-radius:8px; font-weight:600; font-size:12px; cursor:pointer; display:flex; align-items:center; gap:4px; box-shadow:0 2px 5px rgba(16,185,129,0.25);">
+            <button onclick="cartasSolicitarCarta('${eC}', '${eN}', '${eCel}', event)" style="background:#10b981; color:white; border:none; padding:8px 12px; border-radius:8px; font-weight:600; font-size:12px; cursor:pointer; display:flex; align-items:center; gap:4px; box-shadow:0 2px 5px rgba(16,185,129,0.25);">
               <span class="mi xs">check_circle</span> Aprobar y Generar
             </button>
           </div>
@@ -4231,6 +4255,18 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     let html = '';
 
     data.forEach(function(c) {
+      // FIX XSS: escapar todos los valores del servidor
+      const eNombres    = escHtml(c.nombres);
+      const eCodCliente = escHtml(c.codCliente);
+      const eCelular    = escHtml(c.celular || '');
+      const eFileId     = escHtml(c.fileId || '');
+      const eActivos    = escHtml(c.activos || 'Ninguno');
+      const eObs        = escHtml(c.observaciones || 'Sin observaciones');
+      const eUltCred    = escHtml(c.ultCreditos || '-');
+      const eFDesemb    = escHtml(c.fDesembolso || '-');
+      const eFCancel    = escHtml(c.fCancelacion || '-');
+      const eCancelados = escHtml(c.cancelados || '');
+
       // Color del avatar basado en calificación
       const cal = (c.calificacion || '').toUpperCase();
       let avatarBg = 'var(--azul)';
@@ -4242,7 +4278,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         avatarBg = '#ff8800';
         calTag = '<span style="background:#fff5e6;color:#e67e00;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;">NORMAL</span>';
       } else if (cal) {
-        calTag = '<span style="background:var(--gris);color:var(--texto2);padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;">' + cal + '</span>';
+        calTag = '<span style="background:var(--gris);color:var(--texto2);padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;">' + escHtml(cal) + '</span>';
       }
 
       // Iniciales
@@ -4260,16 +4296,16 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         <div class="mov-left" style="overflow:visible;">
           <div class="avatar" style="background:${avatarBg}; width:40px; height:40px; font-size:13px; flex-shrink:0;">${iniciales.toUpperCase()}</div>
           <div class="mov-info" style="overflow:visible; gap:4px;">
-            <div class="mov-desc" style="white-space:normal; overflow:visible;">${c.nombres}</div>
+            <div class="mov-desc" style="white-space:normal; overflow:visible;">${eNombres}</div>
             <div class="mov-cat" style="flex-wrap:wrap; gap:4px;">
-              <span style="background:var(--azul-claro);color:var(--azul);padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;">Cód. ${c.codCliente}</span>
+              <span style="background:var(--azul-claro);color:var(--azul);padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;">Cód. ${eCodCliente}</span>
               ${calTag}
-              <span style="background:${reacBg};color:${reacColor};padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;">${c.diasReactivacion} días</span>
+              <span style="background:${reacBg};color:${reacColor};padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;">${eDiasReac} días</span>
             </div>
           </div>
         </div>
         <div class="mov-right" style="gap:6px;">
-          <div style="font-size:11px; color:var(--texto2); font-weight:600; text-align:right;">${c.cancelados || ''}</div>
+          <div style="font-size:11px; color:var(--texto2); font-weight:600; text-align:right;">${eCancelados}</div>
           <div class="chevron-box" style="font-size:20px;"><span class="mi">chevron_right</span></div>
         </div>
       </div>
@@ -4277,16 +4313,16 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:12px;">
           <div style="background:var(--gris); padding:12px; border-radius:8px;">
             <div style="font-size:10px; font-weight:700; color:var(--texto2); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">Últ. Créditos</div>
-            <div style="font-family:'Montserrat',sans-serif; font-weight:800; font-size:15px; color:var(--azul);">${c.ultCreditos || '-'}</div>
+            <div style="font-family:'Montserrat',sans-serif; font-weight:800; font-size:15px; color:var(--azul);">${eUltCred}</div>
           </div>
           <div style="background:var(--gris); padding:12px; border-radius:8px;">
             <div style="font-size:10px; font-weight:700; color:var(--texto2); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">Celular</div>
-            <div style="font-weight:600; font-size:13px; color:var(--texto);">${c.celular || '-'}</div>
+            <div style="font-weight:600; font-size:13px; color:var(--texto);">${eCelular || '-'}</div>
           </div>
           <div style="background:var(--gris); padding:12px; border-radius:8px;">
             <div style="font-size:10px; font-weight:700; color:var(--texto2); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">Fechas</div>
-            <div style="font-size:11px; color:var(--texto); margin-bottom:2px;"><span style="color:var(--texto2);">Desemb:</span> ${c.fDesembolso || '-'}</div>
-            <div style="font-size:11px; color:var(--texto);"><span style="color:var(--texto2);">Cancel:</span> ${c.fCancelacion || '-'}</div>
+            <div style="font-size:11px; color:var(--texto); margin-bottom:2px;"><span style="color:var(--texto2);">Desemb:</span> ${eFDesemb}</div>
+            <div style="font-size:11px; color:var(--texto);"><span style="color:var(--texto2);">Cancel:</span> ${eFCancel}</div>
           </div>
           <div style="background:var(--gris); padding:12px; border-radius:8px;">
             <div style="font-size:10px; font-weight:700; color:var(--texto2); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">Créd. Activos</div>
@@ -4295,7 +4331,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         </div>
         <div style="margin-top:12px; background:#f8fafc; padding:12px; border-radius:8px; border-left:3px solid var(--azul-claro);">
           <div style="font-size:10px; font-weight:700; color:var(--texto2); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">Observaciones</div>
-          <div style="font-size:12px; color:var(--texto); line-height:1.4;">${c.observaciones || 'Sin observaciones'}</div>
+          <div style="font-size:12px; color:var(--texto); line-height:1.4;">${eObs}</div>
         </div>
         <div style="display:flex; gap:12px; margin-top:20px; width:100%;">
           ${(() => {
@@ -4304,21 +4340,21 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
               if (!esAdmin) {
                 return `<button disabled class="btn-detalle" style="background:#cbd5e1; color:#475569; border:none; width:100%;"><span class="mi sm">hourglass_empty</span> Pendiente de Aprobación</button>`;
               } else {
-                return `<button onclick="cartasSolicitarCarta('${c.codCliente}', '${c.nombres}', '${c.celular || ''}', event)" class="btn-detalle" style="background:#10b981; color:white; border:none; width:100%; box-shadow:0 4px 10px rgba(16,185,129,0.25);"><span class="mi sm">check_circle</span> Aprobar y Generar Carta</button>`;
+                return `<button onclick="cartasSolicitarCarta('${eCodCliente}', '${eNombres}', '${eCelular}', event)" class="btn-detalle" style="background:#10b981; color:white; border:none; width:100%; box-shadow:0 4px 10px rgba(16,185,129,0.25);"><span class="mi sm">check_circle</span> Aprobar y Generar Carta</button>`;
               }
             } else if (c.estadoCarta === 'EMITIDA' && c.fileId) {
               return `
                 <div style="display:flex; gap:8px; width:100%;">
-                  <button onclick="cartasAbrirPreview('${c.fileId}', '${c.nombres}', '${c.codCliente}', '${c.celular || ''}', event)" class="btn-detalle" style="background:#f59e0b; color:white; border:none; flex:1; box-shadow:0 4px 10px rgba(245,158,11,0.25); display:flex; align-items:center; justify-content:center; gap:6px;"><span class="mi sm">visibility</span> Vista Previa</button>
-                  <button onclick="cartasEnviarWA('${c.fileId}', '${c.nombres}', '${c.celular || ''}', event)" class="btn-detalle" style="background:#25d366; color:white; border:none; width:54px; flex:none; display:flex; justify-content:center; align-items:center; flex-shrink:0;" title="Enviar por WhatsApp"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="16" height="16" fill="white"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg></button>
-                  <button onclick="cartasDescargarExistente('${c.fileId}', '${c.nombres}', '${c.codCliente}', event)" class="btn-detalle" style="background:var(--gris2); color:var(--texto); border:none; width:54px; flex:none; display:flex; justify-content:center; align-items:center; flex-shrink:0;" title="Descargar PDF"><span class="mi">file_download</span></button>
+                  <button onclick="cartasAbrirPreview('${eFileId}', '${eNombres}', '${eCodCliente}', '${eCelular}', event)" class="btn-detalle" style="background:#f59e0b; color:white; border:none; flex:1; box-shadow:0 4px 10px rgba(245,158,11,0.25); display:flex; align-items:center; justify-content:center; gap:6px;"><span class="mi sm">visibility</span> Vista Previa</button>
+                  <button onclick="cartasEnviarWA('${eFileId}', '${eNombres}', '${eCelular}', event)" class="btn-detalle" style="background:#25d366; color:white; border:none; width:54px; flex:none; display:flex; justify-content:center; align-items:center; flex-shrink:0;" title="Enviar por WhatsApp"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="16" height="16" fill="white"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg></button>
+                  <button onclick="cartasDescargarExistente('${eFileId}', '${eNombres}', '${eCodCliente}', event)" class="btn-detalle" style="background:var(--gris2); color:var(--texto); border:none; width:54px; flex:none; display:flex; justify-content:center; align-items:center; flex-shrink:0;" title="Descargar PDF"><span class="mi">file_download</span></button>
                 </div>
               `;
             } else {
               if (!esAdmin) {
-                return `<button onclick="cartasSolicitarAprobacion('${c.codCliente}', '${c.nombres}', event)" class="btn-detalle" style="background:linear-gradient(135deg, var(--azul) 0%, var(--azul2) 100%); color:white; border:none; width:100%; box-shadow:0 4px 10px rgba(0,82,204,0.25);"><span class="mi sm">send</span> Solicitar Carta a Gerencia</button>`;
+                return `<button onclick="cartasSolicitarAprobacion('${eCodCliente}', '${eNombres}', event)" class="btn-detalle" style="background:linear-gradient(135deg, var(--azul) 0%, var(--azul2) 100%); color:white; border:none; width:100%; box-shadow:0 4px 10px rgba(0,82,204,0.25);"><span class="mi sm">send</span> Solicitar Carta a Gerencia</button>`;
               } else {
-                return `<button onclick="cartasSolicitarCarta('${c.codCliente}', '${c.nombres}', '${c.celular || ''}', event)" class="btn-detalle" style="background:linear-gradient(135deg, var(--azul) 0%, var(--azul2) 100%); color:white; border:none; width:100%; box-shadow:0 4px 10px rgba(0,82,204,0.25);"><span class="mi sm">file_download</span> Generar Carta Directamente</button>`;
+                return `<button onclick="cartasSolicitarCarta('${eCodCliente}', '${eNombres}', '${eCelular}', event)" class="btn-detalle" style="background:linear-gradient(135deg, var(--azul) 0%, var(--azul2) 100%); color:white; border:none; width:100%; box-shadow:0 4px 10px rgba(0,82,204,0.25);"><span class="mi sm">file_download</span> Generar Carta Directamente</button>`;
               }
             }
           })()}
@@ -4358,17 +4394,25 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         // Abrir vista previa integrada pasándole fileId y celular
         cartasPreviewBase64(resp.pdfBase64, nombres, codCliente, resp.fileId, celular);
         
-        // Transformar botón a estado de Vista Previa/WhatsApp/Descargar después de 2s
+        // FIX #3: guardar referencia al padre ANTES del setTimeout para evitar perder el nodo
+        const btnParent = btn.parentNode;
+        const eFileId2  = escHtml(resp.fileId || '');
+        const eNombres2 = escHtml(nombres);
+        const eCodigo2  = escHtml(codCliente);
+        const eCelular2 = escHtml(celular || '');
+
         setTimeout(() => {
-          btn.outerHTML = `
-            <div style="display:flex; gap:8px; width:100%;">
-              <button onclick="cartasAbrirPreview('${resp.fileId}', '${nombres}', '${codCliente}', '${celular || ''}', event)" class="btn-detalle" style="background:#f59e0b; color:white; border:none; flex:1; box-shadow:0 4px 10px rgba(245,158,11,0.25); display:flex; align-items:center; justify-content:center; gap:6px;"><span class="mi sm">visibility</span> Vista Previa</button>
-              <button onclick="cartasEnviarWA('${resp.fileId}', '${nombres}', '${celular || ''}', event)" class="btn-detalle" style="background:#25d366; color:white; border:none; width:54px; flex:none; display:flex; justify-content:center; align-items:center; flex-shrink:0;" title="Enviar por WhatsApp"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="16" height="16" fill="white"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg></button>
-              <button onclick="cartasDescargarExistente('${resp.fileId}', '${nombres}', '${codCliente}', event)" class="btn-detalle" style="background:var(--gris2); color:var(--texto); border:none; width:54px; flex:none; display:flex; justify-content:center; align-items:center; flex-shrink:0;" title="Descargar PDF"><span class="mi">file_download</span></button>
-            </div>
-          `;
-          
-          // Actualizar la lista de pendientes si el botón estaba en esa sección
+          if (btnParent && btnParent.isConnected) {
+            btnParent.innerHTML = `
+              <div style="display:flex; gap:8px; width:100%;">
+                <button onclick="cartasAbrirPreview('${eFileId2}', '${eNombres2}', '${eCodigo2}', '${eCelular2}', event)" class="btn-detalle" style="background:#f59e0b; color:white; border:none; flex:1; box-shadow:0 4px 10px rgba(245,158,11,0.25); display:flex; align-items:center; justify-content:center; gap:6px;"><span class="mi sm">visibility</span> Vista Previa</button>
+                <button onclick="cartasEnviarWA('${eFileId2}', '${eNombres2}', '${eCelular2}', event)" class="btn-detalle" style="background:#25d366; color:white; border:none; width:54px; flex:none; display:flex; justify-content:center; align-items:center; flex-shrink:0;" title="Enviar por WhatsApp"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="16" height="16" fill="white"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg></button>
+                <button onclick="cartasDescargarExistente('${eFileId2}', '${eNombres2}', '${eCodigo2}', event)" class="btn-detalle" style="background:var(--gris2); color:var(--texto); border:none; width:54px; flex:none; display:flex; justify-content:center; align-items:center; flex-shrink:0;" title="Descargar PDF"><span class="mi">file_download</span></button>
+              </div>
+            `;
+          }
+          // Invalidar caché para recargar pendientes actualizado
+          _cartasPendientesTs = 0;
           cartasCargarPendientes();
         }, 2000);
       }
@@ -4478,7 +4522,11 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     }
     const byteArray = new Uint8Array(byteNumbers);
     const blob = new Blob([byteArray], {type: 'application/pdf'});
-    const blobUrl = URL.createObjectURL(blob);
+
+    // FIX #2: revocar el blob anterior antes de crear uno nuevo (libera memoria)
+    if (_cartasBlobUrl) { URL.revokeObjectURL(_cartasBlobUrl); }
+    _cartasBlobUrl = URL.createObjectURL(blob);
+    const blobUrl = _cartasBlobUrl;
     
     // Aumentar el tamaño del modal para la carta de no adeudo
     const box = document.querySelector('#modal-sustento .modal-sustento-box');
@@ -4557,6 +4605,12 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       phone = prompt('El cliente no tiene celular registrado. Ingrese el número (ej. 987654321):');
       if (!phone) return; // Cancelado por el usuario
       phone = phone.replace(/\s/g, '');
+    }
+
+    // FIX #5: validar que el número tenga exactamente 9 dígitos
+    if (!/^\d{9}$/.test(phone)) {
+      alert('Número inválido. Debe tener exactamente 9 dígitos (ej. 987654321).');
+      return;
     }
 
     // Sanitizar número
