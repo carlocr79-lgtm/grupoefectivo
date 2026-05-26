@@ -251,12 +251,27 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 .resumen-item .val { font-family:'Montserrat',sans-serif; font-weight:900; font-size:18px; color:white; }
 .resumen-item .lbl { font-size:10px; color:rgba(255,255,255,0.7); margin-top:2px; }
 
-/* LOADING / EMPTY */
+/* LOADING / EMPTY / SKELETONS */
 .loading { text-align:center; padding:40px 20px; color:var(--texto2); font-size:13px; }
 .spinner-sm { width:28px; height:28px; border:3px solid var(--gris2); border-top-color:var(--azul2); border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 12px; }
 @keyframes spin { to { transform:rotate(360deg); } }
 .empty { text-align:center; padding:40px 20px; color:var(--texto2); }
 .empty .icon { font-size:40px; margin-bottom:10px; }
+
+/* SKELETON SCREENS & ANIMATIONS */
+.skeleton-box { background:white; border-radius:12px; padding:14px; margin-bottom:12px; border:1px solid var(--gris2); box-shadow:0 2px 8px rgba(0,0,0,0.02); display:flex; align-items:center; gap:12px; }
+.skeleton { background: linear-gradient(90deg, #f0f4f8 25%, #e1e7f0 50%, #f0f4f8 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite linear; border-radius: 6px; }
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+.sk-avatar { width:42px; height:42px; border-radius:50%; flex-shrink:0; }
+.sk-line { height:12px; margin-bottom:8px; border-radius:4px; }
+.sk-line.w-50 { width:50%; }
+.sk-line.w-30 { width:30%; }
+.sk-line.w-80 { width:80%; }
+.sk-line.w-100 { width:100%; }
+.fade-in { animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+.dash-kpis-skeleton { display:flex; gap:12px; overflow-x:auto; padding-bottom:8px; margin-bottom:16px; }
+.dash-kpi-sk { flex:1; min-width:140px; background:white; border-radius:16px; padding:16px; border:1px solid var(--gris2); }
 
 /* CAJA CHICA */
 .caja-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:16px; }
@@ -796,7 +811,18 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
         <!-- SECTION: DASHBOARD -->
         <div id="section-dashboard" class="section active">
-          <div id="dash-content"><div class="loading"><div class="spinner-sm"></div>Cargando dashboard...</div></div>
+          <div id="dash-content">
+            <div class="dash-kpis-skeleton">
+              <div class="dash-kpi-sk"><div class="skeleton" style="width:40px;height:40px;border-radius:12px;margin-bottom:12px;"></div><div class="skeleton" style="height:24px;width:80%;margin-bottom:8px;"></div><div class="skeleton" style="height:12px;width:50%;"></div></div>
+              <div class="dash-kpi-sk"><div class="skeleton" style="width:40px;height:40px;border-radius:12px;margin-bottom:12px;"></div><div class="skeleton" style="height:24px;width:80%;margin-bottom:8px;"></div><div class="skeleton" style="height:12px;width:50%;"></div></div>
+              <div class="dash-kpi-sk"><div class="skeleton" style="width:40px;height:40px;border-radius:12px;margin-bottom:12px;"></div><div class="skeleton" style="height:24px;width:80%;margin-bottom:8px;"></div><div class="skeleton" style="height:12px;width:50%;"></div></div>
+              <div class="dash-kpi-sk"><div class="skeleton" style="width:40px;height:40px;border-radius:12px;margin-bottom:12px;"></div><div class="skeleton" style="height:24px;width:80%;margin-bottom:8px;"></div><div class="skeleton" style="height:12px;width:50%;"></div></div>
+            </div>
+            <div class="dash-row">
+              <div class="dash-panel skeleton" style="height:200px;"></div>
+              <div class="dash-panel skeleton" style="height:200px;"></div>
+            </div>
+          </div>
         </div>
 
         <!-- SECTION: MORA (Clientes, Vouchers, Historial) -->
@@ -833,12 +859,19 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
           <!-- CONTENIDO CLIENTES -->
           <div id="mora-content-clientes">
-            <div id="lista-clientes" class="movimientos-list"><div class="loading"><div class="spinner-sm"></div>Cargando clientes...</div></div>
+            <div id="lista-clientes" class="movimientos-list">
+              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+            </div>
           </div>
 
           <!-- CONTENIDO VOUCHERS -->
           <div id="mora-content-vouchers" style="display:none;">
-            <div id="lista-vouchers"><div class="loading"><div class="spinner-sm"></div>Cargando vouchers...</div></div>
+            <div id="lista-vouchers">
+              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+            </div>
           </div>
 
           <!-- CONTENIDO HISTORIAL -->
@@ -847,7 +880,10 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
               <div class="resumen-item"><div class="val" id="res-total">-</div><div class="lbl">Total recaudado</div></div>
               <div class="resumen-item"><div class="val" id="res-count">-</div><div class="lbl">Pagos registrados</div></div>
             </div>
-            <div id="lista-historial"><div class="loading"><div class="spinner-sm"></div>Cargando historial...</div></div>
+            <div id="lista-historial">
+              <div class="skeleton-box"><div class="skeleton sk-avatar" style="border-radius:8px;"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+              <div class="skeleton-box"><div class="skeleton sk-avatar" style="border-radius:8px;"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+            </div>
           </div>
         </div>
 
@@ -974,7 +1010,8 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
             </div>
           </div>
           <div class="movimientos-list" id="kasnet-lista">
-            <div class="empty" style="padding:20px;"><div class="spinner-sm"></div>Cargando registros...</div>
+            <div class="skeleton-box"><div class="skeleton sk-avatar" style="border-radius:8px;"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+            <div class="skeleton-box"><div class="skeleton sk-avatar" style="border-radius:8px;"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
           </div>
         </div>
 
@@ -1593,6 +1630,16 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     // Ocultar/Mostrar Controles del Buscador
     document.getElementById('mora-controls-clientes').style.display = (tab === 'clientes') ? 'flex' : 'none';
     document.getElementById('mora-controls-historial').style.display = (tab === 'historial') ? 'flex' : 'none';
+
+    // Lazy Loading
+    if (tab === 'vouchers' && (!window._vouchersLoaded)) {
+      window._vouchersLoaded = true;
+      cargarVouchers();
+    }
+    if (tab === 'historial' && (!window._historialLoaded)) {
+      window._historialLoaded = true;
+      cargarHistorial();
+    }
   }
 
   function navTo(section, btn) {
@@ -1840,49 +1887,13 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       // Sede efectiva ya resuelta: lo que devolvió el dashboard (primera oficina para admin)
       const sedeEfectiva = (cajaSedeActual && cajaSedeActual !== '') ? cajaSedeActual : sedeReq;
 
-      // Cargar adicionales con la sede efectiva ya conocida
-      if (myReqId === _loadRequestId) cargarAdicionales(sedeEfectiva);
-
-      // Datos de CAJA con la sede correcta
-      const pCaja = apiFetch({ admin: 'caja_datos', sede: sedeEfectiva, sedeContexto: sedeEfectiva });
-      try {
-        const respCaja = await pCaja;
-        // Guard nuevamente después de await
-        if (myReqId !== _loadRequestId) return;
-        if (respCaja && !respCaja.error) {
-          cajaDatos = respCaja;
-          cajaSaldoTeorico = respCaja.saldo || 0;
-          cajaMovimientos = respCaja.movimientos || [];
-          cajaCacheGuardar(cajaSedeActual, respCaja);
-          cajaRenderTabla(cajaMovimientos);
-          cajaRenderCategorias(cajaDatos.categorias || []);
-          const txtT = document.getElementById('arq-teorico');
-          if (txtT) txtT.textContent = 'S/. ' + cajaSaldoTeorico.toLocaleString('es-PE', {minimumFractionDigits:2});
-          cajaRenderArqueoBanner(cajaDatos);
-          cajaCalcArqueo();
-        }
-      } catch(ex) { console.error(ex); }
-
-      // Datos KASNET con la sede efectiva
-      const pKasnet = apiFetch({ admin: 'kasnet_datos', sedeContexto: sedeEfectiva });
-      try {
-        const respKasnet = await pKasnet;
-        if (myReqId === _loadRequestId && respKasnet && !respKasnet.error) {
-          kasnetRegistros = respKasnet.registros || [];
-          const secKasnet = document.getElementById('section-kasnet');
-          if (secKasnet && secKasnet.classList.contains('active')) kasnetRenderOperaciones(kasnetRegistros);
-        }
-      } catch(ex) { console.error(ex); }
+      // Lazy Loading: ya no cargamos Caja, Kasnet, Historial y Vouchers aquí.
+      // Se cargarán automáticamente cuando el usuario haga clic en sus respectivas pestañas.
+      // Esto reduce enormemente el tiempo de carga inicial y alivia el servidor de Apps Script.
 
       // Guard final antes de renderizar dashboard
       if (myReqId === _loadRequestId) {
         renderDashboard();
-        
-        // Si la sección activa es Cartas, recargar también sus datos pendientes para la nueva sede
-        const secCartas = document.getElementById('section-cartas');
-        if (secCartas && secCartas.classList.contains('active')) {
-           cartasCargarPendientes();
-        }
       }
 
     } catch(e) {
@@ -1893,9 +1904,9 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     }
   }
 
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• 
   // â”€â”€â”€â”€ DASHBOARD GENERAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• 
   function renderDashboard() {
     const container = document.getElementById('dash-content');
     if (!container) return;
@@ -1960,7 +1971,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     // â”€â”€ Top gastos de caja â”€â”€
     var topGastos = cajaDatos && cajaDatos.metricas && cajaDatos.metricas.topGastos ? cajaDatos.metricas.topGastos : [];
 
-    // â•â•â• RENDER HTML â•â•â•
+    // â• â• â•  RENDER HTML â• â• â• 
     var html = '';
 
     // â”€â”€ BLOQUE 1: KPI CARDS â”€â”€
@@ -2809,15 +2820,21 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       return;
     }
 
-    // Sin cache: mostrar spinner y esperar
+    // Sin cache: mostrar skeleton y esperar
     const elSaldo = document.getElementById('caja-saldo');
     const elIng = document.getElementById('caja-ingresos');
     const elEgr = document.getElementById('caja-egresos');
-    if (elSaldo) elSaldo.textContent = '...';
-    if (elIng) elIng.textContent = '...';
-    if (elEgr) elEgr.textContent = '...';
+    if (elSaldo) elSaldo.innerHTML = '<div class="skeleton" style="width:80px;height:24px;border-radius:4px;display:inline-block;"></div>';
+    if (elIng) elIng.innerHTML = '<div class="skeleton" style="width:70px;height:24px;border-radius:4px;display:inline-block;"></div>';
+    if (elEgr) elEgr.innerHTML = '<div class="skeleton" style="width:70px;height:24px;border-radius:4px;display:inline-block;"></div>';
     const tbody = document.getElementById('caja-tabla-body');
-    if(tbody) tbody.innerHTML = '<div class="empty" style="padding:20px;"><div class="spinner-sm"></div>Cargando...</div>';
+    if(tbody) {
+      let skHTML = '';
+      for(let i=0; i<4; i++) {
+        skHTML += `<div class="skeleton-box"><div class="skeleton sk-avatar" style="border-radius:10px;"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-30"></div></div><div class="skeleton" style="width:60px;height:20px;border-radius:4px;"></div></div>`;
+      }
+      tbody.innerHTML = skHTML;
+    }
 
     try {
       const resp = await apiFetch({ admin: 'caja_datos', sede: sedeElegida, sedeContexto: sedeElegida });
@@ -3000,7 +3017,11 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       }
     } catch(e) {}
 
-    contenedor.innerHTML = '<div class="empty" style="padding:30px 20px;"><div class="spinner-sm" style="margin:0 auto 12px;"></div><div style="font-weight:700;color:var(--azul);font-size:13px;margin-bottom:4px;">Consultando historial...</div><div style="font-size:11px;color:var(--texto2);">Esto puede tomar unos segundos</div></div>';
+    let skHTML = '';
+    for(let i=0; i<4; i++) {
+      skHTML += `<div class="skeleton-box"><div class="skeleton sk-avatar" style="border-radius:10px;"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-30"></div></div><div class="skeleton" style="width:60px;height:20px;border-radius:4px;"></div></div>`;
+    }
+    contenedor.innerHTML = skHTML;
 
     try {
       const resp = await apiFetch({ admin: 'caja_archivo', sede: cajaSedeActual, sedeContexto: cajaSedeActual, anio: anio, mes: mes, tipo: tipo });
@@ -4067,8 +4088,12 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       return;
     }
 
-    // Mostrar loading
-    container.innerHTML = '<div class="loading"><div class="spinner-sm"></div>Buscando clientes...</div>';
+    // Mostrar loading (Skeleton)
+    let skHTML = '';
+    for(let i=0; i<3; i++) {
+      skHTML += `<div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>`;
+    }
+    container.innerHTML = skHTML;
     countEl.textContent = '';
 
     try {
@@ -4118,7 +4143,11 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     const container = document.getElementById('cartas-pendientes-container');
     const badge = document.getElementById('cartas-pendientes-badge');
     
-    container.innerHTML = '<div class="loading" style="padding:16px;"><div class="spinner-sm"></div>Cargando solicitudes pendientes...</div>';
+    let skHTML = '';
+    for(let i=0; i<2; i++) {
+      skHTML += `<div class="skeleton-box" style="margin:16px;"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-30"></div><div class="skeleton sk-line w-100"></div></div><div class="skeleton" style="width:120px;height:30px;border-radius:8px;"></div></div>`;
+    }
+    container.innerHTML = skHTML;
 
     try {
       // Al no enviar sedeContexto, el backend devolverá las solicitudes pendientes de TODAS las sedes
