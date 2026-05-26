@@ -896,6 +896,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
               Pendientes de Aprobación
               <span id="cartas-pendientes-badge" style="background:#ef4444; color:white; font-size:10px; font-weight:700; padding:2px 6px; border-radius:10px; display:none;">0</span>
             </button>
+            <button class="gestiones-subtab" id="tab-cartas-historial" onclick="cartasSwitchTab('historial')">Historial de Cartas</button>
           </div>
 
           <!-- CONTENIDO BUSCADOR -->
@@ -920,6 +921,15 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
           <!-- CONTENIDO PENDIENTES -->
           <div id="cartas-content-pendientes" style="display:none;">
             <div id="cartas-pendientes-container"></div>
+          </div>
+
+          <!-- CONTENIDO HISTORIAL -->
+          <div id="cartas-content-historial" style="display:none;">
+            <div class="resumen-box" id="resumen-cartas-historial" style="display:flex; margin-bottom:16px;">
+              <div class="resumen-item"><div class="val" id="res-cartas-emitidas">-</div><div class="lbl">Cartas Emitidas</div></div>
+              <div class="resumen-item"><div class="val" id="res-cartas-solicitadas">-</div><div class="lbl">Solicitudes Pendientes</div></div>
+            </div>
+            <div id="cartas-historial-container" class="movimientos-list"></div>
           </div>
         </div>
 
@@ -4131,6 +4141,148 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     
     document.getElementById('cartas-content-buscador').style.display = (tab === 'buscador') ? 'block' : 'none';
     document.getElementById('cartas-content-pendientes').style.display = (tab === 'pendientes') ? 'block' : 'none';
+    document.getElementById('cartas-content-historial').style.display = (tab === 'historial') ? 'block' : 'none';
+
+    if (tab === 'historial') {
+      cartasCargarHistorial();
+    }
+  }
+
+  async function cartasCargarHistorial() {
+    const container = document.getElementById('cartas-historial-container');
+    const statsBox = document.getElementById('resumen-cartas-historial');
+    const resEmitidas = document.getElementById('res-cartas-emitidas');
+    const resSolicitadas = document.getElementById('res-cartas-solicitadas');
+    
+    let skHTML = '';
+    for(let i=0; i<3; i++) {
+      skHTML += `<div class="skeleton-box" style="margin:16px;"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-30"></div><div class="skeleton sk-line w-100"></div></div></div>`;
+    }
+    container.innerHTML = skHTML;
+    if (statsBox) statsBox.style.display = 'none';
+
+    try {
+      const sedeContexto = cajaSedeActual || '';
+      const resp = await apiFetch({ admin: 'cartas_historial', sedeContexto: sedeContexto });
+      console.log('Respuesta de historial cartas:', resp);
+      
+      if (!resp || resp.error) {
+        container.innerHTML = `
+          <div style="background:#fff0f0; border:1px solid #fecaca; border-radius:12px; padding:16px; text-align:center; color:#991b1b;">
+            <span class="mi" style="font-size:24px; margin-bottom:4px;">error</span>
+            <div style="font-weight:600; font-size:12px;">Error al cargar historial</div>
+            <div style="font-size:11px; opacity:0.8;">${resp && resp.error ? resp.error : 'Intente nuevamente'}</div>
+          </div>
+        `;
+        return;
+      }
+      
+      const list = Array.isArray(resp) ? resp : [];
+      
+      let numEmitidas = 0;
+      let numSolicitadas = 0;
+      list.forEach(p => {
+        if (p.estadoCarta === 'EMITIDA') numEmitidas++;
+        else if (p.estadoCarta === 'SOLICITADA') numSolicitadas++;
+      });
+      
+      if (resEmitidas) resEmitidas.textContent = numEmitidas;
+      if (resSolicitadas) resSolicitadas.textContent = numSolicitadas;
+      if (statsBox) statsBox.style.display = 'flex';
+
+      if (list.length === 0) {
+        container.innerHTML = `
+          <div style="background:white; border:1px solid var(--gris2); border-radius:12px; padding:40px 20px; text-align:center; color:var(--texto2); display:flex; flex-direction:column; align-items:center; gap:12px;">
+            <div style="width:64px; height:64px; border-radius:50%; background:#f8fafc; display:flex; align-items:center; justify-content:center; color:var(--texto2); font-size:32px;">
+              <span class="mi">history</span>
+            </div>
+            <div style="font-weight:700; font-size:16px; color:var(--texto);">Sin historial</div>
+            <div style="font-size:13px;">No se encontraron registros de cartas en el historial para esta sede.</div>
+          </div>
+        `;
+        return;
+      }
+
+      const esAdmin = (sessionStorage.getItem('ge_rol') || 'asesor') === 'admin';
+      let html = '';
+
+      list.forEach((p, idx) => {
+        const driveUrl = p.fileId ? `https://drive.google.com/file/d/${p.fileId}/view` : '';
+        const partes = (p.nombres || '').trim().split(' ');
+        const iniciales = partes.length >= 2 ? partes[0][0] + partes[1][0] : (partes[0] || 'C').slice(0,2);
+        
+        let badgeEstado = '';
+        if (p.estadoCarta === 'EMITIDA') {
+          badgeEstado = `<span style="background:#e8f0ff; color:#0052cc; padding:2px 8px; border-radius:20px; font-size:10px; font-weight:700; display:inline-flex; align-items:center; gap:4px;"><span class="mi" style="font-size:12px;color:#0052cc;">check_circle</span> EMITIDA</span>`;
+        } else {
+          badgeEstado = `<span style="background:#fff5e6; color:#ff8800; padding:2px 8px; border-radius:20px; font-size:10px; font-weight:700; display:inline-flex; align-items:center; gap:4px;"><span class="mi" style="font-size:12px;color:#ff8800;">hourglass_empty</span> SOLICITADA</span>`;
+        }
+
+        let botonesAccion = '';
+        if (p.estadoCarta === 'EMITIDA') {
+          botonesAccion = `
+            <div style="display:flex; gap:6px; align-items:center;">
+              <button class="btn-secundary" onclick="event.stopPropagation(); cartasAbrirPreview('${p.fileId}', '${p.nombres}', '${p.codCliente}', '', event)" style="font-size:11px; padding:6px 10px; height:32px; border-radius:8px; display:inline-flex; align-items:center; gap:4px; font-weight:600; background:#f59e0b; color:white; border:none; box-shadow:0 2px 4px rgba(245,158,11,0.2);">
+                <span class="mi sm">visibility</span> Vista Previa
+              </button>
+              <button class="btn-secundary" onclick="event.stopPropagation(); cartasEnviarWA('${p.fileId}', '${p.nombres}', '', event)" style="flex:none; width:32px; height:32px; padding:0; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; background:#25d366; color:white; border-color:#25d366;" title="Enviar por WhatsApp">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="14" height="14" fill="currentColor"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.736 5.472 2.027 7.774L0 32l8.454-2.01A15.938 15.938 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.333a13.27 13.27 0 01-6.748-1.833l-.484-.287-5.02 1.194 1.271-4.874-.317-.502A13.267 13.267 0 012.667 16C2.667 8.636 8.636 2.667 16 2.667S29.333 8.636 29.333 16 23.364 29.333 16 29.333zm7.27-9.862c-.398-.199-2.354-1.162-2.72-1.294-.365-.133-.631-.199-.897.199-.266.398-1.029 1.294-1.262 1.56-.232.266-.465.299-.863.1-.398-.2-1.681-.619-3.203-1.977-1.184-1.057-1.983-2.362-2.215-2.76-.232-.398-.025-.613.174-.811.179-.178.398-.465.598-.698.199-.232.265-.398.398-.664.133-.266.066-.498-.033-.697-.1-.2-.897-2.162-1.229-2.96-.324-.777-.653-.672-.897-.684l-.764-.013c-.266 0-.697.1-1.063.498-.365.398-1.395 1.362-1.395 3.323s1.428 3.854 1.627 4.12c.2.266 2.81 4.287 6.808 6.014.951.41 1.694.656 2.273.839.955.304 1.824.261 2.511.158.766-.114 2.354-.962 2.687-1.891.332-.929.332-1.726.232-1.891-.099-.166-.365-.266-.763-.465z"/></svg>
+              </button>
+              <button class="btn-secundary" onclick="event.stopPropagation(); cartasDescargarExistente('${p.fileId}', '${p.nombres}', '${p.codCliente}', event)" style="flex:none; width:32px; height:32px; padding:0; border-radius:8px; display:inline-flex; align-items:center; justify-content:center;" title="Descargar PDF">
+                <span class="mi sm">download</span>
+              </button>
+            </div>
+          `;
+        } else {
+          if (esAdmin) {
+            botonesAccion = `
+              <button onclick="cartasSolicitarCarta('${p.codCliente}', '${p.nombres}', '', event)" class="btn-detalle" style="background:#10b981; color:white; border:none; padding:8px 12px; border-radius:8px; font-weight:600; font-size:12px; cursor:pointer; display:inline-flex; align-items:center; gap:4px; box-shadow:0 2px 5px rgba(16,185,129,0.25);">
+                <span class="mi xs">check_circle</span> Aprobar y Generar
+              </button>
+            `;
+          } else {
+            botonesAccion = `
+              <button disabled class="btn-detalle" style="background:#cbd5e1; color:#475569; border:none; padding:8px 12px; border-radius:8px; font-weight:600; font-size:12px; display:inline-flex; align-items:center; gap:4px;">
+                <span class="mi xs">hourglass_empty</span> Pendiente
+              </button>
+            `;
+          }
+        }
+
+        html += `
+          <div class="mov-card" style="padding:14px 16px; margin-bottom: 8px;">
+            <div class="mov-left" style="overflow:visible;">
+              <div class="avatar" style="background:var(--azul); width:40px; height:40px; font-size:13px; flex-shrink:0;">${iniciales.toUpperCase()}</div>
+              <div class="mov-info" style="overflow:visible; gap:4px;">
+                <div class="mov-desc" style="white-space:normal; overflow:visible; font-weight:700;">${p.nombres}</div>
+                <div class="mov-cat" style="flex-wrap:wrap; gap:6px; align-items:center;">
+                  <span style="background:var(--azul-claro);color:var(--azul);padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;">Cód. ${p.codCliente}</span>
+                  <span>Sede: <b>${p.oficina}</b></span>
+                  <span>Por: <b>${p.asesor}</b></span>
+                  <span style="color:var(--texto3);">${p.fecha}</span>
+                  ${badgeEstado}
+                </div>
+              </div>
+            </div>
+            <div class="mov-right" style="gap:6px; flex-shrink:0;">
+              ${botonesAccion}
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+      
+    } catch(e) {
+      console.error(e);
+      container.innerHTML = `
+        <div style="background:#fff0f0; border:1px solid #fecaca; border-radius:12px; padding:16px; text-align:center; color:#991b1b;">
+          <span class="mi" style="font-size:24px; margin-bottom:4px;">error</span>
+          <div style="font-weight:600; font-size:12px;">Error al cargar historial</div>
+          <div style="font-size:11px; opacity:0.8;">Por favor intente nuevamente</div>
+        </div>
+      `;
+    }
   }
 
   async function cartasCargarPendientes() {
@@ -4299,9 +4451,9 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
         </div>
         <div style="display:flex; gap:12px; margin-top:20px; width:100%;">
           ${(() => {
-            const esCajero = (sessionStorage.getItem('ge_rol') || 'asesor') === 'cajero';
+            const esAdmin = (sessionStorage.getItem('ge_rol') || 'asesor') === 'admin';
             if (c.estadoCarta === 'SOLICITADA') {
-              if (esCajero) {
+              if (!esAdmin) {
                 return `<button disabled class="btn-detalle" style="background:#cbd5e1; color:#475569; border:none; width:100%;"><span class="mi sm">hourglass_empty</span> Pendiente de Aprobación</button>`;
               } else {
                 return `<button onclick="cartasSolicitarCarta('${c.codCliente}', '${c.nombres}', '${c.celular || ''}', event)" class="btn-detalle" style="background:#10b981; color:white; border:none; width:100%; box-shadow:0 4px 10px rgba(16,185,129,0.25);"><span class="mi sm">check_circle</span> Aprobar y Generar Carta</button>`;
@@ -4315,7 +4467,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
                 </div>
               `;
             } else {
-              if (esCajero) {
+              if (!esAdmin) {
                 return `<button onclick="cartasSolicitarAprobacion('${c.codCliente}', '${c.nombres}', event)" class="btn-detalle" style="background:linear-gradient(135deg, var(--azul) 0%, var(--azul2) 100%); color:white; border:none; width:100%; box-shadow:0 4px 10px rgba(0,82,204,0.25);"><span class="mi sm">send</span> Solicitar Carta a Gerencia</button>`;
               } else {
                 return `<button onclick="cartasSolicitarCarta('${c.codCliente}', '${c.nombres}', '${c.celular || ''}', event)" class="btn-detalle" style="background:linear-gradient(135deg, var(--azul) 0%, var(--azul2) 100%); color:white; border:none; width:100%; box-shadow:0 4px 10px rgba(0,82,204,0.25);"><span class="mi sm">file_download</span> Generar Carta Directamente</button>`;
@@ -4598,6 +4750,8 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   window.cartasAbrirPreview = cartasAbrirPreview;
   window.cartasPreviewBase64 = cartasPreviewBase64;
   window.cartasEnviarWA = cartasEnviarWA;
+  window.cartasSwitchTab = cartasSwitchTab;
+  window.cartasCargarHistorial = cartasCargarHistorial;
 
 
 </script>
