@@ -4203,7 +4203,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
                 <span>${p.fecha}</span>
               </div>
             </div>
-            <button onclick="cartasSolicitarCarta('${p.codCliente}', '${p.nombres}', event)" style="background:#10b981; color:white; border:none; padding:8px 12px; border-radius:8px; font-weight:600; font-size:12px; cursor:pointer; display:flex; align-items:center; gap:4px; box-shadow:0 2px 5px rgba(16,185,129,0.25);">
+            <button onclick="cartasSolicitarCarta('${p.codCliente}', '${p.nombres}', '${p.celular || ''}', event)" style="background:#10b981; color:white; border:none; padding:8px 12px; border-radius:8px; font-weight:600; font-size:12px; cursor:pointer; display:flex; align-items:center; gap:4px; box-shadow:0 2px 5px rgba(16,185,129,0.25);">
               <span class="mi xs">check_circle</span> Aprobar y Generar
             </button>
           </div>
@@ -4506,13 +4506,15 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   }
 
   async function cartasAbrirPreview(fileId, nombres, codCliente, celular, event) {
-    if (event) {
-      event.stopPropagation();
+    // FIX #1: Guardar referencia al botón ANTES de cualquier uso de event
+    const btn = event && event.currentTarget ? event.currentTarget : null;
+    if (event) event.stopPropagation();
+
+    const originalHtml = btn ? btn.innerHTML : '';
+    if (btn) {
+      btn.innerHTML = '<div class="spinner-sm" style="border-color:white;border-right-color:transparent;width:14px;height:14px;margin:0 auto;"></div>';
+      btn.disabled = true;
     }
-    const btn = event.currentTarget;
-    const originalHtml = btn.innerHTML;
-    btn.innerHTML = '<div class="spinner-sm" style="border-color:white;border-right-color:transparent;width:14px;height:14px;margin:0 auto;"></div>';
-    btn.disabled = true;
 
     try {
       const resp = await apiPost({ 
@@ -4521,15 +4523,13 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       });
 
       if (!resp) {
-        btn.innerHTML = originalHtml;
-        btn.disabled = false;
+        if (btn) { btn.innerHTML = originalHtml; btn.disabled = false; }
         return;
       }
 
       if (resp.error) {
         alert('Error: ' + resp.error);
-        btn.innerHTML = originalHtml;
-        btn.disabled = false;
+        if (btn) { btn.innerHTML = originalHtml; btn.disabled = false; }
         return;
       }
 
@@ -4542,13 +4542,13 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       console.error(e);
       alert('Error al abrir la vista previa.');
     } finally {
-      btn.innerHTML = originalHtml;
-      btn.disabled = false;
+      if (btn) { btn.innerHTML = originalHtml; btn.disabled = false; }
     }
   }
 
   function cartasEnviarWA(fileId, nombres, celular, event) {
-    if (event) {
+    // FIX #4: Manejo seguro de event para evitar errores en llamadas desde modal inline
+    if (event && typeof event.stopPropagation === 'function') {
       event.stopPropagation();
     }
     
@@ -4574,8 +4574,12 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   }
 
   function cartasToggleDetalle(card) {
-    const detalle = card.nextElementSibling;
-    if (!detalle || !detalle.classList.contains('carta-detalle')) return;
+    // FIX #3: Buscar el detalle recorriendo siguientes hermanos por si hay elementos intermedios
+    let detalle = card.nextElementSibling;
+    while (detalle && !detalle.classList.contains('carta-detalle')) {
+      detalle = detalle.nextElementSibling;
+    }
+    if (!detalle) return;
     const isOpen = detalle.style.display !== 'none';
     // Cerrar todos
     document.querySelectorAll('.carta-detalle').forEach(d => d.style.display = 'none');
