@@ -997,10 +997,10 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
               <button class="btn-main" onclick="cajaShowArqueoModal()" style="width:auto;padding:9px 16px;font-size:13px;">+ Nuevo Arqueo</button>
             </div>
             <div class="movimientos-list" id="caja-hist-body">
-              <div class="skeleton-box"><div class="skeleton sk-avatar" style="border-radius:10px;"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-30"></div></div><div class="skeleton" style="width:60px;height:20px;border-radius:4px;"></div></div>
-              <div class="skeleton-box"><div class="skeleton sk-avatar" style="border-radius:10px;"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-30"></div></div><div class="skeleton" style="width:60px;height:20px;border-radius:4px;"></div></div>
-              <div class="skeleton-box"><div class="skeleton sk-avatar" style="border-radius:10px;"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-30"></div></div><div class="skeleton" style="width:60px;height:20px;border-radius:4px;"></div></div>
-              <div class="skeleton-box"><div class="skeleton sk-avatar" style="border-radius:10px;"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-30"></div></div><div class="skeleton" style="width:60px;height:20px;border-radius:4px;"></div></div>
+              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
             </div>
             <div style="text-align:center;margin-top:14px;display:none;" id="caja-hist-mas-container">
               <button class="btn-main" id="btn-arqueos-mas" onclick="cajaLoadHistorial(true)" style="background:white;color:var(--azul2);border:1.5px solid var(--azul2);width:auto;padding:8px 24px;border-radius:30px;font-size:13px;font-weight:700;"><span class="mi xs" style="vertical-align:text-bottom;margin-right:4px;">expand_more</span> Ver más arqueos</button>
@@ -1019,8 +1019,8 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
             </div>
           </div>
           <div class="movimientos-list" id="kasnet-lista">
-            <div class="skeleton-box"><div class="skeleton sk-avatar" style="border-radius:8px;"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
-            <div class="skeleton-box"><div class="skeleton sk-avatar" style="border-radius:8px;"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+            <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+            <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
           </div>
         </div>
 
@@ -2842,7 +2842,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     if(tbody) {
       let skHTML = '';
       for(let i=0; i<4; i++) {
-        skHTML += `<div class="skeleton-box"><div class="skeleton sk-avatar" style="border-radius:10px;"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-30"></div></div><div class="skeleton" style="width:60px;height:20px;border-radius:4px;"></div></div>`;
+        skHTML += `<div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>`;
       }
       tbody.innerHTML = skHTML;
     }
@@ -3030,7 +3030,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 
     let skHTML = '';
     for(let i=0; i<4; i++) {
-      skHTML += `<div class="skeleton-box"><div class="skeleton sk-avatar" style="border-radius:10px;"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-30"></div></div><div class="skeleton" style="width:60px;height:20px;border-radius:4px;"></div></div>`;
+      skHTML += `<div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>`;
     }
     contenedor.innerHTML = skHTML;
 
@@ -3498,7 +3498,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
       cajaArqueosOffset = 0;
       let skArq = '';
       for(let i=0; i<4; i++) {
-        skArq += `<div class="skeleton-box"><div class="skeleton sk-avatar" style="border-radius:10px;"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-30"></div></div><div class="skeleton" style="width:60px;height:20px;border-radius:4px;"></div></div>`;
+        skArq += `<div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>`;
       }
       contenedor.innerHTML = skArq;
       btnMasCont.style.display = 'none';
@@ -3634,7 +3634,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
     } else {
       let skKn = '';
       for(let i=0; i<4; i++) {
-        skKn += `<div class="skeleton-box"><div class="skeleton sk-avatar" style="border-radius:10px;"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-30"></div></div><div class="skeleton" style="width:60px;height:20px;border-radius:4px;"></div></div>`;
+        skKn += `<div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>`;
       }
       document.getElementById('kasnet-lista').innerHTML = skKn;
     }
