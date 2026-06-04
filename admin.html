@@ -1,1 +1,912 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="format-detection" content="telephone=no">
+<title>Panel Admin - Grupo Efectivo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
 
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-logo"><i data-lucide="briefcase" class="mi" style="font-size:24px;vertical-align:middle;margin-right:4px;"></i> Grupo Efectivo</div>
+  <div class="login-sub">Panel de Administración</div>
+
+  <!-- PASO 1: CORREO -->
+  <div class="login-box" id="box-correo">
+    <h2><i data-lucide="mail" class="mi" style="font-size:20px;vertical-align:middle;margin-right:4px;"></i> Ingresa tu correo</h2>
+    <div class="form-group">
+      <label>Correo autorizado</label>
+      <input type="email" id="inp-correo" placeholder="tucorreo@gmail.com" autocomplete="email"
+        onkeydown="if(event.key==='Enter')solicitarCodigo()">
+    </div>
+    <button class="btn-login" id="btn-solicitar" onclick="solicitarCodigo()">Enviar C&oacute;digo <i data-lucide="arrow-right" class="mi xs" style="vertical-align:middle;"></i></button>
+    <div class="login-error" id="login-error">Correo no autorizado</div>
+    <div class="login-success" id="login-ok"><i data-lucide="check-circle" class="mi sm"></i> Código enviado a tu correo</div>
+  </div>
+
+  <!-- PASO 2: CÓDIGO -->
+  <div class="login-box" id="box-codigo" style="display:none;">
+    <h2><i data-lucide="pin" class="mi" style="font-size:20px;vertical-align:middle;margin-right:4px;"></i> Ingresa el Código</h2>
+    <div class="correo-display">Código enviado a <strong id="correo-display-txt"></strong></div>
+    <div class="codigo-inputs">
+      <input type="tel" maxlength="1" class="cod-input" id="c1" oninput="avanzarCodigo(this,'c2')">
+      <input type="tel" maxlength="1" class="cod-input" id="c2" oninput="avanzarCodigo(this,'c3')" onkeydown="retrocederCodigo(event,'c1')">
+      <input type="tel" maxlength="1" class="cod-input" id="c3" oninput="avanzarCodigo(this,'c4')" onkeydown="retrocederCodigo(event,'c2')">
+      <input type="tel" maxlength="1" class="cod-input" id="c4" oninput="avanzarCodigo(this,'c5')" onkeydown="retrocederCodigo(event,'c3')">
+      <input type="tel" maxlength="1" class="cod-input" id="c5" oninput="avanzarCodigo(this,'c6')" onkeydown="retrocederCodigo(event,'c4')">
+      <input type="tel" maxlength="1" class="cod-input" id="c6" oninput="avanzarCodigo(this,null)" onkeydown="retrocederCodigo(event,'c5')">
+    </div>
+    <button class="btn-login" id="btn-verificar-cod" onclick="verificarCodigo()">Verificar <i data-lucide="arrow-right" class="mi xs" style="vertical-align:middle;"></i></button>
+    <div class="login-error" id="codigo-error">Código incorrecto o expirado</div>
+    <div class="timer" id="timer-txt"></div>
+    <button class="btn-reenviar" onclick="volverCorreo()"><i data-lucide="arrow-left" class="mi xs" style="vertical-align:middle;"></i> Cambiar correo / Reenviar</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="app-layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-header-row">
+          <div class="sidebar-user-info">
+            <div class="sidebar-avatar" id="sidebar-avatar"><i data-lucide="user" class="mi"></i></div>
+            <div class="sidebar-user-text">
+              <div class="sidebar-user-name" id="navbar-user"></div>
+              <div class="sidebar-user-badges">
+                <span class="sidebar-user-role" id="navbar-rol"></span>
+                <span class="sidebar-user-role" style="color:rgba(255,255,255,0.2);">·</span>
+                <span class="sidebar-user-role" id="navbar-oficina"></span>
+              </div>
+            </div>
+          </div>
+          <button class="btn-sidebar-toggle" onclick="toggleSidebarCollapse()" title="Contraer menú">
+            <i data-lucide="chevron-left" class="mi sm toggle-icon"></i>
+          </button>
+        </div>
+        <div class="sidebar-sede-top">
+          <select id="global-sede-select" onchange="globalOnChangeSede()"></select>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <button class="nav-item active" onclick="navTo('dashboard',this)" title="Dashboard">
+          <i data-lucide="layout-dashboard" class="mi sm"></i> <span class="nav-item-label">Dashboard</span>
+        </button>
+        <div class="nav-divider"></div>
+        <div class="nav-section">Gestiones</div>
+        <button class="nav-item" onclick="navTo('mora',this)" title="Mora">
+          <i data-lucide="landmark" class="mi sm"></i> <span class="nav-item-label">Mora</span>
+          <span class="tab-badge" id="badge-vouchers" style="display:none;">0</span>
+        </button>
+        <button class="nav-item" onclick="navTo('cartas',this)" title="Cartas de No Adeudo">
+          <i data-lucide="file-text" class="mi sm"></i> <span class="nav-item-label">Cartas</span>
+        </button>
+        <div class="nav-divider"></div>
+        <div class="nav-section">Caja</div>
+        <button class="nav-item" id="nav-cajachica-parent" onclick="navTo('cajachica',this)" title="Caja Chica">
+          <i data-lucide="wallet" class="mi sm"></i> <span class="nav-item-label">Caja Chica</span>
+        </button>
+        <button class="nav-item" onclick="navTo('kasnet',this)" title="KASNET">
+          <i data-lucide="store" class="mi sm"></i> <span class="nav-item-label">KASNET</span>
+        </button>
+      </nav>
+      <div class="sidebar-footer">
+        <button class="btn-sidebar-logout" onclick="logout()" title="Cerrar sesión">
+          <i data-lucide="log-out" class="mi sm"></i> <span class="logout-label">Cerrar sesión</span>
+        </button>
+      </div>
+    </aside>
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+      <header class="topbar">
+        <button class="hamburger" id="hamburger-btn" onclick="toggleSidebar()">
+          <i data-lucide="menu" class="mi"></i>
+        </button>
+        <h1 class="topbar-title" id="topbar-title">Dashboard</h1>
+        <div class="topbar-right">
+          <button id="btn-refresh" class="btn-refresh" onclick="refrescarDatos()" title="Actualizar datos">
+            <i data-lucide="refresh-cw" class="mi sm sync-icon"></i> <span id="btn-refresh-text">Actualizar</span>
+          </button>
+        </div>
+      </header>
+      <div class="content-body">
+
+        <!-- SECTION: DASHBOARD -->
+        <div id="section-dashboard" class="section active">
+          <div id="dash-content">
+            <div class="dash-kpis-skeleton">
+              <div class="dash-kpi-sk"><div class="skeleton" style="width:40px;height:40px;border-radius:12px;margin-bottom:12px;"></div><div class="skeleton" style="height:24px;width:80%;margin-bottom:8px;"></div><div class="skeleton" style="height:12px;width:50%;"></div></div>
+              <div class="dash-kpi-sk"><div class="skeleton" style="width:40px;height:40px;border-radius:12px;margin-bottom:12px;"></div><div class="skeleton" style="height:24px;width:80%;margin-bottom:8px;"></div><div class="skeleton" style="height:12px;width:50%;"></div></div>
+              <div class="dash-kpi-sk"><div class="skeleton" style="width:40px;height:40px;border-radius:12px;margin-bottom:12px;"></div><div class="skeleton" style="height:24px;width:80%;margin-bottom:8px;"></div><div class="skeleton" style="height:12px;width:50%;"></div></div>
+              <div class="dash-kpi-sk"><div class="skeleton" style="width:40px;height:40px;border-radius:12px;margin-bottom:12px;"></div><div class="skeleton" style="height:24px;width:80%;margin-bottom:8px;"></div><div class="skeleton" style="height:12px;width:50%;"></div></div>
+            </div>
+            <div class="dash-row">
+              <div class="dash-panel skeleton" style="height:200px;"></div>
+              <div class="dash-panel skeleton" style="height:200px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION: MORA (Clientes, Vouchers, Historial) -->
+        <div id="section-mora" class="section">
+          <!-- TABS HORIZONTALES -->
+          <div style="display:flex;gap:0;margin-bottom:12px;border-bottom:1px solid var(--gris2);">
+            <button id="tab-mora-clientes" class="btn-mora-tab active" onclick="switchMoraTab('clientes')">Clientes</button>
+            <button id="tab-mora-vouchers" class="btn-mora-tab" onclick="switchMoraTab('vouchers')">Vouchers <span class="tab-badge" id="badge-vouchers-sub" style="display:none;margin-left:4px;position:relative;top:0;right:0;transform:none;">0</span></button>
+            <button id="tab-mora-historial" class="btn-mora-tab" onclick="switchMoraTab('historial')">Historial</button>
+          </div>
+
+          <!-- CONTROLES POR TAB (Clientes) -->
+          <div class="caja-toolbar" id="mora-controls-clientes" style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+            <div style="position:relative; flex:1; min-width:240px; max-width:350px;">
+              <i data-lucide="search" class="mi" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:18px; color:var(--texto2); pointer-events:none;"></i>
+              <input type="text" id="buscar-cliente" placeholder="Buscar cliente por nombre o celular..." oninput="filtrarClientes()" style="width:100%; padding:9px 14px 9px 38px; border:1.5px solid var(--gris2); border-radius:10px; font-size:13px; outline:none; transition: border-color 0.2s;">
+            </div>
+            <select id="filtros-asesores" class="clean-select" onchange="setFiltroAsesor(this.value)" style="width:auto;min-width:180px;flex:0 0 auto;padding:9px 34px 9px 14px;border:1.5px solid var(--gris2);border-radius:10px;font-size:13px;background-color:white;"></select>
+            <button id="btn-notificaciones" class="btn-main" onclick="iniciarRecordatorios()" style="width:auto;padding:10px 16px;font-size:13px;display:flex;align-items:center;gap:6px;flex-shrink:0;transition:all 0.3s;">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="16" height="16" fill="white" style="vertical-align:middle;"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.736 5.472 2.027 7.774L0 32l8.454-2.01A15.938 15.938 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.333a13.27 13.27 0 01-6.748-1.833l-.484-.287-5.02 1.194 1.271-4.874-.317-.502A13.267 13.267 0 012.667 16C2.667 8.636 8.636 2.667 16 2.667S29.333 8.636 29.333 16 23.364 29.333 16 29.333zm7.27-9.862c-.398-.199-2.354-1.162-2.72-1.294-.365-.133-.631-.199-.897.199-.266.398-1.029 1.294-1.262 1.56-.232.266-.465.299-.863.1-.398-.2-1.681-.619-3.203-1.977-1.184-1.057-1.983-2.362-2.215-2.76-.232-.398-.025-.613.174-.811.179-.178.398-.465.598-.698.199-.232.265-.398.398-.664.133-.266.066-.498-.033-.697-.1-.2-.897-2.162-1.229-2.96-.324-.777-.653-.672-.897-.684l-.764-.013c-.266 0-.697.1-1.063.498-.365.398-1.395 1.362-1.395 3.323s1.428 3.854 1.627 4.12c.2.266 2.81 4.287 6.808 6.014.951.41 1.694.656 2.273.839.955.304 1.824.261 2.511.158.766-.114 2.354-.962 2.687-1.891.332-.929.332-1.726.232-1.891-.099-.166-.365-.266-.763-.465z"/></svg>
+              Notificaciones
+            </button>
+          </div>
+
+          <!-- CONTROLES POR TAB (Historial) -->
+          <div class="caja-toolbar" id="mora-controls-historial" style="display:none; gap:12px;">
+            <select id="filtro-hist-asesor" class="clean-select" onchange="renderHistorial()" style="width:auto;min-width:180px;flex:0 0 auto;padding:9px 34px 9px 14px;border:1.5px solid var(--gris2);border-radius:10px;font-size:13px;background-color:white;">
+              <option value="">Todos los asesores</option>
+            </select>
+            <select id="filtro-hist-fecha" class="clean-select" onchange="renderHistorial()" style="width:auto;min-width:180px;flex:0 0 auto;padding:9px 34px 9px 14px;border:1.5px solid var(--gris2);border-radius:10px;font-size:13px;background-color:white;">
+              <option value="">Todas las fechas</option>
+            </select>
+          </div>
+
+          <!-- CONTENIDO CLIENTES -->
+          <div id="mora-content-clientes">
+            <div id="lista-clientes" class="movimientos-list">
+              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+            </div>
+          </div>
+
+          <!-- CONTENIDO VOUCHERS -->
+          <div id="mora-content-vouchers" style="display:none;">
+            <div id="lista-vouchers">
+              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+            </div>
+          </div>
+
+          <!-- CONTENIDO HISTORIAL -->
+          <div id="mora-content-historial" style="display:none;">
+            <div class="resumen-box" id="resumen-historial">
+              <div class="resumen-item"><div class="val" id="res-total">-</div><div class="lbl">Total recaudado</div></div>
+              <div class="resumen-item"><div class="val" id="res-count">-</div><div class="lbl">Pagos registrados</div></div>
+            </div>
+            <div id="lista-historial">
+              <div class="skeleton-box"><div class="skeleton sk-avatar" style="border-radius:8px;"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+              <div class="skeleton-box"><div class="skeleton sk-avatar" style="border-radius:8px;"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION: CARTAS DE NO ADEUDO -->
+        <div id="section-cartas" class="section">
+          <!-- TABS -->
+          <div class="gestiones-subtabs" id="cartas-tabs" style="display:flex;">
+            <button class="gestiones-subtab active" id="tab-cartas-buscador" onclick="cartasSwitchTab('buscador')">Buscador de Clientes</button>
+            <button class="gestiones-subtab" id="tab-cartas-pendientes" onclick="cartasSwitchTab('pendientes')" style="display:none; align-items:center; gap:6px;">
+              Pendientes de Aprobación
+              <span id="cartas-pendientes-badge" style="background:#ef4444; color:white; font-size:10px; font-weight:700; padding:2px 6px; border-radius:10px; display:none;">0</span>
+            </button>
+          </div>
+
+          <!-- CONTENIDO BUSCADOR -->
+          <div id="cartas-content-buscador">
+            <div class="caja-toolbar" style="display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-bottom:16px;">
+              <div style="position:relative; flex:1; min-width:280px; max-width:450px;">
+                <i data-lucide="search" class="mi" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:18px; color:var(--texto2); pointer-events:none;"></i>
+                <input type="text" id="cartas-buscar" placeholder="Buscar por nombre, código o celular..." oninput="toggleCartasClearBtn(); cartasBuscarDebounce();" onkeyup="if(event.key==='Enter') cartasBuscar()" style="width:100%; padding:9px 36px 9px 38px; border:1.5px solid var(--gris2); border-radius:10px; font-size:13px; outline:none; transition:border-color 0.2s;">
+                <button id="cartas-btn-clear" onclick="limpiarBuscadorCartas()" title="Nueva búsqueda" style="display:none; position:absolute; right:8px; top:50%; transform:translateY(-50%); background:var(--gris2); border:none; cursor:pointer; color:var(--texto); width:24px; height:24px; align-items:center; justify-content:center; border-radius:50%; transition:background 0.2s;"><i data-lucide="x" class="mi sm" style="font-size:16px;"></i></button>
+              </div>
+              <div id="cartas-count" style="font-size:12px; color:var(--texto2); font-weight:600;"></div>
+            </div>
+            <div id="cartas-resultados" class="movimientos-list">
+              <div class="empty" style="padding:40px 20px;">
+                <div class="icon"><i data-lucide="file-text" class="mi" style="font-size:48px; color:var(--azul2);"></i></div>
+                <div style="font-weight:700; color:var(--azul); font-size:14px; margin-top:8px;">Cartas de No Adeudo</div>
+                <div style="font-size:12px; color:var(--texto2); margin-top:4px;">Busca un cliente por nombre, código o celular para consultar su estado</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CONTENIDO PENDIENTES -->
+          <div id="cartas-content-pendientes" style="display:none;">
+            <div id="cartas-pendientes-container"></div>
+          </div>
+        </div>
+
+        <!-- SECTION: CAJA CHICA (tabs unificados) -->
+        <div id="section-cajachica" class="section">
+
+          <!-- TABS HORIZONTALES (mismo patrón que Mora) -->
+          <div style="display:flex;gap:0;margin-bottom:12px;border-bottom:1px solid var(--gris2);">
+            <button id="cc-tab-mesactual"  class="btn-mora-tab active" onclick="cajaSwitchTab('mesactual')"><i data-lucide="arrow-up-down" class="mi sm"></i> Mes Actual</button>
+            <button id="cc-tab-mesanterior" class="btn-mora-tab" onclick="cajaSwitchTab('mesanterior')"><i data-lucide="history" class="mi sm"></i> Meses Anteriores</button>
+            <button id="cc-tab-arqueo"     class="btn-mora-tab" onclick="cajaSwitchTab('arqueo')"><i data-lucide="archive" class="mi sm"></i> Arqueos</button>
+          </div>
+
+          <!-- PANEL: MES ACTUAL -->
+          <div id="cc-panel-mesactual">
+            <div class="caja-toolbar" id="caja-toolbar-actual">
+              <button class="btn-main" onclick="cajaShowModal()" style="padding:10px; display:flex; align-items:center; justify-content:center;" title="Nuevo Movimiento"><i data-lucide="plus" class="mi sm"></i></button>
+              <div style="position:relative;flex:1;max-width:300px;">
+                <i data-lucide="search" class="mi" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--texto2);pointer-events:none;"></i>
+                <input type="text" id="caja-buscar" placeholder="Buscar..." oninput="cajaFiltrar()" style="width:100%;padding:8px 12px 8px 34px;border:1.5px solid var(--gris2);border-radius:10px;font-size:13px;outline:none;">
+              </div>
+            </div>
+            <div class="movimientos-list" id="caja-tabla-body">
+              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+            </div>
+          </div>
+
+          <!-- PANEL: MESES ANTERIORES -->
+          <div id="cc-panel-mesanterior" style="display:none;">
+            <div class="caja-toolbar" id="caja-toolbar-archivo" style="flex-wrap: wrap; gap: 10px;">
+              <select id="hist-tipo" class="sel-sede" style="width:140px; padding:8px; border-radius:8px;">
+                <option value="MOVIMIENTOS">Movimientos</option>
+                <option value="ARQUEOS">Arqueos</option>
+              </select>
+              <select id="hist-anio" class="sel-sede" style="width:100px; padding:8px; border-radius:8px;">
+                <option value="2026">2026</option>
+                <option value="2025">2025</option>
+                <option value="2024">2024</option>
+              </select>
+              <select id="hist-mes" class="sel-sede" style="width:120px; padding:8px; border-radius:8px;">
+                <option value="1">Enero</option>
+                <option value="2">Febrero</option>
+                <option value="3">Marzo</option>
+                <option value="4">Abril</option>
+                <option value="5">Mayo</option>
+                <option value="6">Junio</option>
+                <option value="7">Julio</option>
+                <option value="8">Agosto</option>
+                <option value="9">Septiembre</option>
+                <option value="10">Octubre</option>
+                <option value="11">Noviembre</option>
+                <option value="12">Diciembre</option>
+              </select>
+              <button class="btn-primary" onclick="_cajaArchivoUltimoPeriodo=null; cajaCargarArchivo()" style="padding:8px 16px; border-radius:8px;"><i data-lucide="search" class="mi sm"></i> Buscar</button>
+              
+              <div style="position:relative;flex:1;min-width:200px;">
+                <i data-lucide="search" class="mi" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--texto2);pointer-events:none;"></i>
+                <input type="text" id="caja-buscar-archivo" placeholder="Filtrar resultados..." oninput="cajaFiltrar()" style="width:100%;padding:8px 12px 8px 34px;border:1.5px solid var(--gris2);border-radius:10px;font-size:13px;outline:none;">
+              </div>
+            </div>
+            <div class="movimientos-list" id="caja-tabla-body-archivo">
+              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+            </div>
+          </div>
+
+          <!-- PANEL: ARQUEOS -->
+          <div id="cc-panel-arqueo" style="display:none;">
+            <div class="caja-toolbar">
+              <button class="btn-main" onclick="cajaShowArqueoModal()" style="padding:10px; display:flex; align-items:center; justify-content:center;" title="Nuevo Arqueo"><i data-lucide="plus" class="mi sm"></i></button>
+            </div>
+            <div class="movimientos-list" id="caja-hist-body">
+              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+            </div>
+            <div style="text-align:center;margin-top:14px;display:none;" id="caja-hist-mas-container">
+              <button class="btn-main" id="btn-arqueos-mas" onclick="cajaLoadHistorial(true)" style="background:white;color:var(--azul2);border:1.5px solid var(--azul2);width:auto;padding:8px 24px;border-radius:30px;font-size:13px;font-weight:700;"><i data-lucide="chevron-down" class="mi xs" style="vertical-align:text-bottom;margin-right:4px;"></i> Ver más arqueos</button>
+            </div>
+          </div><!-- /cc-panel-arqueo -->
+
+        </div><!-- /section-cajachica -->
+
+        <!-- SECTION: KASNET -->
+        <div id="section-kasnet" class="section">
+          <div class="caja-toolbar">
+            <button class="btn-main" onclick="kasnetShowModal()" style="padding:10px; display:flex; align-items:center; justify-content:center;" title="Nuevo Registro Diario"><i data-lucide="plus" class="mi sm"></i></button>
+            <div style="position:relative; flex:1; max-width:300px;">
+              <i data-lucide="search" class="mi" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:16px; color:var(--texto2); pointer-events:none;"></i>
+              <input type="text" id="kasnet-buscar" placeholder="Buscar fecha..." oninput="kasnetFiltrar()" style="width:100%; padding:8px 12px 8px 34px; border:1.5px solid var(--gris2); border-radius:10px; font-size:13px; outline:none; transition:border-color 0.2s;">
+            </div>
+          </div>
+          <div class="movimientos-list" id="kasnet-lista">
+            <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+            <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+          </div>
+        </div>
+
+      </div><!-- /content-body -->
+    </main>
+  </div><!-- /app-layout -->
+</div>
+
+<!-- CLIENTE DRAWER -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="cerrarClienteDrawer()"></div>
+<div class="drawer-panel" id="drawer-panel">
+  <div class="drawer-header">
+    <div class="avatar-group">
+      <div class="avatar" id="dr-avatar" style="background:var(--azul); width:46px; height:46px; font-size:16px;"></div>
+      <div>
+        <h2 id="dr-nombre">Cargando...</h2>
+        <div class="subtitle" id="dr-tags"></div>
+      </div>
+    </div>
+    <button class="drawer-close" onclick="cerrarClienteDrawer()"><i data-lucide="x" class="mi"></i></button>
+  </div>
+  <div class="drawer-content" id="dr-content">
+    <div class="dr-section">
+      <div class="dr-section-title">Finanzas</div>
+      <div class="dr-item"><span class="lbl">Deuda Total</span><span class="val" id="dr-deuda" style="font-size:18px; font-weight:900; color:var(--azul);"></span></div>
+      <div class="dr-item"><span class="lbl">Cuota Mensual</span><span class="val" id="dr-cuota"></span></div>
+      <div class="dr-item"><span class="lbl">Cuotas Vencidas</span><span class="val" id="dr-cuotas"></span></div>
+      <div class="dr-item"><span class="lbl">d&iacute;as de Atraso</span><span class="val" id="dr-dias"></span></div>
+    </div>
+    <div class="dr-section">
+      <div class="dr-section-title">Datos Generales</div>
+      <div class="dr-item"><span class="lbl">Código</span><span class="val" id="dr-cod"></span></div>
+      <div class="dr-item"><span class="lbl">Celular</span><span class="val" id="dr-cel"></span></div>
+      <div class="dr-item"><span class="lbl">Dirección</span><span class="val" id="dr-dir" style="text-align:right; max-width:60%;"></span></div>
+      <div class="dr-item"><span class="lbl">Próx. Vencimiento</span><span class="val" id="dr-venc"></span></div>
+    </div>
+    <div class="dr-section">
+      <div class="dr-section-title">Gestión Interna</div>
+      <div class="dr-item"><span class="lbl">Asesor Asignado</span><span class="val" id="dr-asesor"></span></div>
+      <div class="dr-item"><span class="lbl">Oficina</span><span class="val" id="dr-ofi"></span></div>
+      <div class="dr-item"><span class="lbl">Tipo de Crédito</span><span class="val" id="dr-tipo"></span></div>
+    </div>
+    <div id="dr-obs-container"></div>
+  </div>
+  <div class="drawer-actions" id="dr-actions"></div>
+</div>
+<!-- CAJA CHICA DRAWER -->
+<div class="drawer-overlay" id="drawer-overlay-caja" onclick="cajaCerrarDrawer()"></div>
+<div class="drawer-panel" id="drawer-caja">
+  <div class="drawer-header">
+    <div class="avatar-group">
+      <div class="avatar" id="dr-caja-icon" style="background:var(--azul); width:46px; height:46px; font-size:20px;"></div>
+      <div>
+        <h2 id="dr-caja-titulo">Cargando...</h2>
+        <div class="subtitle" id="dr-caja-sub"></div>
+      </div>
+    </div>
+    <button class="drawer-close" onclick="cajaCerrarDrawer()"><i data-lucide="x" class="mi"></i></button>
+  </div>
+  <div class="drawer-content" id="dr-caja-content">
+    <div class="dr-section">
+      <div class="dr-section-title">Detalles del Movimiento</div>
+      <div class="dr-item"><span class="lbl">Monto</span><span class="val" id="dr-caja-monto" style="font-size:18px; font-weight:900;"></span></div>
+      <div class="dr-item"><span class="lbl">Categoría</span><span class="val" id="dr-caja-cat"></span></div>
+      <div class="dr-item"><span class="lbl">Fecha</span><span class="val" id="dr-caja-fecha"></span></div>
+      <div class="dr-item"><span class="lbl">Tipo</span><span class="val" id="dr-caja-tipo"></span></div>
+    </div>
+    <div class="dr-section" id="dr-caja-desc-section">
+      <div class="dr-section-title">Descripción</div>
+      <div id="dr-caja-desc" style="font-size:13px; color:var(--texto); line-height:1.5;"></div>
+    </div>
+    <div class="dr-section" id="dr-caja-comp-section" style="display:none; flex-direction:column; padding:12px;">
+      <div class="dr-section-title" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <span>Comprobante</span>
+        <a id="dr-caja-link-comp" href="#" target="_blank" style="font-size:11px; color:var(--azul); text-decoration:none; display:none; align-items:center; gap:4px; font-weight:700;"><i data-lucide="external-link" class="mi xs"></i> Abrir</a>
+      </div>
+      <button id="dr-caja-btn-show-comp" class="btn-secundary" style="width:100%; justify-content:center; gap:8px;" onclick="mostrarIframeCaja()"><i data-lucide="eye" class="mi sm"></i> Ver Comprobante</button>
+      <iframe id="dr-caja-iframe" src="" style="width:100%; height:250px; border:1px solid var(--gris2); border-radius:10px; background:#f8fafc; display:none;"></iframe>
+    </div>
+  </div>
+  <div class="drawer-actions" id="dr-caja-actions"></div>
+</div>
+
+<!-- KASNET DRAWER -->
+<div class="drawer-overlay" id="drawer-overlay-kasnet" onclick="kasnetCerrarDrawer()"></div>
+<div class="drawer-panel" id="drawer-kasnet">
+  <div class="drawer-header">
+    <div class="avatar-group">
+      <div class="avatar" id="dr-kasnet-icon" style="background:var(--azul); width:46px; height:46px; font-size:20px;"><i data-lucide="store" class="mi"></i></div>
+      <div>
+        <h2 id="dr-kasnet-titulo">Cargando...</h2>
+        <div class="subtitle" id="dr-kasnet-sub"></div>
+      </div>
+    </div>
+    <button class="drawer-close" onclick="kasnetCerrarDrawer()"><i data-lucide="x" class="mi"></i></button>
+  </div>
+  <div class="drawer-content" id="dr-kasnet-content">
+    <div class="dr-section">
+      <div class="dr-section-title">Resumen de Cuadre</div>
+      <div class="dr-item"><span class="lbl">Total Físico</span><span class="val" id="dr-kasnet-fis" style="font-size:18px; font-weight:900; color:var(--verde);"></span></div>
+      <div class="dr-item"><span class="lbl">Total Virtual</span><span class="val" id="dr-kasnet-virt"></span></div>
+      <div class="dr-item"><span class="lbl">Operaciones</span><span class="val" id="dr-kasnet-ops"></span></div>
+      <div class="dr-item"><span class="lbl">Estado</span><span class="val" id="dr-kasnet-est"></span></div>
+    </div>
+    <div class="dr-section">
+      <div class="dr-section-title">Desglose Físico</div>
+      <div id="dr-kasnet-desglose"></div>
+    </div>
+    <div class="dr-section" id="dr-kasnet-comp-section" style="display:none; flex-direction:column; padding:12px;">
+      <div class="dr-section-title" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <span>Comprobante</span>
+        <a id="dr-kasnet-link-comp" href="#" target="_blank" style="font-size:11px; color:var(--azul); text-decoration:none; display:none; align-items:center; gap:4px; font-weight:700;"><i data-lucide="external-link" class="mi xs"></i> Abrir</a>
+      </div>
+      <button id="dr-kasnet-btn-show-comp" class="btn-secundary" style="width:100%; justify-content:center; gap:8px;" onclick="mostrarIframeKasnet()"><i data-lucide="eye" class="mi sm"></i> Ver Comprobante</button>
+      <iframe id="dr-kasnet-iframe" src="" style="width:100%; height:250px; border:1px solid var(--gris2); border-radius:10px; background:#f8fafc; display:none;"></iframe>
+    </div>
+  </div>
+  <div class="drawer-actions" id="dr-kasnet-actions"></div>
+</div>
+
+<!-- CARTAS DRAWER -->
+<div class="drawer-overlay" id="drawer-overlay-cartas" onclick="cartasCerrarDrawer()"></div>
+<div class="drawer-panel" id="drawer-cartas">
+  <div class="drawer-header">
+    <div class="avatar-group">
+      <div class="avatar" id="dr-cartas-icon" style="background:var(--azul); width:46px; height:46px; font-size:20px;"><i data-lucide="user" class="mi"></i></div>
+      <div>
+        <h2 id="dr-cartas-nombre">Cargando...</h2>
+        <div class="subtitle" id="dr-cartas-sub"></div>
+      </div>
+    </div>
+    <button class="drawer-close" onclick="cartasCerrarDrawer()"><i data-lucide="x" class="mi"></i></button>
+  </div>
+  <div class="drawer-content" id="dr-cartas-content">
+    <div class="dr-section">
+      <div class="dr-section-title">Detalles del Cliente</div>
+      <div class="dr-item"><span class="lbl">Estado</span><span class="val" id="dr-cartas-estado"></span></div>
+      <div class="dr-item"><span class="lbl">Calificación</span><span class="val" id="dr-cartas-calif"></span></div>
+      <div class="dr-item"><span class="lbl">Celular</span><span class="val" id="dr-cartas-celular"></span></div>
+      <div class="dr-item"><span class="lbl">Últ. Créditos</span><span class="val" id="dr-cartas-ultcred" style="font-size:15px; font-weight:800; color:var(--azul);"></span></div>
+      <div class="dr-item"><span class="lbl">F. Desembolso</span><span class="val" id="dr-cartas-fdesemb"></span></div>
+      <div class="dr-item"><span class="lbl">F. Cancelación</span><span class="val" id="dr-cartas-fcancel"></span></div>
+      <div class="dr-item"><span class="lbl">Créd. Activos</span><span class="val" id="dr-cartas-activos"></span></div>
+    </div>
+    <div class="dr-section">
+      <div class="dr-section-title">Observaciones</div>
+      <div style="font-size:13px; color:var(--texto); line-height:1.5; padding:12px; background:#f8fafc; border-radius:8px; border-left:3px solid var(--azul-claro);" id="dr-cartas-obs"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL VOUCHER -->
+<div class="modal-overlay" id="modal-voucher">
+  <div class="modal-box">
+    <div class="modal-title"><i data-lucide="receipt" class="mi" style="font-size:20px;margin-right:4px;"></i> Comprobante de pago</div>
+    <img class="modal-img" id="modal-img" src="" alt="voucher">
+    <div class="modal-info" id="modal-info"></div>
+    <div class="modal-btns">
+      <button class="btn-cerrar" onclick="cerrarModal()"><i data-lucide="x" class="mi sm"></i> Cerrar</button>
+      <button class="btn-verificar" onclick="verificarDesdeModal()"><i data-lucide="check-circle" class="mi sm"></i> Verificar pago</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- MODAL SUSTENTO -->
+<div class="modal-sustento" id="modal-sustento" onclick="if(event.target===this)cerrarSustento()">
+  <div class="modal-sustento-box">
+    <div class="ms-title">
+      <span><i data-lucide="paperclip" class="mi sm"></i> Sustento</span>
+      <button onclick="cerrarSustento()"><i data-lucide="x" class="mi sm"></i></button>
+    </div>
+    <div id="ms-contenido"></div>
+  </div>
+</div>
+
+
+<!-- MODAL CAJA -->
+<div class="modal-caja" id="modal-caja">
+  <div class="modal-caja-box">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h3 id="modal-caja-titulo">Nuevo Movimiento</h3>
+      <button onclick="cajaHideModal()" style="background:none;border:none;font-size:18px;cursor:pointer;">x</button>
+    </div>
+    <input type="hidden" id="caja-edit-id">
+    <div class="form-caja-group"><label>Fecha</label><input type="date" id="caja-fecha"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div class="form-caja-group"><label>Tipo</label>
+        <select id="caja-tipo">
+          <option value="">Seleccionar...</option>
+          <option value="Ingreso">Ingreso (+)</option>
+          <option value="Egreso">Egreso (-)</option>
+        </select>
+      </div>
+      <div class="form-caja-group"><label>Monto</label><input type="number" id="caja-monto" placeholder="0.00" step="0.01"></div>
+    </div>
+    <div class="form-caja-group"><label>Categoria</label><select id="caja-categoria"><option value="">Seleccionar...</option></select></div>
+    <div class="form-caja-group"><label>Descripcion</label><input type="text" id="caja-descripcion" placeholder="Detalle"></div>
+    <div class="form-caja-group"><label>Comprobante (Opc.)</label>
+      <div id="caja-archivo-actual" style="display:none;margin-bottom:8px;">
+        <button onclick="verSustento(document.getElementById('caja-archivo-actual').dataset.url)" style="background:var(--azul-claro);color:var(--azul2);border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:4px;">
+          <i data-lucide="eye" class="mi sm"></i> Ver archivo actual
+        </button>
+      </div>
+      <div class="file-upload-wrapper">
+        <label for="caja-archivo" class="file-upload-label" id="file-upload-label">
+          <i data-lucide="upload-cloud" class="mi" id="file-upload-icon"></i>
+          <span id="file-upload-text">Subir comprobante (Opcional)</span>
+        </label>
+        <input type="file" id="caja-archivo" accept="image/*,application/pdf" style="display:none;" onchange="
+          const caja_fT = document.getElementById('file-upload-text');
+          const caja_fI = document.getElementById('file-upload-icon');
+          const caja_fL = document.getElementById('file-upload-label');
+          if(this.files.length > 0) {
+            caja_fT.innerText = this.files[0].name;
+            caja_fI.innerText = 'check_circle';
+            caja_fL.classList.add('has-file');
+            caja_fL.parentElement.style.borderColor = 'var(--verde)';
+          } else {
+            caja_fT.innerText = 'Subir comprobante (Opcional)';
+            caja_fI.innerText = 'cloud_upload';
+            caja_fL.classList.remove('has-file');
+            caja_fL.parentElement.style.borderColor = '';
+          }
+        ">
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:8px;">
+      <button class="btn-secundary" onclick="cajaHideModal()" style="flex:1;">Cancelar</button>
+      <button class="btn-main" onclick="cajaGuardar()" id="caja-btn-guardar" style="flex:1;padding:12px;">Guardar</button>
+    </div>
+    <div id="caja-saving-overlay" style="display:none;position:absolute;inset:0;background:rgba(255,255,255,0.92);border-radius:14px;z-index:10;flex-direction:column;align-items:center;justify-content:center;gap:12px;">
+      <div class="spinner-sm" style="width:32px;height:32px;border-width:3px;"></div>
+      <div id="caja-saving-msg" style="font-family:Montserrat,sans-serif;font-weight:700;font-size:13px;color:var(--azul);text-align:center;">Guardando...</div>
+      <div id="caja-saving-sub" style="font-size:11px;color:var(--texto2);text-align:center;">Esto puede tomar unos segundos</div>
+    </div>
+  </div>
+</div>
+
+<!-- ARQUEO DRAWER -->
+<div class="drawer-overlay" id="drawer-overlay-arqueo" onclick="cajaCerrarArqueoDrawer()"></div>
+<div class="drawer-panel" id="drawer-arqueo">
+  <div class="drawer-header">
+    <div class="avatar-group">
+      <div class="avatar" style="background:#eaf2ff; color:var(--azul); width:46px; height:46px; font-size:20px;"><i data-lucide="package" class="mi"></i></div>
+      <div>
+        <h2 id="dr-arq-titulo">Detalle de Arqueo</h2>
+        <div class="subtitle" id="dr-arq-sub"></div>
+      </div>
+    </div>
+    <button class="drawer-close" onclick="cajaCerrarArqueoDrawer()"><i data-lucide="x" class="mi"></i></button>
+  </div>
+  <div class="drawer-content" id="dr-arq-content">
+  </div>
+</div>
+
+<!-- MODAL ARQUEO -->
+<div class="modal-caja" id="modal-arqueo">
+  <div class="modal-caja-box" style="max-width:820px;padding:0;border-radius:20px;overflow:hidden;">
+
+    <!-- HEADER -->
+    <div style="background:linear-gradient(135deg,var(--azul),var(--azul2));padding:18px 24px;display:flex;align-items:center;justify-content:space-between;">
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div style="width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;">
+          <i data-lucide="archive" class="mi" style="font-size:22px;color:white;"></i>
+        </div>
+        <div>
+          <div id="modal-arq-titulo" style="font-family:'Montserrat',sans-serif;font-weight:800;font-size:15px;color:white;">Nuevo Arqueo de Caja</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.7);margin-top:1px;">Conteo físico de efectivo</div>
+        </div>
+      </div>
+      <button onclick="cajaHideArqueoModal()" style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.15);border:none;color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.28)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">
+        <i data-lucide="x" class="mi" style="font-size:18px;"></i>
+      </button>
+    </div>
+
+    <!-- BODY -->
+    <div style="padding:18px 20px;background:#f8fafc;">
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);gap:14px;align-items:start;">
+
+        <!-- COL IZQUIERDA -->
+        <div style="display:flex;flex-direction:column;gap:12px;">
+
+          <!-- Saldo Teórico -->
+          <div id="arq-bloque-teorico" style="background:white;border-radius:14px;padding:16px;box-shadow:0 2px 12px rgba(0,48,135,0.06);border:1px solid var(--gris2);">
+            <div style="font-size:10px;font-weight:700;color:var(--texto2);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px;display:flex;align-items:center;gap:5px;"><i data-lucide="wallet" class="mi xs" style="color:var(--azul);"></i>Saldo Teórico</div>
+            <div style="font-family:'Montserrat',sans-serif;font-size:26px;font-weight:900;color:var(--azul);" id="arq-teorico">S/. 0.00</div>
+            <span id="badge-arq-admin" style="display:none;margin-top:8px;background:var(--azul-claro);color:var(--azul);padding:3px 8px;border-radius:8px;font-size:10px;font-weight:700;align-items:center;gap:4px;"><i data-lucide="history" class="mi xs"></i> Último: <span id="lbl-arq-admin"></span></span>
+          </div>
+
+          <!-- Total Físico -->
+          <div style="background:white;border-radius:14px;padding:16px;box-shadow:0 2px 12px rgba(0,48,135,0.06);border:1px solid var(--gris2);">
+            <div style="font-size:10px;font-weight:700;color:var(--texto2);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px;display:flex;align-items:center;gap:5px;"><i data-lucide="banknote" class="mi xs" style="color:#0052cc;"></i>Total Físico</div>
+            <div style="font-family:'Montserrat',sans-serif;font-size:26px;font-weight:900;color:#0052cc;" id="arq-fisico">S/. 0.00</div>
+          </div>
+
+          <!-- Diferencia -->
+          <div class="diff-card" id="arq-diff-card" style="border-radius:14px;padding:16px;border-width:2px;margin-top:0;">
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px;opacity:0.7;" id="arq-diff-label">Diferencia VS Teórico</div>
+            <div style="font-family:'Montserrat',sans-serif;font-size:28px;font-weight:900;margin-bottom:6px;" id="arq-diferencia">S/. 0.00</div>
+            <div style="font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:4px;" id="arq-msg"><i data-lucide="info" class="mi sm"></i> Ingresa el conteo</div>
+          </div>
+        </div>
+
+        <!-- COL DERECHA: Denominaciones -->
+        <div style="background:white;border-radius:14px;padding:16px;box-shadow:0 2px 12px rgba(0,48,135,0.06);border:1px solid var(--gris2);">
+          <div style="font-size:10px;font-weight:700;color:var(--texto2);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px;display:flex;align-items:center;gap:5px;"><i data-lucide="calculator" class="mi xs" style="color:var(--azul);"></i>Conteo de Efectivo</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 18px;">
+            <!-- Billetes -->
+            <div>
+              <div style="font-size:9px;font-weight:800;color:var(--azul);text-transform:uppercase;letter-spacing:1px;padding:4px 0;border-bottom:2px solid var(--azul-claro);margin-bottom:8px;">Billetes</div>
+              <div class="arq-denom-row"><span>S/ 200</span><input type="number" id="arq-m-b200" data-val="200" placeholder="0" min="0" class="arq-modal-input" oninput="cajaCalcArqueo()"></div>
+              <div class="arq-denom-row"><span>S/ 100</span><input type="number" id="arq-m-b100" data-val="100" placeholder="0" min="0" class="arq-modal-input" oninput="cajaCalcArqueo()"></div>
+              <div class="arq-denom-row"><span>S/ 50</span><input type="number" id="arq-m-b50" data-val="50" placeholder="0" min="0" class="arq-modal-input" oninput="cajaCalcArqueo()"></div>
+              <div class="arq-denom-row"><span>S/ 20</span><input type="number" id="arq-m-b20" data-val="20" placeholder="0" min="0" class="arq-modal-input" oninput="cajaCalcArqueo()"></div>
+              <div class="arq-denom-row" style="border-bottom:none;"><span>S/ 10</span><input type="number" id="arq-m-b10" data-val="10" placeholder="0" min="0" class="arq-modal-input" oninput="cajaCalcArqueo()"></div>
+            </div>
+            <!-- Monedas -->
+            <div>
+              <div style="font-size:9px;font-weight:800;color:var(--azul);text-transform:uppercase;letter-spacing:1px;padding:4px 0;border-bottom:2px solid var(--azul-claro);margin-bottom:8px;">Monedas</div>
+              <div class="arq-denom-row"><span>S/ 5.00</span><input type="number" id="arq-m-m5" data-val="5" placeholder="0" min="0" class="arq-modal-input" oninput="cajaCalcArqueo()"></div>
+              <div class="arq-denom-row"><span>S/ 2.00</span><input type="number" id="arq-m-m2" data-val="2" placeholder="0" min="0" class="arq-modal-input" oninput="cajaCalcArqueo()"></div>
+              <div class="arq-denom-row"><span>S/ 1.00</span><input type="number" id="arq-m-m1" data-val="1" placeholder="0" min="0" class="arq-modal-input" oninput="cajaCalcArqueo()"></div>
+              <div class="arq-denom-row"><span>S/ 0.50</span><input type="number" id="arq-m-m050" data-val="0.5" placeholder="0" min="0" class="arq-modal-input" oninput="cajaCalcArqueo()"></div>
+              <div class="arq-denom-row"><span>S/ 0.20</span><input type="number" id="arq-m-m020" data-val="0.2" placeholder="0" min="0" class="arq-modal-input" oninput="cajaCalcArqueo()"></div>
+              <div class="arq-denom-row" style="border-bottom:none;"><span>S/ 0.10</span><input type="number" id="arq-m-m010" data-val="0.1" placeholder="0" min="0" class="arq-modal-input" oninput="cajaCalcArqueo()"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div style="padding:14px 20px 18px;background:white;border-top:1px solid var(--gris2);">
+      <div style="display:flex;gap:10px;" id="arq-btns-admin">
+        <button class="btn-secundary" onclick="cajaHideArqueoModal()" style="flex:1;padding:11px;font-size:13px;border-radius:12px;">Cancelar</button>
+        <button class="btn-main" id="arq-btn-preventivo" onclick="cajaSubmitArqueo('Arqueo Preventivo')" disabled style="flex:1;padding:11px;font-size:13px;border-radius:12px;background:linear-gradient(135deg,#e67e00,#ff9a00);box-shadow:0 4px 12px rgba(230,126,0,0.25);"><i data-lucide="search" class="mi sm" style="vertical-align:text-bottom;margin-right:4px;"></i>Arqueo Preventivo</button>
+        <button class="btn-main" id="arq-btn-mes" onclick="cajaSubmitArqueo('Cierre de Mes')" disabled style="flex:1;padding:11px;font-size:13px;border-radius:12px;background:linear-gradient(135deg,#b30000,#e60000);box-shadow:0 4px 12px rgba(180,0,0,0.25);"><i data-lucide="lock" class="mi sm" style="vertical-align:text-bottom;margin-right:4px;"></i>Cerrar Mes</button>
+      </div>
+      <div style="display:flex;gap:10px;" id="arq-btns-cajera">
+        <button class="btn-secundary" onclick="cajaHideArqueoModal()" style="flex:1;padding:11px;font-size:13px;border-radius:12px;">Cancelar</button>
+        <button class="btn-main" id="arq-btn-diario" onclick="cajaSubmitArqueo('Cierre Diario')" disabled style="flex:1;padding:11px;font-size:13px;border-radius:12px;"><i data-lucide="clipboard-check" class="mi sm" style="vertical-align:text-bottom;margin-right:4px;"></i>Guardar Cierre Diario</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL KASNET -->
+<div class="modal-caja" id="modal-kasnet">
+  <div class="modal-caja-box" style="max-width:850px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h3 id="modal-kasnet-titulo"><i data-lucide="store" class="mi" style="font-size:18px;vertical-align:middle;"></i> Registro Diario POS</h3>
+      <button onclick="kasnetHideModal()" style="background:none;border:none;font-size:18px;cursor:pointer;">x</button>
+    </div>
+    <input type="hidden" id="kasnet-edit-id">
+
+    <div style="display:grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap:16px; align-items: stretch;">
+      <!-- COLUMNA IZQUIERDA -->
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <div style="background:white; border:1px solid var(--gris2); padding:10px; border-radius:10px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+          <h4 style="font-size:11px; margin-bottom:8px; color:var(--azul); font-weight:800; display:flex; align-items:center; gap:4px;"><i data-lucide="info" class="mi xs"></i> Datos Generales</h4>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div class="form-caja-group"><label style="margin-bottom:2px;font-size:9px;">Fecha</label><input type="date" id="kasnet-fecha" style="padding:6px; font-size:11px; border-radius:6px; border:1px solid var(--gris2);"></div>
+            <div class="form-caja-group"><label style="margin-bottom:2px;font-size:9px;">NÂ° Operaciones</label><input type="number" id="kasnet-num-ops" placeholder="0" min="0" step="1" style="padding:6px; font-size:11px; border-radius:6px; border:1px solid var(--gris2);"></div>
+          </div>
+        </div>
+        
+        <div style="background:linear-gradient(135deg, #f8fbfd 0%, #f1f6fb 100%); border:1px solid #e1ecf4; padding:10px; border-radius:10px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+          <h4 style="font-size:11px; margin-bottom:8px; color:var(--azul); font-weight:800; display:flex; align-items:center; gap:4px;"><i data-lucide="wallet" class="mi xs"></i> Saldos Virtuales</h4>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div class="form-caja-group"><label style="margin-bottom:2px;font-size:9px;">POS KASNET</label><input type="number" id="kasnet-pos-virt" placeholder="0.00" step="0.01" oninput="kasnetCalcTotal()" style="padding:6px; font-size:11px; border-radius:6px; border:1px solid #c9dfed;"></div>
+            <div class="form-caja-group"><label style="margin-bottom:2px;font-size:9px;">PAGAYA virtual</label><input type="number" id="kasnet-pagaya-virt" placeholder="0.00" step="0.01" oninput="kasnetCalcTotal()" style="padding:6px; font-size:11px; border-radius:6px; border:1px solid #c9dfed;"></div>
+          </div>
+        </div>
+
+        <div style="background:white; border:1px solid var(--gris2); padding:10px; border-radius:10px; flex:1; display:flex; flex-direction:column; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+          <h4 style="font-size:11px; margin-bottom:8px; color:var(--azul); font-weight:800; display:flex; align-items:center; gap:4px;"><i data-lucide="receipt" class="mi xs"></i> Comprobante</h4>
+          <div id="kasnet-archivo-actual" style="display:none;margin-bottom:8px;">
+            <button type="button" onclick="verSustento(document.getElementById('kasnet-archivo-actual').dataset.url)" style="background:var(--azul-claro);color:var(--azul);border:1px solid #d0e3fc;border-radius:6px;padding:6px 10px;font-size:11px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;width:100%;justify-content:center;transition:all 0.2s;">
+              <i data-lucide="eye" class="mi sm"></i> Ver comprobante subido
+            </button>
+          </div>
+          <div class="file-upload-wrapper" style="flex:1; display:flex; align-items:center; justify-content:center;">
+            <label for="kasnet-file" class="file-upload-label" id="kasnet-file-upload-label" style="padding:10px; width:100%; height:100%; display:flex; flex-direction:column; justify-content:center; text-align:center;">
+              <i data-lucide="upload-cloud" class="mi" id="kasnet-file-upload-icon" style="font-size:24px; margin-bottom:4px;"></i>
+              <span id="kasnet-file-upload-text" style="font-weight:600; font-size:11px;">Subir comprobante</span>
+            </label>
+            <input type="file" id="kasnet-file" accept="image/*,application/pdf" style="display:none;" onchange="
+              const kasnet_fT = document.getElementById('kasnet-file-upload-text');
+              const kasnet_fI = document.getElementById('kasnet-file-upload-icon');
+              const kasnet_fL = document.getElementById('kasnet-file-upload-label');
+              if(this.files.length > 0) {
+                kasnet_fT.innerText = this.files[0].name;
+                kasnet_fI.innerText = 'check_circle';
+                kasnet_fL.classList.add('has-file');
+                kasnet_fL.parentElement.style.borderColor = 'var(--verde)';
+              } else {
+                kasnet_fT.innerText = 'Subir comprobante';
+                kasnet_fI.innerText = 'cloud_upload';
+                kasnet_fL.classList.remove('has-file');
+                kasnet_fL.parentElement.style.borderColor = '';
+              }
+            ">
+          </div>
+          <div style="font-size:9px; color:var(--texto2); margin-top:8px; text-align:center;">Formatos aceptados: JPG, PNG, PDF (Máx. 3MB).</div>
+        </div>
+      </div>
+
+      <!-- COLUMNA DERECHA -->
+      <div style="display:flex; flex-direction:column; gap:10px; min-width: 0;">
+        <div style="background:white; border:1px solid var(--gris2); padding:10px; border-radius:10px; flex:1; display:flex; flex-direction:column; box-shadow: 0 2px 8px rgba(0,0,0,0.02); min-width: 0;">
+          <h4 style="font-size:11px; margin-bottom:10px; color:var(--azul); font-weight:800; display:flex; align-items:center; gap:4px;"><i data-lucide="banknote" class="mi xs"></i> Efectivo Físico</h4>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px; flex:1; min-width: 0;">
+            <!-- Billetes -->
+            <div style="min-width: 0;">
+              <div style="font-size:9px; border-bottom:1px solid var(--gris); padding-bottom:2px; font-weight:800; color:var(--texto2); margin-bottom:8px; letter-spacing:0.5px;">BILLETES</div>
+              <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:38px; font-size:11px; font-weight:600; color:var(--texto);">S/ 200</span><input type="number" id="k-b200" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
+              <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:38px; font-size:11px; font-weight:600; color:var(--texto);">S/ 100</span><input type="number" id="k-b100" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
+              <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:38px; font-size:11px; font-weight:600; color:var(--texto);">S/ 50</span><input type="number" id="k-b50" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
+              <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:38px; font-size:11px; font-weight:600; color:var(--texto);">S/ 20</span><input type="number" id="k-b20" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
+              <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:38px; font-size:11px; font-weight:600; color:var(--texto);">S/ 10</span><input type="number" id="k-b10" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
+            </div>
+            <!-- Monedas -->
+            <div style="min-width: 0;">
+              <div style="font-size:9px; border-bottom:1px solid var(--gris); padding-bottom:2px; font-weight:800; color:var(--texto2); margin-bottom:8px; letter-spacing:0.5px;">MONEDAS</div>
+              <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:40px; font-size:11px; font-weight:600; color:var(--texto);">S/ 5.00</span><input type="number" id="k-m5" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
+              <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:40px; font-size:11px; font-weight:600; color:var(--texto);">S/ 2.00</span><input type="number" id="k-m2" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
+              <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:40px; font-size:11px; font-weight:600; color:var(--texto);">S/ 1.00</span><input type="number" id="k-m1" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
+              <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:40px; font-size:11px; font-weight:600; color:var(--texto);">S/ 0.50</span><input type="number" id="k-m050" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
+              <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:40px; font-size:11px; font-weight:600; color:var(--texto);">S/ 0.20</span><input type="number" id="k-m020" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
+              <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:40px; font-size:11px; font-weight:600; color:var(--texto);">S/ 0.10</span><input type="number" id="k-m010" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
+            </div>
+          </div>
+          <div style="margin-top:auto; padding-top:10px; border-top:1px dashed var(--gris2); font-size:12px; font-weight:800; color:var(--texto); display:flex; justify-content:space-between; align-items:center;">
+             <span>Total Físico en Caja:</span>
+             <span id="kasnet-total-fisico" style="color:var(--verde); font-size:14px;">S/. 0.00</span>
+          </div>
+        </div>
+        
+        <div class="diff-card" id="kasnet-cuadre-diff" style="padding:10px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <span style="font-size:11px; font-weight:700;">TOTAL DECLARADO:</span>
+            <span style="font-size:16px; font-weight:800;" id="kasnet-total-declarado">S/. 0.00</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:11px; font-weight:700;">DIFERENCIA VS BASE:</span>
+            <span style="font-size:16px; font-weight:800;" id="kasnet-diferencia-total">S/. 0.00</span>
+          </div>
+          <div style="font-size:11px; font-weight:700; margin-top:8px; text-align:center; padding-top:8px; border-top:1px dashed rgba(0,0,0,0.1);" id="kasnet-cuadre-msg">Completa saldos y efectivo</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:8px;">
+      <button class="btn-secundary" onclick="kasnetHideModal()" style="flex:1;">Cancelar</button>
+      <button class="btn-main" onclick="kasnetGuardar()" id="kasnet-btn-guardar" style="flex:1;padding:12px;" disabled>Guardar Registro</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- SEDE TRANSITION OVERLAY -->
+<div class="sede-transition" id="sede-transition">
+  <div class="sede-icon-wrapper">
+    <div class="sede-spinner"></div>
+    <div class="sede-icon"><i data-lucide="map-pin" class="mi"></i></div>
+  </div>
+  <div class="sede-name" id="sede-transition-name"></div>
+  <div class="sede-sub">Cambiando de oficina...</div>
+</div>
+
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    lucide.createIcons();
+    
+    // Senior approach: Automatically render new icons when DOM changes
+    const observer = new MutationObserver((mutations) => {
+      let shouldCreate = false;
+      for (let m of mutations) {
+        for (let node of m.addedNodes) {
+          if (node.nodeType === 1 && (node.hasAttribute('data-lucide') || node.querySelector('[data-lucide]'))) {
+            shouldCreate = true;
+            break;
+          }
+        }
+        if (shouldCreate) break;
+      }
+      
+      if (shouldCreate) {
+        observer.disconnect();
+        lucide.createIcons();
+        // Prevent infinite loops: remove data-lucide from rendered SVGs so they aren't processed again
+        document.querySelectorAll('svg[data-lucide]').forEach(el => el.removeAttribute('data-lucide'));
+        observer.observe(document.body, { childList: true, subtree: true });
+      }
+    });
+    
+    // Initial render
+    lucide.createIcons();
+    document.querySelectorAll('svg[data-lucide]').forEach(el => el.removeAttribute('data-lucide'));
+    observer.observe(document.body, { childList: true, subtree: true });
+  });
+</script>
+<script src="js/core.js"></script>
+  <script src="js/modules/app.js"></script>
+  <script src="js/modules/dashboard.js"></script>
+  <script src="js/modules/mora.js"></script>
+  <script src="js/modules/clientes.js"></script>
+  <script src="js/modules/caja-chica.js"></script>
+  <script src="js/modules/kasnet.js"></script>
+  <script src="js/modules/cartas.js"></script>
+
+<!-- MODAL BULK WA -->
+<div id="modal-rec" style="display:none;position:fixed;inset:0;background:rgba(11,20,26,0.6);backdrop-filter:blur(3px);z-index:9999;align-items:center;justify-content:center;padding:12px;font-family:Segoe UI,Helvetica,Arial,sans-serif;">
+  <div style="background:#f0f2f5;border-radius:20px;width:100%;max-width:350px;overflow:hidden;box-shadow:0 15px 35px rgba(0,0,0,0.2);">
+    
+    <!-- Header (Contact Info) -->
+    <div style="padding:14px 16px;background:white;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e9edef;">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div id="rec-avatar" style="width:38px;height:38px;background:#fff0f0;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#cc0000;flex-shrink:0;"><i data-lucide="user" class="mi sm" style="margin:0;"></i></div>
+        <div style="display:flex;flex-direction:column;justify-content:center;">
+          <div id="rec-nombre" style="color:#111b21;font-weight:600;font-size:15px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;">Cargando...</div>
+          <div id="rec-tel" style="font-size:13px;color:#667781;line-height:1.2;margin-top:2px;">-</div>
+        </div>
+      </div>
+      <button onclick="cerrarRecModal()" style="background:transparent;border:none;color:#54656f;cursor:pointer;padding:4px;display:flex;align-items:center;justify-content:center;"><i data-lucide="x" class="mi"></i></button>
+    </div>
+
+    <!-- Paginator & Progress -->
+    <div style="background:white;padding:8px 16px;display:flex;align-items:center;border-bottom:1px solid #e9edef;">
+        <div style="display:flex;align-items:center;gap:6px;">
+            <button id="rec-btn-ant" onclick="(function(){_recIdx--;renderRecModal();})()" style="background:none;border:none;cursor:pointer;color:#8696a0;padding:4px;display:flex;align-items:center;border-radius:50%;transition:background 0.2s;"><i data-lucide="chevron-left" class="mi sm"></i></button>
+            <div id="rec-contador" style="font-size:12px;color:#54656f;font-weight:600;min-width:44px;text-align:center;">1/50</div>
+            <button id="rec-btn-sig" onclick="(function(){if(_recIdx < _recLista.length-1){_recIdx++;}else{_recIdx=0;} renderRecModal();})()" style="background:none;border:none;cursor:pointer;color:#8696a0;padding:4px;display:flex;align-items:center;border-radius:50%;transition:background 0.2s;"><i data-lucide="chevron-right" class="mi sm"></i></button>
+        </div>
+        <div style="flex:1;margin-left:12px;height:4px;background:#e9edef;border-radius:2px;overflow:hidden;">
+            <div id="rec-progreso" style="height:100%;background:var(--azul);width:0%;transition:width 0.3s;border-radius:2px;"></div>
+        </div>
+    </div>
+
+    <!-- Chat Body -->
+    <div style="padding:20px 16px;background:#efeae2;background-image:url('https://i.pinimg.com/1200x/8f/ba/cb/8fbacbd464e996966eb9d4a6b7a9c21e.jpg');background-size:cover;background-position:center;position:relative;">
+      
+      <!-- Chat Bubble -->
+      <div style="background:#dcf8c6;border-radius:8px;border-top-right-radius:0;box-shadow:0 1px 1px rgba(0,0,0,0.1);padding:8px 10px;position:relative;margin-left:16px;margin-bottom:8px;">
+         <div id="rec-msg" style="font-size:14px;color:#111b21;line-height:1.4;white-space:pre-wrap;max-height:180px;overflow-y:auto;text-shadow: 0 1px 0 rgba(255,255,255,0.4);"></div>
+         <div style="position:absolute;top:0;right:-8px;width:0;height:0;border-top:10px solid #dcf8c6;border-right:10px solid transparent;"></div>
+      </div>
+
+    </div>
+
+    <!-- Actions Footer -->
+    <div style="padding:14px 16px;background:white;display:flex;flex-direction:column;gap:8px;">
+      <div style="background: #f0f2f5; border-radius: 12px; padding: 12px; font-size: 12px; color: #54656f; margin-bottom: 4px;">
+          <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px; color: #111b21;">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+              <strong>Tiempo estimado:</strong> <span id="rec-tiempo">~0 min</span>
+          </div>
+          <div style="color: #cc0000; font-weight: 600; font-size: 11.5px; line-height: 1.3;"><i data-lucide="alert-triangle" class="mi xs" style="vertical-align:text-bottom;margin-right:2px;"></i> IMPORTANTE: No abras ni interactúes con la pestaña de WhatsApp Web mientras el Bot esté trabajando.</div>
+      </div>
+      <button onclick="exportarWhatsAppCSV()" style="width:100%;background:linear-gradient(135deg, var(--azul) 0%, var(--azul2) 100%);color:white;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 10px rgba(0,82,204,0.25);">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="16" height="16" fill="white"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg>
+        Enviar Masivo
+      </button>
+      <div style="display:flex;justify-content:center;">
+        <button onclick="descargarCSVBackup()" style="background:transparent;color:#8696a0;border:none;padding:4px;font-size:11px;font-weight:600;cursor:pointer;text-decoration:underline;">
+          Descargar Backup (.csv)
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
