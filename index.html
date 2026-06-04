@@ -715,7 +715,7 @@
 <div class="toast" id="toast">¡Copiado!</div>
 
 <script>
-  const API_URL = (window.location.hostname === 'localhost' || window.location.protocol === 'file:')
+  const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:')
     ? "https://script.google.com/macros/s/AKfycbxARZ0RKzgRWAdLl8SOLN-oeVJWEkdIvcaXE1tmWHRAllIJnYndrRgPHEMZ3_r4BV5wxA/exec"
     : "/api";
 
