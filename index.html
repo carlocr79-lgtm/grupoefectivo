@@ -19,7 +19,7 @@
     --azul2: #0052cc;
     --azul-claro: #e8f0ff;
     --rojo: #cc0000;
-    --verde: #00aa44;
+    --verde: #0052cc;
     --blanco: #ffffff;
     --gris: #f5f7fc;
     --gris2: #e0e6f0;
@@ -166,9 +166,9 @@
     width: 72px; height: 72px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;
   }
   .status-icon-wrap.naranja { background: #fff3e0; color: #ff8800; animation: pulse-soft-or 2s infinite; }
-  .status-icon-wrap.verde { background: #e8f5e9; color: #00aa44; animation: pulse-soft-gr 2s infinite; }
+  .status-icon-wrap.verde { background: #e8f5e9; color: #0052cc; animation: pulse-soft-gr 2s infinite; }
   @keyframes pulse-soft-or { 0% { box-shadow: 0 0 0 0 rgba(255,136,0,0.2); } 70% { box-shadow: 0 0 0 15px rgba(255,136,0,0); } 100% { box-shadow: 0 0 0 0 rgba(255,136,0,0); } }
-  @keyframes pulse-soft-gr { 0% { box-shadow: 0 0 0 0 rgba(0,170,68,0.2); } 70% { box-shadow: 0 0 0 15px rgba(0,170,68,0); } 100% { box-shadow: 0 0 0 0 rgba(0,170,68,0); } }
+  @keyframes pulse-soft-gr { 0% { box-shadow: 0 0 0 0 rgba(0,82,204,0.2); } 70% { box-shadow: 0 0 0 15px rgba(0,82,204,0); } 100% { box-shadow: 0 0 0 0 rgba(0,82,204,0); } }
   .status-title { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 20px; color: var(--texto); margin-bottom: 8px; }
   .status-msg { font-size: 13px; color: var(--texto2); line-height: 1.5; margin-bottom: 20px; }
   .status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 10px 16px; border-radius: 12px; font-size: 12px; font-weight: 700; justify-content: center; }
@@ -214,7 +214,7 @@
     border-radius: 20px; font-size: 11px; font-weight: 700;
     font-family: 'Montserrat', sans-serif; margin-bottom: 14px;
   }
-  .estado-normal { background: #00aa44; color: white; }
+  .estado-normal { background: #0052cc; color: white; }
   .estado-cpp { background: #ffbb00; color: #1a1a2e; }
   .estado-deficiente { background: #ff8800; color: white; }
   .estado-dudoso { background: #cc0000; color: white; }
@@ -264,10 +264,10 @@
   /* BTN PRINCIPAL */
   .btn-main {
     width: 100%; padding: 16px;
-    background: linear-gradient(135deg, var(--verde) 0%, #00cc55 100%);
+    background: linear-gradient(135deg, var(--verde) 0%, #003087 100%);
     color: white; border: none; border-radius: 12px;
     font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 16px;
-    cursor: pointer; box-shadow: 0 4px 16px rgba(0,170,68,0.35);
+    cursor: pointer; box-shadow: 0 4px 16px rgba(0,82,204,0.35);
     transition: transform 0.15s;
   }
   .btn-main:active { transform: scale(0.98); }
@@ -380,7 +380,7 @@
 
   /* CELEBRATION */
   #step-exito {
-    background: linear-gradient(135deg, #003087 0%, #0052cc 50%, #00aa44 100%);
+    background: linear-gradient(135deg, #003087 0%, #0052cc 50%, #0052cc 100%);
     background-size: 300% 300%;
     animation: bgFlow 4s ease infinite;
     align-items: center; justify-content: center;
@@ -402,7 +402,7 @@
   .exito-box::before {
     content: '';
     position: absolute; top: 0; left: 0; right: 0; height: 5px;
-    background: linear-gradient(90deg, #003087, #00aa44, #ffaa00, #003087);
+    background: linear-gradient(90deg, #003087, #0052cc, #ffaa00, #003087);
     background-size: 200% 100%;
     animation: shimmer 2s linear infinite;
   }
@@ -410,24 +410,24 @@
   @keyframes popIn { from { transform: scale(0.3) rotate(-5deg); opacity: 0; } to { transform: scale(1) rotate(0deg); opacity: 1; } }
   .exito-icon-wrap {
     width: 100px; height: 100px; border-radius: 50%;
-    background: linear-gradient(135deg, #00aa44, #00cc55);
+    background: linear-gradient(135deg, #0052cc, #003087);
     display: flex; align-items: center; justify-content: center;
     margin: 0 auto 20px;
     animation: pulse 1.5s ease-in-out infinite;
   }
   @keyframes pulse {
-    0% { box-shadow: 0 0 0 0 rgba(0,170,68,0.5); }
-    70% { box-shadow: 0 0 0 22px rgba(0,170,68,0); }
-    100% { box-shadow: 0 0 0 0 rgba(0,170,68,0); }
+    0% { box-shadow: 0 0 0 0 rgba(0,82,204,0.5); }
+    70% { box-shadow: 0 0 0 22px rgba(0,82,204,0); }
+    100% { box-shadow: 0 0 0 0 rgba(0,82,204,0); }
   }
   .exito-icon { font-size: 52px; line-height: 1; }
   .exito-title { font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 26px; color: #003087; margin-bottom: 6px; }
-  .exito-subtitle { font-size: 13px; color: #00aa44; font-weight: 700; margin-bottom: 16px; }
+  .exito-subtitle { font-size: 13px; color: #0052cc; font-weight: 700; margin-bottom: 16px; }
   .exito-msg { font-size: 13px; color: var(--texto2); line-height: 1.7; margin-bottom: 20px; }
   .exito-badge {
     background: linear-gradient(135deg, #f0fff4, #e0f7ea);
-    border: 1.5px solid #00cc55; border-radius: 12px;
-    padding: 12px 16px; font-size: 12px; color: #00aa44;
+    border: 1.5px solid #003087; border-radius: 12px;
+    padding: 12px 16px; font-size: 12px; color: #0052cc;
     font-weight: 700; margin-bottom: 20px;
     display: flex; align-items: center; gap: 8px; justify-content: center;
   }
@@ -715,7 +715,9 @@
 <div class="toast" id="toast">¡Copiado!</div>
 
 <script>
-  const API_URL = "/api";
+  const API_URL = (window.location.hostname === 'localhost' || window.location.protocol === 'file:')
+    ? "https://script.google.com/macros/s/AKfycbxARZ0RKzgRWAdLl8SOLN-oeVJWEkdIvcaXE1tmWHRAllIJnYndrRgPHEMZ3_r4BV5wxA/exec"
+    : "/api";
 
   // ─── BLOQUEO DE ZOOM (iOS Safari ignora user-scalable=no) ───
   document.addEventListener('touchstart', function(e) {
@@ -906,7 +908,7 @@
         } else if (endMins - totalMins <= 10) {
           return { color: '#f59e0b', text: 'Cierra pronto' };
         } else {
-          return { color: '#10b981', text: 'Abierto' };
+          return { color: '#0052cc', text: 'Abierto' };
         }
       }
 
@@ -1089,7 +1091,7 @@
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    const colores = ['#003087','#0052cc','#00aa44','#ffaa00','#ff4444','#ffffff','#00cc55','#ffcc00'];
+    const colores = ['#003087','#0052cc','#0052cc','#ffaa00','#ff4444','#ffffff','#003087','#ffcc00'];
     const particulas = [];
     for (let i = 0; i < 220; i++) {
       const tipo = Math.random() > 0.5 ? 'rect' : 'circle';
