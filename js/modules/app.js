@@ -519,25 +519,21 @@
     let fisicoCaja = 0;
     let fisicoKasnet = 0;
 
-    // Obtener fisico de caja chica
-    if (typeof window.cajaMovimientos !== 'undefined' && Array.isArray(window.cajaMovimientos)) {
-      fisicoCaja = window.cajaMovimientos.reduce((acc, m) => {
+    // Obtener fisico de caja chica (usamos cajaSaldoTeorico que es el saldo neto exacto esperado)
+    if (typeof cajaSaldoTeorico !== 'undefined') {
+      fisicoCaja = parseFloat(cajaSaldoTeorico) || 0;
+    } else if (typeof cajaMovimientos !== 'undefined' && Array.isArray(cajaMovimientos)) {
+      fisicoCaja = cajaMovimientos.reduce((acc, m) => {
         let monto = parseFloat(m.monto) || 0;
-        return acc + (m.tipo === 'INGRESO' ? monto : -monto);
+        // Dependiendo de si se guarda como 'Ingreso' o 'INGRESO'
+        return acc + ((m.tipo || '').toUpperCase() === 'INGRESO' ? monto : -monto);
       }, 0);
     }
 
-    // Obtener fisico de kasnet
-    if (typeof window.kasnetMovimientos !== 'undefined' && Array.isArray(window.kasnetMovimientos)) {
-      // Kasnet usa calculo de transacciones
-      let sldIni = 0, trans = 0, depositos = 0;
-      window.kasnetMovimientos.forEach(m => {
-        if(m.concepto === 'SALDO_INICIAL') sldIni = parseFloat(m.monto) || 0;
-        else if(m.tipo === 'TRANSACCION') trans += (parseFloat(m.monto) || 0);
-        else if(m.tipo === 'DEPOSITO') depositos += (parseFloat(m.monto) || 0);
-      });
-      // Saldo Fisico Kasnet = Saldo Inicial + Transacciones - Depositos
-      fisicoKasnet = sldIni + trans - depositos;
+    // Obtener fisico de kasnet (usamos el registro más reciente de hoy)
+    if (typeof kasnetRegistros !== 'undefined' && Array.isArray(kasnetRegistros) && kasnetRegistros.length > 0) {
+      // El registro [0] suele ser el más reciente. Tomamos su efectivo físico declarado.
+      fisicoKasnet = parseFloat(kasnetRegistros[0].efectivoFisico) || 0;
     }
 
     const total = fisicoCaja + fisicoKasnet;
