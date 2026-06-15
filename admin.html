@@ -10,52 +10,152 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/admin.css">
+<link rel="stylesheet" href="css/admin.css?v=202606051">
+<link rel="stylesheet" href="css/table.css?v=5">
+<script>
+  if (sessionStorage.getItem('ge_session')) {
+    document.write('<style>#login-screen { display: none !important; } #app { display: block !important; }</style>');
+  }
+</script>
 </head>
 <body>
 
 <!-- LOGIN -->
-<div id="login-screen">
-  <div class="login-logo"><i data-lucide="briefcase" class="mi" style="font-size:24px;vertical-align:middle;margin-right:4px;"></i> Grupo Efectivo</div>
-  <div class="login-sub">Panel de Administración</div>
+<div id="login-screen" class="split-layout">
+  
+  <!-- LADO IZQUIERDO: Branding y Fondo -->
+  <div class="login-left" style="background: #012041; transition: background 0.3s ease;">
 
-  <!-- PASO 1: CORREO -->
-  <div class="login-box" id="box-correo">
-    <h2><i data-lucide="mail" class="mi" style="font-size:20px;vertical-align:middle;margin-right:4px;"></i> Ingresa tu correo</h2>
-    <div class="form-group">
-      <label>Correo autorizado</label>
-      <input type="email" id="inp-correo" placeholder="tucorreo@gmail.com" autocomplete="email"
-        onkeydown="if(event.key==='Enter')solicitarCodigo()">
+    <div class="login-brand-content" style="position: relative; z-index: 10; width: 100%; height: 100%; display: flex; align-items: center; justify-content: flex-end; padding: 40px; overflow: hidden;">
+
+      <!-- Mascot Image (Reactive) -->
+      <img id="mascot-img" src="img/login_rabbit.png" alt="Mascota Grupo Efectivo">
+
+      <!-- Feature Cards Stack -->
+      <div class="feature-cards-stack" style="position: relative; z-index: 2; width: 280px; display: flex; flex-direction: column; gap: 12px; margin-right: 20px;">
+        <div class="feature-card" style="background: rgba(0,10,31,0.55); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 14px; display: flex; align-items: center; gap: 14px; backdrop-filter: blur(8px);">
+          <div class="fc-icon" style="color: #ff4757;"><i data-lucide="trending-up" class="mi"></i></div>
+          <div class="fc-text"><h4 style="margin:0; font-size:14px; color:white;">Créditos</h4><p style="margin:0; font-size:12px; color:rgba(255,255,255,0.6);">Gestiona y controla tus créditos</p></div>
+        </div>
+        <div class="feature-card" style="background: rgba(0,10,31,0.55); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 14px; display: flex; align-items: center; gap: 14px; backdrop-filter: blur(8px);">
+          <div class="fc-icon" style="color: #ff4757;"><i data-lucide="users" class="mi"></i></div>
+          <div class="fc-text"><h4 style="margin:0; font-size:14px; color:white;">Clientes</h4><p style="margin:0; font-size:12px; color:rgba(255,255,255,0.6);">Información y análisis de clientes</p></div>
+        </div>
+        <div class="feature-card" style="background: rgba(0,10,31,0.55); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 14px; display: flex; align-items: center; gap: 14px; backdrop-filter: blur(8px);">
+          <div class="fc-icon" style="color: #ff4757;"><i data-lucide="circle-dollar-sign" class="mi"></i></div>
+          <div class="fc-text"><h4 style="margin:0; font-size:14px; color:white;">Cobranza</h4><p style="margin:0; font-size:12px; color:rgba(255,255,255,0.6);">Seguimiento y gestión de pagos</p></div>
+        </div>
+        <div class="feature-card" style="background: rgba(0,10,31,0.55); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 14px; display: flex; align-items: center; gap: 14px; backdrop-filter: blur(8px);">
+          <div class="fc-icon" style="color: #ff4757;"><i data-lucide="folder-open" class="mi"></i></div>
+          <div class="fc-text"><h4 style="margin:0; font-size:14px; color:white;">Expedientes</h4><p style="margin:0; font-size:12px; color:rgba(255,255,255,0.6);">Documentos y archivos de clientes</p></div>
+        </div>
+        <div class="feature-card" style="background: rgba(0,10,31,0.55); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 14px; display: flex; align-items: center; gap: 14px; backdrop-filter: blur(8px);">
+          <div class="fc-icon" style="color: #ff4757;"><i data-lucide="vault" class="mi"></i></div>
+          <div class="fc-text"><h4 style="margin:0; font-size:14px; color:white;">Caja</h4><p style="margin:0; font-size:12px; color:rgba(255,255,255,0.6);">Control de movimientos y arqueos</p></div>
+        </div>
+      </div>
     </div>
-    <button class="btn-login" id="btn-solicitar" onclick="solicitarCodigo()">Enviar C&oacute;digo <i data-lucide="arrow-right" class="mi xs" style="vertical-align:middle;"></i></button>
-    <div class="login-error" id="login-error">Correo no autorizado</div>
-    <div class="login-success" id="login-ok"><i data-lucide="check-circle" class="mi sm"></i> Código enviado a tu correo</div>
   </div>
 
-  <!-- PASO 2: CÓDIGO -->
-  <div class="login-box" id="box-codigo" style="display:none;">
-    <h2><i data-lucide="pin" class="mi" style="font-size:20px;vertical-align:middle;margin-right:4px;"></i> Ingresa el Código</h2>
-    <div class="correo-display">Código enviado a <strong id="correo-display-txt"></strong></div>
-    <div class="codigo-inputs">
-      <input type="tel" maxlength="1" class="cod-input" id="c1" oninput="avanzarCodigo(this,'c2')">
-      <input type="tel" maxlength="1" class="cod-input" id="c2" oninput="avanzarCodigo(this,'c3')" onkeydown="retrocederCodigo(event,'c1')">
-      <input type="tel" maxlength="1" class="cod-input" id="c3" oninput="avanzarCodigo(this,'c4')" onkeydown="retrocederCodigo(event,'c2')">
-      <input type="tel" maxlength="1" class="cod-input" id="c4" oninput="avanzarCodigo(this,'c5')" onkeydown="retrocederCodigo(event,'c3')">
-      <input type="tel" maxlength="1" class="cod-input" id="c5" oninput="avanzarCodigo(this,'c6')" onkeydown="retrocederCodigo(event,'c4')">
-      <input type="tel" maxlength="1" class="cod-input" id="c6" oninput="avanzarCodigo(this,null)" onkeydown="retrocederCodigo(event,'c5')">
+  <!-- LADO DERECHO: Formulario -->
+  <div class="login-right">
+    <div class="login-timer-top">
+      <span id="timer-txt">Inicia sesión de forma segura</span>
+      <i data-lucide="shield-check" class="mi sm"></i>
     </div>
-    <button class="btn-login" id="btn-verificar-cod" onclick="verificarCodigo()">Verificar <i data-lucide="arrow-right" class="mi xs" style="vertical-align:middle;"></i></button>
-    <div class="login-error" id="codigo-error">Código incorrecto o expirado</div>
-    <div class="timer" id="timer-txt"></div>
-    <button class="btn-reenviar" onclick="volverCorreo()"><i data-lucide="arrow-left" class="mi xs" style="vertical-align:middle;"></i> Cambiar correo / Reenviar</button>
-  </div>
-</div>
+
+    <div class="login-content-wrapper">
+      <div class="login-box flat-panel" id="main-login-panel">
+      
+      <div class="login-header">
+        <div class="logo-icon-wrap" style="margin: 0 auto 16px auto; width: 48px; height: 48px; border-radius: 16px;">
+          <i data-lucide="lock" class="mi" style="font-size: 24px;"></i>
+        </div>
+      </div>
+
+      <!-- PASO 1: CORREO -->
+      <div id="box-correo" class="step-container active">
+        <h2 class="step-title" style="font-size: 18px; margin-bottom: 6px;">Acceso Seguro</h2>
+        <p style="text-align:center; font-size:13px; color:var(--texto2); margin-bottom:24px; font-weight:500;">Ingresa tu correo para continuar</p>
+        
+        <div class="form-group floating">
+          <input type="email" id="inp-correo" placeholder=" " autocomplete="email"
+            onkeydown="if(event.key==='Enter')solicitarCodigo()">
+          <label for="inp-correo">Correo electrónico</label>
+        </div>
+        <button class="btn-login" id="btn-solicitar" onclick="solicitarCodigo()">
+          <span class="btn-text">Enviar Código <i data-lucide="arrow-right" class="mi xs" style="vertical-align:middle;"></i></span>
+          <span class="btn-spinner" style="display:none;"><i data-lucide="loader-2" class="mi spin"></i> Procesando...</span>
+        </button>
+        <div class="login-error" id="login-error">Correo no autorizado</div>
+        <div class="login-success" id="login-ok"><i data-lucide="check-circle" class="mi sm"></i> Código enviado a tu correo</div>
+      </div>
+
+      <!-- PASO 2: CÓDIGO -->
+      <div id="box-codigo" class="step-container" style="display:none;">
+        <h2 class="step-title">Verificación de Seguridad</h2>
+        <div class="correo-display">Código enviado a <strong id="correo-display-txt"></strong></div>
+        <div class="codigo-inputs">
+          <input type="tel" maxlength="1" class="cod-input" id="c1" autocomplete="one-time-code" oninput="avanzarCodigo(this,'c2')">
+          <input type="tel" maxlength="1" class="cod-input" id="c2" autocomplete="one-time-code" oninput="avanzarCodigo(this,'c3')" onkeydown="retrocederCodigo(event,'c1')">
+          <input type="tel" maxlength="1" class="cod-input" id="c3" autocomplete="one-time-code" oninput="avanzarCodigo(this,'c4')" onkeydown="retrocederCodigo(event,'c2')">
+          <input type="tel" maxlength="1" class="cod-input" id="c4" autocomplete="one-time-code" oninput="avanzarCodigo(this,'c5')" onkeydown="retrocederCodigo(event,'c3')">
+          <input type="tel" maxlength="1" class="cod-input" id="c5" autocomplete="one-time-code" oninput="avanzarCodigo(this,'c6')" onkeydown="retrocederCodigo(event,'c4')">
+          <input type="tel" maxlength="1" class="cod-input" id="c6" autocomplete="one-time-code" oninput="avanzarCodigo(this,null)" onkeydown="retrocederCodigo(event,'c5')">
+        </div>
+        <button class="btn-login" id="btn-verificar-cod" onclick="verificarCodigo()">
+          <span class="btn-text">Verificar Código <i data-lucide="arrow-right" class="mi xs" style="vertical-align:middle;"></i></span>
+          <span class="btn-spinner" style="display:none;"><i data-lucide="loader-2" class="mi spin"></i> Verificando...</span>
+        </button>
+        <div class="login-error" id="codigo-error">Código incorrecto o expirado</div>
+        <button class="btn-reenviar" onclick="volverCorreo()"><i data-lucide="arrow-left" class="mi xs" style="vertical-align:middle;"></i> Cambiar correo o Reenviar</button>
+      </div>
+    </div> <!-- End MAIN LOGIN PANEL -->
+    </div> <!-- End login-content-wrapper -->
+  </div> <!-- End login-right -->
+</div> <!-- End login-screen -->
+
+<script>
+(function() {
+  var STATES = { base:"img/login_rabbit.png", pointing:"img/rabbit_pointing.png", otp:"img/rabbit_otp.png" };
+  Object.keys(STATES).forEach(function(k){ var i=new Image(); i.src=STATES[k]; });
+  var cur="base";
+  function setMascot(s) {
+    if(s===cur) return; cur=s;
+    var img=document.getElementById("mascot-img"); if(!img) return;
+    img.classList.add("mascot-swap-out");
+    setTimeout(function(){ 
+      img.src=STATES[s]; 
+      var ll = document.querySelector('.login-left');
+      if(ll) {
+        if(s==='base') ll.style.background = '#012041';
+        else if(s==='pointing') ll.style.background = '#021331';
+        else if(s==='otp') ll.style.background = '#001330';
+      }
+      img.classList.remove("mascot-swap-out"); 
+      img.classList.add("mascot-swap-in"); 
+      setTimeout(function(){ img.classList.remove("mascot-swap-in"); },350); 
+    },200);
+  }
+  function init() {
+    var c=document.getElementById("inp-correo");
+    if(c){ c.addEventListener("focus",function(){ setMascot("pointing"); }); c.addEventListener("blur",function(){ setMascot("base"); }); }
+    document.querySelectorAll(".cod-input").forEach(function(inp){
+      inp.addEventListener("focus",function(){ setMascot("otp"); });
+      inp.addEventListener("blur",function(){ if(!document.querySelector(".cod-input:focus")) setMascot("base"); });
+    });
+    var ob=document.getElementById("box-codigo");
+    if(ob) new MutationObserver(function(){ ob.style.display!=="none"?setMascot("otp"):setMascot("base"); }).observe(ob,{attributes:true,attributeFilter:["style"]});
+  }
+  document.readyState==="loading"?document.addEventListener("DOMContentLoaded",init):init();
+})();
+</script>
 
 <!-- APP -->
-<div id="app">
+<div id="app" style="display: none;">
   <div class="app-layout">
     <!-- SIDEBAR -->
-    <aside class="sidebar" id="sidebar">
+    <aside class="sidebar collapsed" id="sidebar">
       <div class="sidebar-header">
         <div class="sidebar-header-row">
           <div class="sidebar-user-info">
@@ -83,8 +183,8 @@
         </button>
         <div class="nav-divider"></div>
         <div class="nav-section">Gestiones</div>
-        <button class="nav-item" onclick="navTo('mora',this)" title="Mora">
-          <i data-lucide="landmark" class="mi sm"></i> <span class="nav-item-label">Mora</span>
+        <button class="nav-item" onclick="navTo('clientes',this)" title="Clientes">
+          <i data-lucide="users" class="mi sm"></i> <span class="nav-item-label">Clientes</span>
           <span class="tab-badge" id="badge-vouchers" style="display:none;">0</span>
         </button>
         <button class="nav-item" onclick="navTo('cartas',this)" title="Cartas de No Adeudo">
@@ -137,41 +237,97 @@
           </div>
         </div>
 
-        <!-- SECTION: MORA (Clientes, Vouchers, Historial) -->
-        <div id="section-mora" class="section">
-          <!-- TABS HORIZONTALES -->
-          <div style="display:flex;gap:0;margin-bottom:12px;border-bottom:1px solid var(--gris2);">
-            <button id="tab-mora-clientes" class="btn-mora-tab active" onclick="switchMoraTab('clientes')">Clientes</button>
-            <button id="tab-mora-vouchers" class="btn-mora-tab" onclick="switchMoraTab('vouchers')">Vouchers <span class="tab-badge" id="badge-vouchers-sub" style="display:none;margin-left:4px;position:relative;top:0;right:0;transform:none;">0</span></button>
-            <button id="tab-mora-historial" class="btn-mora-tab" onclick="switchMoraTab('historial')">Historial</button>
-          </div>
-
-          <!-- CONTROLES POR TAB (Clientes) -->
-          <div class="caja-toolbar" id="mora-controls-clientes" style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
-            <div style="position:relative; flex:1; min-width:240px; max-width:350px;">
-              <i data-lucide="search" class="mi" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:18px; color:var(--texto2); pointer-events:none;"></i>
-              <input type="text" id="buscar-cliente" placeholder="Buscar cliente por nombre o celular..." oninput="filtrarClientes()" style="width:100%; padding:9px 14px 9px 38px; border:1.5px solid var(--gris2); border-radius:10px; font-size:13px; outline:none; transition: border-color 0.2s;">
+        <!-- SECTION: CLIENTES (Activos, Inactivos, Mora) -->
+        <div id="section-clientes" class="section section-flex">
+          <!-- ZONA DE FILTROS Y TABS -->
+          <div style="padding-bottom: 4px; margin-bottom: 8px; border-bottom: 1px solid var(--gris2);">
+            
+            <!-- TABS NIVEL 1 (Categorías Principales) -->
+            <div style="display:inline-flex; background:#f1f5f9; padding:4px; border-radius:10px; margin-bottom:12px; border:1px solid #e2e8f0;">
+              <button id="tab-clientes-busqueda" class="btn-main-tab active" onclick="switchClientesTab('busqueda')" style="padding:7px 18px; border-radius:8px; border:none; font-weight:600; font-size:13px; cursor:pointer; background:white; color:var(--azul); box-shadow:0 1px 3px rgba(0,0,0,0.1); transition:all 0.2s;"><i data-lucide="users" class="mi" style="font-size:15px;margin-right:5px;vertical-align:text-bottom;"></i> Clientes</button>
+              <button id="tab-clientes-mora" class="btn-main-tab" onclick="switchClientesTab('mora')" style="padding:7px 18px; border-radius:8px; border:none; font-weight:600; font-size:13px; cursor:pointer; background:transparent; color:var(--texto2); box-shadow:none; transition:all 0.2s;"><i data-lucide="alert-circle" class="mi" style="font-size:15px;margin-right:5px;vertical-align:text-bottom;"></i> Cartera en Mora</button>
             </div>
-            <select id="filtros-asesores" class="clean-select" onchange="setFiltroAsesor(this.value)" style="width:auto;min-width:180px;flex:0 0 auto;padding:9px 34px 9px 14px;border:1.5px solid var(--gris2);border-radius:10px;font-size:13px;background-color:white;"></select>
-            <button id="btn-notificaciones" class="btn-main" onclick="iniciarRecordatorios()" style="width:auto;padding:10px 16px;font-size:13px;display:flex;align-items:center;gap:6px;flex-shrink:0;transition:all 0.3s;">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="16" height="16" fill="white" style="vertical-align:middle;"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.736 5.472 2.027 7.774L0 32l8.454-2.01A15.938 15.938 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.333a13.27 13.27 0 01-6.748-1.833l-.484-.287-5.02 1.194 1.271-4.874-.317-.502A13.267 13.267 0 012.667 16C2.667 8.636 8.636 2.667 16 2.667S29.333 8.636 29.333 16 23.364 29.333 16 29.333zm7.27-9.862c-.398-.199-2.354-1.162-2.72-1.294-.365-.133-.631-.199-.897.199-.266.398-1.029 1.294-1.262 1.56-.232.266-.465.299-.863.1-.398-.2-1.681-.619-3.203-1.977-1.184-1.057-1.983-2.362-2.215-2.76-.232-.398-.025-.613.174-.811.179-.178.398-.465.598-.698.199-.232.265-.398.398-.664.133-.266.066-.498-.033-.697-.1-.2-.897-2.162-1.229-2.96-.324-.777-.653-.672-.897-.684l-.764-.013c-.266 0-.697.1-1.063.498-.365.398-1.395 1.362-1.395 3.323s1.428 3.854 1.627 4.12c.2.266 2.81 4.287 6.808 6.014.951.41 1.694.656 2.273.839.955.304 1.824.261 2.511.158.766-.114 2.354-.962 2.687-1.891.332-.929.332-1.726.232-1.891-.099-.166-.365-.266-.763-.465z"/></svg>
-              Notificaciones
-            </button>
+
+            <!-- TABS NIVEL 2 (Sub-menú de Mora) -->
+            <div id="submenu-mora" style="display:none; gap:0; margin-bottom:8px; border-bottom:1px solid var(--gris2);">
+              <button id="tab-mora-clientes" class="btn-mora-tab active" onclick="switchMoraTab('clientes')">Notificaciones</button>
+              <button id="tab-mora-vouchers" class="btn-mora-tab" onclick="switchMoraTab('vouchers')">Vouchers <span class="tab-badge" id="badge-vouchers-sub" style="display:none;margin-left:4px;position:relative;top:0;right:0;transform:none;">0</span></button>
+              <button id="tab-mora-historial" class="btn-mora-tab" onclick="switchMoraTab('historial')">Historial</button>
+            </div>
+
+            <!-- CONTROLES POR TAB (Clientes) -->
+            <div class="caja-toolbar" id="mora-controls-clientes" style="display:none; gap:12px; flex-wrap:wrap; align-items:center; margin-bottom: 0;">
+              <div style="position:relative; flex:1; min-width:240px; max-width:350px;">
+                <i data-lucide="search" class="mi" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:16px; color:var(--texto2); pointer-events:none;"></i>
+                <input type="text" id="buscar-cliente" placeholder="Buscar cliente por nombre o celular..." oninput="filtrarClientes()" style="width:100%; padding:8px 14px 8px 36px; border:1px solid var(--gris2); border-radius:8px; font-size:13px; outline:none; transition: border-color 0.2s; background:#f8fafc;">
+              </div>
+              <select id="filtros-asesores" class="clean-select" onchange="setFiltroAsesor(this.value)" style="width:auto;min-width:160px;flex:0 0 auto;padding:8px 30px 8px 12px;border:1px solid var(--gris2);border-radius:8px;font-size:13px;background-color:#f8fafc; cursor:pointer;"></select>
+              <button id="btn-notificaciones" class="btn-ghost-blue" onclick="iniciarRecordatorios()" style="width:auto;padding:8px 16px;border-radius:8px;font-size:13px;display:flex;align-items:center;gap:6px;flex-shrink:0;transition:all 0.3s;font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,0.05);">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="15" height="15" fill="currentColor" style="vertical-align:middle;"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.736 5.472 2.027 7.774L0 32l8.454-2.01A15.938 15.938 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.333a13.27 13.27 0 01-6.748-1.833l-.484-.287-5.02 1.194 1.271-4.874-.317-.502A13.267 13.267 0 012.667 16C2.667 8.636 8.636 2.667 16 2.667S29.333 8.636 29.333 16 23.364 29.333 16 29.333zm7.27-9.862c-.398-.199-2.354-1.162-2.72-1.294-.365-.133-.631-.199-.897.199-.266.398-1.029 1.294-1.262 1.56-.232.266-.465.299-.863.1-.398-.2-1.681-.619-3.203-1.977-1.184-1.057-1.983-2.362-2.215-2.76-.232-.398-.025-.613.174-.811.179-.178.398-.465.598-.698.199-.232.265-.398.398-.664.133-.266.066-.498-.033-.697-.1-.2-.897-2.162-1.229-2.96-.324-.777-.653-.672-.897-.684l-.764-.013c-.266 0-.697.1-1.063.498-.365.398-1.395 1.362-1.395 3.323s1.428 3.854 1.627 4.12c.2.266 2.81 4.287 6.808 6.014.951.41 1.694.656 2.273.839.955.304 1.824.261 2.511.158.766-.114 2.354-.962 2.687-1.891.332-.929.332-1.726.232-1.891-.099-.166-.365-.266-.763-.465z"/></svg>
+                Notificaciones
+              </button>
+              <div id="contador-clientes-mora" style="margin-left:auto; display:none; align-items:center; gap:6px; font-size:14px; font-weight:500; color:var(--texto2); padding-right:16px;"></div>
+            </div>
+
+            <!-- CONTROLES POR TAB (Historial) -->
+            <div class="caja-toolbar" id="mora-controls-historial" style="display:none; gap:12px;">
+              <select id="filtro-hist-asesor" class="clean-select" onchange="renderHistorial()" style="width:auto;min-width:180px;flex:0 0 auto;padding:9px 34px 9px 14px;border:1.5px solid var(--gris2);border-radius:10px;font-size:13px;background-color:white;">
+                <option value="">Todos los asesores</option>
+              </select>
+              <select id="filtro-hist-fecha" class="clean-select" onchange="renderHistorial()" style="width:auto;min-width:180px;flex:0 0 auto;padding:9px 34px 9px 14px;border:1.5px solid var(--gris2);border-radius:10px;font-size:13px;background-color:white;">
+                <option value="">Todas las fechas</option>
+              </select>
+            </div>
+
+            <!-- CONTROLES POR TAB (Busqueda Global) -->
+            <style>
+              #input-busqueda-global:focus {
+                box-shadow: 0 4px 12px rgba(0,32,96,0.08) !important;
+                border-color: var(--azul) !important;
+              }
+              #input-busqueda-global:hover {
+                border-color: var(--azul) !important;
+              }
+              .search-wrapper:hover > i.mi,
+              .search-wrapper:focus-within > i.mi {
+                color: var(--azul) !important;
+              }
+              #btn-busqueda-global:hover {
+                filter: brightness(1.15);
+              }
+              #btn-busqueda-global:active {
+                transform: scale(0.95);
+              }
+              #btn-busqueda-global i {
+                transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+              }
+              #btn-busqueda-global[data-estado="buscar"]:hover i {
+                transform: translateX(2px);
+              }
+              #btn-busqueda-global[data-estado="limpiar"]:hover i {
+                transform: scale(1.1) rotate(5deg);
+              }
+            </style>
+            <div class="caja-toolbar" id="mora-controls-busqueda" style="display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-bottom: 0;">
+              <div class="search-wrapper" style="position:relative; flex:1; min-width:260px; max-width:480px;">
+                <i data-lucide="search" class="mi" style="position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:18px; color:var(--gris2); pointer-events:none; transition:color 0.2s;"></i>
+                <input type="text" id="input-busqueda-global" placeholder="Ingresa código o nombre..." onkeydown="if(event.key==='Enter') window.manejarBusquedaGlobal()" oninput="window.onInputBusquedaGlobal(this.value)" style="width:100%; padding:10px 48px 10px 42px; border:2px solid var(--gris2); border-radius:8px; font-size:14px; outline:none; transition: all 0.2s; background:#ffffff; box-shadow: 0 2px 8px rgba(0,32,96,0.06); font-weight: 500;">
+                <button id="btn-busqueda-global" data-estado="buscar" onclick="window.manejarBusquedaGlobal()" style="position:absolute; right:5px; top:5px; bottom:5px; width:34px; background:var(--azul); color:white; border:none; border-radius:6px; padding:0; cursor:pointer; transition: all 0.2s; display:flex; align-items:center; justify-content:center;"><i data-lucide="arrow-right" class="mi" style="margin:0;"></i></button>
+              </div>
+              <div id="contador-clientes-busqueda" style="display:none; align-items:center; margin-left:auto; font-weight:500; color:var(--texto); font-size:15px; gap:6px; padding-right:16px;"></div>
+            </div>
           </div>
 
-          <!-- CONTROLES POR TAB (Historial) -->
-          <div class="caja-toolbar" id="mora-controls-historial" style="display:none; gap:12px;">
-            <select id="filtro-hist-asesor" class="clean-select" onchange="renderHistorial()" style="width:auto;min-width:180px;flex:0 0 auto;padding:9px 34px 9px 14px;border:1.5px solid var(--gris2);border-radius:10px;font-size:13px;background-color:white;">
-              <option value="">Todos los asesores</option>
-            </select>
-            <select id="filtro-hist-fecha" class="clean-select" onchange="renderHistorial()" style="width:auto;min-width:180px;flex:0 0 auto;padding:9px 34px 9px 14px;border:1.5px solid var(--gris2);border-radius:10px;font-size:13px;background-color:white;">
-              <option value="">Todas las fechas</option>
-            </select>
+          <!-- CONTENIDO BUSQUEDA GLOBAL -->
+          <div id="mora-content-busqueda" style="display:flex; flex: 1; min-height: 0; flex-direction: column;">
+            <div id="resultados-busqueda-global" class="custom-scroll-container" style="flex: 1; min-height: 0; overflow-y: auto; padding-right: 8px; margin-right: -8px; padding-bottom: 40px;">
+              <!-- Aquí se renderizan los resultados de la búsqueda global -->
+            </div>
           </div>
 
-          <!-- CONTENIDO CLIENTES -->
-          <div id="mora-content-clientes">
-            <div id="lista-clientes" class="movimientos-list">
+          <!-- CONTENIDO CLIENTES (MORA) -->
+          <div id="mora-content-clientes" style="display:none; flex: 1; min-height: 0; flex-direction: column;">
+            <div id="lista-clientes" class="custom-scroll-container" style="flex: 1; min-height: 0; overflow-y: auto; padding-right: 8px; margin-right: -8px;">
               <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
               <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
               <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
@@ -179,20 +335,20 @@
           </div>
 
           <!-- CONTENIDO VOUCHERS -->
-          <div id="mora-content-vouchers" style="display:none;">
-            <div id="lista-vouchers">
+          <div id="mora-content-vouchers" style="display:none; flex: 1; min-height: 0; flex-direction: column;">
+            <div id="lista-vouchers" class="custom-scroll-container" style="flex: 1; min-height: 0; overflow-y: auto; padding-right: 8px; margin-right: -8px; padding-bottom: 40px;">
               <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
               <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
             </div>
           </div>
 
           <!-- CONTENIDO HISTORIAL -->
-          <div id="mora-content-historial" style="display:none;">
-            <div class="resumen-box" id="resumen-historial">
+          <div id="mora-content-historial" style="display:none; flex: 1; min-height: 0; flex-direction: column;">
+            <div class="resumen-box" id="resumen-historial" style="flex-shrink: 0;">
               <div class="resumen-item"><div class="val" id="res-total">-</div><div class="lbl">Total recaudado</div></div>
               <div class="resumen-item"><div class="val" id="res-count">-</div><div class="lbl">Pagos registrados</div></div>
             </div>
-            <div id="lista-historial">
+            <div id="lista-historial" class="custom-scroll-container" style="flex: 1; min-height: 0; overflow-y: auto; padding-right: 8px; margin-right: -8px; padding-bottom: 40px;">
               <div class="skeleton-box"><div class="skeleton sk-avatar" style="border-radius:8px;"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
               <div class="skeleton-box"><div class="skeleton sk-avatar" style="border-radius:8px;"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
             </div>
@@ -206,7 +362,7 @@
             <button class="gestiones-subtab active" id="tab-cartas-buscador" onclick="cartasSwitchTab('buscador')">Buscador de Clientes</button>
             <button class="gestiones-subtab" id="tab-cartas-pendientes" onclick="cartasSwitchTab('pendientes')" style="display:none; align-items:center; gap:6px;">
               Pendientes de Aprobación
-              <span id="cartas-pendientes-badge" style="background:#ef4444; color:white; font-size:10px; font-weight:700; padding:2px 6px; border-radius:10px; display:none;">0</span>
+              <span id="cartas-pendientes-badge" style="background:#ef4444; color:white; font-size:10px; font-weight:500; padding:2px 6px; border-radius:10px; display:none;">0</span>
             </button>
           </div>
 
@@ -223,7 +379,7 @@
             <div id="cartas-resultados" class="movimientos-list">
               <div class="empty" style="padding:40px 20px;">
                 <div class="icon"><i data-lucide="file-text" class="mi" style="font-size:48px; color:var(--azul2);"></i></div>
-                <div style="font-weight:700; color:var(--azul); font-size:14px; margin-top:8px;">Cartas de No Adeudo</div>
+                <div style="font-weight:500; color:var(--azul); font-size:14px; margin-top:8px;">Cartas de No Adeudo</div>
                 <div style="font-size:12px; color:var(--texto2); margin-top:4px;">Busca un cliente por nombre, código o celular para consultar su estado</div>
               </div>
             </div>
@@ -315,7 +471,7 @@
               <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
             </div>
             <div style="text-align:center;margin-top:14px;display:none;" id="caja-hist-mas-container">
-              <button class="btn-main" id="btn-arqueos-mas" onclick="cajaLoadHistorial(true)" style="background:white;color:var(--azul2);border:1.5px solid var(--azul2);width:auto;padding:8px 24px;border-radius:30px;font-size:13px;font-weight:700;"><i data-lucide="chevron-down" class="mi xs" style="vertical-align:text-bottom;margin-right:4px;"></i> Ver más arqueos</button>
+              <button class="btn-main" id="btn-arqueos-mas" onclick="cajaLoadHistorial(true)" style="background:white;color:var(--azul2);border:1.5px solid var(--azul2);width:auto;padding:8px 24px;border-radius:30px;font-size:13px;font-weight:500;"><i data-lucide="chevron-down" class="mi xs" style="vertical-align:text-bottom;margin-right:4px;"></i> Ver más arqueos</button>
             </div>
           </div><!-- /cc-panel-arqueo -->
 
@@ -407,7 +563,7 @@
     <div class="dr-section" id="dr-caja-comp-section" style="display:none; flex-direction:column; padding:12px;">
       <div class="dr-section-title" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
         <span>Comprobante</span>
-        <a id="dr-caja-link-comp" href="#" target="_blank" style="font-size:11px; color:var(--azul); text-decoration:none; display:none; align-items:center; gap:4px; font-weight:700;"><i data-lucide="external-link" class="mi xs"></i> Abrir</a>
+        <a id="dr-caja-link-comp" href="#" target="_blank" style="font-size:11px; color:var(--azul); text-decoration:none; display:none; align-items:center; gap:4px; font-weight:500;"><i data-lucide="external-link" class="mi xs"></i> Abrir</a>
       </div>
       <button id="dr-caja-btn-show-comp" class="btn-secundary" style="width:100%; justify-content:center; gap:8px;" onclick="mostrarIframeCaja()"><i data-lucide="eye" class="mi sm"></i> Ver Comprobante</button>
       <iframe id="dr-caja-iframe" src="" style="width:100%; height:250px; border:1px solid var(--gris2); border-radius:10px; background:#f8fafc; display:none;"></iframe>
@@ -444,7 +600,7 @@
     <div class="dr-section" id="dr-kasnet-comp-section" style="display:none; flex-direction:column; padding:12px;">
       <div class="dr-section-title" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
         <span>Comprobante</span>
-        <a id="dr-kasnet-link-comp" href="#" target="_blank" style="font-size:11px; color:var(--azul); text-decoration:none; display:none; align-items:center; gap:4px; font-weight:700;"><i data-lucide="external-link" class="mi xs"></i> Abrir</a>
+        <a id="dr-kasnet-link-comp" href="#" target="_blank" style="font-size:11px; color:var(--azul); text-decoration:none; display:none; align-items:center; gap:4px; font-weight:500;"><i data-lucide="external-link" class="mi xs"></i> Abrir</a>
       </div>
       <button id="dr-kasnet-btn-show-comp" class="btn-secundary" style="width:100%; justify-content:center; gap:8px;" onclick="mostrarIframeKasnet()"><i data-lucide="eye" class="mi sm"></i> Ver Comprobante</button>
       <iframe id="dr-kasnet-iframe" src="" style="width:100%; height:250px; border:1px solid var(--gris2); border-radius:10px; background:#f8fafc; display:none;"></iframe>
@@ -472,7 +628,7 @@
       <div class="dr-item"><span class="lbl">Estado</span><span class="val" id="dr-cartas-estado"></span></div>
       <div class="dr-item"><span class="lbl">Calificación</span><span class="val" id="dr-cartas-calif"></span></div>
       <div class="dr-item"><span class="lbl">Celular</span><span class="val" id="dr-cartas-celular"></span></div>
-      <div class="dr-item"><span class="lbl">Últ. Créditos</span><span class="val" id="dr-cartas-ultcred" style="font-size:15px; font-weight:800; color:var(--azul);"></span></div>
+      <div class="dr-item"><span class="lbl">Últ. Créditos</span><span class="val" id="dr-cartas-ultcred" style="font-size:15px; font-weight:600; color:var(--azul);"></span></div>
       <div class="dr-item"><span class="lbl">F. Desembolso</span><span class="val" id="dr-cartas-fdesemb"></span></div>
       <div class="dr-item"><span class="lbl">F. Cancelación</span><span class="val" id="dr-cartas-fcancel"></span></div>
       <div class="dr-item"><span class="lbl">Créd. Activos</span><span class="val" id="dr-cartas-activos"></span></div>
@@ -533,7 +689,7 @@
     <div class="form-caja-group"><label>Descripcion</label><input type="text" id="caja-descripcion" placeholder="Detalle"></div>
     <div class="form-caja-group"><label>Comprobante (Opc.)</label>
       <div id="caja-archivo-actual" style="display:none;margin-bottom:8px;">
-        <button onclick="verSustento(document.getElementById('caja-archivo-actual').dataset.url)" style="background:var(--azul-claro);color:var(--azul2);border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:4px;">
+        <button onclick="verSustento(document.getElementById('caja-archivo-actual').dataset.url)" style="background:var(--azul-claro);color:var(--azul2);border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:4px;">
           <i data-lucide="eye" class="mi sm"></i> Ver archivo actual
         </button>
       </div>
@@ -566,7 +722,7 @@
     </div>
     <div id="caja-saving-overlay" style="display:none;position:absolute;inset:0;background:rgba(255,255,255,0.92);border-radius:14px;z-index:10;flex-direction:column;align-items:center;justify-content:center;gap:12px;">
       <div class="spinner-sm" style="width:32px;height:32px;border-width:3px;"></div>
-      <div id="caja-saving-msg" style="font-family:Montserrat,sans-serif;font-weight:700;font-size:13px;color:var(--azul);text-align:center;">Guardando...</div>
+      <div id="caja-saving-msg" style="font-family:Montserrat,sans-serif;font-weight:500;font-size:13px;color:var(--azul);text-align:center;">Guardando...</div>
       <div id="caja-saving-sub" style="font-size:11px;color:var(--texto2);text-align:center;">Esto puede tomar unos segundos</div>
     </div>
   </div>
@@ -600,7 +756,7 @@
           <i data-lucide="archive" class="mi" style="font-size:22px;color:white;"></i>
         </div>
         <div>
-          <div id="modal-arq-titulo" style="font-family:'Montserrat',sans-serif;font-weight:800;font-size:15px;color:white;">Nuevo Arqueo de Caja</div>
+          <div id="modal-arq-titulo" style="font-family:'Montserrat',sans-serif;font-weight:600;font-size:15px;color:white;">Nuevo Arqueo de Caja</div>
           <div style="font-size:11px;color:rgba(255,255,255,0.7);margin-top:1px;">Conteo físico de efectivo</div>
         </div>
       </div>
@@ -618,32 +774,32 @@
 
           <!-- Saldo Teórico -->
           <div id="arq-bloque-teorico" style="background:white;border-radius:14px;padding:16px;box-shadow:0 2px 12px rgba(0,48,135,0.06);border:1px solid var(--gris2);">
-            <div style="font-size:10px;font-weight:700;color:var(--texto2);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px;display:flex;align-items:center;gap:5px;"><i data-lucide="wallet" class="mi xs" style="color:var(--azul);"></i>Saldo Teórico</div>
+            <div style="font-size:10px;font-weight:500;color:var(--texto2);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px;display:flex;align-items:center;gap:5px;"><i data-lucide="wallet" class="mi xs" style="color:var(--azul);"></i>Saldo Teórico</div>
             <div style="font-family:'Montserrat',sans-serif;font-size:26px;font-weight:900;color:var(--azul);" id="arq-teorico">S/. 0.00</div>
-            <span id="badge-arq-admin" style="display:none;margin-top:8px;background:var(--azul-claro);color:var(--azul);padding:3px 8px;border-radius:8px;font-size:10px;font-weight:700;align-items:center;gap:4px;"><i data-lucide="history" class="mi xs"></i> Último: <span id="lbl-arq-admin"></span></span>
+            <span id="badge-arq-admin" style="display:none;margin-top:8px;background:var(--azul-claro);color:var(--azul);padding:3px 8px;border-radius:8px;font-size:10px;font-weight:500;align-items:center;gap:4px;"><i data-lucide="history" class="mi xs"></i> Último: <span id="lbl-arq-admin"></span></span>
           </div>
 
           <!-- Total Físico -->
           <div style="background:white;border-radius:14px;padding:16px;box-shadow:0 2px 12px rgba(0,48,135,0.06);border:1px solid var(--gris2);">
-            <div style="font-size:10px;font-weight:700;color:var(--texto2);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px;display:flex;align-items:center;gap:5px;"><i data-lucide="banknote" class="mi xs" style="color:#0052cc;"></i>Total Físico</div>
+            <div style="font-size:10px;font-weight:500;color:var(--texto2);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px;display:flex;align-items:center;gap:5px;"><i data-lucide="banknote" class="mi xs" style="color:#0052cc;"></i>Total Físico</div>
             <div style="font-family:'Montserrat',sans-serif;font-size:26px;font-weight:900;color:#0052cc;" id="arq-fisico">S/. 0.00</div>
           </div>
 
           <!-- Diferencia -->
           <div class="diff-card" id="arq-diff-card" style="border-radius:14px;padding:16px;border-width:2px;margin-top:0;">
-            <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px;opacity:0.7;" id="arq-diff-label">Diferencia VS Teórico</div>
+            <div style="font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px;opacity:0.7;" id="arq-diff-label">Diferencia VS Teórico</div>
             <div style="font-family:'Montserrat',sans-serif;font-size:28px;font-weight:900;margin-bottom:6px;" id="arq-diferencia">S/. 0.00</div>
-            <div style="font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:4px;" id="arq-msg"><i data-lucide="info" class="mi sm"></i> Ingresa el conteo</div>
+            <div style="font-size:12px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:4px;" id="arq-msg"><i data-lucide="info" class="mi sm"></i> Ingresa el conteo</div>
           </div>
         </div>
 
         <!-- COL DERECHA: Denominaciones -->
         <div style="background:white;border-radius:14px;padding:16px;box-shadow:0 2px 12px rgba(0,48,135,0.06);border:1px solid var(--gris2);">
-          <div style="font-size:10px;font-weight:700;color:var(--texto2);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px;display:flex;align-items:center;gap:5px;"><i data-lucide="calculator" class="mi xs" style="color:var(--azul);"></i>Conteo de Efectivo</div>
+          <div style="font-size:10px;font-weight:500;color:var(--texto2);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px;display:flex;align-items:center;gap:5px;"><i data-lucide="calculator" class="mi xs" style="color:var(--azul);"></i>Conteo de Efectivo</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 18px;">
             <!-- Billetes -->
             <div>
-              <div style="font-size:9px;font-weight:800;color:var(--azul);text-transform:uppercase;letter-spacing:1px;padding:4px 0;border-bottom:2px solid var(--azul-claro);margin-bottom:8px;">Billetes</div>
+              <div style="font-size:9px;font-weight:600;color:var(--azul);text-transform:uppercase;letter-spacing:1px;padding:4px 0;border-bottom:2px solid var(--azul-claro);margin-bottom:8px;">Billetes</div>
               <div class="arq-denom-row"><span>S/ 200</span><input type="number" id="arq-m-b200" data-val="200" placeholder="0" min="0" class="arq-modal-input" oninput="cajaCalcArqueo()"></div>
               <div class="arq-denom-row"><span>S/ 100</span><input type="number" id="arq-m-b100" data-val="100" placeholder="0" min="0" class="arq-modal-input" oninput="cajaCalcArqueo()"></div>
               <div class="arq-denom-row"><span>S/ 50</span><input type="number" id="arq-m-b50" data-val="50" placeholder="0" min="0" class="arq-modal-input" oninput="cajaCalcArqueo()"></div>
@@ -652,7 +808,7 @@
             </div>
             <!-- Monedas -->
             <div>
-              <div style="font-size:9px;font-weight:800;color:var(--azul);text-transform:uppercase;letter-spacing:1px;padding:4px 0;border-bottom:2px solid var(--azul-claro);margin-bottom:8px;">Monedas</div>
+              <div style="font-size:9px;font-weight:600;color:var(--azul);text-transform:uppercase;letter-spacing:1px;padding:4px 0;border-bottom:2px solid var(--azul-claro);margin-bottom:8px;">Monedas</div>
               <div class="arq-denom-row"><span>S/ 5.00</span><input type="number" id="arq-m-m5" data-val="5" placeholder="0" min="0" class="arq-modal-input" oninput="cajaCalcArqueo()"></div>
               <div class="arq-denom-row"><span>S/ 2.00</span><input type="number" id="arq-m-m2" data-val="2" placeholder="0" min="0" class="arq-modal-input" oninput="cajaCalcArqueo()"></div>
               <div class="arq-denom-row"><span>S/ 1.00</span><input type="number" id="arq-m-m1" data-val="1" placeholder="0" min="0" class="arq-modal-input" oninput="cajaCalcArqueo()"></div>
@@ -694,7 +850,7 @@
       <!-- COLUMNA IZQUIERDA -->
       <div style="display:flex; flex-direction:column; gap:10px;">
         <div style="background:white; border:1px solid var(--gris2); padding:10px; border-radius:10px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
-          <h4 style="font-size:11px; margin-bottom:8px; color:var(--azul); font-weight:800; display:flex; align-items:center; gap:4px;"><i data-lucide="info" class="mi xs"></i> Datos Generales</h4>
+          <h4 style="font-size:11px; margin-bottom:8px; color:var(--azul); font-weight:600; display:flex; align-items:center; gap:4px;"><i data-lucide="info" class="mi xs"></i> Datos Generales</h4>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
             <div class="form-caja-group"><label style="margin-bottom:2px;font-size:9px;">Fecha</label><input type="date" id="kasnet-fecha" style="padding:6px; font-size:11px; border-radius:6px; border:1px solid var(--gris2);"></div>
             <div class="form-caja-group"><label style="margin-bottom:2px;font-size:9px;">NÂ° Operaciones</label><input type="number" id="kasnet-num-ops" placeholder="0" min="0" step="1" style="padding:6px; font-size:11px; border-radius:6px; border:1px solid var(--gris2);"></div>
@@ -702,7 +858,7 @@
         </div>
         
         <div style="background:linear-gradient(135deg, #f8fbfd 0%, #f1f6fb 100%); border:1px solid #e1ecf4; padding:10px; border-radius:10px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
-          <h4 style="font-size:11px; margin-bottom:8px; color:var(--azul); font-weight:800; display:flex; align-items:center; gap:4px;"><i data-lucide="wallet" class="mi xs"></i> Saldos Virtuales</h4>
+          <h4 style="font-size:11px; margin-bottom:8px; color:var(--azul); font-weight:600; display:flex; align-items:center; gap:4px;"><i data-lucide="wallet" class="mi xs"></i> Saldos Virtuales</h4>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
             <div class="form-caja-group"><label style="margin-bottom:2px;font-size:9px;">POS KASNET</label><input type="number" id="kasnet-pos-virt" placeholder="0.00" step="0.01" oninput="kasnetCalcTotal()" style="padding:6px; font-size:11px; border-radius:6px; border:1px solid #c9dfed;"></div>
             <div class="form-caja-group"><label style="margin-bottom:2px;font-size:9px;">PAGAYA virtual</label><input type="number" id="kasnet-pagaya-virt" placeholder="0.00" step="0.01" oninput="kasnetCalcTotal()" style="padding:6px; font-size:11px; border-radius:6px; border:1px solid #c9dfed;"></div>
@@ -710,9 +866,9 @@
         </div>
 
         <div style="background:white; border:1px solid var(--gris2); padding:10px; border-radius:10px; flex:1; display:flex; flex-direction:column; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
-          <h4 style="font-size:11px; margin-bottom:8px; color:var(--azul); font-weight:800; display:flex; align-items:center; gap:4px;"><i data-lucide="receipt" class="mi xs"></i> Comprobante</h4>
+          <h4 style="font-size:11px; margin-bottom:8px; color:var(--azul); font-weight:600; display:flex; align-items:center; gap:4px;"><i data-lucide="receipt" class="mi xs"></i> Comprobante</h4>
           <div id="kasnet-archivo-actual" style="display:none;margin-bottom:8px;">
-            <button type="button" onclick="verSustento(document.getElementById('kasnet-archivo-actual').dataset.url)" style="background:var(--azul-claro);color:var(--azul);border:1px solid #d0e3fc;border-radius:6px;padding:6px 10px;font-size:11px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;width:100%;justify-content:center;transition:all 0.2s;">
+            <button type="button" onclick="verSustento(document.getElementById('kasnet-archivo-actual').dataset.url)" style="background:var(--azul-claro);color:var(--azul);border:1px solid #d0e3fc;border-radius:6px;padding:6px 10px;font-size:11px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px;width:100%;justify-content:center;transition:all 0.2s;">
               <i data-lucide="eye" class="mi sm"></i> Ver comprobante subido
             </button>
           </div>
@@ -745,11 +901,11 @@
       <!-- COLUMNA DERECHA -->
       <div style="display:flex; flex-direction:column; gap:10px; min-width: 0;">
         <div style="background:white; border:1px solid var(--gris2); padding:10px; border-radius:10px; flex:1; display:flex; flex-direction:column; box-shadow: 0 2px 8px rgba(0,0,0,0.02); min-width: 0;">
-          <h4 style="font-size:11px; margin-bottom:10px; color:var(--azul); font-weight:800; display:flex; align-items:center; gap:4px;"><i data-lucide="banknote" class="mi xs"></i> Efectivo Físico</h4>
+          <h4 style="font-size:11px; margin-bottom:10px; color:var(--azul); font-weight:600; display:flex; align-items:center; gap:4px;"><i data-lucide="banknote" class="mi xs"></i> Efectivo Físico</h4>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px; flex:1; min-width: 0;">
             <!-- Billetes -->
             <div style="min-width: 0;">
-              <div style="font-size:9px; border-bottom:1px solid var(--gris); padding-bottom:2px; font-weight:800; color:var(--texto2); margin-bottom:8px; letter-spacing:0.5px;">BILLETES</div>
+              <div style="font-size:9px; border-bottom:1px solid var(--gris); padding-bottom:2px; font-weight:600; color:var(--texto2); margin-bottom:8px; letter-spacing:0.5px;">BILLETES</div>
               <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:38px; font-size:11px; font-weight:600; color:var(--texto);">S/ 200</span><input type="number" id="k-b200" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
               <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:38px; font-size:11px; font-weight:600; color:var(--texto);">S/ 100</span><input type="number" id="k-b100" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
               <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:38px; font-size:11px; font-weight:600; color:var(--texto);">S/ 50</span><input type="number" id="k-b50" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
@@ -758,7 +914,7 @@
             </div>
             <!-- Monedas -->
             <div style="min-width: 0;">
-              <div style="font-size:9px; border-bottom:1px solid var(--gris); padding-bottom:2px; font-weight:800; color:var(--texto2); margin-bottom:8px; letter-spacing:0.5px;">MONEDAS</div>
+              <div style="font-size:9px; border-bottom:1px solid var(--gris); padding-bottom:2px; font-weight:600; color:var(--texto2); margin-bottom:8px; letter-spacing:0.5px;">MONEDAS</div>
               <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:40px; font-size:11px; font-weight:600; color:var(--texto);">S/ 5.00</span><input type="number" id="k-m5" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
               <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:40px; font-size:11px; font-weight:600; color:var(--texto);">S/ 2.00</span><input type="number" id="k-m2" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
               <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:40px; font-size:11px; font-weight:600; color:var(--texto);">S/ 1.00</span><input type="number" id="k-m1" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
@@ -767,7 +923,7 @@
               <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:40px; font-size:11px; font-weight:600; color:var(--texto);">S/ 0.10</span><input type="number" id="k-m010" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
             </div>
           </div>
-          <div style="margin-top:auto; padding-top:10px; border-top:1px dashed var(--gris2); font-size:12px; font-weight:800; color:var(--texto); display:flex; justify-content:space-between; align-items:center;">
+          <div style="margin-top:auto; padding-top:10px; border-top:1px dashed var(--gris2); font-size:12px; font-weight:600; color:var(--texto); display:flex; justify-content:space-between; align-items:center;">
              <span>Total Físico en Caja:</span>
              <span id="kasnet-total-fisico" style="color:var(--verde); font-size:14px;">S/. 0.00</span>
           </div>
@@ -775,14 +931,14 @@
         
         <div class="diff-card" id="kasnet-cuadre-diff" style="padding:10px;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-            <span style="font-size:11px; font-weight:700;">TOTAL DECLARADO:</span>
-            <span style="font-size:16px; font-weight:800;" id="kasnet-total-declarado">S/. 0.00</span>
+            <span style="font-size:11px; font-weight:500;">TOTAL DECLARADO:</span>
+            <span style="font-size:16px; font-weight:600;" id="kasnet-total-declarado">S/. 0.00</span>
           </div>
           <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-size:11px; font-weight:700;">DIFERENCIA VS BASE:</span>
-            <span style="font-size:16px; font-weight:800;" id="kasnet-diferencia-total">S/. 0.00</span>
+            <span style="font-size:11px; font-weight:500;">DIFERENCIA VS BASE:</span>
+            <span style="font-size:16px; font-weight:600;" id="kasnet-diferencia-total">S/. 0.00</span>
           </div>
-          <div style="font-size:11px; font-weight:700; margin-top:8px; text-align:center; padding-top:8px; border-top:1px dashed rgba(0,0,0,0.1);" id="kasnet-cuadre-msg">Completa saldos y efectivo</div>
+          <div style="font-size:11px; font-weight:500; margin-top:8px; text-align:center; padding-top:8px; border-top:1px dashed rgba(0,0,0,0.1);" id="kasnet-cuadre-msg">Completa saldos y efectivo</div>
         </div>
       </div>
     </div>
@@ -839,16 +995,17 @@
     observer.observe(document.body, { childList: true, subtree: true });
   });
 </script>
-<script src="js/core.js"></script>
-  <script src="js/modules/app.js"></script>
+<script src="js/core.js?v=202606141"></script>
+  <script src="js/modules/app.js?v=2026061421"></script>
   <script src="js/modules/dashboard.js"></script>
   <script src="js/modules/mora.js"></script>
-  <script src="js/modules/clientes.js"></script>
+  <script src="js/modules/clientes.js?v=2026061428"></script>
   <script src="js/modules/caja-chica.js"></script>
   <script src="js/modules/kasnet.js"></script>
   <script src="js/modules/cartas.js"></script>
 
-<!-- MODAL BULK WA -->
+
+
 <div id="modal-rec" style="display:none;position:fixed;inset:0;background:rgba(11,20,26,0.6);backdrop-filter:blur(3px);z-index:9999;align-items:center;justify-content:center;padding:12px;font-family:Segoe UI,Helvetica,Arial,sans-serif;">
   <div style="background:#f0f2f5;border-radius:20px;width:100%;max-width:350px;overflow:hidden;box-shadow:0 15px 35px rgba(0,0,0,0.2);">
     
@@ -877,7 +1034,7 @@
     </div>
 
     <!-- Chat Body -->
-    <div style="padding:20px 16px;background:#efeae2;background-image:url('https://i.pinimg.com/1200x/8f/ba/cb/8fbacbd464e996966eb9d4a6b7a9c21e.jpg');background-size:cover;background-position:center;position:relative;">
+    <div style="padding:20px 16px;background:#e5ddd5;position:relative;">
       
       <!-- Chat Bubble -->
       <div style="background:#dcf8c6;border-radius:8px;border-top-right-radius:0;box-shadow:0 1px 1px rgba(0,0,0,0.1);padding:8px 10px;position:relative;margin-left:16px;margin-bottom:8px;">
@@ -896,7 +1053,7 @@
           </div>
           <div style="color: #cc0000; font-weight: 600; font-size: 11.5px; line-height: 1.3;"><i data-lucide="alert-triangle" class="mi xs" style="vertical-align:text-bottom;margin-right:2px;"></i> IMPORTANTE: No abras ni interactúes con la pestaña de WhatsApp Web mientras el Bot esté trabajando.</div>
       </div>
-      <button onclick="exportarWhatsAppCSV()" style="width:100%;background:linear-gradient(135deg, var(--azul) 0%, var(--azul2) 100%);color:white;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 10px rgba(0,82,204,0.25);">
+      <button onclick="exportarWhatsAppCSV()" style="width:100%;background:linear-gradient(135deg, var(--azul) 0%, var(--azul2) 100%);color:white;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 10px rgba(0,82,204,0.25);">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="16" height="16" fill="white"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg>
         Enviar Masivo
       </button>
@@ -910,3 +1067,8 @@
 </div>
 </body>
 </html>
+
+
+
+
+

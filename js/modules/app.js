@@ -11,15 +11,79 @@
 
 
 
+  window.currentMainTab = 'busqueda';
+
+  function switchClientesTab(tab) {
+    window.currentMainTab = tab;
+    // Actualizar botones tab principales (Nivel 1) para estilo iOS segmentado
+    document.querySelectorAll('.btn-main-tab').forEach(b => {
+      b.classList.remove('active');
+      b.style.background = 'transparent';
+      b.style.color = 'var(--texto2)';
+      b.style.boxShadow = 'none';
+    });
+    const btn = document.getElementById('tab-clientes-' + tab);
+    if (btn) {
+      btn.classList.add('active');
+      btn.style.background = 'white';
+      btn.style.color = 'var(--azul)';
+      btn.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+    }
+
+    // Mostrar/Ocultar Submenú (Nivel 2) solo para mora
+    const submenuMora = document.getElementById('submenu-mora');
+    if (submenuMora) submenuMora.style.display = (tab === 'mora') ? 'flex' : 'none';
+    // Manejar visibilidad de contenedores
+    const contentMora = document.getElementById('mora-content-clientes'); // Lista de mora
+    const contentBusqueda = document.getElementById('mora-content-busqueda');
+    const toolbarClientes = document.getElementById('mora-controls-clientes');
+    const toolbarBusqueda = document.getElementById('mora-controls-busqueda');
+    
+    if (tab === 'busqueda') {
+      if (toolbarClientes) toolbarClientes.style.display = 'none';
+      if (toolbarBusqueda) toolbarBusqueda.style.display = 'flex';
+      if (contentMora) contentMora.style.display = 'none';
+      
+      // Ocultamos vouchers/historial explícitamente
+      const contentVouchers = document.getElementById('mora-content-vouchers');
+      const contentHistorial = document.getElementById('mora-content-historial');
+      const toolbarHistorial = document.getElementById('mora-controls-historial');
+      if (contentVouchers) contentVouchers.style.display = 'none';
+      if (contentHistorial) contentHistorial.style.display = 'none';
+      if (toolbarHistorial) toolbarHistorial.style.display = 'none';
+
+      if (contentBusqueda) contentBusqueda.style.display = 'flex';
+      // Focus on input
+      setTimeout(() => {
+        const inputGlobal = document.getElementById('input-busqueda-global');
+        if(inputGlobal) inputGlobal.focus();
+      }, 50);
+    } else {
+      if (contentBusqueda) contentBusqueda.style.display = 'none';
+      if (toolbarBusqueda) toolbarBusqueda.style.display = 'none';
+      // Restauramos la vista de mora según su sub-tab
+      switchMoraTab(document.querySelector('.btn-mora-tab.active')?.id.replace('tab-mora-','') || 'clientes');
+    }
+
+    // Cargar o renderizar datos correspondientes
+    if (tab === 'mora') {
+      if (typeof window.renderClientes === 'function' || typeof renderClientes === 'function') {
+        if (typeof renderClientes === 'function') renderClientes();
+        else if (window.renderClientes) window.renderClientes();
+      }
+    }
+  }
+  window.switchClientesTab = switchClientesTab;
+
   function switchMoraTab(tab) {
     // Actualizar botones tab
     document.querySelectorAll('.btn-mora-tab').forEach(b => b.classList.remove('active'));
     document.getElementById('tab-mora-' + tab).classList.add('active');
     
     // Mostrar contenido
-    document.getElementById('mora-content-clientes').style.display = (tab === 'clientes') ? 'block' : 'none';
-    document.getElementById('mora-content-vouchers').style.display = (tab === 'vouchers') ? 'block' : 'none';
-    document.getElementById('mora-content-historial').style.display = (tab === 'historial') ? 'block' : 'none';
+    document.getElementById('mora-content-clientes').style.display = (tab === 'clientes') ? 'flex' : 'none';
+    document.getElementById('mora-content-vouchers').style.display = (tab === 'vouchers') ? 'flex' : 'none';
+    document.getElementById('mora-content-historial').style.display = (tab === 'historial') ? 'flex' : 'none';
 
     // Ocultar/Mostrar Controles del Buscador
     document.getElementById('mora-controls-clientes').style.display = (tab === 'clientes') ? 'flex' : 'none';
@@ -161,7 +225,11 @@
       const dashCached = dashCacheLeer(sedeReq);
       if (dashCached) {
         if (Array.isArray(dashCached.clientes)) {
-          clientes = dashCached.clientes;
+          // FILTRO DEFENSIVO FRONTEND: Ignorar clientes asignados a "CARTERA"
+          clientes = dashCached.clientes.filter(c => {
+            if (!c.asesor) return true;
+            return c.asesor.toUpperCase().indexOf('CARTERA') < 0;
+          });
           renderAsesoresFiltros();
           renderClientes();
         }
@@ -225,7 +293,11 @@
 
       // Actualizar clientes solo si la sede sigue siendo la misma
       if (myReqId === _loadRequestId && Array.isArray(resp.clientes)) {
-        clientes = resp.clientes;
+        // FILTRO DEFENSIVO FRONTEND: Ignorar clientes asignados a "CARTERA"
+        clientes = resp.clientes.filter(c => {
+          if (!c.asesor) return true;
+          return c.asesor.toUpperCase().indexOf('CARTERA') < 0;
+        });
         renderAsesoresFiltros();
         renderClientes();
       }

@@ -12,7 +12,9 @@ async function solicitarCodigo() {
     mostrarError('login-error', 'Ingresa un correo válido'); return;
   }
   const btn = document.getElementById('btn-solicitar');
-  btn.innerHTML = '<i data-lucide="hourglass" class="mi xs" style="vertical-align:text-bottom;margin-right:2px;"></i> Enviando...'; btn.disabled = true;
+  btn.querySelector('.btn-text').style.display = 'none';
+  btn.querySelector('.btn-spinner').style.display = 'inline-block';
+  btn.disabled = true;
   ocultarError('login-error'); ocultarError('login-ok');
 
   try {
@@ -24,8 +26,15 @@ async function solicitarCodigo() {
 
     if (data.success) {
       correoActual = correo;
-      document.getElementById('box-correo').style.display = 'none';
-      document.getElementById('box-codigo').style.display = 'block';
+      
+      // Smooth Transition to Code Step
+      const boxCorreo = document.getElementById('box-correo');
+      const boxCodigo = document.getElementById('box-codigo');
+      boxCorreo.style.display = 'none'; // Fade out handled by CSS ideally, but switching active class is robust
+      boxCodigo.style.display = 'block';
+      boxCorreo.classList.remove('active');
+      boxCodigo.classList.add('active');
+
       document.getElementById('correo-display-txt').textContent = correo;
       document.getElementById('c1').focus();
       iniciarTimer(10 * 60);
@@ -35,7 +44,9 @@ async function solicitarCodigo() {
   } catch(e) {
     mostrarError('login-error', 'Error de conexión. Intenta de nuevo.');
   }
-  btn.innerHTML = 'Enviar C\u00F3digo <i data-lucide="arrow-right" class="mi xs" style="vertical-align:middle;"></i>'; btn.disabled = false;
+  btn.querySelector('.btn-text').style.display = 'inline-block';
+  btn.querySelector('.btn-spinner').style.display = 'none';
+  btn.disabled = false;
 }
 
 // ─── AUTH: PASO 2 — VERIFICAR CÓDIGO ───
@@ -47,7 +58,9 @@ async function verificarCodigo() {
     mostrarError('codigo-error', 'Ingresa los 6 dígitos'); return;
   }
   const btn = document.getElementById('btn-verificar-cod');
-  btn.innerHTML = '<i data-lucide="hourglass" class="mi xs" style="vertical-align:text-bottom;margin-right:2px;"></i> Verificando...'; btn.disabled = true;
+  btn.querySelector('.btn-text').style.display = 'none';
+  btn.querySelector('.btn-spinner').style.display = 'inline-block';
+  btn.disabled = true;
   ocultarError('codigo-error');
 
   try {
@@ -79,21 +92,48 @@ async function verificarCodigo() {
   } catch(e) {
     mostrarError('codigo-error', 'Error de conexión.');
   }
-  btn.innerHTML = 'Verificar <i data-lucide="arrow-right" class="mi xs" style="vertical-align:middle;"></i>'; btn.disabled = false;
+  btn.querySelector('.btn-text').style.display = 'inline-block';
+  btn.querySelector('.btn-spinner').style.display = 'none';
+  btn.disabled = false;
 }
 
 function volverCorreo() {
   clearInterval(timerInterval);
-  document.getElementById('box-codigo').style.display = 'none';
-  document.getElementById('box-correo').style.display = 'block';
+  const boxCorreo = document.getElementById('box-correo');
+  const boxCodigo = document.getElementById('box-codigo');
+  boxCodigo.style.display = 'none';
+  boxCorreo.style.display = 'block';
+  boxCodigo.classList.remove('active');
+  boxCorreo.classList.add('active');
   ['c1','c2','c3','c4','c5','c6'].forEach(id => document.getElementById(id).value = '');
 }
 
 function avanzarCodigo(input, siguienteId) {
   input.value = input.value.replace(/[^0-9]/g,'');
+  if (input.value) {
+    input.classList.remove('pop');
+    void input.offsetWidth; // trigger reflow
+    input.classList.add('pop');
+  }
   if (input.value && siguienteId) document.getElementById(siguienteId).focus();
   if (!siguienteId && input.value) verificarCodigo();
 }
+
+// ─── OTP PASTE HANDLER ───
+document.addEventListener('paste', (e) => {
+  const paste = (e.clipboardData || window.clipboardData).getData('text');
+  if (paste.length === 6 && /^\d+$/.test(paste) && document.getElementById('box-codigo').style.display !== 'none') {
+    e.preventDefault();
+    ['c1','c2','c3','c4','c5','c6'].forEach((id, i) => {
+      const input = document.getElementById(id);
+      input.value = paste[i];
+      input.classList.remove('pop');
+      void input.offsetWidth;
+      input.classList.add('pop');
+    });
+    verificarCodigo();
+  }
+});
 
 function retrocederCodigo(e, anteriorId) {
   if (e.key === 'Backspace' && !e.target.value && anteriorId) {
@@ -189,11 +229,11 @@ async function refrescarDatos() {
 
 // ─── SIDEBAR NAVIGATION ───
 const _sectionTitles = {
-  'dashboard': 'Dashboard', 'mora': 'Gestión de Mora',
+  'dashboard': 'Dashboard', 'clientes': 'Gestión de Clientes',
   'cartas': 'Cartas de No Adeudo',
   'cajachica': 'Caja Chica', 'kasnet': 'KASNET'
 };
-const _allSections = ['dashboard','mora','cartas','cajachica','kasnet'];
+const _allSections = ['dashboard','clientes','cartas','cajachica','kasnet'];
 
 function navTo(section, btn) {
   _allSections.forEach(function(s) {
@@ -253,9 +293,9 @@ function toggleSidebarCollapse(forceState) {
 
 (function() {
   try {
-    if (window.innerWidth > 900 && localStorage.getItem('ge_sidebar_collapsed') === '1') {
+    if (window.innerWidth > 900 && localStorage.getItem('ge_sidebar_collapsed') === '0') {
       const sb = document.getElementById('sidebar');
-      if(sb) sb.classList.add('collapsed');
+      if(sb) sb.classList.remove('collapsed');
     }
   } catch(e) {}
 })();

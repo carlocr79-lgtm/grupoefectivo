@@ -23,23 +23,26 @@
       const safeCod = escapeHtml(v.cod);
       const safeVoucher = escapeHtml(v.voucher);
       return `
-      <div class="cliente-card">
-        <div class="cliente-header">
-          <div>
-            <div class="cliente-nombre">${safeNombre}</div>
-            <div class="cliente-cod">C&oacute;d. ${safeCod}</div>
+      <div class="fin-card status-pendiente">
+        <div class="fin-grid">
+          <div class="avatar" style="background:#fff8e6; color:#cc8800;"><i data-lucide="receipt" class="mi"></i></div>
+          <div class="fin-info">
+            <div class="fin-name" title="${safeNombre}">${safeNombre}</div>
+            <div class="fin-sub">
+              <span>Cód. ${safeCod}</span>
+              <span style="color:var(--gris2)">•</span>
+              <span style="color:var(--azul2); font-weight:700;">${safeAsesor.split(' ')[0]}</span>
+            </div>
           </div>
-          <div>
-            <div class="cliente-monto">S/. ${parseFloat(v.monto).toLocaleString('es-PE',{minimumFractionDigits:2})}</div>
-            <div class="cliente-dias">${v.fechaPago ? formatFecha(v.fechaPago) : '-'}</div>
+          <div class="fin-monto-box">
+            <div class="fin-monto">S/. ${parseFloat(v.monto).toLocaleString('es-PE',{minimumFractionDigits:2})}</div>
+            <div class="fin-fecha">${v.fechaPago ? formatFecha(v.fechaPago) : '-'}</div>
           </div>
-        </div>
-        <div class="cliente-info">
-          <span class="tag tag-asesor">${safeAsesor.split(' ')[0]}</span>
-          <span class="tag tag-pendiente"><i data-lucide="hourglass" class="mi xs"></i> PENDIENTE</span>
-        </div>
-        <div class="cliente-acciones">
-          <button class="btn-ver" data-vi="${vi}" onclick="verVoucherByIndex(this.dataset.vi)"><i data-lucide="eye" class="mi sm"></i> Ver voucher</button>
+          <div class="fin-actions">
+            <button class="btn-hover-action" data-vi="${vi}" onclick="verVoucherByIndex(this.dataset.vi)">
+              <i data-lucide="eye" class="mi"></i> Validar
+            </button>
+          </div>
         </div>
       </div>`;
     }).join('');
@@ -141,24 +144,40 @@
       return;
     }
 
-    document.getElementById('lista-historial').innerHTML = lista.map(h => `
-      <div class="hist-card">
-        <div class="hist-left">
-          <div class="nombre">${escapeHtml(h.nombre) || '-'}</div>
-          <div class="det">${h.asesor ? escapeHtml(h.asesor.toString().split(' ')[0]) : '-'} &middot; ${escapeHtml(h.tipo) || '-'} &middot; C&oacute;d. ${escapeHtml(h.cod) || '-'}</div>
-          <div class="det" style="margin-top:3px;">
-            <span class="tag ${h.estado && h.estado.toString().includes('VERIFICADO') ? 'tag-verificado' : 'tag-pendiente'}" style="display:inline-block;font-size:10px;">
-              ${escapeHtml(h.estado) || 'PENDIENTE'}
-            </span>
+    document.getElementById('lista-historial').innerHTML = lista.map(h => {
+      const estado = (h.estado || 'PENDIENTE').toString().toUpperCase();
+      const isVerificado = estado.includes('VERIFICADO');
+      const statusClass = isVerificado ? 'status-verificado' : 'status-pendiente';
+      const avatarBg    = isVerificado ? 'background:#e8f0ff; color:var(--azul2);' : 'background:#fff8e6; color:#cc8800;';
+      const avatarIcon  = isVerificado ? 'check-circle' : 'clock';
+      
+      return `
+      <div class="fin-card ${statusClass}">
+        <div class="fin-grid">
+          <div class="avatar" style="${avatarBg}"><i data-lucide="${avatarIcon}" class="mi"></i></div>
+          <div class="fin-info">
+            <div class="fin-name" title="${escapeHtml(h.nombre)}">${escapeHtml(h.nombre) || '-'}</div>
+            <div class="fin-sub">
+              <span>${h.asesor ? escapeHtml(h.asesor.toString().split(' ')[0]) : '-'}</span>
+              <span style="color:var(--gris2)">•</span>
+              <span>${escapeHtml(h.tipo) || '-'}</span>
+              <span style="color:var(--gris2)">•</span>
+              <span>Cód. ${escapeHtml(h.cod) || '-'}</span>
+            </div>
           </div>
+          <div class="fin-monto-box">
+            <div class="fin-monto ${isVerificado ? 'verde' : ''}">S/. ${parseFloat(h.monto||0).toLocaleString('es-PE',{minimumFractionDigits:2})}</div>
+            <div class="fin-fecha">${formatFechaSolo(h.fecha)} ${escapeHtml(h.hora) || ''}</div>
+          </div>
+          ${h.voucher ? `
+          <div class="fin-actions">
+            <a href="${escapeHtml(h.voucher)}" target="_blank" class="btn-hover-action" style="text-decoration:none;">
+              <i data-lucide="external-link" class="mi"></i> Ver
+            </a>
+          </div>` : ''}
         </div>
-        <div class="hist-right">
-          <div class="monto">S/. ${parseFloat(h.monto||0).toLocaleString('es-PE',{minimumFractionDigits:2})}</div>
-          <div class="fecha">${formatFechaSolo(h.fecha)} ${escapeHtml(h.hora) || ''}</div>
-          ${h.voucher ? `<a href="${escapeHtml(h.voucher)}" target="_blank">Ver voucher â†—</a>` : ''}
-        </div>
-      </div>
-    `).join('');
+      </div>`;
+    }).join('');
   }
 
   // â”€â”€ UTILS â”€â”€
