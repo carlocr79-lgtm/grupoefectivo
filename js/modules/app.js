@@ -20,14 +20,18 @@
       b.classList.remove('active');
       b.style.background = 'transparent';
       b.style.color = 'var(--texto2)';
+      b.style.fontWeight = '600';
+      b.style.border = '1px solid transparent';
       b.style.boxShadow = 'none';
     });
     const btn = document.getElementById('tab-clientes-' + tab);
     if (btn) {
       btn.classList.add('active');
-      btn.style.background = 'white';
-      btn.style.color = 'var(--azul)';
-      btn.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+      btn.style.background = '#e8f0fe';
+      btn.style.color = '#1a73e8';
+      btn.style.fontWeight = '600';
+      btn.style.border = '1px solid #d2e3fc';
+      btn.style.boxShadow = '0 1px 2px rgba(0,0,0,0.05)';
     }
 
     // Ocultar todas las vistas y toolbars primero
