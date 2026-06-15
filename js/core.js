@@ -231,9 +231,9 @@ async function refrescarDatos() {
 const _sectionTitles = {
   'dashboard': 'Dashboard', 'clientes': 'Gestión de Clientes',
   'cartas': 'Cartas de No Adeudo',
-  'cajachica': 'Caja Chica', 'kasnet': 'KASNET'
+  'caja': 'Caja Central Unificada'
 };
-const _allSections = ['dashboard','clientes','cartas','cajachica','kasnet'];
+const _allSections = ['dashboard','clientes','cartas','caja'];
 
 function navTo(section, btn) {
   _allSections.forEach(function(s) {
@@ -263,8 +263,14 @@ function navTo(section, btn) {
 
   // Load data
   if (section === 'dashboard' && typeof renderDashboard === 'function') renderDashboard();
-  else if (section === 'cajachica' && typeof cajaCargarDatos === 'function') { cajaCargarDatos(); cajaRenderTabla(cajaMovimientos, false); }
-  else if (section === 'kasnet' && typeof kasnetCargarDatos === 'function') kasnetCargarDatos();
+  else if (section === 'caja') {
+    if(typeof window.cajaUnificadaInit === 'function') {
+      window.cajaUnificadaInit();
+    } else {
+      if (typeof cajaCargarDatos === 'function') { cajaCargarDatos(); cajaRenderTabla(cajaMovimientos, false); }
+      if (typeof kasnetCargarDatos === 'function') kasnetCargarDatos();
+    }
+  }
   else if (section === 'cartas' && typeof cartasCargarPendientes === 'function') cartasCargarPendientes();
 }
 

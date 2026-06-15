@@ -191,12 +191,9 @@
           <i data-lucide="file-text" class="mi sm"></i> <span class="nav-item-label">Cartas</span>
         </button>
         <div class="nav-divider"></div>
-        <div class="nav-section">Caja</div>
-        <button class="nav-item" id="nav-cajachica-parent" onclick="navTo('cajachica',this)" title="Caja Chica">
-          <i data-lucide="wallet" class="mi sm"></i> <span class="nav-item-label">Caja Chica</span>
-        </button>
-        <button class="nav-item" onclick="navTo('kasnet',this)" title="KASNET">
-          <i data-lucide="store" class="mi sm"></i> <span class="nav-item-label">KASNET</span>
+        <div class="nav-section">Administración de Efectivo</div>
+        <button class="nav-item" id="nav-caja-parent" onclick="navTo('caja',this)" title="Caja Central">
+          <i data-lucide="vault" class="mi sm"></i> <span class="nav-item-label">Caja Central</span>
         </button>
       </nav>
       <div class="sidebar-footer">
@@ -475,10 +472,13 @@
             </div>
           </div><!-- /cc-panel-arqueo -->
 
-        </div><!-- /section-cajachica -->
+        </div><!-- /caja-sub-cajachica -->
 
         <!-- SECTION: KASNET -->
-        <div id="section-kasnet" class="section">
+        
+          <!-- CONTENEDOR KASNET -->
+          <div id="caja-sub-kasnet" style="display:none; flex-direction:column; flex:1;">
+
           <div class="caja-toolbar">
             <button class="btn-main" onclick="kasnetShowModal()" style="padding:10px; display:flex; align-items:center; justify-content:center;" title="Nuevo Registro Diario"><i data-lucide="plus" class="mi sm"></i></button>
             <div style="position:relative; flex:1; max-width:300px;">
@@ -490,7 +490,36 @@
             <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
             <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
           </div>
-        </div>
+          </div><!-- /caja-sub-kasnet -->
+          
+          <!-- CONTENEDOR ARQUEO GLOBAL -->
+          <div id="caja-sub-arqueo" style="display:none; flex-direction:column; flex:1; gap: 16px;">
+            <div style="background: white; border-radius: 12px; padding: 20px; border: 1px solid var(--gris2); display: flex; flex-direction: column; gap: 16px;">
+              <h3 style="margin:0; font-size: 16px; color: var(--azul); display: flex; align-items: center; gap: 8px;"><i data-lucide="calculator" class="mi"></i> Resumen de Cuadre Físico General</h3>
+              <p style="margin:0; font-size: 13px; color: var(--texto2);">Este panel suma el dinero en efectivo que debes tener físicamente sumando tu Caja Chica y las operaciones KASNET.</p>
+              
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin-top: 8px;">
+                <div style="background: #f8fafc; padding: 16px; border-radius: 10px; border: 1px solid #e2e8f0;">
+                  <div style="font-size: 12px; font-weight: 600; color: var(--texto2); margin-bottom: 4px; text-transform: uppercase;">Físico Caja Chica</div>
+                  <div id="arqueo-global-cajachica" style="font-size: 24px; font-weight: 700; color: var(--texto); font-family: 'DM Sans', sans-serif;">S/ 0.00</div>
+                </div>
+                <div style="background: #f8fafc; padding: 16px; border-radius: 10px; border: 1px solid #e2e8f0;">
+                  <div style="font-size: 12px; font-weight: 600; color: var(--texto2); margin-bottom: 4px; text-transform: uppercase;">Físico KASNET</div>
+                  <div id="arqueo-global-kasnet" style="font-size: 24px; font-weight: 700; color: var(--texto); font-family: 'DM Sans', sans-serif;">S/ 0.00</div>
+                </div>
+              </div>
+              
+              <div style="background: var(--azul); color: white; padding: 20px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <div style="font-size: 13px; font-weight: 500; opacity: 0.9; margin-bottom: 4px; text-transform: uppercase;">Total Dinero Físico Esperado</div>
+                  <div id="arqueo-global-total" style="font-size: 32px; font-weight: 800; font-family: 'DM Sans', sans-serif; letter-spacing: -1px;">S/ 0.00</div>
+                </div>
+                <i data-lucide="vault" class="mi" style="font-size: 48px; opacity: 0.5;"></i>
+              </div>
+            </div>
+          </div><!-- /caja-sub-arqueo -->
+          
+        </div><!-- /section-caja -->
 
       </div><!-- /content-body -->
     </main>
@@ -995,8 +1024,8 @@
     observer.observe(document.body, { childList: true, subtree: true });
   });
 </script>
-<script src="js/core.js?v=202606141"></script>
-  <script src="js/modules/app.js?v=2026061421"></script>
+<script src="js/core.js?v=202606151"></script>
+  <script src="js/modules/app.js?v=202606152"></script>
   <script src="js/modules/dashboard.js"></script>
   <script src="js/modules/mora.js"></script>
   <script src="js/modules/clientes.js?v=2026061428"></script>

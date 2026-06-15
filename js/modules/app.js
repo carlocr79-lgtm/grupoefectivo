@@ -475,3 +475,79 @@
     document.getElementById('cartas-content-buscador').style.display = (tab === 'buscador') ? 'block' : 'none';
     document.getElementById('cartas-content-pendientes').style.display = (tab === 'pendientes') ? 'block' : 'none';
   }
+
+
+  // ==========================================
+  // UNIFICACION DE CAJA CENTRAL
+  // ==========================================
+
+  window.switchCajaTab = function(tab) {
+    document.querySelectorAll('#section-caja .btn-main-tab').forEach(b => {
+      b.classList.remove('active');
+      b.style.background = 'transparent';
+      b.style.color = 'var(--texto2)';
+      b.style.boxShadow = 'none';
+    });
+    const btn = document.getElementById('tab-caja-' + tab);
+    if (btn) {
+      btn.classList.add('active');
+      btn.style.background = 'white';
+      btn.style.color = 'var(--azul)';
+      btn.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+    }
+
+    document.getElementById('caja-sub-cajachica').style.display = (tab === 'cajachica') ? 'flex' : 'none';
+    document.getElementById('caja-sub-kasnet').style.display = (tab === 'kasnet') ? 'flex' : 'none';
+    document.getElementById('caja-sub-arqueo').style.display = (tab === 'arqueo') ? 'flex' : 'none';
+
+    if (tab === 'arqueo') {
+      calcularArqueoGlobal();
+    } else if (tab === 'cajachica' && typeof cajaCargarDatos === 'function') {
+      if(!window.cajaCargadoPreviamente) { window.cajaCargadoPreviamente=true; cajaCargarDatos(); }
+    } else if (tab === 'kasnet' && typeof kasnetCargarDatos === 'function') {
+      if(!window.kasnetCargadoPreviamente) { window.kasnetCargadoPreviamente=true; kasnetCargarDatos(); }
+    }
+  };
+
+  window.cajaUnificadaInit = function() {
+    if(typeof cajaCargarDatos === 'function') { window.cajaCargadoPreviamente=true; cajaCargarDatos(); }
+    if(typeof kasnetCargarDatos === 'function') { window.kasnetCargadoPreviamente=true; kasnetCargarDatos(); }
+    window.switchCajaTab('cajachica');
+  };
+
+  function calcularArqueoGlobal() {
+    let fisicoCaja = 0;
+    let fisicoKasnet = 0;
+
+    // Obtener fisico de caja chica
+    if (typeof window.cajaMovimientos !== 'undefined' && Array.isArray(window.cajaMovimientos)) {
+      fisicoCaja = window.cajaMovimientos.reduce((acc, m) => {
+        let monto = parseFloat(m.monto) || 0;
+        return acc + (m.tipo === 'INGRESO' ? monto : -monto);
+      }, 0);
+    }
+
+    // Obtener fisico de kasnet
+    if (typeof window.kasnetMovimientos !== 'undefined' && Array.isArray(window.kasnetMovimientos)) {
+      // Kasnet usa calculo de transacciones
+      let sldIni = 0, trans = 0, depositos = 0;
+      window.kasnetMovimientos.forEach(m => {
+        if(m.concepto === 'SALDO_INICIAL') sldIni = parseFloat(m.monto) || 0;
+        else if(m.tipo === 'TRANSACCION') trans += (parseFloat(m.monto) || 0);
+        else if(m.tipo === 'DEPOSITO') depositos += (parseFloat(m.monto) || 0);
+      });
+      // Saldo Fisico Kasnet = Saldo Inicial + Transacciones - Depositos
+      fisicoKasnet = sldIni + trans - depositos;
+    }
+
+    const total = fisicoCaja + fisicoKasnet;
+
+    const elCaja = document.getElementById('arqueo-global-cajachica');
+    const elKasnet = document.getElementById('arqueo-global-kasnet');
+    const elTotal = document.getElementById('arqueo-global-total');
+
+    if(elCaja) elCaja.textContent = 'S/ ' + fisicoCaja.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    if(elKasnet) elKasnet.textContent = 'S/ ' + fisicoKasnet.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    if(elTotal) elTotal.textContent = 'S/ ' + total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+  }
+
