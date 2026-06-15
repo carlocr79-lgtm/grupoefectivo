@@ -239,17 +239,12 @@
           <!-- ZONA DE FILTROS Y TABS -->
           <div style="padding-bottom: 4px; margin-bottom: 8px; border-bottom: 1px solid var(--gris2);">
             
-            <!-- TABS NIVEL 1 (Categorías Principales) -->
-            <div style="display:inline-flex; background:#f1f5f9; padding:4px; border-radius:10px; margin-bottom:12px; border:1px solid #e2e8f0;">
-              <button id="tab-clientes-busqueda" class="btn-main-tab active" onclick="switchClientesTab('busqueda')" style="padding:7px 18px; border-radius:8px; border:none; font-weight:600; font-size:13px; cursor:pointer; background:white; color:var(--azul); box-shadow:0 1px 3px rgba(0,0,0,0.1); transition:all 0.2s;"><i data-lucide="users" class="mi" style="font-size:15px;margin-right:5px;vertical-align:text-bottom;"></i> Clientes</button>
-              <button id="tab-clientes-mora" class="btn-main-tab" onclick="switchClientesTab('mora')" style="padding:7px 18px; border-radius:8px; border:none; font-weight:600; font-size:13px; cursor:pointer; background:transparent; color:var(--texto2); box-shadow:none; transition:all 0.2s;"><i data-lucide="alert-circle" class="mi" style="font-size:15px;margin-right:5px;vertical-align:text-bottom;"></i> Cartera en Mora</button>
-            </div>
-
-            <!-- TABS NIVEL 2 (Sub-menú de Mora) -->
-            <div id="submenu-mora" style="display:none; gap:0; margin-bottom:8px; border-bottom:1px solid var(--gris2);">
-              <button id="tab-mora-clientes" class="btn-mora-tab active" onclick="switchMoraTab('clientes')">Notificaciones</button>
-              <button id="tab-mora-vouchers" class="btn-mora-tab" onclick="switchMoraTab('vouchers')">Vouchers <span class="tab-badge" id="badge-vouchers-sub" style="display:none;margin-left:4px;position:relative;top:0;right:0;transform:none;">0</span></button>
-              <button id="tab-mora-historial" class="btn-mora-tab" onclick="switchMoraTab('historial')">Historial</button>
+            <!-- TABS ÚNICOS DE SECCIÓN -->
+            <div style="display:inline-flex; background:#f1f5f9; padding:4px; border-radius:10px; margin-bottom:12px; border:1px solid #e2e8f0; width:100%; overflow-x:auto;">
+              <button id="tab-clientes-busqueda" class="btn-main-tab active" onclick="switchClientesTab('busqueda')" style="padding:7px 18px; border-radius:8px; border:none; font-weight:600; font-size:13px; cursor:pointer; background:white; color:var(--azul); box-shadow:0 1px 3px rgba(0,0,0,0.1); transition:all 0.2s; white-space:nowrap;"><i data-lucide="search" class="mi" style="font-size:15px;margin-right:5px;vertical-align:text-bottom;"></i> Búsqueda General</button>
+              <button id="tab-clientes-mora-pendientes" class="btn-main-tab" onclick="switchClientesTab('mora-pendientes')" style="padding:7px 18px; border-radius:8px; border:none; font-weight:600; font-size:13px; cursor:pointer; background:transparent; color:var(--texto2); box-shadow:none; transition:all 0.2s; white-space:nowrap;"><i data-lucide="bell" class="mi" style="font-size:15px;margin-right:5px;vertical-align:text-bottom;"></i> Mora: Pendientes</button>
+              <button id="tab-clientes-mora-vouchers" class="btn-main-tab" onclick="switchClientesTab('mora-vouchers')" style="padding:7px 18px; border-radius:8px; border:none; font-weight:600; font-size:13px; cursor:pointer; background:transparent; color:var(--texto2); box-shadow:none; transition:all 0.2s; white-space:nowrap;"><i data-lucide="receipt" class="mi" style="font-size:15px;margin-right:5px;vertical-align:text-bottom;"></i> Mora: Vouchers <span class="tab-badge" id="badge-vouchers-sub" style="display:none;margin-left:4px;position:relative;top:0;right:0;transform:none;background:var(--naranja);color:white;padding:2px 6px;border-radius:10px;font-size:10px;">0</span></button>
+              <button id="tab-clientes-mora-historial" class="btn-main-tab" onclick="switchClientesTab('mora-historial')" style="padding:7px 18px; border-radius:8px; border:none; font-weight:600; font-size:13px; cursor:pointer; background:transparent; color:var(--texto2); box-shadow:none; transition:all 0.2s; white-space:nowrap;"><i data-lucide="history" class="mi" style="font-size:15px;margin-right:5px;vertical-align:text-bottom;"></i> Mora: Historial</button>
             </div>
 
             <!-- CONTROLES POR TAB (Clientes) -->

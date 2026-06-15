@@ -15,7 +15,7 @@
 
   function switchClientesTab(tab) {
     window.currentMainTab = tab;
-    // Actualizar botones tab principales (Nivel 1) para estilo iOS segmentado
+    // Actualizar botones tab (ahora hay 4 botones principales)
     document.querySelectorAll('.btn-main-tab').forEach(b => {
       b.classList.remove('active');
       b.style.background = 'transparent';
@@ -30,75 +30,43 @@
       btn.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
     }
 
-    // Mostrar/Ocultar Submenú (Nivel 2) solo para mora
-    const submenuMora = document.getElementById('submenu-mora');
-    if (submenuMora) submenuMora.style.display = (tab === 'mora') ? 'flex' : 'none';
-    // Manejar visibilidad de contenedores
-    const contentMora = document.getElementById('mora-content-clientes'); // Lista de mora
-    const contentBusqueda = document.getElementById('mora-content-busqueda');
-    const toolbarClientes = document.getElementById('mora-controls-clientes');
-    const toolbarBusqueda = document.getElementById('mora-controls-busqueda');
-    
-    if (tab === 'busqueda') {
-      if (toolbarClientes) toolbarClientes.style.display = 'none';
-      if (toolbarBusqueda) toolbarBusqueda.style.display = 'flex';
-      if (contentMora) contentMora.style.display = 'none';
-      
-      // Ocultamos vouchers/historial explícitamente
-      const contentVouchers = document.getElementById('mora-content-vouchers');
-      const contentHistorial = document.getElementById('mora-content-historial');
-      const toolbarHistorial = document.getElementById('mora-controls-historial');
-      if (contentVouchers) contentVouchers.style.display = 'none';
-      if (contentHistorial) contentHistorial.style.display = 'none';
-      if (toolbarHistorial) toolbarHistorial.style.display = 'none';
+    // Ocultar todas las vistas y toolbars primero
+    document.getElementById('mora-content-busqueda').style.display = 'none';
+    document.getElementById('mora-controls-busqueda').style.display = 'none';
+    document.getElementById('mora-content-clientes').style.display = 'none'; // Notificaciones
+    document.getElementById('mora-controls-clientes').style.display = 'none';
+    document.getElementById('mora-content-vouchers').style.display = 'none';
+    document.getElementById('mora-content-historial').style.display = 'none';
+    document.getElementById('mora-controls-historial').style.display = 'none';
 
-      if (contentBusqueda) contentBusqueda.style.display = 'flex';
-      // Focus on input
+    // Mostrar lo correspondiente a la pestaña activa
+    if (tab === 'busqueda') {
+      document.getElementById('mora-content-busqueda').style.display = 'flex';
+      document.getElementById('mora-controls-busqueda').style.display = 'flex';
       setTimeout(() => {
         const inputGlobal = document.getElementById('input-busqueda-global');
         if(inputGlobal) inputGlobal.focus();
       }, 50);
-    } else {
-      if (contentBusqueda) contentBusqueda.style.display = 'none';
-      if (toolbarBusqueda) toolbarBusqueda.style.display = 'none';
-      // Restauramos la vista de mora según su sub-tab
-      switchMoraTab(document.querySelector('.btn-mora-tab.active')?.id.replace('tab-mora-','') || 'clientes');
-    }
-
-    // Cargar o renderizar datos correspondientes
-    if (tab === 'mora') {
-      if (typeof window.renderClientes === 'function' || typeof renderClientes === 'function') {
-        if (typeof renderClientes === 'function') renderClientes();
-        else if (window.renderClientes) window.renderClientes();
+    } else if (tab === 'mora-pendientes') {
+      document.getElementById('mora-content-clientes').style.display = 'flex';
+      document.getElementById('mora-controls-clientes').style.display = 'flex';
+      if (typeof renderClientes === 'function') renderClientes();
+    } else if (tab === 'mora-vouchers') {
+      document.getElementById('mora-content-vouchers').style.display = 'flex';
+      if (!window._vouchersLoaded) {
+        window._vouchersLoaded = true;
+        cargarVouchers();
+      }
+    } else if (tab === 'mora-historial') {
+      document.getElementById('mora-content-historial').style.display = 'flex';
+      document.getElementById('mora-controls-historial').style.display = 'flex';
+      if (!window._historialLoaded) {
+        window._historialLoaded = true;
+        cargarHistorial();
       }
     }
   }
   window.switchClientesTab = switchClientesTab;
-
-  function switchMoraTab(tab) {
-    // Actualizar botones tab
-    document.querySelectorAll('.btn-mora-tab').forEach(b => b.classList.remove('active'));
-    document.getElementById('tab-mora-' + tab).classList.add('active');
-    
-    // Mostrar contenido
-    document.getElementById('mora-content-clientes').style.display = (tab === 'clientes') ? 'flex' : 'none';
-    document.getElementById('mora-content-vouchers').style.display = (tab === 'vouchers') ? 'flex' : 'none';
-    document.getElementById('mora-content-historial').style.display = (tab === 'historial') ? 'flex' : 'none';
-
-    // Ocultar/Mostrar Controles del Buscador
-    document.getElementById('mora-controls-clientes').style.display = (tab === 'clientes') ? 'flex' : 'none';
-    document.getElementById('mora-controls-historial').style.display = (tab === 'historial') ? 'flex' : 'none';
-
-    // Lazy Loading
-    if (tab === 'vouchers' && (!window._vouchersLoaded)) {
-      window._vouchersLoaded = true;
-      cargarVouchers();
-    }
-    if (tab === 'historial' && (!window._historialLoaded)) {
-      window._historialLoaded = true;
-      cargarHistorial();
-    }
-  }
 
 
   // â”€â”€ SWITCH TAB DENTRO DE CAJA CHICA â”€â”€
