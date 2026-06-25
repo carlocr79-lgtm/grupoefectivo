@@ -26,7 +26,7 @@
     if(tbody) {
       let skHTML = '';
       for(let i=0; i<4; i++) {
-        skHTML += `<div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>`;
+        skHTML += `<div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>`;
       }
       tbody.innerHTML = skHTML;
     }
@@ -104,9 +104,9 @@
     const top = data.metricas.topGastos || [];
     const topEl = document.getElementById('caja-top-gastos');
     if (!topEl) return;
-    if (top.length === 0) { topEl.innerHTML = '<div style="padding:10px;text-align:center;">Sin gastos registrados</div>'; return; }
+    if (top.length === 0) { topEl.innerHTML = '<div class="text-center"  style="padding:10px;">Sin gastos registrados</div>'; return; }
     topEl.innerHTML = top.map(function(g, i) {
-      return '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--gris2);">' +
+      return '<div class="d-flex justify-between"  style="padding:8px 0; border-bottom:1px solid var(--gris2);">' +
         '<span>' + (i+1) + '. ' + g.categoria + '</span>' +
         '<strong style="color:var(--rojo);">S/. ' + g.monto.toLocaleString('es-PE', {minimumFractionDigits:2}) + '</strong></div>';
     }).join('');
@@ -119,15 +119,26 @@
     const contenedor = document.getElementById(readOnly ? 'caja-tabla-body-archivo' : 'caja-tabla-body');
     if (!contenedor) return;
     if (!movs || movs.length === 0) {
-      contenedor.innerHTML = '<div class="empty"><div class="icon"><i data-lucide="search-x" class="mi" style="font-size:40px;color:var(--texto2);"></i></div>' + (readOnly ? 'Sin movimientos archivados' : 'Sin movimientos') + '</div>';
+      contenedor.innerHTML = '<div class="empty"><div class="icon"><i class="mi text-secondary" data-lucide="search-x"   style="font-size:40px;"></i></div>' + (readOnly ? 'Sin movimientos archivados' : 'Sin movimientos') + '</div>';
       return;
     }
-    movs.forEach(function(m) { _cajaMovMap['mov-' + m.id] = m; });
-    contenedor.innerHTML = movs.map(function(m) {
+    
+    // Ordenar movimientos: Fecha más reciente primero; y para fechas iguales, el registro más reciente en el tiempo (mayor índice original)
+    const sortedMovs = [...movs].map((m, idx) => ({ ...m, originalIndex: idx }));
+    sortedMovs.sort((a, b) => {
+      const dateA = a.fecha || '';
+      const dateB = b.fecha || '';
+      const dateCompare = dateB.localeCompare(dateA);
+      if (dateCompare !== 0) return dateCompare;
+      return b.originalIndex - a.originalIndex;
+    });
+
+    sortedMovs.forEach(function(m) { _cajaMovMap['mov-' + m.id] = m; });
+    contenedor.innerHTML = sortedMovs.map(function(m) {
       const esIngreso = m.tipo === 'Ingreso';
       const sustentoUrlSafe = m.sustentoUrl ? m.sustentoUrl.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;') : '';
       
-      const icon = esIngreso ? '<i data-lucide="arrow-down" class="mi sm" style="margin:0;"></i>' : '<i data-lucide="arrow-up" class="mi sm" style="margin:0;"></i>';
+      const icon = esIngreso ? '<i class="mi sm m-0" data-lucide="arrow-down"  ></i>' : '<i class="mi sm m-0" data-lucide="arrow-up"  ></i>';
       const sign = esIngreso ? '+' : '-';
       
       const mDataId = 'mov-' + m.id;
@@ -146,20 +157,20 @@
       const itemReadOnly = readOnly || isPastMonth;
 
       return `
-      <div class="mov-card" onclick="cajaAbrirDrawer('${m.id}', ${readOnly})" style="cursor:pointer; transition:transform 0.2s; box-shadow:0 2px 8px rgba(0,0,0,0.02);" onmouseover="this.style.transform='translateY(-2px)';" onmouseout="this.style.transform='translateY(0)';">
+      <div class="mov-card cursor-pointer"  onclick="cajaAbrirDrawer('${m.id}', ${readOnly})"  style="transition:transform 0.2s; box-shadow:0 2px 8px rgba(0,0,0,0.02);" onmouseover="this.style.transform='translateY(-2px)';" onmouseout="this.style.transform='translateY(0)';">
         <div class="mov-left">
           <div class="mov-icon ${esIngreso ? 'ingreso' : 'egreso'}">${icon}</div>
           <div class="mov-info">
             <div class="mov-desc" title="${m.descripcion.replace(/"/g, '&quot;')}">${m.descripcion}</div>
             <div class="mov-cat">
-              <span style="background:var(--gris);padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;">${m.categoria}</span>
-              ${m.sustentoUrl ? '<span style="color:var(--azul);background:var(--azul-claro);padding:3px 8px;border-radius:6px;font-weight:700;font-size:10px;display:inline-flex;align-items:center;gap:4px;"><i data-lucide="paperclip" class="mi xs" style="margin:0;vertical-align:bottom;"></i> Adjunto</span>' : ''}
+              <span class="text-xs font-bold"  style="background:var(--gris); padding:3px 8px; border-radius:6px;">${m.categoria}</span>
+              ${m.sustentoUrl ? '<span class="font-bold text-xs align-center gap-1"  style="color:var(--azul); background:var(--azul-claro); padding:3px 8px; border-radius:6px; display:inline-flex;"><i class="mi xs m-0" data-lucide="paperclip"   style="vertical-align:bottom;"></i> Adjunto</span>' : ''}
             </div>
           </div>
         </div>
         <div class="mov-right">
           <div class="mov-monto ${esIngreso ? 'ingreso' : 'egreso'}">${sign} S/. ${m.monto.toLocaleString('es-PE', {minimumFractionDigits:2})}</div>
-          <div style="display:flex; justify-content:flex-end; width:100%; align-items:center; gap:10px;">
+          <div class="d-flex align-center"  style="justify-content:flex-end; width:100%; gap:10px;">
             <div class="mov-fecha">${m.fecha}</div>
           </div>
         </div>
@@ -198,7 +209,7 @@
         if (Date.now() - obj.ts < CACHE_TTL_ARCHIVO) {
           cajaMovArchivo = obj.data;
           if (cajaMovArchivo.length === 0) {
-            contenedor.innerHTML = '<div class="empty"><i data-lucide="package" class="mi" style="font-size:40px;color:var(--texto2);"></i><br>No hay registros archivados en este periodo</div>';
+            contenedor.innerHTML = '<div class="empty"><i class="mi text-secondary" data-lucide="package"   style="font-size:40px;"></i><br>No hay registros archivados en este periodo</div>';
           } else {
             if (tipo === 'MOVIMIENTOS') {
               cajaRenderTabla(cajaMovArchivo, true);
@@ -214,7 +225,7 @@
 
     let skHTML = '';
     for(let i=0; i<4; i++) {
-      skHTML += `<div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>`;
+      skHTML += `<div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>`;
     }
     contenedor.innerHTML = skHTML;
 
@@ -222,7 +233,7 @@
       const resp = await apiFetch({ admin: 'caja_archivo', sede: cajaSedeActual, sedeContexto: cajaSedeActual, anio: anio, mes: mes, tipo: tipo });
       if (_cajaMovRequestId !== myReqId) return;
       if (!resp || resp.error) {
-        contenedor.innerHTML = '<div class="empty"><i data-lucide="folder-x" class="mi" style="font-size:40px;color:var(--texto2);"></i><br>Error al cargar el archivo</div>';
+        contenedor.innerHTML = '<div class="empty"><i class="mi text-secondary" data-lucide="folder-x"   style="font-size:40px;"></i><br>Error al cargar el archivo</div>';
         return;
       }
       cajaMovArchivo = Array.isArray(resp) ? resp : [];
@@ -231,7 +242,7 @@
       try { sessionStorage.setItem(cacheKey, JSON.stringify({ ts: Date.now(), data: cajaMovArchivo })); } catch(e) {}
 
       if (cajaMovArchivo.length === 0) {
-        contenedor.innerHTML = '<div class="empty"><i data-lucide="package" class="mi" style="font-size:40px;color:var(--texto2);"></i><br>No hay registros archivados en este periodo</div>';
+        contenedor.innerHTML = '<div class="empty"><i class="mi text-secondary" data-lucide="package"   style="font-size:40px;"></i><br>No hay registros archivados en este periodo</div>';
         return;
       }
       
@@ -262,7 +273,7 @@
     // Set icon
     const iconEl = document.getElementById('dr-caja-icon');
     iconEl.innerHTML = m.tipo === 'Ingreso' ? '<i data-lucide="arrow-down" class="mi"></i>' : '<i data-lucide="arrow-up" class="mi"></i>';
-    iconEl.style.background = m.tipo === 'Ingreso' ? '#e8f0ff' : '#ffe6e6';
+    iconEl.style.background = m.tipo === 'Ingreso' ? 'var(--brand-light)' : 'var(--alert-danger-light)';
     iconEl.style.color = m.tipo === 'Ingreso' ? 'var(--verde)' : 'var(--rojo)';
     
     // Header
@@ -323,8 +334,8 @@
     } else {
       actionsEl.style.display = 'flex';
       actionsEl.innerHTML = 
-        '<button style="background:var(--gris); color:var(--texto);" onclick="cajaCerrarDrawer(); cajaShowModalById(\'mov-' + m.id + '\')"><i data-lucide="pencil" class="mi"></i> Editar</button>' +
-        '<button style="background:#ffe6e6; color:var(--rojo);" onclick="cajaCerrarDrawer(); cajaEliminar(\'' + m.id + '\')"><i data-lucide="trash-2" class="mi"></i> Eliminar</button>';
+        '<button class="text-primary"  style="background:var(--gris);" onclick="cajaCerrarDrawer(); cajaShowModalById(\'mov-' + m.id + '\')"><i data-lucide="pencil" class="mi"></i> Editar</button>' +
+        '<button style="background:var(--alert-danger-light); color:var(--rojo);" onclick="cajaCerrarDrawer(); cajaEliminar(\'' + m.id + '\')"><i data-lucide="trash-2" class="mi"></i> Eliminar</button>';
     }
     
     document.getElementById('drawer-overlay-caja').classList.add('open');
@@ -647,19 +658,19 @@
 
       const gIndex = offsetIndex + i;
 
-      return `<div class="mov-card" style="cursor:pointer;" onclick="cajaShowArqueoDetalle(${gIndex})">
+      return `<div class="mov-card cursor-pointer"   onclick="cajaShowArqueoDetalle(${gIndex})">
         <div class="mov-left">
-          <div class="mov-icon" style="background:var(--gris2); color:var(--texto2);"><i data-lucide="${icono}" class="mi"></i></div>
+          <div class="mov-icon text-secondary"   style="background:var(--gris2);"><i data-lucide="${icono}" class="mi"></i></div>
           <div class="mov-info">
             <div class="mov-desc">${r.tipo || 'Arqueo'}</div>
             <div class="mov-cat">
-              <span style="background:var(--azul-claro);color:var(--azul);padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;">${r.usuario ? String(r.usuario).split('@')[0] : 'S/U'}</span>
+              <span class="text-xs font-bold"  style="background:var(--azul-claro); color:var(--azul); padding:3px 8px; border-radius:6px;">${r.usuario ? String(r.usuario).split('@')[0] : 'S/U'}</span>
             </div>
           </div>
         </div>
         <div class="mov-right">
           <div class="mov-monto" style="${colorMonto}">S/. ${(parseFloat(r.diferencia) || 0).toLocaleString('es-PE', {minimumFractionDigits: 2})}</div>
-          <div style="display:flex; justify-content:flex-end; width:100%; align-items:center; gap:10px;">
+          <div class="d-flex align-center"  style="justify-content:flex-end; width:100%; gap:10px;">
             <div class="mov-fecha">${r.fecha || ''}</div>
           </div>
         </div>
@@ -682,7 +693,7 @@
       cajaArqueosOffset = 0;
       let skArq = '';
       for(let i=0; i<4; i++) {
-        skArq += `<div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>`;
+        skArq += `<div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>`;
       }
       contenedor.innerHTML = skArq;
       btnMasCont.style.display = 'none';
@@ -698,7 +709,7 @@
       const total = (resp && resp.total !== undefined) ? resp.total : dataArr.length;
 
       if (dataArr.length === 0 && !append) {
-        contenedor.innerHTML = '<div class="empty"><div class="icon"><i data-lucide="history" class="mi" style="font-size:40px;color:var(--texto2);"></i></div>Sin historial de arqueos</div>';
+        contenedor.innerHTML = '<div class="empty"><div class="icon"><i class="mi text-secondary" data-lucide="history"   style="font-size:40px;"></i></div>Sin historial de arqueos</div>';
         btnMasCont.style.display = 'none';
         _cajaArqueosLoaded = true;
         return;
@@ -753,45 +764,45 @@
     let html = `
       <div class="dr-section">
         <div class="dr-section-title">Datos del Arqueo</div>
-        <div class="dr-item"><span class="lbl">Encargado</span><span class="val" style="font-weight:700;">${arq.usuario ? String(arq.usuario).split('@')[0] : 'S/U'}</span></div>
+        <div class="dr-item"><span class="lbl">Encargado</span><span class="val font-bold"  >${arq.usuario ? String(arq.usuario).split('@')[0] : 'S/U'}</span></div>
         <div class="dr-item"><span class="lbl">Tipo</span><span class="val">${arq.tipo || 'Arqueo'}</span></div>
         <div class="dr-item"><span class="lbl">Fecha</span><span class="val">${arq.fecha || '-'}</span></div>
       </div>
 
       <div class="dr-section">
         <div class="dr-section-title">Conteo Físico</div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+        <div class="gap-4"  style="display:grid; grid-template-columns:1fr 1fr;">
           <div>
-            <div style="font-size:11px; font-weight:800; color:var(--texto2); margin-bottom:8px; border-bottom:1px solid var(--gris2); padding-bottom:4px; letter-spacing:0.5px;">BILLETES</div>
-            <table style="width:100%; border-collapse:collapse; font-size:12px;">
-              <tr><td style="color:var(--texto2); padding:3px 0;">S/ 200</td><td style="text-align:right; font-weight:700;">${d.b200||0}</td></tr>
-              <tr><td style="color:var(--texto2); padding:3px 0;">S/ 100</td><td style="text-align:right; font-weight:700;">${d.b100||0}</td></tr>
-              <tr><td style="color:var(--texto2); padding:3px 0;">S/ 50</td><td style="text-align:right; font-weight:700;">${d.b50||0}</td></tr>
-              <tr><td style="color:var(--texto2); padding:3px 0;">S/ 20</td><td style="text-align:right; font-weight:700;">${d.b20||0}</td></tr>
-              <tr><td style="color:var(--texto2); padding:3px 0;">S/ 10</td><td style="text-align:right; font-weight:700;">${d.b10||0}</td></tr>
+            <div class="text-sm font-extrabold text-secondary mb-2"  style="border-bottom:1px solid var(--gris2); padding-bottom:4px; letter-spacing:0.5px;">BILLETES</div>
+            <table class="text-base"  style="width:100%; border-collapse:collapse;">
+              <tr><td class="text-secondary"  style="padding:3px 0;">S/ 200</td><td class="text-right font-bold" >${d.b200||0}</td></tr>
+              <tr><td class="text-secondary"  style="padding:3px 0;">S/ 100</td><td class="text-right font-bold" >${d.b100||0}</td></tr>
+              <tr><td class="text-secondary"  style="padding:3px 0;">S/ 50</td><td class="text-right font-bold" >${d.b50||0}</td></tr>
+              <tr><td class="text-secondary"  style="padding:3px 0;">S/ 20</td><td class="text-right font-bold" >${d.b20||0}</td></tr>
+              <tr><td class="text-secondary"  style="padding:3px 0;">S/ 10</td><td class="text-right font-bold" >${d.b10||0}</td></tr>
             </table>
           </div>
           <div>
-            <div style="font-size:11px; font-weight:800; color:var(--texto2); margin-bottom:8px; border-bottom:1px solid var(--gris2); padding-bottom:4px; letter-spacing:0.5px;">MONEDAS</div>
-            <table style="width:100%; border-collapse:collapse; font-size:12px;">
-              <tr><td style="color:var(--texto2); padding:3px 0;">S/ 5.00</td><td style="text-align:right; font-weight:700;">${d.m5||0}</td></tr>
-              <tr><td style="color:var(--texto2); padding:3px 0;">S/ 2.00</td><td style="text-align:right; font-weight:700;">${d.m2||0}</td></tr>
-              <tr><td style="color:var(--texto2); padding:3px 0;">S/ 1.00</td><td style="text-align:right; font-weight:700;">${d.m1||0}</td></tr>
-              <tr><td style="color:var(--texto2); padding:3px 0;">S/ 0.50</td><td style="text-align:right; font-weight:700;">${d.m050||0}</td></tr>
-              <tr><td style="color:var(--texto2); padding:3px 0;">S/ 0.20</td><td style="text-align:right; font-weight:700;">${d.m020||0}</td></tr>
-              <tr><td style="color:var(--texto2); padding:3px 0;">S/ 0.10</td><td style="text-align:right; font-weight:700;">${d.m010||0}</td></tr>
+            <div class="text-sm font-extrabold text-secondary mb-2"  style="border-bottom:1px solid var(--gris2); padding-bottom:4px; letter-spacing:0.5px;">MONEDAS</div>
+            <table class="text-base"  style="width:100%; border-collapse:collapse;">
+              <tr><td class="text-secondary"  style="padding:3px 0;">S/ 5.00</td><td class="text-right font-bold" >${d.m5||0}</td></tr>
+              <tr><td class="text-secondary"  style="padding:3px 0;">S/ 2.00</td><td class="text-right font-bold" >${d.m2||0}</td></tr>
+              <tr><td class="text-secondary"  style="padding:3px 0;">S/ 1.00</td><td class="text-right font-bold" >${d.m1||0}</td></tr>
+              <tr><td class="text-secondary"  style="padding:3px 0;">S/ 0.50</td><td class="text-right font-bold" >${d.m050||0}</td></tr>
+              <tr><td class="text-secondary"  style="padding:3px 0;">S/ 0.20</td><td class="text-right font-bold" >${d.m020||0}</td></tr>
+              <tr><td class="text-secondary"  style="padding:3px 0;">S/ 0.10</td><td class="text-right font-bold" >${d.m010||0}</td></tr>
             </table>
           </div>
         </div>
       </div>
 
       <div style="background:var(--gris2); padding:16px; border-radius:12px; margin-top:24px;">
-        <div style="display:flex;justify-content:space-between; align-items:center; margin-bottom:8px;">
-          <span style="font-weight:700; font-size:12px; color:var(--texto2);">Total Físico Contado:</span>
+        <div class="d-flex justify-between align-center mb-2" >
+          <span class="font-bold text-base text-secondary" >Total Físico Contado:</span>
           <span style="font-weight:900; font-size:18px; color:var(--verde);">S/. ${(parseFloat(arq.fisico)||0).toLocaleString('es-PE', {minimumFractionDigits: 2})}</span>
         </div>
-        <div style="display:flex;justify-content:space-between; align-items:center;">
-          <span style="font-weight:700; font-size:12px; color:var(--texto2);">Saldo Teórico Sistema:</span>
+        <div class="d-flex justify-between align-center" >
+          <span class="font-bold text-base text-secondary" >Saldo Teórico Sistema:</span>
           <span style="font-weight:900; font-size:18px; color:var(--azul);">S/. ${(parseFloat(arq.teorico)||0).toLocaleString('es-PE', {minimumFractionDigits: 2})}</span>
         </div>
       </div>

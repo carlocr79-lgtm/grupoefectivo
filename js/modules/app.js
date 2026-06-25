@@ -12,65 +12,143 @@
 
 
   window.currentMainTab = 'busqueda';
+  window.currentMoraSubTab = 'pendientes';
 
   function switchClientesTab(tab) {
-    window.currentMainTab = tab;
-    // Actualizar botones tab (ahora hay 4 botones principales)
+    if (tab === 'mora') {
+      tab = 'mora-pendientes';
+      window.currentMoraSubTab = 'pendientes';
+      // Sincronizar UI de subtabs
+      if (typeof window.switchMoraSubTab === 'function') {
+        window.switchMoraSubTab('pendientes');
+        return; // switchMoraSubTab will call switchClientesTab('mora-pendientes') again
+      }
+    }
+    
+    let tabGroup = tab.startsWith('mora') ? 'mora' : tab;
+    window.currentMainTab = tabGroup;
+
+    // Actualizar botones tab — usando estilos inline directos (igual que switchMoraSubTab)
+    // para evitar recálculo de CSS que causa micro-temblor
     document.querySelectorAll('.btn-main-tab').forEach(b => {
-      b.classList.remove('active');
-      b.style.background = 'transparent';
+      b.style.background = 'white';
       b.style.color = 'var(--texto2)';
-      b.style.fontWeight = '600';
-      b.style.border = '1px solid transparent';
-      b.style.boxShadow = 'none';
+      b.style.borderColor = 'var(--gris2)';
     });
-    const btn = document.getElementById('tab-clientes-' + tab);
+    const btn = document.getElementById('tab-clientes-' + tabGroup);
     if (btn) {
-      btn.classList.add('active');
-      btn.style.background = '#e8f0fe';
-      btn.style.color = '#1a73e8';
-      btn.style.fontWeight = '600';
-      btn.style.border = '1px solid #d2e3fc';
-      btn.style.boxShadow = '0 1px 2px rgba(0,0,0,0.05)';
+      btn.style.background = 'var(--brand-light)';
+      btn.style.color = 'var(--brand-secondary)';
+      btn.style.borderColor = 'var(--brand-light-border)';
     }
 
     // Ocultar todas las vistas y toolbars primero
     document.getElementById('mora-content-busqueda').style.display = 'none';
-    document.getElementById('mora-controls-busqueda').style.display = 'none';
-    document.getElementById('mora-content-clientes').style.display = 'none'; // Notificaciones
+    document.getElementById('mora-content-clientes').style.display = 'none'; 
     document.getElementById('mora-controls-clientes').style.display = 'none';
+    document.getElementById('cartas-controls-pendientes').style.display = 'none';
     document.getElementById('mora-content-vouchers').style.display = 'none';
     document.getElementById('mora-content-historial').style.display = 'none';
-    document.getElementById('mora-controls-historial').style.display = 'none';
+    document.getElementById('mora-content-cartas').style.display = 'none';
+
+    // Limpiar buscador si salimos de la pestaña de búsqueda
+    const wrapper = document.getElementById('search-wrapper-global');
+    if (tab !== 'busqueda') {
+      if (wrapper) {
+        wrapper.classList.remove('expanded');
+        wrapper.classList.add('collapsed');
+      }
+      const inputGlobal = document.getElementById('input-busqueda-global');
+      if (inputGlobal && inputGlobal.value !== '') {
+        inputGlobal.value = '';
+        if(typeof window.onInputBusquedaGlobal === 'function') {
+          window.onInputBusquedaGlobal('');
+        }
+      }
+    } else {
+      if (wrapper) {
+        wrapper.classList.remove('collapsed');
+        wrapper.classList.add('expanded');
+      }
+    }
 
     // Mostrar lo correspondiente a la pestaña activa
     if (tab === 'busqueda') {
-      document.getElementById('mora-content-busqueda').style.display = 'flex';
-      document.getElementById('mora-controls-busqueda').style.display = 'flex';
+      document.getElementById('mora-content-busqueda').style.display = 'block';
       setTimeout(() => {
         const inputGlobal = document.getElementById('input-busqueda-global');
         if(inputGlobal) inputGlobal.focus();
       }, 50);
     } else if (tab === 'mora-pendientes') {
-      document.getElementById('mora-content-clientes').style.display = 'flex';
+      document.getElementById('mora-content-clientes').style.display = 'block';
       document.getElementById('mora-controls-clientes').style.display = 'flex';
       if (typeof renderClientes === 'function') renderClientes();
     } else if (tab === 'mora-vouchers') {
-      document.getElementById('mora-content-vouchers').style.display = 'flex';
+      document.getElementById('mora-content-vouchers').style.display = 'block';
+      document.getElementById('mora-controls-clientes').style.display = 'flex';
       if (!window._vouchersLoaded) {
         window._vouchersLoaded = true;
-        cargarVouchers();
+        if (typeof cargarVouchers === 'function') cargarVouchers();
       }
     } else if (tab === 'mora-historial') {
-      document.getElementById('mora-content-historial').style.display = 'flex';
-      document.getElementById('mora-controls-historial').style.display = 'flex';
+      document.getElementById('mora-content-historial').style.display = 'block';
+      document.getElementById('mora-controls-clientes').style.display = 'flex';
       if (!window._historialLoaded) {
         window._historialLoaded = true;
-        cargarHistorial();
+        if (typeof cargarHistorial === 'function') cargarHistorial();
       }
+    } else if (tab === 'cartas-pendientes') {
+      document.getElementById('mora-content-cartas').style.display = 'block';
+      document.getElementById('cartas-controls-pendientes').style.display = 'flex';
+      if (typeof cartasCargarPendientes === 'function') cartasCargarPendientes();
     }
   }
   window.switchClientesTab = switchClientesTab;
+
+  window.switchMoraSubTab = function(subtab) {
+    window.currentMoraSubTab = subtab;
+    
+    // Update subtab buttons UI
+    document.querySelectorAll('.btn-mora-subtab').forEach(b => {
+      b.style.background = 'white';
+      b.style.color = 'var(--texto2)';
+      b.style.borderColor = 'var(--gris2)';
+    });
+    const activeBtn = document.getElementById('subtab-mora-' + (subtab === 'pendientes' ? 'asesores' : subtab));
+    if (activeBtn) {
+      activeBtn.style.background = 'var(--brand-light)';
+      activeBtn.style.color = 'var(--brand-secondary)';
+      activeBtn.style.borderColor = 'var(--brand-light-border)';
+    }
+
+    // Ocultar select de asesores y mostrar botón falso si no es pendientes
+    const selectAsesores = document.getElementById('filtros-asesores');
+    const btnAsesoresFalso = document.getElementById('subtab-mora-asesores');
+    if (selectAsesores && btnAsesoresFalso) {
+      if (subtab === 'pendientes') {
+        selectAsesores.style.display = 'inline-block';
+        btnAsesoresFalso.style.display = 'none';
+      } else {
+        selectAsesores.style.display = 'none';
+        btnAsesoresFalso.style.display = 'flex';
+      }
+    }
+
+    // Search Box placeholder
+    const searchBox = document.getElementById('buscar-cliente');
+    if (searchBox) {
+      searchBox.value = '';
+      if (subtab === 'vouchers') {
+        searchBox.placeholder = 'Buscar en vouchers...';
+      } else if (subtab === 'historial') {
+        searchBox.placeholder = 'Buscar en historial...';
+      } else {
+        searchBox.placeholder = 'Buscar cliente...';
+      }
+    }
+
+    switchClientesTab('mora-' + subtab);
+  };
 
 
   // â”€â”€ SWITCH TAB DENTRO DE CAJA CHICA â”€â”€
@@ -210,7 +288,9 @@
           globalSel.innerHTML = '';
           const rolActual = sessionStorage.getItem('ge_rol') || 'asesor';
           dashCached.sedes.forEach(function(s) { const o = document.createElement('option'); o.value=s; o.textContent=s; globalSel.appendChild(o); });
-          if (rolActual !== 'admin' && dashCached.sedes.length === 1 && globalSel.parentElement) globalSel.parentElement.style.display = 'none';
+          if (globalSel.parentElement) {
+             globalSel.parentElement.style.display = (rolActual !== 'admin' && dashCached.sedes.length <= 1) ? 'none' : 'block';
+          }
           // Admin: seleccionar por defecto la primera sede real (no 'Todas')
           if (dashCached.sedeActiva !== undefined && dashCached.sedeActiva !== null && dashCached.sedeActiva !== '') {
             globalSel.value = dashCached.sedeActiva;
@@ -246,9 +326,8 @@
         const rolActual = sessionStorage.getItem('ge_rol') || 'asesor';
         resp.sedes.forEach(function(s) { const o = document.createElement('option'); o.value=s; o.textContent=s; globalSel.appendChild(o); });
         
-        // Si el usuario no es admin y solo tiene 1 sede disponible, ocultar el selector
-        if (rolActual !== 'admin' && resp.sedes.length === 1) {
-          if (globalSel.parentElement) globalSel.parentElement.style.display = 'none';
+        if (globalSel.parentElement) {
+           globalSel.parentElement.style.display = (rolActual !== 'admin' && resp.sedes.length <= 1) ? 'none' : 'block';
         }
 
         // Seleccionar por defecto la primera sede real
@@ -300,6 +379,23 @@
   // â”€â”€â”€â”€ DASHBOARD GENERAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   // â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• 
   window.addEventListener('load', function() {
+    function initReloj() {
+      const elFecha = document.getElementById('inicio-fecha');
+      const elHora = document.getElementById('inicio-hora');
+      if (!elFecha || !elHora) return;
+
+      const actualizar = () => {
+        const ahora = new Date();
+        const opcionesFecha = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        elFecha.textContent = ahora.toLocaleDateString('es-PE', opcionesFecha);
+        elHora.textContent = ahora.toLocaleTimeString('es-PE', { hour12: false });
+      };
+
+      actualizar();
+      setInterval(actualizar, 1000);
+    }
+    initReloj();
+
     const session = sessionStorage.getItem('ge_session');
     const nombre = sessionStorage.getItem('ge_nombre');
     if (session) {
@@ -314,6 +410,11 @@
         document.getElementById('navbar-oficina').textContent = ofLabel;
         document.getElementById('navbar-user').textContent = nombre;
 
+        const saludoEl = document.getElementById('inicio-saludo');
+        if (saludoEl) {
+          const primerNombre = nombre.split(' ')[0];
+          saludoEl.textContent = '¡Hola, ' + primerNombre + '!';
+        }
       }
       cargarTodo();
     }
@@ -397,8 +498,8 @@
       container.innerHTML = `
         <div class="empty" style="padding:40px 20px;">
           <div class="icon"><i data-lucide="file-text" class="mi" style="font-size:48px; color:var(--azul2);"></i></div>
-          <div style="font-weight:700; color:var(--azul); font-size:14px; margin-top:8px;">Cartas de No Adeudo</div>
-          <div style="font-size:12px; color:var(--texto2); margin-top:4px;">Busca un cliente por nombre, código o celular para consultar su estado</div>
+          <div class="font-bold text-lg mt-2"  style="color:var(--azul);">Cartas de No Adeudo</div>
+          <div class="text-base text-secondary mt-1" >Busca un cliente por nombre, código o celular para consultar su estado</div>
         </div>
       `;
       countEl.textContent = '';
@@ -408,7 +509,7 @@
     // Mostrar loading (Skeleton)
     let skHTML = '';
     for(let i=0; i<3; i++) {
-      skHTML += `<div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>`;
+      skHTML += `<div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>`;
     }
     container.innerHTML = skHTML;
     countEl.textContent = '';
@@ -425,7 +526,7 @@
       }
 
       if (!Array.isArray(resp) || resp.length === 0) {
-        container.innerHTML = '<div class="empty" style="padding:30px 20px;"><div class="icon"><i data-lucide="search-x" class="mi" style="font-size:40px;color:var(--texto2);"></i></div><div style="font-weight:700;color:var(--texto);margin-top:6px;">Sin resultados</div><div style="font-size:12px;color:var(--texto2);margin-top:2px;">No se encontraron clientes con esa búsqueda</div></div>';
+        container.innerHTML = '<div class="empty" style="padding:30px 20px;"><div class="icon"><i class="mi text-secondary" data-lucide="search-x"   style="font-size:40px;"></i></div><div class="font-bold text-primary"  style="margin-top:6px;">Sin resultados</div><div class="text-base text-secondary"  style="margin-top:2px;">No se encontraron clientes con esa búsqueda</div></div>';
         countEl.textContent = '0 resultados';
         return;
       }

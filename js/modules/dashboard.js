@@ -71,25 +71,25 @@
       '<div class="kpi-icon"><i data-lucide="landmark" class="mi"></i></div>' +
       '<div class="kpi-val" data-val="' + totalDeuda + '" data-currency="true">S/. ' + totalDeuda.toLocaleString('es-PE',{minimumFractionDigits:2}) + '</div>' +
       '<div class="kpi-lbl">Cartera Total</div>' +
-      '<div class="kpi-sub"><i data-lucide="users" class="mi" style="font-size:14px;"></i> ' + totalClientes + ' clientes activos</div>' +
+      '<div class="kpi-sub"><i class="mi text-lg" data-lucide="users"  ></i> ' + totalClientes + ' clientes activos</div>' +
     '</div>';
     html += '<div class="dash-kpi red">' +
       '<div class="kpi-icon"><i data-lucide="alert-triangle" class="mi"></i></div>' +
       '<div class="kpi-val" data-val="' + morosos + '">' + morosos + '</div>' +
       '<div class="kpi-lbl">Clientes Morosos</div>' +
-      '<div class="kpi-sub"><i data-lucide="percent" class="mi" style="font-size:14px;"></i> ' + (totalClientes > 0 ? Math.round(morosos/totalClientes*100) : 0) + '% del portafolio</div>' +
+      '<div class="kpi-sub"><i class="mi text-lg" data-lucide="percent"  ></i> ' + (totalClientes > 0 ? Math.round(morosos/totalClientes*100) : 0) + '% del portafolio</div>' +
     '</div>';
     html += '<div class="dash-kpi orange">' +
       '<div class="kpi-icon"><i data-lucide="receipt" class="mi"></i></div>' +
       '<div class="kpi-val" data-val="' + vouchersPend + '">' + vouchersPend + '</div>' +
       '<div class="kpi-lbl">Vouchers Pendientes</div>' +
-      '<div class="kpi-sub"><i data-lucide="clock" class="mi" style="font-size:14px;"></i> Por verificar</div>' +
+      '<div class="kpi-sub"><i class="mi text-lg" data-lucide="clock"  ></i> Por verificar</div>' +
     '</div>';
     html += '<div class="dash-kpi green">' +
       '<div class="kpi-icon"><i data-lucide="wallet" class="mi"></i></div>' +
       '<div class="kpi-val" data-val="' + cajaSaldo + '" data-currency="true">S/. ' + cajaSaldo.toLocaleString('es-PE',{minimumFractionDigits:2}) + '</div>' +
       '<div class="kpi-lbl">Saldo Caja Chica</div>' +
-      '<div class="kpi-sub"><i data-lucide="trending-up" class="mi" style="font-size:14px;"></i> Ingresos: S/. ' + cajaIngresos.toLocaleString('es-PE',{minimumFractionDigits:0}) + '</div>' +
+      '<div class="kpi-sub"><i class="mi text-lg" data-lucide="trending-up"  ></i> Ingresos: S/. ' + cajaIngresos.toLocaleString('es-PE',{minimumFractionDigits:0}) + '</div>' +
     '</div>';
     html += '</div>';
 
@@ -104,11 +104,11 @@
       { name:'CPP (9-30d)', count:dist.cpp, color:'#cc8800', pct:Math.round(dist.cpp/totalDist*100) },
       { name:'Deficiente (31-60d)', count:dist.deficiente, color:'var(--naranja)', pct:Math.round(dist.deficiente/totalDist*100) },
       { name:'Dudoso (61-120d)', count:dist.dudoso, color:'var(--rojo)', pct:Math.round(dist.dudoso/totalDist*100) },
-      { name:'Pérdida (>120d)', count:dist.perdida, color:'#333', pct:Math.round(dist.perdida/totalDist*100) }
+      { name:'Pérdida (>120d)', count:dist.perdida, color:'var(--text-primary)', pct:Math.round(dist.perdida/totalDist*100) }
     ];
     riskData.forEach(function(r) {
       html += '<div class="risk-bar-wrap">';
-      html += '<div class="risk-bar-label"><span>' + r.name + '</span><span style="color:' + r.color + '; font-weight:700;">' + r.count + ' (' + r.pct + '%)</span></div>';
+      html += '<div class="risk-bar-label"><span>' + r.name + '</span><span class="font-bold"  style="color:' + r.color + ';">' + r.count + ' (' + r.pct + '%)</span></div>';
       html += '<div class="risk-bar-container"><div class="risk-bar-fill" data-width="' + Math.max(r.pct, 1) + '" style="background:' + r.color + ';"></div></div>';
       html += '</div>';
     });
@@ -118,18 +118,18 @@
     html += '<div class="dash-panel">';
     html += '<div class="dash-panel-title"><i data-lucide="users" class="mi sm"></i> Rendimiento por Asesor</div>';
     if (asesores.length === 0) {
-      html += '<div style="text-align:center;color:var(--texto2);padding:20px;">Sin datos</div>';
+      html += '<div class="text-center text-secondary"  style="padding:20px;">Sin datos</div>';
     } else {
       html += '<div style="overflow-x:auto;"><table class="asesor-table">';
       html += '<thead><tr><th>Asesor</th><th>Clientes</th><th>Deuda Total</th><th>Prom. d&iacute;as</th><th>Peor</th></tr></thead><tbody>';
       asesores.forEach(function(a) {
         var peorColor = a.peor > 60 ? 'var(--rojo)' : a.peor > 30 ? 'var(--naranja)' : 'var(--texto)';
         html += '<tr>';
-        html += '<td style="font-weight:700;">' + escapeHtml(a.nombre.split(' ')[0]) + '</td>';
+        html += '<td class="font-bold" >' + escapeHtml(a.nombre.split(' ')[0]) + '</td>';
         html += '<td>' + a.clientes + '</td>';
-        html += '<td style="font-weight:700;font-family:Montserrat,sans-serif;">S/. ' + a.deuda.toLocaleString('es-PE',{minimumFractionDigits:2}) + '</td>';
+        html += '<td class="font-bold"  style="font-family:Montserrat,sans-serif;">S/. ' + a.deuda.toLocaleString('es-PE',{minimumFractionDigits:2}) + '</td>';
         html += '<td>' + a.promDias + 'd</td>';
-        html += '<td style="color:' + peorColor + ';font-weight:700;">' + a.peor + 'd</td>';
+        html += '<td class="font-bold"  style="color:' + peorColor + ';">' + a.peor + 'd</td>';
         html += '</tr>';
       });
       html += '</tbody></table></div>';
@@ -143,23 +143,23 @@
     // Panel izquierda: Cobranza
     html += '<div class="dash-panel">';
     html += '<div class="dash-panel-title"><i data-lucide="banknote" class="mi sm"></i> Cobranza del Mes</div>';
-    html += '<div class="dash-mini-stat"><span class="ms-lbl"><i data-lucide="check-circle" class="mi" style="font-size:14px;color:var(--verde);"></i> Pagos registrados</span><span class="ms-val" style="color:var(--verde);">' + pagosMes + '</span></div>';
-    html += '<div class="dash-mini-stat"><span class="ms-lbl"><i data-lucide="dollar-sign" class="mi" style="font-size:14px;color:var(--azul);"></i> Monto recaudado</span><span class="ms-val" style="color:var(--azul);">S/. ' + montoMes.toLocaleString('es-PE',{minimumFractionDigits:2}) + '</span></div>';
-    html += '<div class="dash-mini-stat"><span class="ms-lbl"><i data-lucide="hourglass" class="mi" style="font-size:14px;color:var(--naranja);"></i> Pendientes verificar</span><span class="ms-val" style="color:var(--naranja);">' + pendientesMes + '</span></div>';
-    html += '<div class="dash-mini-stat"><span class="ms-lbl"><i data-lucide="receipt" class="mi" style="font-size:14px;color:var(--rojo);"></i> Vouchers sin procesar</span><span class="ms-val" style="color:var(--rojo);">' + vouchersPend + '</span></div>';
+    html += '<div class="dash-mini-stat"><span class="ms-lbl"><i class="mi text-lg" data-lucide="check-circle"   style="color:var(--verde);"></i> Pagos registrados</span><span class="ms-val" style="color:var(--verde);">' + pagosMes + '</span></div>';
+    html += '<div class="dash-mini-stat"><span class="ms-lbl"><i class="mi text-lg" data-lucide="dollar-sign"   style="color:var(--azul);"></i> Monto recaudado</span><span class="ms-val" style="color:var(--azul);">S/. ' + montoMes.toLocaleString('es-PE',{minimumFractionDigits:2}) + '</span></div>';
+    html += '<div class="dash-mini-stat"><span class="ms-lbl"><i class="mi text-lg" data-lucide="hourglass"   style="color:var(--naranja);"></i> Pendientes verificar</span><span class="ms-val" style="color:var(--naranja);">' + pendientesMes + '</span></div>';
+    html += '<div class="dash-mini-stat"><span class="ms-lbl"><i class="mi text-lg" data-lucide="receipt"   style="color:var(--rojo);"></i> Vouchers sin procesar</span><span class="ms-val" style="color:var(--rojo);">' + vouchersPend + '</span></div>';
     html += '</div>';
 
     // Panel derecha: Finanzas
     html += '<div class="dash-panel">';
     html += '<div class="dash-panel-title"><i data-lucide="wallet" class="mi sm"></i> Resumen Financiero</div>';
-    html += '<div class="dash-mini-stat"><span class="ms-lbl"><i data-lucide="piggy-bank" class="mi" style="font-size:14px;color:var(--azul);"></i> Saldo Caja Chica</span><span class="ms-val" style="color:var(--azul);">S/. ' + cajaSaldo.toLocaleString('es-PE',{minimumFractionDigits:2}) + '</span></div>';
-    html += '<div class="dash-mini-stat"><span class="ms-lbl"><i data-lucide="arrow-down" class="mi" style="font-size:14px;color:var(--verde);"></i> Ingresos del mes</span><span class="ms-val" style="color:var(--verde);">S/. ' + cajaIngresos.toLocaleString('es-PE',{minimumFractionDigits:2}) + '</span></div>';
-    html += '<div class="dash-mini-stat"><span class="ms-lbl"><i data-lucide="arrow-up" class="mi" style="font-size:14px;color:var(--rojo);"></i> Egresos del mes</span><span class="ms-val" style="color:var(--rojo);">S/. ' + cajaEgresos.toLocaleString('es-PE',{minimumFractionDigits:2}) + '</span></div>';
+    html += '<div class="dash-mini-stat"><span class="ms-lbl"><i class="mi text-lg" data-lucide="piggy-bank"   style="color:var(--azul);"></i> Saldo Caja Chica</span><span class="ms-val" style="color:var(--azul);">S/. ' + cajaSaldo.toLocaleString('es-PE',{minimumFractionDigits:2}) + '</span></div>';
+    html += '<div class="dash-mini-stat"><span class="ms-lbl"><i class="mi text-lg" data-lucide="arrow-down"   style="color:var(--verde);"></i> Ingresos del mes</span><span class="ms-val" style="color:var(--verde);">S/. ' + cajaIngresos.toLocaleString('es-PE',{minimumFractionDigits:2}) + '</span></div>';
+    html += '<div class="dash-mini-stat"><span class="ms-lbl"><i class="mi text-lg" data-lucide="arrow-up"   style="color:var(--rojo);"></i> Egresos del mes</span><span class="ms-val" style="color:var(--rojo);">S/. ' + cajaEgresos.toLocaleString('es-PE',{minimumFractionDigits:2}) + '</span></div>';
 
     // Top gastos
     if (topGastos.length > 0) {
       html += '<div style="margin-top:10px;padding-top:8px;border-top:2px solid var(--gris2);">';
-      html += '<div style="font-size:10px;font-weight:700;color:var(--texto2);text-transform:uppercase;margin-bottom:6px;">Mayores Gastos</div>';
+      html += '<div class="text-xs font-bold text-secondary uppercase"  style="margin-bottom:6px;">Mayores Gastos</div>';
       topGastos.slice(0,3).forEach(function(g, i) {
         html += '<div class="dash-mini-stat"><span class="ms-lbl">' + (i+1) + '. ' + escapeHtml(g.categoria) + '</span><span class="ms-val" style="color:var(--rojo);">S/. ' + g.monto.toLocaleString('es-PE',{minimumFractionDigits:2}) + '</span></div>';
       });
@@ -170,7 +170,7 @@
 
     // â”€â”€ BLOQUE 4: Resumen KASNET â”€â”€
     html += '<div class="animate-fade-up" style="margin-bottom:18px; --delay: 0.45s;">';
-    html += '<h3 style="font-family: Montserrat, sans-serif; font-size:14px; color:var(--azul); margin-bottom:10px; display:flex; align-items:center; gap:6px;"><i data-lucide="store" class="mi sm"></i> Resumen KASNET</h3>';
+    html += '<h3 class="text-lg d-flex align-center"  style="font-family: Montserrat, sans-serif; color:var(--azul); margin-bottom:10px; gap:6px;"><i data-lucide="store" class="mi sm"></i> Resumen KASNET</h3>';
     html += '<div class="caja-grid">';
     
     let mesActualOps = 0;
@@ -259,7 +259,7 @@
       // (si estamos en caja chica, globalOnChangeSede ya lo está llamando)
       let pCaja = Promise.resolve();
       const activeSec = document.querySelector('.content-section.active');
-      if (!activeSec || activeSec.id !== 'section-cajachica') {
+      if (!activeSec || activeSec.id !== 'section-caja') {
          if (typeof cajaCargarDatos === 'function') {
            pCaja = cajaCargarDatos();
          }

@@ -30,13 +30,22 @@ async function solicitarCodigo() {
       // Smooth Transition to Code Step
       const boxCorreo = document.getElementById('box-correo');
       const boxCodigo = document.getElementById('box-codigo');
-      boxCorreo.style.display = 'none'; // Fade out handled by CSS ideally, but switching active class is robust
-      boxCodigo.style.display = 'block';
-      boxCorreo.classList.remove('active');
-      boxCodigo.classList.add('active');
+      
+      boxCorreo.classList.add('fade-out');
+      setTimeout(() => {
+        boxCorreo.style.display = 'none';
+        boxCodigo.style.display = 'flex';
+        boxCorreo.classList.remove('active', 'fade-out');
+        boxCodigo.classList.add('active');
 
-      document.getElementById('correo-display-txt').textContent = correo;
-      document.getElementById('c1').focus();
+        document.getElementById('btn-top-volver').style.display = 'flex';
+        document.getElementById('timer-txt-container').style.display = 'inline';
+        document.getElementById('timer-idle-txt').style.display = 'none';
+
+        document.getElementById('correo-display-txt').textContent = correo;
+        document.getElementById('c1').focus();
+      }, 300);
+
       iniciarTimer(10 * 60);
     } else {
       mostrarError('login-error', data.error || 'Correo no autorizado');
@@ -84,8 +93,9 @@ async function verificarCodigo() {
       document.getElementById('navbar-oficina').textContent = ofLabel;
       document.getElementById('navbar-user').textContent = data.nombre;
 
-      
       if (typeof cargarTodo === 'function') cargarTodo();
+      if (typeof renderInicio === 'function') renderInicio();
+      if (typeof mostrarNovedades === 'function') mostrarNovedades(true);
     } else {
       mostrarError('codigo-error', data.error || 'Código incorrecto');
     }
@@ -101,11 +111,20 @@ function volverCorreo() {
   clearInterval(timerInterval);
   const boxCorreo = document.getElementById('box-correo');
   const boxCodigo = document.getElementById('box-codigo');
-  boxCodigo.style.display = 'none';
-  boxCorreo.style.display = 'block';
-  boxCodigo.classList.remove('active');
-  boxCorreo.classList.add('active');
-  ['c1','c2','c3','c4','c5','c6'].forEach(id => document.getElementById(id).value = '');
+  
+  boxCodigo.classList.add('fade-out');
+  setTimeout(() => {
+    boxCodigo.style.display = 'none';
+    boxCorreo.style.display = 'flex';
+    boxCodigo.classList.remove('active', 'fade-out');
+    boxCorreo.classList.add('active');
+
+    document.getElementById('btn-top-volver').style.display = 'none';
+    document.getElementById('timer-txt-container').style.display = 'none';
+    document.getElementById('timer-idle-txt').style.display = 'inline';
+
+    ['c1','c2','c3','c4','c5','c6'].forEach(id => document.getElementById(id).value = '');
+  }, 300);
 }
 
 function avanzarCodigo(input, siguienteId) {
@@ -229,11 +248,11 @@ async function refrescarDatos() {
 
 // ─── SIDEBAR NAVIGATION ───
 const _sectionTitles = {
-  'dashboard': 'Dashboard', 'clientes': 'Gestión de Clientes',
+  'inicio': 'Inicio', 'dashboard': 'Analítica', 'clientes': 'Gestión de Clientes',
   'cartas': 'Cartas de No Adeudo',
   'caja': 'Caja Central Unificada'
 };
-const _allSections = ['dashboard','clientes','cartas','caja'];
+const _allSections = ['inicio','dashboard','clientes','cartas','caja'];
 
 function navTo(section, btn) {
   _allSections.forEach(function(s) {
@@ -251,12 +270,12 @@ function navTo(section, btn) {
   if (btn) {
     btn.classList.add('active');
     if (btn.classList.contains('nav-subitem')) {
-      var parent = document.getElementById('nav-cajachica-parent');
+      var parent = document.getElementById('nav-caja-parent');
       if (parent) parent.classList.add('active');
     }
   }
-  if (section === 'cajachica') {
-    var parentBtn = document.getElementById('nav-cajachica-parent');
+  if (section === 'caja') {
+    var parentBtn = document.getElementById('nav-caja-parent');
     if (parentBtn) parentBtn.classList.add('active');
   }
   if (window.innerWidth <= 900) toggleSidebar(false);
@@ -272,10 +291,18 @@ function navTo(section, btn) {
     }
   }
   else if (section === 'cartas' && typeof cartasCargarPendientes === 'function') cartasCargarPendientes();
+  else if (section === 'clientes' && typeof switchClientesTab === 'function') {
+    const inputGlobal = document.getElementById('input-busqueda-global');
+    if (inputGlobal) {
+      inputGlobal.value = '';
+      if(typeof window.onInputBusquedaGlobal === 'function') window.onInputBusquedaGlobal('');
+    }
+    switchClientesTab('busqueda');
+  }
 }
 
 function navToMov(vista, btn) {
-  navTo('cajachica', btn);
+  navTo('caja', btn);
   if(typeof cajaSwitchTab === 'function') cajaSwitchTab(vista === 'archivo' ? 'mesanterior' : 'mesactual');
 }
 

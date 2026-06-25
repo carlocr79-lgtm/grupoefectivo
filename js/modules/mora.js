@@ -13,11 +13,19 @@
   }
 
   function renderVouchers() {
-    if (vouchers.length === 0) {
+    const busqueda = (document.getElementById('buscar-cliente')?.value || '').toUpperCase();
+    
+    let lista = vouchers.filter(v => {
+      if (!busqueda) return true;
+      const t = [v.nombre, v.asesor, v.cod, v.monto].join(' ').toUpperCase();
+      return t.includes(busqueda);
+    });
+
+    if (lista.length === 0) {
       document.getElementById('lista-vouchers').innerHTML = '<div class="empty"><div class="icon"><i data-lucide="circle-check" class="mi" style="font-size:40px;color:var(--azul);"></i></div><strong>Sin vouchers pendientes</strong><br><small>Todos los pagos están verificados</small></div>';
       return;
     }
-    document.getElementById('lista-vouchers').innerHTML = vouchers.map((v, vi) => {
+    document.getElementById('lista-vouchers').innerHTML = lista.map((v, vi) => {
       const safeNombre = escapeHtml(v.nombre);
       const safeAsesor = escapeHtml(v.asesor);
       const safeCod = escapeHtml(v.cod);
@@ -31,7 +39,7 @@
             <div class="fin-sub">
               <span>Cód. ${safeCod}</span>
               <span style="color:var(--gris2)">•</span>
-              <span style="color:var(--azul2); font-weight:700;">${safeAsesor.split(' ')[0]}</span>
+              <span class="font-bold"  style="color:var(--azul2);">${safeAsesor.split(' ')[0]}</span>
             </div>
           </div>
           <div class="fin-monto-box">
@@ -105,34 +113,19 @@
     try {
       const resp = await apiFetch({ admin: 'historial' });
       historial = Array.isArray(resp) ? resp : [];
-      poblarFiltrosHistorial();
       renderHistorial();
     } catch(e) {
       document.getElementById('lista-historial').innerHTML = '<div class="empty"><div class="icon"><i data-lucide="alert-triangle" class="mi" style="font-size:40px;color:var(--naranja);"></i></div>Error al cargar historial</div>';
     }
   }
 
-  function poblarFiltrosHistorial() {
-    const asesores = [...new Set(historial.map(h => h.asesor).filter(Boolean))];
-    const fechas = [...new Set(historial.map(h => h.fecha).filter(Boolean))].sort().reverse();
-
-    const selAsesor = document.getElementById('filtro-hist-asesor');
-    selAsesor.innerHTML = '<option value="">Todos los asesores</option>';
-    asesores.forEach(a => selAsesor.innerHTML += `<option value="${escapeHtml(a)}">${escapeHtml(a.split(' ')[0])}</option>`);
-
-    const selFecha = document.getElementById('filtro-hist-fecha');
-    selFecha.innerHTML = '<option value="">Todas las fechas</option>';
-    fechas.forEach(f => selFecha.innerHTML += `<option value="${escapeHtml(f)}">${escapeHtml(f)}</option>`);
-
-  }
-
   function renderHistorial() {
-    const filtAsesor = document.getElementById('filtro-hist-asesor').value;
-    const filtFecha = document.getElementById('filtro-hist-fecha').value;
+    const busqueda = (document.getElementById('buscar-cliente')?.value || '').toUpperCase();
 
     let lista = historial.filter(h => {
-      return (!filtAsesor || h.asesor === filtAsesor) &&
-             (!filtFecha || h.fecha === filtFecha);
+      if (!busqueda) return true;
+      const t = [h.nombre, h.asesor, h.cod, h.fecha, h.monto].join(' ').toUpperCase();
+      return t.includes(busqueda);
     }).reverse();
 
     const totalMonto = lista.reduce((sum, h) => sum + (parseFloat(h.monto) || 0), 0);
@@ -140,7 +133,7 @@
     document.getElementById('res-count').textContent = lista.length + ' pago' + (lista.length !== 1 ? 's' : '');
 
     if (lista.length === 0) {
-      document.getElementById('lista-historial').innerHTML = '<div class="empty"><div class="icon"><i data-lucide="file-text" class="mi" style="font-size:40px;color:var(--texto2);"></i></div>Sin registros</div>';
+      document.getElementById('lista-historial').innerHTML = '<div class="empty"><div class="icon"><i class="mi text-secondary" data-lucide="file-text"   style="font-size:40px;"></i></div>Sin registros</div>';
       return;
     }
 
@@ -148,7 +141,7 @@
       const estado = (h.estado || 'PENDIENTE').toString().toUpperCase();
       const isVerificado = estado.includes('VERIFICADO');
       const statusClass = isVerificado ? 'status-verificado' : 'status-pendiente';
-      const avatarBg    = isVerificado ? 'background:#e8f0ff; color:var(--azul2);' : 'background:#fff8e6; color:#cc8800;';
+      const avatarBg    = isVerificado ? 'background:var(--brand-light); color:var(--azul2);' : 'background:#fff8e6; color:#cc8800;';
       const avatarIcon  = isVerificado ? 'check-circle' : 'clock';
       
       return `
@@ -229,7 +222,7 @@
         cont.innerHTML =
           '<img class="ms-img" src="' + imgUrl + '" ' +
           'onerror="this.style.display=\'none\';document.getElementById(\'ms-iframe-fb\').style.display=\'block\';" />' +
-          '<iframe id="ms-iframe-fb" class="ms-pdf-embed" src="' + embedUrl + '" style="display:none;" allowfullscreen></iframe>';
+          '<iframe class="ms-pdf-embed d-none" id="ms-iframe-fb"  src="' + embedUrl + '"  allowfullscreen></iframe>';
       } else {
         cont.innerHTML = '<iframe class="ms-pdf-embed" src="' + url + '" allowfullscreen></iframe>';
       }

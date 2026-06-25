@@ -1,11 +1,6 @@
   async function cartasCargarPendientes() {
     const rol = sessionStorage.getItem('ge_rol') || 'asesor';
-    const tabPendientes = document.getElementById('tab-cartas-pendientes');
-    if (rol !== 'admin') {
-      if (tabPendientes) tabPendientes.style.display = 'none';
-      return;
-    }
-    if (tabPendientes) tabPendientes.style.display = 'flex'; // Mostrar la pestaña para admins
+    const tabPendientes = document.getElementById('tab-clientes-cartas-pendientes');
 
     // FIX: caché de 30s — evita llamadas innecesarias al cambiar de sección
     const _ahora = Date.now();
@@ -17,49 +12,88 @@
     
     let skHTML = '';
     for(let i=0; i<2; i++) {
-      skHTML += `<div class="skeleton-box" style="margin:16px;"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-30"></div><div class="skeleton sk-line w-100"></div></div><div class="skeleton" style="width:120px;height:30px;border-radius:8px;"></div></div>`;
+      skHTML += `<div class="skeleton-box" style="margin:16px;"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-30"></div><div class="skeleton sk-line w-100"></div></div><div class="skeleton" style="width:120px;height:30px;border-radius:8px;"></div></div>`;
     }
     container.innerHTML = skHTML;
 
     try {
       // Al no enviar sedeContexto, el backend devolverá las solicitudes pendientes de TODAS las sedes
       const resp = await apiFetch({ admin: 'cartas_pendientes' });
-      // FIX: console.log removido — no exponer datos de clientes en producción
+      window._cartasPendientesData = resp || [];
       
-      const numPendientes = (Array.isArray(resp)) ? resp.length : 0;
+      window.renderCartasPendientes();
+    } catch (e) {
+      console.error(e);
+      container.innerHTML = `
+        <div class="text-center"  style="background:var(--alert-danger-light); border:1px solid rgba(222,53,11,0.2); border-radius:12px; padding:16px; color:var(--rojo);">
+          <i class="mi mb-1" data-lucide="alert-circle"   style="font-size:24px;"></i>
+          <div class="font-semibold text-base" >Error al cargar solicitudes</div>
+          <div class="text-sm"  style="opacity:0.8;">Por favor intente nuevamente</div>
+        </div>
+      `;
+      container.style.display = 'block';
+    }
+  }
+
+  window.renderCartasPendientes = function() {
+      const container = document.getElementById('cartas-pendientes-container');
+      const badge = document.getElementById('cartas-pendientes-badge');
+      const data = window._cartasPendientesData || [];
+      
+      const filtroAsesor = document.getElementById('filtros-asesores-cartas') ? document.getElementById('filtros-asesores-cartas').value : '';
+      const busqueda = document.getElementById('buscar-cartas') ? document.getElementById('buscar-cartas').value.toUpperCase() : '';
+      
+      let filteredData = data.filter(c => {
+        const matchAsesor = !filtroAsesor || (c.asesor && c.asesor.includes(filtroAsesor));
+        const matchBusqueda = !busqueda || 
+                              (c.nombres && c.nombres.toUpperCase().includes(busqueda)) || 
+                              (c.celular && c.celular.includes(busqueda)) ||
+                              (c.codCliente && c.codCliente.toString().toUpperCase().includes(busqueda));
+        return matchAsesor && matchBusqueda;
+      });
+
+      // FIX: El número del badge debe reflejar solo las que están en estado "SOLICITADA" (sin filtrar)
+      const soloPendientes = data.filter(p => p.estado === 'SOLICITADA').length;
+      
+      // Actualizar el contador de resultados
+      const contador = document.getElementById('contador-cartas');
+      if (contador) {
+        if (filteredData.length > 0) {
+          contador.innerHTML = `<i data-lucide="users" class="mi sm"></i> ${filteredData.length}`;
+          contador.style.display = 'flex';
+        } else {
+          contador.style.display = 'none';
+        }
+      }
       
       // Actualizar el Badge de la pestaña
       if (badge) {
-        if (numPendientes > 0) {
-          badge.textContent = numPendientes;
+        if (soloPendientes > 0) {
+          badge.textContent = soloPendientes;
           badge.style.display = 'inline-block';
         } else {
           badge.style.display = 'none';
         }
       }
       
-      if (numPendientes === 0) {
+      if (filteredData.length === 0) {
         container.innerHTML = `
           <div class="empty">
             <div class="icon">
-              <i data-lucide="circle-check" class="mi" style="font-size:40px;color:var(--azul);"></i>
+              <i data-lucide="folder-open" class="mi" style="font-size:40px;color:var(--azul);"></i>
             </div>
-            <strong>Todo al día</strong><br>
-            <small>No hay solicitudes de Cartas de No Adeudo pendientes de aprobación.</small>
+            <strong>No hay registros</strong><br>
+            <small>No hay solicitudes ni cartas emitidas en el historial.</small>
           </div>
         `;
         return;
       }
 
-      let html = `
-        <div style="background:#fff0f0; border:1px solid rgba(222,53,11,0.2); border-radius:12px; overflow:hidden;">
-          <div style="background:rgba(222,53,11,0.1); padding:10px 16px; font-weight:700; color:var(--rojo); display:flex; align-items:center; gap:8px; font-size:14px; border-bottom:1px solid rgba(222,53,11,0.2);">
-            <i data-lucide="bell-ring" class="mi" style="font-size:18px;"></i> Solicitudes Pendientes (${resp.length})
-          </div>
-          <div style="padding:12px 16px; display:flex; flex-direction:column; gap:8px;">
-      `;
+      let html = `<div class="d-flex flex-col gap-2" >`;
 
-      resp.forEach(p => {
+      const esAdmin = (sessionStorage.getItem('ge_rol') || 'asesor') === 'admin';
+
+      filteredData.forEach(p => {
         // FIX XSS: escapar todos los valores del servidor
         const eN = escHtml(p.nombres);
         const eC = escHtml(p.codCliente);
@@ -67,40 +101,91 @@
         const eOf = escHtml(p.oficina);
         const eAs = escHtml(p.asesor);
         const eFe = escHtml(p.fecha);
-        html += `
-          <div style="background:white; border:1px solid var(--gris2); border-radius:8px; padding:12px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
-            <div>
-              <div style="font-weight:700; color:var(--texto); font-size:13px; display:flex; align-items:center; gap:6px;">
-                <i data-lucide="alert-triangle" class="mi xs" style="color:var(--rojo);"></i> ${eN}
+        const estado = escHtml(p.estado || 'SOLICITADA');
+        const fileId = escHtml(p.fileId || '');
+        
+        let cardBg = 'white';
+        let cardBorder = 'var(--gris2)';
+        let iconHtml = '';
+        let estadoBadge = '';
+        let btnHtml = '';
+
+        if (estado === 'SOLICITADA') {
+          cardBg = 'var(--alert-danger-light)';
+          cardBorder = 'rgba(222,53,11,0.2)';
+          iconHtml = `<i data-lucide="alert-triangle" class="mi xs" style="color:var(--rojo);"></i>`;
+          estadoBadge = `<span class="text-white font-semibold text-xs"  style="background:var(--rojo); padding:2px 6px; border-radius:4px;">PENDIENTE</span>`;
+          if (esAdmin) {
+            btnHtml = `
+              <button class="text-white font-semibold text-base cursor-pointer d-flex align-center gap-1" onclick="cartasSolicitarCarta('${eC}', '${eN}', '${eCel}', event)"  style="background:var(--verde); border:none; padding:8px 12px; border-radius:8px; box-shadow:0 2px 5px rgba(0,135,90,0.25);">
+                <i data-lucide="check-circle" class="mi xs"></i> Aprobar
+              </button>
+            `;
+          } else {
+            btnHtml = `
+              <div class="font-semibold text-base d-flex align-center gap-1"  style="background:var(--alert-warning-light); color:var(--alert-warning-dark); border:1px solid var(--alert-warning-border); padding:8px 12px; border-radius:8px; cursor:not-allowed; opacity:0.9;" title="Solo el administrador puede aprobar">
+                <i data-lucide="clock-8" class="mi xs"></i> Esperando Aprobación
               </div>
-              <div style="font-size:11px; color:var(--texto2); margin-top:4px; display:flex; gap:8px; flex-wrap:wrap;">
-                <span style="background:var(--azul-claro); color:var(--azul); padding:2px 6px; border-radius:4px; font-weight:600;">Cód. ${eC}</span>
-                <span>Oficina: <b>${eOf}</b></span>
-                <span>Por: <b>${eAs}</b></span>
-                <span>${eFe}</span>
+            `;
+          }
+        } else if (estado === 'EMITIDA') {
+          cardBg = 'var(--alert-success-light)';
+          cardBorder = 'var(--alert-success-border)';
+          iconHtml = `<i data-lucide="check-circle-2" class="mi xs" style="color:var(--alert-success);"></i>`;
+          estadoBadge = `<span class="text-white font-semibold text-xs"  style="background:var(--alert-success); padding:2px 6px; border-radius:4px;">EMITIDA</span>`;
+          
+          const waSvgActive = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="14" height="14" fill="currentColor"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg>`;
+          
+          btnHtml = `
+            <div class="d-flex gap-2 align-center" >
+               <button class="text-secondary cursor-pointer d-flex align-center justify-center" onclick="cartasAbrirPreview('${fileId}', '${eN}', '${eC}', '${eCel}', event)"  style="width:26px; height:26px; border-radius:50%; background:white; border:1px solid var(--gris2); box-shadow:none; padding:0; transition:all 0.2s;" onmouseover="this.style.color='var(--azul)'; this.style.borderColor='var(--brand-light-active)'" onmouseout="this.style.color='var(--texto2)'; this.style.borderColor='var(--gris2)'" title="Ver PDF">
+                 <i class="mi xs m-0" data-lucide="eye"  ></i>
+               </button>
+               <button class="text-secondary cursor-pointer d-flex align-center justify-center" onclick="cartasEnviarWA('${fileId}', '${eN}', '${eCel}', event)"  style="width:26px; height:26px; border-radius:50%; background:white; border:1px solid var(--gris2); box-shadow:none; padding:0; transition:all 0.2s;" onmouseover="this.style.color='var(--alert-success-dark)'; this.style.borderColor='var(--alert-success-border)'" onmouseout="this.style.color='var(--texto2)'; this.style.borderColor='var(--gris2)'" title="Enviar por WhatsApp">
+                 ${waSvgActive.replace('width="14" height="14"', 'width="12" height="12"')}
+               </button>
+            </div>
+          `;
+        }
+
+        let avatarBg = 'var(--alert-danger-light)';
+        let avatarColor = 'var(--rojo)';
+        let avatarIcon = 'file-clock';
+        
+        if (estado === 'EMITIDA') {
+            avatarBg = 'var(--alert-success-light)';
+            avatarColor = 'var(--alert-success)';
+            avatarIcon = 'file-check-2';
+        }
+
+        html += `
+          <div class="d-flex justify-between align-center gap-3 mb-1"  style="background:white; border:1px solid ${cardBorder}; border-radius:8px; padding:12px 16px; flex-wrap:wrap; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+            <div class="d-flex align-center gap-4" >
+              <div class="avatar d-flex align-center justify-center flex-shrink-0"   style="background:${avatarBg}; color:${avatarColor}; width:36px; height:36px; border-radius:50%;">
+                <i data-lucide="${avatarIcon}" class="mi"></i>
+              </div>
+              <div>
+                <div class="font-medium text-primary text-md uppercase"  style="letter-spacing:-0.2px;">
+                  ${eN}
+                </div>
+                <div class="text-sm text-secondary mt-1 d-flex align-center gap-2" >
+                  ${estadoBadge}
+                  <span style="color:var(--gris2)">•</span>
+                  <span><i data-lucide="calendar" class="mi xs" style="margin-right:2px; vertical-align:text-bottom;"></i> ${eFe.split(' ')[0]}</span>
+                </div>
               </div>
             </div>
-            <button onclick="cartasSolicitarCarta('${eC}', '${eN}', '${eCel}', event)" style="background:var(--verde); color:white; border:none; padding:8px 12px; border-radius:8px; font-weight:600; font-size:12px; cursor:pointer; display:flex; align-items:center; gap:4px; box-shadow:0 2px 5px rgba(0,135,90,0.25);">
-              <i data-lucide="check-circle" class="mi xs"></i> Aprobar y Generar
-            </button>
+            ${btnHtml}
           </div>
         `;
       });
 
-      html += `</div></div>`;
+      html += `</div>`;
       container.innerHTML = html;
       
-    } catch (e) {
-      console.error(e);
-      container.innerHTML = `
-        <div style="background:#fff0f0; border:1px solid rgba(222,53,11,0.2); border-radius:12px; padding:16px; text-align:center; color:var(--rojo);">
-          <i data-lucide="alert-circle" class="mi" style="font-size:24px; margin-bottom:4px;"></i>
-          <div style="font-weight:600; font-size:12px;">Error al cargar solicitudes</div>
-          <div style="font-size:11px; opacity:0.8;">Por favor intente nuevamente</div>
-        </div>
-      `;
-      container.style.display = 'block';
-    }
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
   }
 
   let _cartasResultados = [];
@@ -144,26 +229,26 @@
         btnWsp = `<button disabled class="mov-btn" style="opacity:0.4; cursor:not-allowed;" title="No disponible">${waSvgDisabled}</button>`;
         btnPreview = `<button disabled class="mov-btn" style="opacity:0.4; cursor:not-allowed;" title="No disponible"><i data-lucide="eye" class="mi sm" style="color:var(--gris2);"></i></button>`;
         if (!esAdmin) {
-          btnAction = `<div class="mov-btn" style="cursor:default; background:var(--naranja-claro); border-color:#fdba74;" title="Pendiente de Aprobación"><i data-lucide="clock-8" class="mi sm" style="color:var(--naranja); stroke-width:2.5;"></i></div>`;
+          btnAction = `<div class="mov-btn" style="cursor:default; background:var(--naranja-claro); border-color:var(--alert-warning-border);" title="Pendiente de Aprobación"><i data-lucide="clock-8" class="mi sm" style="color:var(--naranja); stroke-width:2.5;"></i></div>`;
         } else {
-          btnAction = `<button onclick="cartasSolicitarCarta('${eCodCliente}', '${eNombres}', '${eCelular}', event)" class="mov-btn" style="background:linear-gradient(135deg, #22c55e, #16a34a); color:white; box-shadow:0 3px 8px rgba(22,163,74,0.25); border:none;" title="Aprobar y Generar Carta"><i data-lucide="check" class="mi sm" style="stroke-width:2.5;"></i></button>`;
+          btnAction = `<button class="mov-btn text-white" onclick="cartasSolicitarCarta('${eCodCliente}', '${eNombres}', '${eCelular}', event)"   style="background:linear-gradient(135deg, var(--alert-success), var(--alert-success)); box-shadow:0 3px 8px rgba(22,163,74,0.25); border:none;" title="Aprobar y Generar Carta"><i data-lucide="check" class="mi sm" style="stroke-width:2.5;"></i></button>`;
         }
       } else if (c.estadoCarta === 'EMITIDA' && c.fileId) {
         btnWsp = `<button onclick="cartasEnviarWA('${eFileId}', '${eNombres}', '${eCelular}', event)" class="mov-btn" title="Enviar por WhatsApp">${waSvgActive}</button>`;
         btnPreview = `<button onclick="cartasAbrirPreview('${eFileId}', '${eNombres}', '${eCodCliente}', '${eCelular}', event)" class="mov-btn" title="Vista Previa"><i data-lucide="eye" class="mi sm" style="color:var(--azul-oscuro);"></i></button>`;
-        btnAction = `<div class="mov-btn" style="cursor:default; background:#f0fdf4; border-color:#bbf7d0;" title="Carta Emitida"><i data-lucide="check-circle-2" class="mi sm" style="color:#10b981; stroke-width:2.5;"></i></div>`;
+        btnAction = `<div class="mov-btn" style="cursor:default; background:var(--alert-success-light); border-color:var(--alert-success-border);" title="Carta Emitida"><i data-lucide="check-circle-2" class="mi sm" style="color:var(--alert-success); stroke-width:2.5;"></i></div>`;
       } else {
         btnWsp = `<button disabled class="mov-btn" style="opacity:0.4; cursor:not-allowed;" title="No disponible">${waSvgDisabled}</button>`;
         btnPreview = `<button disabled class="mov-btn" style="opacity:0.4; cursor:not-allowed;" title="No disponible"><i data-lucide="eye" class="mi sm" style="color:var(--gris2);"></i></button>`;
         if (!esAdmin) {
-          btnAction = `<button onclick="cartasSolicitarAprobacion('${eCodCliente}', '${eNombres}', event)" class="mov-btn" style="background:linear-gradient(135deg, var(--azul2), var(--azul)); color:white; box-shadow:0 3px 8px rgba(0,82,204,0.25); border:none;" title="Solicitar Carta"><i data-lucide="circle-plus" class="mi sm" style="stroke-width:2.5;"></i></button>`;
+          btnAction = `<button class="mov-btn text-white" onclick="cartasSolicitarAprobacion('${eCodCliente}', '${eNombres}', event)"   style="background:linear-gradient(135deg, var(--azul2), var(--azul)); box-shadow:0 3px 8px rgba(0,82,204,0.25); border:none;" title="Solicitar Carta"><i data-lucide="circle-plus" class="mi sm" style="stroke-width:2.5;"></i></button>`;
         } else {
-          btnAction = `<button onclick="cartasSolicitarCarta('${eCodCliente}', '${eNombres}', '${eCelular}', event)" class="mov-btn" style="background:linear-gradient(135deg, var(--azul2), var(--azul)); color:white; box-shadow:0 3px 8px rgba(0,82,204,0.25); border:none;" title="Generar Carta Directamente"><i data-lucide="file-check-2" class="mi sm" style="stroke-width:2;"></i></button>`;
+          btnAction = `<button class="mov-btn text-white" onclick="cartasSolicitarCarta('${eCodCliente}', '${eNombres}', '${eCelular}', event)"   style="background:linear-gradient(135deg, var(--azul2), var(--azul)); box-shadow:0 3px 8px rgba(0,82,204,0.25); border:none;" title="Generar Carta Directamente"><i data-lucide="file-check-2" class="mi sm" style="stroke-width:2;"></i></button>`;
         }
       }
 
       let accionesHtml = `
-        <div class="mov-acciones" style="display:flex; align-items:center; gap:8px;">
+        <div class="mov-acciones d-flex align-center gap-2"  >
           ${btnAction}
           ${btnWsp}
           ${btnPreview}
@@ -174,23 +259,22 @@
       let cardStyle = '';
 
       if (c.estadoCarta === 'SOLICITADA') {
-        cardStyle = 'background:linear-gradient(to right, #fff7ed, #ffffff); border:1px solid #fed7aa; box-shadow:0 2px 8px rgba(249,115,22,0.03);';
+        cardStyle = 'background:linear-gradient(to right, var(--alert-warning-light), var(--bg-surface)); border:1px solid #fed7aa; box-shadow:0 2px 8px rgba(249,115,22,0.03);';
       } else if (c.estadoCarta === 'EMITIDA') {
-        cardStyle = 'background:linear-gradient(to right, #f0fdf4, #ffffff); border:1px solid #bbf7d0; box-shadow:0 2px 8px rgba(34,197,94,0.03);';
+        cardStyle = 'background:linear-gradient(to right, var(--alert-success-light), var(--bg-surface)); border:1px solid var(--alert-success-border); box-shadow:0 2px 8px rgba(34,197,94,0.03);';
       } else {
-        cardStyle = 'background:#ffffff; border:1px solid var(--gris2); box-shadow:var(--shadow-sm);';
+        cardStyle = 'background:var(--bg-surface); border:1px solid var(--gris2); box-shadow:var(--shadow-sm);';
       }
 
       html += `
-      <div class="mov-card" style="padding:14px 16px; display:flex; align-items:center; justify-content:space-between; gap:16px; ${cardStyle} transition:all 0.25s;">
-        <div class="mov-left" style="overflow:hidden; cursor:pointer; flex:1; display:flex; align-items:center; gap:12px;" onclick="cartasAbrirDrawer('${eCodCliente}')">
-          <div class="mov-icon" style="background:${iconBg}; color:${iconColor}; flex-shrink:0;"><i data-lucide="user" class="mi"></i></div>
-          <div class="mov-info" style="display:flex; flex-direction:row; align-items:center; gap:12px; overflow:hidden;">
-            <div style="font-size:11px; color:var(--texto2); font-weight:600; white-space:nowrap;">Código: ${eCodCliente}</div>
-            <div class="mov-desc" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:700; color:var(--texto); line-height:1; font-size:13px;">${eNombres}</div>
+      <div class="mov-card d-flex align-center justify-between gap-4"   style="padding:12px 16px; ${cardStyle} transition:all 0.25s;">
+        <div class="mov-left cursor-pointer flex-1 d-flex align-center gap-3"   style="overflow:hidden;" onclick="cartasAbrirDrawer('${eCodCliente}')">
+          <div class="mov-icon flex-shrink-0"   style="background:${iconBg}; color:${iconColor};"><i data-lucide="user" class="mi"></i></div>
+          <div class="mov-info d-flex flex-col"   style="gap:3px; overflow:hidden;">
+            <div class="mov-desc font-bold text-primary text-md"   style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; line-height:1;">${eNombres}</div>
           </div>
         </div>
-        <div class="mov-right" style="gap:12px; align-items:center; flex-shrink:0; display:flex; flex-direction:row;">
+        <div class="mov-right gap-3 align-center flex-shrink-0 d-flex"   style="flex-direction:row;">
           ${accionesHtml}
         </div>
       </div>
@@ -211,15 +295,15 @@
     document.getElementById('dr-cartas-sub').textContent = 'Código: ' + data.codCliente;
 
     // Rellenar detalles
-    let drEstado = '<span style="color:var(--texto2);font-weight:700;">SIN SOLICITAR</span>';
-    if (data.estadoCarta === 'EMITIDA') drEstado = '<span style="color:var(--verde);font-weight:700;">EMITIDA</span>';
-    else if (data.estadoCarta === 'SOLICITADA') drEstado = '<span style="color:var(--naranja);font-weight:700;">SOLICITADA</span>';
+    let drEstado = '<span class="text-secondary font-bold" >SIN SOLICITAR</span>';
+    if (data.estadoCarta === 'EMITIDA') drEstado = '<span class="font-bold"  style="color:var(--verde);">EMITIDA</span>';
+    else if (data.estadoCarta === 'SOLICITADA') drEstado = '<span class="font-bold"  style="color:var(--naranja);">SOLICITADA</span>';
     document.getElementById('dr-cartas-estado').innerHTML = drEstado;
 
     const cal = (data.calificacion || '').toUpperCase();
-    let drCalif = `<span style="color:var(--texto2);font-weight:700;">${cal || 'NO REGISTRA'}</span>`;
-    if (cal === 'PUNTUAL') drCalif = '<span style="color:var(--azul);font-weight:700;">PUNTUAL</span>';
-    else if (cal === 'NORMAL') drCalif = '<span style="color:var(--naranja);font-weight:700;">NORMAL</span>';
+    let drCalif = `<span class="text-secondary font-bold" >${cal || 'NO REGISTRA'}</span>`;
+    if (cal === 'PUNTUAL') drCalif = '<span class="font-bold"  style="color:var(--azul);">PUNTUAL</span>';
+    else if (cal === 'NORMAL') drCalif = '<span class="font-bold"  style="color:var(--naranja);">NORMAL</span>';
     document.getElementById('dr-cartas-calif').innerHTML = drCalif;
 
     document.getElementById('dr-cartas-celular').textContent = data.celular || '-';
@@ -264,12 +348,12 @@
 
     const cont = document.getElementById('ms-contenido');
     cont.innerHTML = `
-      <div id="preview-loader" style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#f8fafc; border-radius:8px; transition:opacity 0.4s ease;">
-        <div style="position:relative; width:48px; height:48px; display:flex; align-items:center; justify-content:center; margin-bottom:14px;">
-          <div class="spinner-sm" style="position:absolute; width:100%; height:100%; border-color:#e2e8f0; border-right-color:var(--azul); border-width:2px; border-radius:50%;"></div>
-          <div id="preview-percent" style="font-weight:700; font-size:12px; color:var(--azul);">0%</div>
+      <div class="flex-1 d-flex flex-col align-center justify-center" id="preview-loader"  style="background:var(--bg-body); border-radius:8px; transition:opacity 0.4s ease;">
+        <div class="d-flex align-center justify-center"  style="position:relative; width:48px; height:48px; margin-bottom:14px;">
+          <div class="spinner-sm" style="position:absolute; width:100%; height:100%; border-color:var(--border-color); border-right-color:var(--azul); border-width:2px; border-radius:50%;"></div>
+          <div class="font-bold text-base" id="preview-percent"  style="color:var(--azul);">0%</div>
         </div>
-        <div style="color:var(--texto); font-size:13px; font-weight:600; letter-spacing:-0.2px;">Generando documento...</div>
+        <div class="text-primary text-md font-semibold"  style="letter-spacing:-0.2px;">Generando documento...</div>
       </div>
     `;
     document.getElementById('modal-sustento').classList.add('show');
@@ -295,10 +379,21 @@
       clearInterval(interval);
 
       if (resp && resp.error) {
+        const box = document.querySelector('#modal-sustento .modal-sustento-box');
+        if (box) {
+          box.style.maxWidth = '420px';
+          box.style.height = 'auto';
+          box.style.padding = '32px 24px';
+        }
+        
         cont.innerHTML = `
-          <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#fff0f0; border-radius:8px; border:1px solid rgba(222,53,11,0.2); color:var(--rojo);">
-            <i data-lucide="alert-circle" class="mi" style="font-size:32px; margin-bottom:8px;"></i>
-            <div style="font-weight:600;">Error: ${resp.error}</div>
+          <div class="d-flex flex-col align-center justify-center text-center" >
+            <div class="d-flex align-center justify-center mb-4"  style="width:64px; height:64px; border-radius:50%; background:var(--alert-danger-light); border:4px solid var(--bg-surface); box-shadow:0 0 0 1px #fee2e2;">
+              <i data-lucide="shield-alert" class="mi" style="font-size:32px; color:var(--rojo);"></i>
+            </div>
+            <h3 class="text-primary font-bold"  style="margin:0 0 8px 0; font-size:18px;">Acción Denegada</h3>
+            <p class="text-secondary text-lg"  style="margin:0 0 24px 0; line-height:1.5;">${resp.error}</p>
+            <button class="text-primary font-semibold text-md cursor-pointer" onclick="document.getElementById('modal-sustento').classList.remove('show')"  style="background:var(--gris2); border:none; padding:10px 24px; border-radius:8px; width:100%;">Entendido, cerrar</button>
           </div>
         `;
         if (window.lucide) lucide.createIcons();
@@ -329,9 +424,9 @@
       clearInterval(interval);
       console.error(e);
       cont.innerHTML = `
-        <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#fff0f0; border-radius:8px; border:1px solid rgba(222,53,11,0.2); color:var(--rojo);">
-          <i data-lucide="wifi-off" class="mi" style="font-size:32px; margin-bottom:8px;"></i>
-          <div style="font-weight:600;">Ocurrió un error al generar la carta.</div>
+        <div class="flex-1 d-flex flex-col align-center justify-center"  style="background:var(--alert-danger-light); border-radius:8px; border:1px solid rgba(222,53,11,0.2); color:var(--rojo);">
+          <i class="mi mb-2" data-lucide="wifi-off"   style="font-size:32px;"></i>
+          <div class="font-semibold" >Ocurrió un error al generar la carta.</div>
         </div>
       `;
       if (window.lucide) lucide.createIcons();
@@ -360,8 +455,12 @@
       }
 
       if (resp && resp.success) {
-        btn.outerHTML = `<button disabled class="mov-btn" title="Pendiente de Aprobación"><i data-lucide="hourglass" class="mi sm"></i></button>`;
-        lucide.createIcons();
+        if (btn.classList.contains('mov-btn')) {
+          btn.outerHTML = `<button disabled class="mov-btn" title="Pendiente de Aprobación" style="background:var(--alert-warning-light); border-color:#fed7aa;"><i data-lucide="hourglass" class="mi sm" style="color:var(--alert-warning);"></i></button>`;
+        } else {
+          btn.outerHTML = `<button class="flex-1 text-md font-bold d-flex flex-col align-center justify-center gap-1"  style="background:var(--border-color); color:var(--text-secondary); cursor:not-allowed; border:1px solid var(--border-color); box-shadow:none; padding: 10px 4px; border-radius: 12px;" disabled><i class="mi m-0" data-lucide="file-check"   style="font-size: 18px;"></i> Carta Solicitada</button>`;
+        }
+        if (window.lucide) lucide.createIcons();
       }
     } catch (e) {
       console.error(e);
@@ -454,7 +553,7 @@
 
     const cont = document.getElementById('ms-contenido');
     const iframeHtml = `
-      <iframe src="${previewSrc}" id="preview-iframe" style="width:100%; height:100%; flex:1; border:none; border-radius:8px; background:#f8fafc; opacity:0; transition:opacity 0.6s ease;" allowfullscreen></iframe>
+      <iframe class="flex-1" src="${previewSrc}" id="preview-iframe"  style="width:100%; height:100%; border:none; border-radius:8px; background:var(--bg-body); opacity:0; transition:opacity 0.6s ease;" allowfullscreen></iframe>
     `;
 
     const loader = document.getElementById('preview-loader');
@@ -491,12 +590,12 @@
 
     const cont = document.getElementById('ms-contenido');
     cont.innerHTML = `
-      <div id="preview-loader" style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#f8fafc; border-radius:8px; transition:opacity 0.4s ease;">
-        <div style="position:relative; width:48px; height:48px; display:flex; align-items:center; justify-content:center; margin-bottom:14px;">
-          <div class="spinner-sm" style="position:absolute; width:100%; height:100%; border-color:#e2e8f0; border-right-color:var(--azul); border-width:2px; border-radius:50%;"></div>
-          <div id="preview-percent" style="font-weight:700; font-size:12px; color:var(--azul);">0%</div>
+      <div class="flex-1 d-flex flex-col align-center justify-center" id="preview-loader"  style="background:var(--bg-body); border-radius:8px; transition:opacity 0.4s ease;">
+        <div class="d-flex align-center justify-center"  style="position:relative; width:48px; height:48px; margin-bottom:14px;">
+          <div class="spinner-sm" style="position:absolute; width:100%; height:100%; border-color:var(--border-color); border-right-color:var(--azul); border-width:2px; border-radius:50%;"></div>
+          <div class="font-bold text-base" id="preview-percent"  style="color:var(--azul);">0%</div>
         </div>
-        <div style="color:var(--texto); font-size:13px; font-weight:600; letter-spacing:-0.2px;">Abriendo documento...</div>
+        <div class="text-primary text-md font-semibold"  style="letter-spacing:-0.2px;">Abriendo documento...</div>
       </div>
     `;
     document.getElementById('modal-sustento').classList.add('show');
@@ -528,20 +627,26 @@
         }, 150); // Pequeña pausa visual en el 100%
       } else {
         cont.innerHTML = `
-          <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#fff0f0; border-radius:8px; border:1px solid rgba(222,53,11,0.2); color:var(--rojo);">
-            <i data-lucide="alert-circle" class="mi" style="font-size:32px; margin-bottom:8px;"></i>
-            <div style="font-weight:600;">Error al cargar el documento.</div>
+          <div class="flex-1 d-flex flex-col align-center justify-center"  style="background:var(--alert-danger-light); border-radius:8px; border:1px solid rgba(222,53,11,0.2); color:var(--rojo);">
+            <i class="mi mb-2" data-lucide="alert-circle"   style="font-size:32px;"></i>
+            <div class="font-semibold" >Error al cargar el documento.</div>
           </div>
         `;
         if (window.lucide) lucide.createIcons();
       }
-    } catch(e) {
+    } catch (e) {
       clearInterval(interval);
-      console.error(e);
+      const box = document.querySelector('#modal-sustento .modal-sustento-box');
+      if (box) {
+        box.style.maxWidth = '420px';
+        box.style.height = 'auto';
+      }
       cont.innerHTML = `
-        <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#fff0f0; border-radius:8px; border:1px solid rgba(222,53,11,0.2); color:var(--rojo);">
-          <i data-lucide="wifi-off" class="mi" style="font-size:32px; margin-bottom:8px;"></i>
-          <div style="font-weight:600;">Error de conexión.</div>
+        <div class="d-flex flex-col align-center justify-center text-center"  style="padding:24px 0;">
+          <i class="mi mb-3" data-lucide="wifi-off"   style="font-size:40px; color:var(--rojo);"></i>
+          <h3 class="text-primary text-xl"  style="margin:0 0 8px 0;">Error de Conexión</h3>
+          <p class="text-secondary text-md"  style="margin:0 0 16px 0;">No se pudo completar la solicitud. Verifique su internet o intente de nuevo.</p>
+          <button class="text-primary font-semibold text-md cursor-pointer" onclick="document.getElementById('modal-sustento').classList.remove('show')"  style="background:var(--gris2); border:none; padding:8px 20px; border-radius:8px;">Cerrar</button>
         </div>
       `;
       if (window.lucide) lucide.createIcons();
@@ -597,4 +702,5 @@
   window.cartasPreviewBase64 = cartasPreviewBase64;
   window.cartasEnviarWA = cartasEnviarWA;
   window.cartasSwitchTab = cartasSwitchTab;
+  window.cartasCargarPendientes = cartasCargarPendientes;
 

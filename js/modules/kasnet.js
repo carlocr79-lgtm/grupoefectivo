@@ -5,7 +5,7 @@
     } else {
       let skKn = '';
       for(let i=0; i<4; i++) {
-        skKn += `<div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>`;
+        skKn += `<div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>`;
       }
       document.getElementById('kasnet-lista').innerHTML = skKn;
     }
@@ -33,34 +33,45 @@
     _kasnetRegMap = {};
     const contenedor = document.getElementById('kasnet-lista');
     if (!regs || regs.length === 0) {
-      contenedor.innerHTML = '<div class="empty"><div class="icon"><i data-lucide="wallet" class="mi" style="font-size:40px;color:var(--texto2);"></i></div>Sin registros de cuadre</div>';
+      contenedor.innerHTML = '<div class="empty"><div class="icon"><i class="mi text-secondary" data-lucide="wallet"   style="font-size:40px;"></i></div>Sin registros de cuadre</div>';
       return;
     }
-    regs.forEach(function(m) { _kasnetRegMap['kreg-' + m.id] = m; });
     
-    contenedor.innerHTML = regs.map(function(m) {
+    // Ordenar registros: Fecha más reciente primero; y para fechas iguales, el registro más reciente en el tiempo (mayor índice original)
+    const sortedRegs = [...regs].map((r, idx) => ({ ...r, originalIndex: idx }));
+    sortedRegs.sort((a, b) => {
+      const dateA = a.fecha || '';
+      const dateB = b.fecha || '';
+      const dateCompare = dateB.localeCompare(dateA);
+      if (dateCompare !== 0) return dateCompare;
+      return b.originalIndex - a.originalIndex;
+    });
+
+    sortedRegs.forEach(function(m) { _kasnetRegMap['kreg-' + m.id] = m; });
+    
+    contenedor.innerHTML = sortedRegs.map(function(m) {
       const iconBg = m.estado === 'SOBRANTE' ? 'ingreso' : m.estado === 'FALTANTE' ? 'egreso' : 'neutro';
       const mDataId = 'kreg-' + m.id;
       const sign = m.diferencia > 0 ? '+' : '';
 
       const compUrlSafe = m.comprobante ? m.comprobante.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;') : '';
-      return '<div class="mov-card" onclick="kasnetAbrirDrawer(\'' + mDataId + '\')" style="cursor:pointer; transition:transform 0.2s; box-shadow:0 2px 8px rgba(0,0,0,0.02);" onmouseover="this.style.transform=\'translateY(-2px)\';" onmouseout="this.style.transform=\'translateY(0)\';">' +
+      return '<div class="mov-card cursor-pointer"  onclick="kasnetAbrirDrawer(\'' + mDataId + '\')"  style="transition:transform 0.2s; box-shadow:0 2px 8px rgba(0,0,0,0.02);" onmouseover="this.style.transform=\'translateY(-2px)\';" onmouseout="this.style.transform=\'translateY(0)\';">' +
         '<div class="mov-left">' +
           '<div class="mov-icon ' + iconBg + '"><i data-lucide="receipt" class="mi sm"></i></div>' +
           '<div class="mov-info">' +
-            '<div class="mov-desc" style="font-weight:700;">Registro KASNET</div>' +
+            '<div class="mov-desc font-bold"  >Registro KASNET</div>' +
             '<div class="mov-cat">' +
-              '<span style="background:var(--gris);padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;">Ops: ' + m.numOps + '</span>' +
-              '<span style="background:var(--gris);padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;">Virt: S/. ' + (m.posVirtual + m.pagayaVirtual).toFixed(2) + '</span>' +
-              '<span style="background:var(--gris);padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;">Fís: S/. ' + m.efectivoFisico.toFixed(2) + '</span>' +
+              '<span class="text-xs font-bold"  style="background:var(--gris); padding:3px 8px; border-radius:6px;">Ops: ' + m.numOps + '</span>' +
+              '<span class="text-xs font-bold"  style="background:var(--gris); padding:3px 8px; border-radius:6px;">Virt: S/. ' + (m.posVirtual + m.pagayaVirtual).toFixed(2) + '</span>' +
+              '<span class="text-xs font-bold"  style="background:var(--gris); padding:3px 8px; border-radius:6px;">Fís: S/. ' + m.efectivoFisico.toFixed(2) + '</span>' +
               '<span class="tag ' + (m.estado === 'SOBRANTE' ? 'tag-vencido' : m.estado === 'FALTANTE' ? 'tag-critico' : 'tag-verificado') + '">' + m.estado + ' (' + sign + 'S/. ' + Math.abs(m.diferencia).toFixed(2) + ')</span>' +
-              (m.comprobante ? '<span style="color:var(--azul);background:var(--azul-claro);padding:3px 8px;border-radius:6px;font-weight:700;font-size:10px;display:inline-flex;align-items:center;gap:4px;"><i data-lucide="paperclip" class="mi xs" style="margin:0;vertical-align:bottom;"></i> Adjunto</span>' : '') +
+              (m.comprobante ? '<span class="font-bold text-xs align-center gap-1"  style="color:var(--azul); background:var(--azul-claro); padding:3px 8px; border-radius:6px; display:inline-flex;"><i class="mi xs m-0" data-lucide="paperclip"   style="vertical-align:bottom;"></i> Adjunto</span>' : '') +
             '</div>' +
           '</div>' +
         '</div>' +
         '<div class="mov-right">' +
           '<div class="mov-monto ' + iconBg + '">S/. ' + m.total.toLocaleString('es-PE', {minimumFractionDigits:2}) + '</div>' +
-          '<div style="display:flex; justify-content:flex-end; width:100%; align-items:center; gap:10px;">' +
+          '<div class="d-flex align-center"  style="justify-content:flex-end; width:100%; gap:10px;">' +
             '<div class="mov-fecha">' + escapeHtml(m.fecha) + '</div>' +
           '</div>' +
         '</div>' +
@@ -81,7 +92,7 @@
     if (!m) return;
     
     // Header
-    const iconBg = m.estado === 'SOBRANTE' ? '#e8f0ff' : m.estado === 'FALTANTE' ? '#ffe6e6' : 'var(--gris)';
+    const iconBg = m.estado === 'SOBRANTE' ? 'var(--brand-light)' : m.estado === 'FALTANTE' ? 'var(--alert-danger-light)' : 'var(--gris)';
     const iconColor = m.estado === 'SOBRANTE' ? 'var(--verde)' : m.estado === 'FALTANTE' ? 'var(--rojo)' : 'var(--texto2)';
     const iconEl = document.getElementById('dr-kasnet-icon');
     iconEl.style.background = iconBg;
@@ -118,9 +129,9 @@
           if (desg[k] && parseInt(desg[k]) > 0) {
             const sub = parseInt(desg[k]) * values[k];
             total += sub;
-            html += '<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--gris2); font-size:13px;">' +
-                      '<span style="color:var(--texto2);">' + labels[k] + ' <strong style="color:var(--azul);">x' + desg[k] + '</strong></span>' +
-                      '<span style="font-weight:700;">S/. ' + sub.toLocaleString('es-PE', {minimumFractionDigits:2}) + '</span>' +
+            html += '<div class="d-flex justify-between text-md"  style="padding:8px 0; border-bottom:1px solid var(--gris2);">' +
+                      '<span class="text-secondary" >' + labels[k] + ' <strong style="color:var(--azul);">x' + desg[k] + '</strong></span>' +
+                      '<span class="font-bold" >S/. ' + sub.toLocaleString('es-PE', {minimumFractionDigits:2}) + '</span>' +
                     '</div>';
           }
         });
@@ -128,10 +139,10 @@
     }
     
     if (!html) {
-      html = '<div style="padding:20px; text-align:center; color:var(--texto2); font-size:12px;">No hay detalle de arqueo guardado para este registro.</div>';
+      html = '<div class="text-center text-secondary text-base"  style="padding:20px;">No hay detalle de arqueo guardado para este registro.</div>';
     }
     
-    html += '<div style="text-align:right; font-family:\'Montserrat\',sans-serif; font-weight:800; font-size:16px; color:var(--verde); margin-top:14px; padding-top:14px; border-top:1.5px dashed var(--gris2);">Total Desglose: S/. ' + (total > 0 ? total : m.efectivoFisico).toLocaleString('es-PE', {minimumFractionDigits:2}) + '</div>';
+    html += '<div class="text-right font-extrabold text-xl"  style="font-family:\'Montserrat\',sans-serif; color:var(--verde); margin-top:14px; padding-top:14px; border-top:1.5px dashed var(--gris2);">Total Desglose: S/. ' + (total > 0 ? total : m.efectivoFisico).toLocaleString('es-PE', {minimumFractionDigits:2}) + '</div>';
     
     document.getElementById('dr-kasnet-desglose').innerHTML = html;
     
@@ -155,8 +166,8 @@
     // Actions
     const actionsEl = document.getElementById('dr-kasnet-actions');
     actionsEl.innerHTML = 
-      '<button style="background:var(--gris); color:var(--texto);" onclick="kasnetCerrarDrawer(); kasnetShowModalById(\'kreg-' + m.id + '\')"><i data-lucide="pencil" class="mi"></i> Editar</button>' +
-      '<button style="background:#ffe6e6; color:var(--rojo);" onclick="kasnetCerrarDrawer(); kasnetEliminar(\'' + m.id + '\')"><i data-lucide="trash-2" class="mi"></i> Eliminar</button>';
+      '<button class="text-primary"  style="background:var(--gris);" onclick="kasnetCerrarDrawer(); kasnetShowModalById(\'kreg-' + m.id + '\')"><i data-lucide="pencil" class="mi"></i> Editar</button>' +
+      '<button style="background:var(--alert-danger-light); color:var(--rojo);" onclick="kasnetCerrarDrawer(); kasnetEliminar(\'' + m.id + '\')"><i data-lucide="trash-2" class="mi"></i> Eliminar</button>';
     
     document.getElementById('drawer-overlay-kasnet').classList.add('open');
     document.getElementById('drawer-kasnet').classList.add('open');

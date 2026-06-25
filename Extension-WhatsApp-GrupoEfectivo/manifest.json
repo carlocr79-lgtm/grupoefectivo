@@ -1,0 +1,31 @@
+{
+  "manifest_version": 3,
+  "name": "GE Bot - WhatsApp Bulk",
+  "version": "1.0",
+  "description": "Automatiza envíos de WhatsApp de Grupo Efectivo",
+  "permissions": ["storage", "tabs", "notifications", "alarms"],
+  "host_permissions": [
+    "https://web.whatsapp.com/*",
+    "https://grupoefectivo.vercel.app/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://grupoefectivo.vercel.app/*", 
+        "http://localhost/*",
+        "file:///*"
+      ],
+      "js": ["content_crm.js"]
+    },
+    {
+      "matches": ["https://web.whatsapp.com/*"],
+      "js": ["content_wa.js"]
+    }
+  ],
+  "action": {
+    "default_title": "Bot GE Iniciado"
+  }
+}

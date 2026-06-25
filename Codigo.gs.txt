@@ -1,0 +1,2439 @@
+// ─── CLAVE INTERNA (reservada para uso futuro) ───
+
+// ─── CACHE DE CONFIG (una sola lectura por ejecución) ───
+var _configCache = null;
+// getConfig definido más abajo (línea ~792) con soporte .toUpperCase()
+
+// ════════════════════════════════════════════
+// ──── AUTENTICACIÓN POR CORREO ────────────
+// ════════════════════════════════════════════
+
+function solicitarCodigo(correo) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var hojaAccesos = ss.getSheetByName("ACCESOS");
+  if (!hojaAccesos) {
+    return {error: "Hoja ACCESOS no encontrada"};
+  }
+
+  var data = hojaAccesos.getDataRange().getValues();
+  var usuarioEncontrado = null;
+
+  for (var i = 1; i < data.length; i++) {
+    var correoFila = data[i][0] ? data[i][0].toString().trim().toLowerCase() : "";
+    var activo = data[i][3] ? data[i][3].toString().trim().toUpperCase() : "";
+    if (correoFila === correo.trim().toLowerCase()) {
+      if (activo !== "SI") {
+        return {error: "Usuario inactivo. Contacta al administrador."};
+      }
+      usuarioEncontrado = {
+        nombre: data[i][1] ? data[i][1].toString().trim() : correo,
+        rol: data[i][2] ? data[i][2].toString().trim() : "asesor",
+        fila: i + 1
+      };
+      break;
+    }
+  }
+
+  if (!usuarioEncontrado) {
+    return {error: "Correo no autorizado."};
+  }
+
+  // Generar código de 6 dígitos
+  var codigo = Math.floor(100000 + Math.random() * 900000).toString();
+  var expira = new Date(new Date().getTime() + 10 * 60 * 1000); // 10 minutos
+
+  // Guardar código y expiración en la hoja (col 6=F y 7=G, E=Oficina no se toca)
+  hojaAccesos.getRange(usuarioEncontrado.fila, 6).setValue(codigo);
+  hojaAccesos.getRange(usuarioEncontrado.fila, 7).setValue(expira);
+
+  // Enviar correo
+  MailApp.sendEmail({
+    to: correo,
+    subject: "🔐 Código de acceso - Grupo Efectivo",
+    body: "Hola " + usuarioEncontrado.nombre + ",\n\n" +
+          "Tu código de acceso al panel es:\n\n" +
+          "  " + codigo + "\n\n" +
+          "Válido por 10 minutos.\n\n" +
+          "Si no solicitaste este código, ignora este mensaje.\n\n" +
+          "— Grupo Efectivo"
+  });
+
+  return {success: true, nombre: usuarioEncontrado.nombre};
+}
+
+function verificarCodigo(correo, codigo) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var hojaAccesos = ss.getSheetByName("ACCESOS");
+  if (!hojaAccesos) return {error: "Hoja ACCESOS no encontrada"};
+
+  var data = hojaAccesos.getDataRange().getValues();
+
+  for (var i = 1; i < data.length; i++) {
+    var correoFila = data[i][0] ? data[i][0].toString().trim().toLowerCase() : "";
+    if (correoFila !== correo.trim().toLowerCase()) continue;
+
+    // Col F(6)=código, Col G(7)=expira, Col H(8)=sessionToken, Col I(9)=sessionExpira
+    var codigoFila = data[i][5] ? data[i][5].toString().trim() : "";
+    var expiraFila = data[i][6] ? new Date(data[i][6]) : null;
+
+    if (!codigoFila || !expiraFila) return {error: "Solicita un nuevo código."};
+    if (new Date() > expiraFila) return {error: "Código expirado. Solicita uno nuevo."};
+    if (codigoFila !== codigo.trim()) return {error: "Código incorrecto."};
+
+    // Limpiar código usado
+    hojaAccesos.getRange(i + 1, 6).setValue("");
+    hojaAccesos.getRange(i + 1, 7).setValue("");
+
+    // Generar token de sesión (8 horas)
+    var sessionToken = Utilities.getUuid().replace(/-/g,'');
+    var sessionExpira = new Date(new Date().getTime() + 8 * 60 * 60 * 1000);
+    hojaAccesos.getRange(i + 1, 8).setValue(sessionToken);
+    hojaAccesos.getRange(i + 1, 9).setValue(sessionExpira);
+
+    return {
+      success: true,
+      sessionToken: sessionToken,
+      nombre: data[i][1] ? data[i][1].toString().trim() : correo,
+      rol: data[i][2] ? data[i][2].toString().trim().toLowerCase() : "asesor",
+      oficina: data[i][4] ? data[i][4].toString().trim().toUpperCase() : "TODOS"
+    };
+  }
+  return {error: "Correo no encontrado."};
+}
+
+function validarSession(sessionToken) {
+  var hojaAccesos = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("ACCESOS");
+  if (!hojaAccesos) return null;
+
+  var data = hojaAccesos.getDataRange().getValues();
+  for (var i = 1; i < data.length; i++) {
+    // Col H(8)=sessionToken, Col I(9)=sessionExpira
+    var tokenFila = data[i][7] ? data[i][7].toString().trim() : "";
+    if (tokenFila !== sessionToken.trim()) continue;
+
+    var expiraFila = data[i][8] ? new Date(data[i][8]) : null;
+    if (!expiraFila || new Date() > expiraFila) return null;
+
+    return {
+      correo: data[i][0],
+      nombre: data[i][1],
+      rol: data[i][2] ? data[i][2].toString().trim().toLowerCase() : "asesor",
+      oficina: data[i][4] ? data[i][4].toString().trim().toUpperCase() : "TODOS"
+    };
+  }
+  return null;
+}
+
+function doGet(e) {
+  // ── keepAlive ping: responde de inmediato sin tocar Sheets ──
+  if (e.parameter.ping) {
+    return ContentService.createTextOutput('ok').setMimeType(ContentService.MimeType.TEXT);
+  }
+
+  if (e.parameter.cod) {
+    return buscarPorCod(e.parameter.cod);
+  }
+
+  // Rutas admin movidas a doPost para evitar CORS
+
+  // Bloquear GET sin parámetro válido
+  var busqueda = e.parameter.q ? 
+    e.parameter.q.toString().replace(/\s/g,'').toUpperCase() : "";
+  
+  if (!busqueda || busqueda.length < 3) {
+    return ContentService
+      .createTextOutput(JSON.stringify([]))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  var hojas = obtenerHojasBase();
+  var resultado = [];
+
+  hojas.forEach(function(sheet) {
+    var data = sheet.getDataRange().getValues();
+    for (var i = 1; i < data.length; i++) {
+      var nombre = data[i][4] ? data[i][4].toString().toUpperCase() : "";
+      var celu = data[i][5] ? data[i][5].toString().replace(/\s/g,'') : "";
+      if (!nombre.includes(busqueda) && !celu.includes(busqueda)) continue;
+      resultado.push({
+        fila: i + 1,
+        nombres: data[i][4],
+        celular: data[i][5],
+        cod: data[i][6],
+        tipo: data[i][7],
+        asesor: data[i][3],
+        vencimiento: data[i][14],
+        cuota: data[i][16],
+        deuda: data[i][18],
+        cuotasVencidas: data[i][19],
+        diasAtraso: data[i][20],
+        direccion: data[i][22]
+      });
+    }
+  });
+
+  return ContentService
+    .createTextOutput(JSON.stringify(resultado))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function buscarPorCod(cod) {
+  cod = cod ? cod.toString().trim() : "";
+  if (!cod) {
+    return ContentService.createTextOutput(JSON.stringify({alDia: true}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  var encontrado = obtenerHojaPorCod(cod);
+
+  // ── Leer HISTORIAL UNA SOLA VEZ para ambas verificaciones ──
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var historial = ss.getSheetByName("HISTORIAL");
+  var histData = (historial && historial.getLastRow() >= 2)
+    ? historial.getDataRange().getValues()
+    : null;
+
+  if (!encontrado) {
+    // No esta en BASE → el cajero ya ingreso el pago al sistema.
+    // Si tenia voucher PENDIENTE en HISTORIAL, marcarlo VERIFICADO automaticamente.
+    if (histData) {
+      for (var h = histData.length - 1; h >= 1; h--) {
+        var codHist     = histData[h][3] ? histData[h][3].toString().trim() : "";
+        var estadoHist  = histData[h][7] ? histData[h][7].toString().trim() : "";
+        var voucherHist = histData[h][8] ? histData[h][8].toString().trim() : "";
+        if (codHist === cod && voucherHist && estadoHist === "PENDIENTE VERIFICAR") {
+          // Pago ingresado al sistema → marcar VERIFICADO automaticamente
+          historial.getRange(h + 1, 8).setValue("VERIFICADO ✅");
+          break;
+        }
+      }
+    }
+    // En cualquier caso ya no esta en BASE → al dia
+    return ContentService.createTextOutput(JSON.stringify({alDia: true}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  var data = encontrado.data;
+  // data es array reducido: [asesor,nombres,celular,cod,tipo,vencimiento,cuota,deuda,cuotasVenc,diasAtraso,direccion]
+
+  // Saltar filas REVISAR o vacías
+  var nombreFila = data[1] ? data[1].toString().trim() : "";
+  if (!nombreFila || nombreFila === "REVISAR") {
+    return ContentService.createTextOutput(JSON.stringify({alDia: true}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  // Aunque este en BASE, verificar si ya envio voucher y esta PENDIENTE en HISTORIAL.
+  // Reutiliza histData ya leído arriba (sin segunda lectura a Sheets)
+  if (histData) {
+    for (var hc = histData.length - 1; hc >= 1; hc--) {
+      var codCheck     = histData[hc][3] ? histData[hc][3].toString().trim() : "";
+      var estadoCheck  = histData[hc][7] ? histData[hc][7].toString().trim() : "";
+      var voucherCheck = histData[hc][8] ? histData[hc][8].toString().trim() : "";
+      if (codCheck === cod && voucherCheck && estadoCheck === "PENDIENTE VERIFICAR") {
+        return ContentService.createTextOutput(JSON.stringify({verificando: true}))
+          .setMimeType(ContentService.MimeType.JSON);
+      }
+    }
+  }
+
+  var nombreHoja = encontrado.hoja.getName().toUpperCase();
+  var matchSede = nombreHoja.match(/(\d{3})/);
+  var codigoSede = matchSede ? matchSede[1] : '';
+
+  var objCuentas = {};
+  if (codigoSede) {
+    objCuentas = {
+      bcp_cuenta: getConfig('CUENTA_BCP_' + codigoSede),
+      bcp_cci: getConfig('CCI_BCP_' + codigoSede),
+      bbva_cuenta: getConfig('CUENTA_BBVA_' + codigoSede),
+      bbva_cci: getConfig('CCI_BBVA_' + codigoSede),
+      yape_num: getConfig('YAPE_' + codigoSede),
+      yape_qr: getConfig('YAPE_QR_' + codigoSede),
+      plin_num: getConfig('PLIN_' + codigoSede),
+      plin_qr: getConfig('PLIN_QR_' + codigoSede),
+      tel_chanchamayo: getConfig('TEL_001'),
+      tel_pichanaqui: getConfig('TEL_002')
+    };
+  }
+
+  return ContentService
+    .createTextOutput(JSON.stringify({
+      encontrado: true,
+      nombres: data[1],
+      celular: data[2],
+      cod: data[3],
+      tipo: data[4],
+      asesor: data[0],
+      vencimiento: data[5],
+      cuota: data[6],
+      deuda: data[7],
+      cuotasVencidas: data[8],
+      diasAtraso: data[9],
+      direccion: data[10],
+      cuentas: objCuentas
+    }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function doPost(e) {
+  try {
+    var params = JSON.parse(e.postData.contents);
+
+    // ── Auth por correo ──
+    if (params.authAction === 'solicitarCodigo') {
+      var resAuth = solicitarCodigo(params.correo);
+      return ContentService.createTextOutput(JSON.stringify(resAuth))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+    if (params.authAction === 'verificarCodigo') {
+      var resVerif = verificarCodigo(params.correo, params.codigo);
+      return ContentService.createTextOutput(JSON.stringify(resVerif))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // ── Acciones admin ──
+    if (params.adminAction) {
+      var session = params.sessionToken ? validarSession(params.sessionToken) : null;
+      if (!session) {
+        return ContentService.createTextOutput(JSON.stringify({error: "Sesión inválida o expirada"}))
+          .setMimeType(ContentService.MimeType.JSON);
+      }
+      switch (params.adminAction) {
+        case 'verificar': return adminVerificarPago(params.fila, params.nombre, params.cod, session);
+        case 'cartas_solicitar': return cartasGenerarYNotificar(params, session);
+        case 'cartas_solicitar_aprobacion': return cartasSolicitarAprobacion(params, session);
+        case 'cartas_descargar_existente': return cartasDescargarExistente(params, session);
+      }
+    }
+
+    // ── Rutas GET del admin via POST (evita CORS) ──
+    if (params._method === 'GET' && params.admin) {
+      var sessionGet = params.sessionToken ? validarSession(params.sessionToken) : null;
+      if (!sessionGet) {
+        return ContentService.createTextOutput(JSON.stringify({error: "Sesión inválida o expirada"}))
+          .setMimeType(ContentService.MimeType.JSON);
+      }
+      switch (params.admin) {
+        case 'clientes':  return adminGetClientes(sessionGet, params.sedeContexto || '');
+        case 'clientes_buscar_global': return adminBuscarClienteGlobal(sessionGet, params);
+        case 'vouchers':  return adminGetVouchers(sessionGet, params.sedeContexto || '');
+        case 'historial': return adminGetHistorial(sessionGet, params.sedeContexto || '');
+        case 'dashboard': return adminGetDashboard(sessionGet, params.sedeContexto || '');
+        case 'caja_datos': return cajaGetDatos(params.sedeContexto || '', sessionGet);
+        case 'caja_archivo': return apiCajaArchivoNuevo(params);
+        case 'caja_arqueos': return cajaGetArqueos(params.sedeContexto || '', sessionGet, params.offset, params.limit);
+        case 'caja_kpis': return cajaGetKpis(params.sedeContexto || '', sessionGet);
+        case 'kasnet_datos': return kasnetGetDatos(params.sedeContexto || '', sessionGet);
+        case 'cartas_buscar': return cartasBuscarClientes(params, sessionGet);
+        case 'cartas_pendientes': return cartasGetPendientes(params, sessionGet);
+        case 'cartas_check_status': return cartasCheckStatus(params, sessionGet);
+      }
+    }
+
+    // ── Acciones de escritura de caja ──
+    if (params._method === 'POST' && params.cajaAction) {
+      var sessionCaja = params.sessionToken ? validarSession(params.sessionToken) : null;
+      if (!sessionCaja) {
+        return ContentService.createTextOutput(JSON.stringify({error: "Sesión inválida o expirada"}))
+          .setMimeType(ContentService.MimeType.JSON);
+      }
+      switch (params.cajaAction) {
+        case 'guardar': return cajaGuardarMovimiento(params, sessionCaja);
+        case 'eliminar': return cajaEliminarMovimiento(params.id, sessionCaja);
+        case 'arqueo': return cajaProcesarArqueo(params, sessionCaja);
+      }
+    }
+
+    // ── Acciones de KASNET ──
+    if (params._method === 'POST' && params.kasnetAction) {
+      var sessionKasnet = params.sessionToken ? validarSession(params.sessionToken) : null;
+      if (!sessionKasnet) {
+        return ContentService.createTextOutput(JSON.stringify({error: "Sesión inválida o expirada"}))
+          .setMimeType(ContentService.MimeType.JSON);
+      }
+      switch (params.kasnetAction) {
+        case 'guardar': return kasnetGuardarRegistro(params, sessionKasnet);
+        case 'eliminar': return kasnetEliminarRegistro(params.id, sessionKasnet);
+      }
+    }
+
+    var cod = params.cod;
+    var base64Data = params.voucher;
+    var nombre = params.nombre || "cliente";
+    var monto = params.monto || 0;
+
+    // Guard: si no hay cod ni acción reconocida, salir
+    if (!cod) {
+      return ContentService
+        .createTextOutput(JSON.stringify({success: false, error: "Código requerido"}))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // Buscar la fila correcta por código de crédito en todas las hojas BASE
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var encontrado = obtenerHojaPorCod(cod);
+
+    if (!encontrado) {
+      return ContentService
+        .createTextOutput(JSON.stringify({success: false, error: "Crédito no encontrado"}))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    var sheet = encontrado.hoja;
+    var filaReal = encontrado.fila;
+    var filaData = encontrado.data;
+
+    // ── Datos del cliente para nombre de archivo e historial ──
+    var ahora = new Date();
+    var anio = ahora.getFullYear();
+    var mes = String(ahora.getMonth() + 1).padStart(2, '0');
+    var dia = String(ahora.getDate()).padStart(2, '0');
+    var horas = String(ahora.getHours()).padStart(2, '0');
+    var minutos = String(ahora.getMinutes()).padStart(2, '0');
+
+    cod = filaData[3] ? filaData[3].toString().trim() : "000"; // reducido: idx3=cod
+    var asesor = filaData[0] ? filaData[0].toString().split(' ')[0] : "SIN_ASESOR"; // reducido: idx0=asesor
+    var montoStr = parseFloat(monto).toFixed(2).replace('.', '_');
+
+    // Nombre limpio del cliente (apellido + primer nombre)
+    var partesNombre = nombre.trim().split(' ');
+    var nombreCorto = partesNombre.slice(0, 2).join('_').toUpperCase();
+
+    // Nombre del archivo: APELLIDO_NOMBRE_cod12345_S210_00_14h22.jpg
+    var nombreArchivo = nombreCorto + "_cod" + cod + "_S" + montoStr + "_" + horas + "h" + minutos + ".jpg";
+
+    // ── Subcarpetas: Vouchers / 2026-03 / 2026-03-22 ──
+    var carpetaRaiz = obtenerOCrearCarpeta(null, "Vouchers Grupo Efectivo");
+    var carpetaMes  = obtenerOCrearCarpeta(carpetaRaiz, anio + "-" + mes);
+    var carpetaDia  = obtenerOCrearCarpeta(carpetaMes, anio + "-" + mes + "-" + dia);
+
+    // ── Detectar MIME type real del archivo ──
+    var mimeType = "image/jpeg";
+    if (base64Data.indexOf("data:application/pdf") === 0) {
+      mimeType = "application/pdf";
+      nombreArchivo = nombreArchivo.replace(".jpg", ".pdf");
+    } else if (base64Data.indexOf("data:image/png") === 0) {
+      mimeType = "image/png";
+      nombreArchivo = nombreArchivo.replace(".jpg", ".png");
+    }
+
+    var base64Clean = base64Data.indexOf(',') > -1 ? base64Data.split(',')[1] : base64Data;
+    var bytes = Utilities.base64Decode(base64Clean);
+    var blob = Utilities.newBlob(bytes, mimeType, nombreArchivo);
+
+    var file = carpetaDia.createFile(blob);
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    var link = file.getUrl();
+
+    // ── Invalidar caché de BASE al confirmar pago (fuerza re-lectura en próxima consulta) ──
+    invalidarCacheBase();
+
+    // ── Escribir en hoja HISTORIAL ──
+    // NOTA: Ya NO se escribe en BASE. El sistema externo actualiza BASE automáticamente.
+    // El código de crédito (cod) es el identificador único de cada registro en HISTORIAL.
+    var historial = ss.getSheetByName("HISTORIAL");
+    if (!historial) {
+      historial = ss.insertSheet("HISTORIAL");
+      historial.appendRow([
+        "Fecha", "Hora", "Nombre", "Cod. Crédito", "Asesor",
+        "Tipo", "Monto S/.", "Estado", "Link Voucher"
+      ]);
+      historial.getRange(1, 1, 1, 9).setFontWeight("bold").setBackground("#003087").setFontColor("white");
+      historial.setFrozenRows(1);
+    }
+    historial.appendRow([
+      anio + "-" + mes + "-" + dia,
+      horas + ":" + minutos,
+      nombre,
+      cod,
+      filaData[0] || "", // asesor
+      filaData[4] || "", // tipo
+      parseFloat(monto),
+      "PENDIENTE VERIFICAR",
+      link
+    ]);
+
+    // ── Email de notificación — busca a la cajera de la sede en la hoja ACCESOS ──
+    // Detectar código de sede desde el nombre de la hoja (ej: "BASE 001-LM" → "001")
+    var nombreHoja = sheet.getName().toUpperCase();
+    var matchSede = nombreHoja.match(/(\d{3})/);
+    var codigoSede = matchSede ? matchSede[1] : '';
+
+    // Buscar correo de la cajera en ACCESOS (rol=cajero, oficina contiene codigoSede)
+    var emailDestino = 'cajalm001@gmail.com'; // fallback
+    try {
+      var hojaAccesos = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('ACCESOS');
+      if (hojaAccesos) {
+        var accData = hojaAccesos.getDataRange().getValues();
+        for (var a = 1; a < accData.length; a++) {
+          var accCorreo  = accData[a][0] ? accData[a][0].toString().trim() : '';
+          var accRol     = accData[a][2] ? accData[a][2].toString().trim().toLowerCase() : '';
+          var accOficina = accData[a][4] ? accData[a][4].toString().trim().toUpperCase() : '';
+          var accActivo  = accData[a][3] ? accData[a][3].toString().trim().toUpperCase() : '';
+          if (accRol === 'cajero' && accActivo === 'SI' && accOficina.indexOf(codigoSede) >= 0) {
+            emailDestino = accCorreo;
+            break;
+          }
+        }
+      }
+    } catch(ex) { Logger.log('Error buscando cajera: ' + ex); }
+
+    MailApp.sendEmail({
+      to: emailDestino,
+      subject: "🔔 Nuevo pago recibido - " + nombre + " [" + codigoSede + "]",
+      body: "Hola,\n\nSe recibió un nuevo comprobante de pago:\n\n" +
+            "  Cliente : " + nombre +
+            "\n  Código  : " + cod +
+            "\n  Asesor  : " + (filaData[0] || "-") +
+            "\n  Monto   : S/. " + monto +
+            "\n  Fecha   : " + dia + "/" + mes + "/" + anio + " " + horas + ":" + minutos +
+            "\n  Sede    : " + nombreHoja +
+            "\n  Voucher : " + link +
+            "\n\nPor favor verifica el pago en el panel admin.\n\n— Grupo Efectivo"
+    });
+
+    return ContentService
+      .createTextOutput(JSON.stringify({success: true, link: link}))
+      .setMimeType(ContentService.MimeType.JSON);
+
+  } catch(err) {
+    return ContentService
+      .createTextOutput(JSON.stringify({success: false, error: err.toString()}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+// ═══════════════════════════════════════════
+// ──────── FUNCIONES ADMIN ────────────────
+// ═══════════════════════════════════════════
+
+function formatPhoneNumber(rawPhone) {
+  if (!rawPhone) return "";
+  // Quitar todos los espacios, guiones y caracteres raros excepto números
+  var text = rawPhone.toString().replace(/[\s\-\(\)\.]/g, '');
+  
+  // Buscar un número móvil peruano válido: empieza con 9 y tiene exactamente 9 dígitos
+  var match = text.match(/9\d{8}/);
+  if (match) {
+    return "51" + match[0]; // Retorna el código de país (51) + los 9 dígitos
+  }
+  
+  // Si no encuentra el patrón exacto, simplemente devolver solo los números
+  // asumiendo que el usuario ya lo escribió bien pero con otro formato
+  var digits = text.replace(/\D/g, '');
+  if (digits.length === 9) return "51" + digits; // Si son 9 números sin el 51
+  if (digits.length === 11 && digits.startsWith('51')) return digits; // Si ya tiene el 51
+  
+  return digits;
+}
+
+function generarMensajeCobranza(nombreCompleto, vencimientoRaw, deuda, cuota, cod, diasAtraso, cuotasVencidas, codigoSede) {
+  if (!vencimientoRaw) return "";
+  
+  var primerNombre = nombreCompleto.split(' ')[0];
+  
+  // Validar números para evitar NaN (que era lo que causaba el REVISAR originalmente)
+  diasAtraso = parseInt(diasAtraso) || 0;
+  cuotasVencidas = parseInt(cuotasVencidas) || 0;
+  // Si hay días de atraso pero la celda de cuotas estaba vacía, asumimos al menos 1 cuota
+  if (diasAtraso > 0 && cuotasVencidas === 0) cuotasVencidas = 1;
+
+  var tz = Session.getScriptTimeZone();
+  var hoyStr = Utilities.formatDate(new Date(), tz, "yyyy-MM-dd");
+  var vencStr = vencimientoRaw instanceof Date ? Utilities.formatDate(vencimientoRaw, tz, "yyyy-MM-dd") : null;
+  
+  // Si el Excel marca 0 días de atraso, pero la fecha de vencimiento es mayor a hoy, forzamos -1
+  if (diasAtraso === 0 && vencStr && vencStr > hoyStr) {
+    diasAtraso = -1;
+  }
+
+  // Si no está en mora (0 o negativo), cobramos la Cuota. Si tiene mora, la Deuda.
+  var montoMostrar = (diasAtraso <= 0 && cuota > 0) ? cuota : deuda;
+  var deudaStr = parseFloat(montoMostrar || 0).toFixed(2);
+  
+  var bcp = getConfig('CUENTA_BCP_' + codigoSede) || getConfig('CUENTA_BCP_001') || "4019923315008";
+  var yape = getConfig('YAPE_' + codigoSede) || getConfig('YAPE_001') || "933 100 167";
+  
+  var bloqueCuentas = "━━━━━━━━━━━━━━━\n" +
+                      "💳 *Opciones de pago:*\n" +
+                      "🏦 *BCP:* ```" + bcp + "```\n" +
+                      "📱 *YAPE:* ```" + yape + "```\n" +
+                      "━━━━━━━━━━━━━━━\n" +
+                      "_Si ya pagó ignore este mensaje. ¡Gracias!_\n" +
+                      "📩 _¿Dudas? Consulta y paga aquí:_\n" +
+                      "🌐 https://grupoefectivo.vercel.app?cod=" + cod.toString().replace(/\s/g, '');
+
+  if (diasAtraso < 0) {
+    var fechaStr = vencimientoRaw instanceof Date ? Utilities.formatDate(vencimientoRaw, tz, "dd/MM/yyyy") : vencimientoRaw;
+    return "Hola, " + primerNombre + " 👋 🟢\n" +
+           "Le informamos que el " + fechaStr + " vence su cuota.\n\n" +
+           "💵 Monto: *S/. " + deudaStr + "*\n" +
+           bloqueCuentas;
+  } 
+  
+  if (diasAtraso === 0) {
+    return "Hola, " + primerNombre + " 👋 🟡\n" +
+           "Le comunicamos que *hoy vence* su cuota.\n\n" +
+           "💵 Monto: *S/. " + deudaStr + "*\n" +
+           bloqueCuentas;
+  }
+  
+  var strDias = diasAtraso === 1 ? " día*" : " días*";
+  var strCuotas = cuotasVencidas === 1 ? " cuota* vencida" : " cuotas* vencidas";
+  var emoji = diasAtraso <= 90 ? "🟠" : "🔴";
+  
+  return "Hola, " + primerNombre + " 👋 " + emoji + "\n" +
+         "Le informamos que tiene:\n\n" +
+         "⏰ *" + diasAtraso + strDias + " de atraso\n" +
+         "📌 *" + cuotasVencidas + strCuotas + "\n" +
+         "💵 Total: *S/. " + deudaStr + "*\n" +
+         bloqueCuentas;
+}
+
+function adminGetClientes(session, sedeContexto) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var resultado = [];
+  var rol = session ? session.rol : 'admin';
+  var oficina = session ? session.oficina : 'TODOS';
+  var asesorNombre = session ? session.nombre.toUpperCase() : '';
+  
+  var sedeCode = sedeContexto ? (sedeContexto.match(/(\d{3})/) ? sedeContexto.match(/(\d{3})/)[1] : sedeContexto) : '';
+
+  // Determinar qué hojas leer según oficina
+  var hojas = [];
+  obtenerHojasPorOficina(oficina).forEach(function(s) {
+    if (sedeCode && s.getName().indexOf(sedeCode) < 0) return;
+    hojas.push({hoja: s, oficina: s.getName()});
+  });
+
+  hojas.forEach(function(item) {
+    if (!item.hoja) return;
+    var data = item.hoja.getDataRange().getValues();
+    for (var i = 1; i < data.length; i++) {
+      var nombre = data[i][4] ? data[i][4].toString().trim() : "";
+      if (!nombre || nombre === "REVISAR") continue;
+
+      var asesor = data[i][3] ? data[i][3].toString().trim() : "";
+      var asesorUp = asesor.toUpperCase();
+
+      // EXCLUSIÓN: No incluir clientes en cartera castigada o asignados genéricamente a "CARTERA"
+      if (asesorUp.indexOf('CARTERA') >= 0) continue;
+
+      // Asesor solo ve sus propios clientes
+      if (rol === 'asesor' && asesorUp.indexOf(asesorNombre.split(' ')[0]) < 0) continue;
+
+      var celular = formatPhoneNumber(data[i][5]);
+      var colC = data[i][2] ? data[i][2].toString().trim() : "";
+      var colG = data[i][6] ? data[i][6].toString().trim() : "";
+      var codMostrar = colC ? colC : colG;
+      if (colC && colG && colC !== colG) codMostrar = colC + " / " + colG;
+      var cod = codMostrar;
+      var tipo = data[i][7] ? data[i][7].toString() : "";
+      var deuda = data[i][18] ? parseFloat(data[i][18]) : 0;
+      var diasRaw = data[i][20];
+      var diasColumna = (diasRaw === "" || isNaN(parseFloat(diasRaw))) ? -1 : parseFloat(diasRaw);
+      
+      var cuotas = data[i][19] ? parseFloat(data[i][19]) : 0;
+      var cuota = data[i][16] ? parseFloat(data[i][16]) : 0;
+      var vencimientoRaw = data[i][14];
+      
+      // Calcular fecha de vencimiento real
+      var fechaVenc = null;
+      if (vencimientoRaw instanceof Date) {
+        fechaVenc = new Date(vencimientoRaw.getTime());
+      } else if (typeof vencimientoRaw === 'string' && vencimientoRaw.indexOf('/') > 0) {
+        var partes = vencimientoRaw.split(' ')[0].split('/'); // Por si viene con hora
+        if (partes.length === 3) {
+          fechaVenc = new Date(partes[2], partes[1] - 1, partes[0]);
+        }
+      }
+
+      var diasAtrasoReales = -999;
+      if (fechaVenc) {
+        var hoy = new Date();
+        hoy.setHours(0,0,0,0);
+        fechaVenc.setHours(0,0,0,0);
+        
+        var diffTime = hoy.getTime() - fechaVenc.getTime();
+        diasAtrasoReales = Math.round(diffTime / (1000 * 60 * 60 * 24));
+      } else {
+        // Fallback a la columna original si no hay fecha válida
+        diasAtrasoReales = diasColumna;
+      }
+      
+      // OPTIMIZACIÓN: Solo enviar al cliente si:
+      // 1. Está vencido (diasAtrasoReales > 0)
+      // 2. Le toca hoy (diasAtrasoReales === 0)
+      if (diasAtrasoReales < 0 || diasAtrasoReales === -999) continue;
+
+      var vencimiento = vencimientoRaw ? (vencimientoRaw instanceof Date ? Utilities.formatDate(vencimientoRaw, Session.getScriptTimeZone(), "dd/MM/yyyy") : vencimientoRaw.toString()) : "";
+      var direccion = data[i][22] ? data[i][22].toString().trim() : "";
+      
+      var nombreHoja = item.hoja.getName().toUpperCase();
+      var matchSede = nombreHoja.match(/(\d{3})/);
+      var codigoSede = matchSede ? matchSede[1] : '001';
+      var mensaje = generarMensajeCobranza(nombre, vencimientoRaw, deuda, cuota, cod, diasAtrasoReales > 0 ? diasAtrasoReales : 0, cuotas, codigoSede);
+      var telefono = formatPhoneNumber(data[i][5]);
+      var voucher = data[i][27] ? data[i][27].toString().trim() : "";
+      var obs = data[i][29] ? data[i][29].toString().trim() : "";
+
+      resultado.push({
+        fila: i + 1,
+        hoja: item.hoja.getName(),
+        oficina: item.oficina,
+        nombre: nombre,
+        celular: celular,
+        cod: cod,
+        tipo: diasAtrasoReales > 0 ? 'MORA' : 'AL DÍA',
+        asesor: asesor,
+        deuda: deuda,
+        dias: diasAtrasoReales,
+        cuotas: cuotas,
+        cuota: cuota,
+        vencimiento: vencimiento,
+        direccion: direccion,
+        mensaje: mensaje,
+        telefono: telefono,
+        voucher: voucher,
+        obs: obs
+      });
+    }
+  });
+
+  return ContentService.createTextOutput(JSON.stringify(resultado))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function adminBuscarClienteGlobal(session, params) {
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var resultado = [];
+    var rol = session ? session.rol : 'admin';
+    var oficina = session ? session.oficina : 'TODOS';
+    var asesorNombre = session ? session.nombre.toUpperCase() : '';
+    
+    var query = params.q ? params.q.toString().trim().toUpperCase() : '';
+    if (query.length < 2) {
+      return ContentService.createTextOutput(JSON.stringify(resultado))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    var sedeContexto = params.sedeContexto || '';
+    var sedeCode = sedeContexto ? (sedeContexto.match(/(\d{3})/) ? sedeContexto.match(/(\d{3})/)[1] : sedeContexto) : '';
+
+    // Función helper para comprobar match
+    function matchesQuery(nombre, codPrincipal, codSecundario) {
+      var palabras = query.split(/\s+/).filter(function(p) { return p.length > 0; });
+      var nUp = (nombre || "").toUpperCase();
+      var c1 = (codPrincipal || "").toString().toUpperCase();
+      var c2 = (codSecundario || "").toString().toUpperCase();
+      
+      return palabras.every(function(p) {
+        if (/^\d+$/.test(p)) {
+          // Si es solo número, buscar exclusivamente en los códigos
+          return c1.indexOf(p) >= 0 || (c2 && c2.indexOf(p) >= 0);
+        }
+        // Si es texto, buscar exclusivamente en el nombre
+        return nUp.indexOf(p) >= 0;
+      });
+    }
+
+    // Función helper para comprobar match exacto y dar puntaje
+    function getMatchScore(nombre, codPrincipal, codSecundario) {
+      var queryStr = query.trim().toUpperCase();
+      var c1 = (codPrincipal || "").toString().toUpperCase();
+      var c2 = (codSecundario || "").toString().toUpperCase();
+      var nUp = (nombre || "").toUpperCase();
+
+      if (/^\d+$/.test(queryStr)) {
+        if (c1 === queryStr) return 40; // Exact Client Code (Highest Priority)
+        if (c2 === queryStr) return 30; // Exact Credit Code (Second Priority)
+        if (c1.indexOf(queryStr) === 0) return 25; // Starts with Client Code
+        if (c2.indexOf(queryStr) === 0) return 20; // Starts with Credit Code
+        if (c1.indexOf(queryStr) > 0) return 15; // Contains in Client Code
+        if (c2.indexOf(queryStr) > 0) return 10; // Contains in Credit Code
+        return 0;
+      } else {
+        if (nUp === queryStr) return 40; // Exact Name
+        if (nUp.indexOf(queryStr) === 0) return 20; // Starts with Name
+        return 10; // Contains in Name
+      }
+    }
+
+    // FASE 1: Buscar en BASE
+    var hojasBase = [];
+    obtenerHojasPorOficina(oficina).forEach(function(s) {
+      if (sedeCode && s.getName().indexOf(sedeCode) < 0) return;
+      hojasBase.push({hoja: s, oficina: s.getName()});
+    });
+
+    hojasBase.forEach(function(item) {
+      if (!item.hoja) return;
+      var data = item.hoja.getDataRange().getValues();
+      for (var i = 1; i < data.length; i++) {
+        var nombre = data[i][4] ? data[i][4].toString().trim() : "";
+        if (!nombre || nombre === "REVISAR") continue;
+
+        var asesor = data[i][3] ? data[i][3].toString() : "";
+        if (rol === 'asesor' && asesor.toUpperCase().indexOf(asesorNombre.split(' ')[0]) < 0) continue;
+
+        var celular = formatPhoneNumber(data[i][5]);
+        var colC = data[i][2] ? data[i][2].toString().trim() : ""; // DNI o Código según el usuario
+        var colG = data[i][6] ? data[i][6].toString().trim() : ""; // Código de crédito interno
+
+        // Buscar estrictamente usando Col C y Col G
+        if (matchesQuery(nombre, colC, colG)) {
+          var codMostrar = colC ? colC : colG; // Mostrar el Col C prioritariamente si existe
+          if (colC && colG && colC !== colG) codMostrar = colC + " / " + colG;
+
+          var dias = data[i][20] ? parseFloat(data[i][20]) : 0;
+          var estadoBadge = dias > 0 ? 'MORA' : 'AL DÍA';
+          var deuda = data[i][18] ? parseFloat(data[i][18]) : 0;
+          var cuotas = data[i][19] ? parseFloat(data[i][19]) : 0;
+          var cuota = data[i][16] ? parseFloat(data[i][16]) : 0;
+          var vencimientoRaw = data[i][14];
+          var vencimiento = vencimientoRaw ? (vencimientoRaw instanceof Date ? Utilities.formatDate(vencimientoRaw, Session.getScriptTimeZone(), "dd/MM/yyyy") : vencimientoRaw.toString()) : "";
+          
+          resultado.push({
+            fila: i + 1,
+            hoja: item.hoja.getName(),
+            oficina: item.oficina,
+            nombre: nombre,
+            celular: celular,
+            cod: codMostrar,
+            tipo: estadoBadge,
+            asesor: asesor,
+            deuda: deuda,
+            dias: dias,
+            cuotas: cuotas,
+            cuota: cuota,
+            vencimiento: vencimiento,
+            direccion: data[i][22] ? data[i][22].toString().trim() : "",
+            mensaje: '',
+            telefono: celular,
+            voucher: data[i][27] ? data[i][27].toString().trim() : "",
+            obs: data[i][29] ? data[i][29].toString().trim() : "",
+            score: getMatchScore(nombre, colC, colG)
+          });
+        }
+      }
+    });
+
+    // FASE 2: Buscar siempre en CARTAS (Inactivos) para no omitir coincidencias
+    var hojasCartas = obtenerHojasCartasPorOficina(oficina);
+    hojasCartas.forEach(function(hoja) {
+      if (!hoja) return;
+      if (sedeCode && hoja.getName().indexOf(sedeCode) < 0) return;
+      
+      var data = hoja.getDataRange().getValues();
+      for (var i = 1; i < data.length; i++) {
+        var codCliente = data[i][1] ? data[i][1].toString().trim() : "";
+        var nombre = data[i][2] ? data[i][2].toString().trim() : "";
+        if (!nombre && !codCliente) continue;
+
+        var celular = formatPhoneNumber(data[i][8]);
+        
+        if (matchesQuery(nombre, codCliente, "")) {
+          var asesor = data[i][3] ? data[i][3].toString() : "";
+          if (rol === 'asesor' && asesor.toUpperCase().indexOf(asesorNombre.split(' ')[0]) < 0) continue;
+
+          var vencimientoRaw = data[i][5];
+          var vencimiento = vencimientoRaw ? (vencimientoRaw instanceof Date ? Utilities.formatDate(vencimientoRaw, Session.getScriptTimeZone(), "dd/MM/yyyy") : vencimientoRaw.toString()) : "";
+          
+          resultado.push({
+            fila: i + 1,
+            hoja: hoja.getName(),
+            oficina: hoja.getName(),
+            nombre: nombre,
+            celular: celular,
+            cod: codCliente,
+            tipo: 'INACTIVO',
+            asesor: asesor,
+            deuda: 0,
+            dias: 0,
+            cuotas: 0,
+            cuota: 0,
+            vencimiento: vencimiento,
+            direccion: '',
+            mensaje: '',
+            telefono: celular,
+            voucher: '',
+            obs: data[i][12] ? data[i][12].toString().trim() : "",
+            score: getMatchScore(nombre, codCliente, "")
+          });
+        }
+      }
+    });
+
+    // Ordenar resultados: Mayor score primero
+    resultado.sort(function(a, b) {
+      return b.score - a.score;
+    });
+
+    // Limitar resultados
+    if (resultado.length > 50) resultado = resultado.slice(0, 50);
+
+    return ContentService.createTextOutput(JSON.stringify(resultado))
+      .setMimeType(ContentService.MimeType.JSON);
+      
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({error: "Backend Crash: " + err.toString()}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function adminGetDashboard(session, sedeContexto) {
+  var rol = session ? session.rol : 'admin';
+  var oficina = session ? session.oficina : 'TODOS';
+  var asesorNombre = session ? session.nombre.toUpperCase() : '';
+
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var tz = Session.getScriptTimeZone();
+  
+  var sedesLista = getConfigLista('SEDES');
+  if (sedesLista.length === 0) sedesLista = ['001-LA MERCED'];
+  // Solo se devuelven las sedes permitidas a las que el usuario puede acceder según su base (si no es admin)
+  var codigoOficina = oficina !== 'TODOS' ? (oficina.match(/(\d{3})/) ? oficina.match(/(\d{3})/)[1] : oficina) : '';
+  var sedesPermitidas = codigoOficina ? sedesLista.filter(function(s) { return s.indexOf(codigoOficina) >= 0; }) : sedesLista;
+  if (sedesPermitidas.length === 0) sedesPermitidas = sedesLista; // Failsafe para oficinas como "OPERACIONES" o "GERENCIA"
+  
+  var sedeActiva = sedeContexto || (sedesPermitidas.length > 0 ? sedesPermitidas[0] : '');
+  var sedeCode = sedeActiva ? (sedeActiva.match(/(\d{3})/) ? sedeActiva.match(/(\d{3})/)[1] : sedeActiva) : '';
+
+  // ── 1. Clientes (de hojas BASE) ──
+  var clientes = [];
+  var hojas = obtenerHojasPorOficina(oficina);
+  hojas.forEach(function(sheet) {
+    if (!sheet) return;
+    if (sedeCode && sheet.getName().indexOf(sedeCode) < 0) return;
+    var data = sheet.getDataRange().getValues();
+    for (var i = 1; i < data.length; i++) {
+      var nombre = data[i][4] ? data[i][4].toString().trim() : "";
+      if (!nombre || nombre === "REVISAR") continue;
+      var asesor = data[i][3] ? data[i][3].toString() : "";
+      if (rol === 'asesor' && asesor.toUpperCase().indexOf(asesorNombre.split(' ')[0]) < 0) continue;
+      var colC = data[i][2] ? data[i][2].toString().trim() : "";
+      var colG = data[i][6] ? data[i][6].toString().trim() : "";
+      var codMostrar = colC ? colC : colG;
+      if (colC && colG && colC !== colG) codMostrar = colC + " / " + colG;
+      
+      clientes.push({
+        fila: i + 1, hoja: sheet.getName(), oficina: sheet.getName(),
+        nombre: nombre,
+        celular: formatPhoneNumber(data[i][5]),
+        cod: codMostrar,
+        tipo: data[i][7] ? data[i][7].toString() : "",
+        asesor: asesor,
+        vencimiento: data[i][14] ? (data[i][14] instanceof Date ? Utilities.formatDate(data[i][14], tz, "dd/MM/yyyy") : data[i][14].toString()) : "",
+        cuota: data[i][16] ? parseFloat(data[i][16]) : 0,
+        deuda: data[i][18] ? parseFloat(data[i][18]) : 0,
+        dias: data[i][20] ? parseFloat(data[i][20]) : 0,
+        cuotas: data[i][19] ? parseFloat(data[i][19]) : 0,
+        direccion: data[i][22] ? data[i][22].toString().trim() : "",
+        mensaje: generarMensajeCobranza(nombre, data[i][14], parseFloat(data[i][18]||0), parseFloat(data[i][16]||0), data[i][6], parseFloat(data[i][20]||0), parseFloat(data[i][19]||0), sheet.getName().toUpperCase().match(/(\d{3})/) ? sheet.getName().toUpperCase().match(/(\d{3})/)[1] : '001'),
+        telefono: formatPhoneNumber(data[i][5]),
+        voucher: data[i][27] ? data[i][27].toString().trim() : "",
+        obs: data[i][29] ? data[i][29].toString().trim() : ""
+      });
+    }
+  });
+
+  var resultPayload = { 
+    clientes: clientes, 
+    sedes: sedesPermitidas, 
+    sedeActiva: sedeActiva 
+  };
+  
+  var result = JSON.stringify(resultPayload);
+
+  return ContentService.createTextOutput(result)
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function adminGetVouchers(session, sedeContexto) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var historial = ss.getSheetByName("HISTORIAL");
+  if (!historial || historial.getLastRow() < 2) {
+    return ContentService.createTextOutput(JSON.stringify([]))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  var data = historial.getDataRange().getValues();
+  var resultado = [];
+  var tz = Session.getScriptTimeZone();
+
+  for (var i = 1; i < data.length; i++) {
+    var voucher = data[i][8] ? data[i][8].toString().trim() : "";
+    var estado  = data[i][7] ? data[i][7].toString().trim() : "";
+    if (!voucher || estado !== "PENDIENTE VERIFICAR") continue;
+
+    var fechaVal = data[i][0];
+    var fechaStr = fechaVal instanceof Date
+      ? Utilities.formatDate(fechaVal, tz, "yyyy-MM-dd'T'HH:mm:ss")
+      : (fechaVal ? fechaVal.toString() : "");
+
+    resultado.push({
+      fila:      i + 1,
+      nombre:    data[i][2] ? data[i][2].toString().trim() : "",
+      cod:       data[i][3] ? data[i][3].toString().trim() : "",
+      asesor:    data[i][4] ? data[i][4].toString().trim() : "",
+      tipo:      data[i][5] ? data[i][5].toString().trim() : "",
+      monto:     data[i][6] ? parseFloat(data[i][6]) : 0,
+      voucher:   voucher,
+      fechaPago: fechaStr
+    });
+  }
+
+  return ContentService.createTextOutput(JSON.stringify(resultado))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function adminGetHistorial(session, sedeContexto) {
+  if (!session) return ContentService.createTextOutput(JSON.stringify({error: "Sesión requerida"}))
+    .setMimeType(ContentService.MimeType.JSON);
+
+  var historial = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("HISTORIAL");
+  if (!historial) return ContentService.createTextOutput(JSON.stringify([]))
+    .setMimeType(ContentService.MimeType.JSON);
+
+  var data = historial.getDataRange().getValues();
+  var resultado = [];
+  for (var i = 1; i < data.length; i++) {
+    var fechaVal = data[i][0];
+    var fechaStr = "";
+    if (fechaVal instanceof Date) {
+      fechaStr = Utilities.formatDate(fechaVal, Session.getScriptTimeZone(), "dd/MM/yyyy");
+    } else {
+      fechaStr = fechaVal ? fechaVal.toString() : "";
+    }
+    resultado.push({
+      fecha: fechaStr,
+      hora: data[i][1] ? data[i][1].toString() : "",
+      nombre: data[i][2] ? data[i][2].toString() : "",
+      cod: data[i][3] ? data[i][3].toString() : "",
+      asesor: data[i][4] ? data[i][4].toString() : "",
+      tipo: data[i][5] ? data[i][5].toString() : "",
+      monto: data[i][6] ? parseFloat(data[i][6]) : 0,
+      estado: data[i][7] ? data[i][7].toString() : "",
+      voucher: data[i][8] ? data[i][8].toString() : ""
+    });
+  }
+  return ContentService.createTextOutput(JSON.stringify(resultado))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function adminVerificarPago(fila, nombre, cod, session) {
+  // Solo se actualiza HISTORIAL. Ya no se toca BASE porque el sistema externo
+  // la actualiza automaticamente cuando se ingresa el pago.
+  // Se busca por codigo de credito (identificador unico) + estado PENDIENTE.
+  if (!cod) {
+    return ContentService.createTextOutput(JSON.stringify({error: "Codigo de credito requerido"}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  var historial = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("HISTORIAL");
+  if (!historial) {
+    return ContentService.createTextOutput(JSON.stringify({error: "Hoja HISTORIAL no encontrada"}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  var histData = historial.getDataRange().getValues();
+  var filasActualizadas = 0;
+
+  for (var j = 1; j < histData.length; j++) {
+    var codFila    = histData[j][3] ? histData[j][3].toString().trim() : "";
+    var estadoFila = histData[j][7] ? histData[j][7].toString().trim() : "";
+    if (codFila === cod.toString().trim() && estadoFila === "PENDIENTE VERIFICAR") {
+      historial.getRange(j + 1, 8).setValue("VERIFICADO ✅");
+      filasActualizadas++;
+      break; // un solo registro pendiente por codigo
+    }
+  }
+
+  if (filasActualizadas === 0) {
+    return ContentService.createTextOutput(JSON.stringify({error: "No se encontro voucher pendiente para ese codigo"}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+
+
+  return ContentService.createTextOutput(JSON.stringify({success: true}))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+// ═══════════════════════════════════════════
+// ──── CARTAS DE NO ADEUDO ────────────────
+// ═══════════════════════════════════════════
+
+// Helper: obtener hojas CARTAS (mismo patrón que obtenerHojasBase)
+function obtenerHojasCartas() {
+  return SpreadsheetApp.getActiveSpreadsheet().getSheets()
+    .filter(function(s) { return s.getName().indexOf('CARTAS') === 0; });
+}
+
+// Helper: filtrar hojas CARTAS por oficina/sede
+function obtenerHojasCartasPorOficina(oficina) {
+  var todas = obtenerHojasCartas();
+  if (!oficina || oficina === 'TODOS') return todas;
+  var filtradas = todas.filter(function(s) {
+    return s.getName().toUpperCase().indexOf(oficina.toUpperCase()) >= 0;
+  });
+  return filtradas.length > 0 ? filtradas : todas;
+}
+
+function cartasBuscarClientes(params, session) {
+  try {
+    var oficina = session ? session.oficina : 'TODOS';
+    var sedeContexto = params.sedeContexto || '';
+    var sedeCode = sedeContexto ? (sedeContexto.match(/(\d{3})/) ? sedeContexto.match(/(\d{3})/)[1] : sedeContexto) : '';
+
+    // Obtener hojas CARTAS filtradas por oficina del usuario
+    var hojas = obtenerHojasCartasPorOficina(oficina);
+
+  // Si hay sedeContexto, filtrar aún más
+  if (sedeCode) {
+    hojas = hojas.filter(function(s) { return s.getName().indexOf(sedeCode) >= 0; });
+  }
+
+  if (hojas.length === 0) {
+    return ContentService.createTextOutput(JSON.stringify({error: 'No se encontraron hojas CARTAS para esta sede. Crea una hoja con nombre "CARTAS 001-..." en tu Spreadsheet.'}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  var q = params.q ? params.q.toString().trim().toUpperCase() : '';
+  var tz = Session.getScriptTimeZone();
+  var resultado = [];
+
+  // Leer REGISTRO_CARTAS para cruzar datos
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var hojaRegistro = ss.getSheetByName('REGISTRO_CARTAS');
+  var emitidasMapa = {};
+  if (hojaRegistro) {
+    var regData = hojaRegistro.getDataRange().getValues();
+    for (var r = 0; r < regData.length; r++) {
+      var cod = regData[r][1] ? regData[r][1].toString().trim() : '';
+      var fechaEmi = regData[r][0];
+      var fId = regData[r][5] ? regData[r][5].toString().trim() : '';
+      var estadoStr = regData[r][6] ? regData[r][6].toString().trim() : 'EMITIDA'; // Por defecto si son antiguas
+      if (cod) {
+        emitidasMapa[cod] = {
+          fecha: fechaEmi instanceof Date ? Utilities.formatDate(fechaEmi, tz, "dd/MM/yyyy") : fechaEmi.toString(),
+          fileId: fId,
+          estado: estadoStr
+        };
+      }
+    }
+  }
+
+  for (var h = 0; h < hojas.length; h++) {
+    var hoja = hojas[h];
+    var nombreHoja = hoja.getName();
+    var data = hoja.getDataRange().getValues();
+
+    for (var i = 1; i < data.length; i++) {
+      var codCliente = data[i][1] ? data[i][1].toString().trim() : '';
+      var nombres    = data[i][2] ? data[i][2].toString().trim() : '';
+      var celular    = data[i][8] ? data[i][8].toString().replace(/\s/g,'') : '';
+
+      // Si no hay nombre, saltar fila vacía
+      if (!nombres) continue;
+
+      // Filtrar por búsqueda (si hay query) — lógica inteligente por campo
+      if (q && q.length >= 2) {
+        var palabras = q.split(/\s+/).filter(function(p) { return p.length > 0; });
+        var nombreUp = nombres.toUpperCase();
+        var codUp = codCliente.toUpperCase();
+        var celUp = celular.toUpperCase();
+        var match = palabras.every(function(p) {
+          if (/^\d+$/.test(p)) {
+            // Numérico corto (≤5 dígitos): búsqueda parcial en código
+            // Numérico largo (≥6 dígitos): búsqueda en celular
+            return p.length <= 5 ? codUp.indexOf(p) >= 0 : celUp.indexOf(p) >= 0;
+          }
+          return nombreUp.indexOf(p) >= 0;
+        });
+        if (!match) continue;
+      }
+
+      // Formatear fechas
+      var fechaVal = data[i][0];
+      var fechaStr = '';
+      if (fechaVal instanceof Date) {
+        fechaStr = Utilities.formatDate(fechaVal, tz, "dd/MM/yyyy HH:mm");
+      } else if (fechaVal) {
+        fechaStr = fechaVal.toString();
+      }
+
+      var fDesemb = data[i][4];
+      var fDesembStr = '';
+      if (fDesemb instanceof Date) {
+        fDesembStr = Utilities.formatDate(fDesemb, tz, "dd/MM/yyyy");
+      } else if (fDesemb) {
+        fDesembStr = fDesemb.toString();
+      }
+
+      var fCancel = data[i][5];
+      var fCancelStr = '';
+      if (fCancel instanceof Date) {
+        fCancelStr = Utilities.formatDate(fCancel, tz, "dd/MM/yyyy HH:mm");
+      } else if (fCancel) {
+        fCancelStr = fCancel.toString();
+      }
+
+      var emision = emitidasMapa[codCliente];
+
+      resultado.push({
+        fila: i + 1,
+        hoja: nombreHoja,
+        fecha: fechaStr,
+        codCliente: codCliente,
+        nombres: nombres,
+        ultCreditos: data[i][3] ? data[i][3].toString().trim() : '',
+        fDesembolso: fDesembStr,
+        fCancelacion: fCancelStr,
+        diasReactivacion: data[i][6] ? parseInt(data[i][6]) : 0,
+        calificacion: data[i][7] ? data[i][7].toString().trim() : '',
+        celular: celular,
+        activos: data[i][9] ? data[i][9].toString().trim() : '',
+        cancelados: data[i][10] ? data[i][10].toString().trim() : '',
+        total: data[i][11] ? data[i][11].toString().trim() : '',
+        observaciones: data[i][12] ? data[i][12].toString().trim() : '',
+        cartaEmitida: emision ? emision.fecha : null,
+        fileId: emision ? emision.fileId : null,
+        estadoCarta: emision ? emision.estado : null
+      });
+
+      // Limitar resultados globales
+      if (resultado.length >= 150) break;
+    }
+    // Corte global
+    if (resultado.length >= 150) break;
+  }
+
+    return ContentService.createTextOutput(JSON.stringify(resultado))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (e) {
+    return ContentService.createTextOutput(JSON.stringify({error: "Error interno (Buscar): " + e.toString()}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function cartasGetPendientes(params, session) {
+  try {
+    var rol = session ? session.rol : 'asesor';
+
+    var sedeContexto = params.sedeContexto || '';
+    var sedeCode = sedeContexto ? (sedeContexto.match(/(\d{3})/) ? sedeContexto.match(/(\d{3})/)[1] : sedeContexto) : '';
+    var oficinaAdmin = session ? session.oficina : 'TODOS';
+
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var hojaRegistro = ss.getSheetByName('REGISTRO_CARTAS');
+  var resultados = [];
+
+  if (hojaRegistro) {
+    var regData = hojaRegistro.getDataRange().getValues();
+    var tz = Session.getScriptTimeZone();
+    
+    // Iteramos de abajo hacia arriba para los más recientes primero
+    for (var r = regData.length - 1; r >= 0; r--) {
+      var estado = regData[r][6] ? regData[r][6].toString().trim() : '';
+      if (!estado) continue; // Salta filas vacías
+
+      var oficinaReq = regData[r][3] ? regData[r][3].toString().trim().toUpperCase() : '';
+      
+      // Filtros de oficina
+      if (oficinaAdmin !== 'TODOS' && oficinaReq !== 'TODOS' && oficinaReq.indexOf(oficinaAdmin) < 0) continue;
+      if (sedeCode && sedeCode.toUpperCase() !== 'TODOS' && oficinaReq !== 'TODOS' && oficinaReq.indexOf(sedeCode) < 0) continue;
+
+      var fechaVal = regData[r][0];
+      var fechaStr = fechaVal instanceof Date ? Utilities.formatDate(fechaVal, tz, "dd/MM/yyyy HH:mm") : fechaVal.toString();
+      var codCliente = regData[r][1] ? regData[r][1].toString().trim() : '';
+      var clienteNombre = regData[r][2] ? regData[r][2].toString().trim() : '';
+      var asesorReq = regData[r][4] ? regData[r][4].toString().trim() : '';
+      var fileId = regData[r][5] ? regData[r][5].toString().trim() : '';
+      var celularReq = regData[r][8] ? regData[r][8].toString().trim() : ''; // O la columna que tenga el celular si la hay
+      
+      resultados.push({
+        fecha: fechaStr,
+        codCliente: codCliente,
+        nombres: clienteNombre,
+        oficina: oficinaReq,
+        asesor: asesorReq,
+        estado: estado,
+        fileId: fileId,
+        celular: celularReq
+      });
+      
+      if (resultados.length >= 100) break; // Límite de 100 registros para rendimiento
+    }
+  }
+
+    return ContentService.createTextOutput(JSON.stringify(resultados))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (e) {
+    return ContentService.createTextOutput(JSON.stringify({error: "Error interno (Pendientes): " + e.toString()}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+
+function obtenerCorreosAdmins(oficina) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var hojaAcc = ss.getSheetByName('ACCESOS');
+  if (!hojaAcc) return [];
+  var data = hojaAcc.getDataRange().getValues();
+  var correos = [];
+  for (var i = 1; i < data.length; i++) {
+    var correo = data[i][0] ? data[i][0].toString().trim() : '';
+    var rol = data[i][2] ? data[i][2].toString().trim().toLowerCase() : '';
+    var ofi = data[i][4] ? data[i][4].toString().trim().toUpperCase() : '';
+    
+    if (rol === 'admin' && correo) {
+      if (ofi === 'TODOS' || ofi === oficina.toUpperCase() || oficina === 'TODOS') {
+        correos.push(correo);
+      }
+    }
+  }
+  return correos;
+}
+
+function cartasGenerarYNotificar(params, session) {
+  var rol = session ? session.rol : 'asesor';
+  if (rol !== 'admin') {
+    return ContentService.createTextOutput(JSON.stringify({error: "No tienes permisos para generar cartas. Solo la administración puede hacerlo."}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(15000)) {
+    return ContentService.createTextOutput(JSON.stringify({error: "El servidor de generación de cartas está ocupado. Intenta de nuevo en unos segundos."}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  try {
+    var clienteNombre = params.cliente || 'Desconocido';
+    var clienteCodigo = params.codigo || 'S/N';
+    var oficina = params.sede || (session ? session.oficina : 'TODOS');
+    var asesorNombre = session ? session.nombre : 'Admin Desconocido';
+    
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var hojaRegistro = ss.getSheetByName('REGISTRO_CARTAS');
+    var filaExistenteIndex = -1;
+    var correoCajero = "";
+    
+    // 1. Validar si ya existe en REGISTRO_CARTAS
+    if (hojaRegistro) {
+      var regData = hojaRegistro.getDataRange().getValues();
+      for (var r = 0; r < regData.length; r++) {
+        var cod = regData[r][1] ? regData[r][1].toString().trim() : '';
+        if (cod === clienteCodigo.toString().trim()) {
+           var estado = regData[r][6] ? regData[r][6].toString().trim() : '';
+           if (estado === "EMITIDA") {
+             return ContentService.createTextOutput(JSON.stringify({error: "Esta carta ya fue generada previamente."})).setMimeType(ContentService.MimeType.JSON);
+           } else {
+             // Es una solicitud pendiente
+             filaExistenteIndex = r + 1;
+             correoCajero = regData[r][7] ? regData[r][7].toString().trim() : '';
+             break;
+           }
+        }
+      }
+    }
+    
+    var tz = Session.getScriptTimeZone();
+    var fechaActual = Utilities.formatDate(new Date(), tz, "dd 'de' MMMM 'de' yyyy");
+    
+    // 2. Clonar plantilla de Google Docs
+    var templateId = "1kHo1xvB08pg0ZD2f_Cp50-8ZtW4UzmoviAiJ6tBL52I";
+    var docName = "Carta_No_Adeudo_" + clienteCodigo + "_" + new Date().getTime();
+    var templateFile = DriveApp.getFileById(templateId);
+    var copyFile = templateFile.makeCopy(docName);
+    var doc = DocumentApp.openById(copyFile.getId());
+    var body = doc.getBody();
+    
+    // Reemplazar etiquetas en la plantilla
+    body.replaceText("{{NOMBRE}}", clienteNombre.toUpperCase());
+    body.replaceText("{{CODIGO}}", clienteCodigo);
+    body.replaceText("{{FECHA}}", fechaActual);
+    body.replaceText("{{OFICINA}}", oficina);
+    body.replaceText("{{ASESOR}}", asesorNombre);
+    
+    doc.saveAndClose();
+    
+    // 3. Exportar a PDF y guardar en carpeta específica
+    var docFile = DriveApp.getFileById(doc.getId());
+    var pdfBlob = docFile.getAs("application/pdf");
+    pdfBlob.setName("Carta_No_Adeudo_" + clienteCodigo + ".pdf");
+    
+    // 5. Eliminar documento editable temporal
+    docFile.setTrashed(true);
+    
+    // 4. Guardar en carpeta específica en Drive
+    var folderName = "Cartas de No Adeudo (PDFs)";
+    var folders = DriveApp.getFoldersByName(folderName);
+    var folder = folders.hasNext() ? folders.next() : DriveApp.createFolder(folderName);
+    var savedFile = folder.createFile(pdfBlob);
+    try {
+      savedFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    } catch (eShare) {
+      Logger.log("Error al compartir archivo: " + eShare.toString());
+    }
+    var fileId = savedFile.getId();
+    
+    // 5. Registrar o Actualizar en la hoja REGISTRO_CARTAS
+    if (hojaRegistro) {
+      if (filaExistenteIndex > -1) {
+        hojaRegistro.getRange(filaExistenteIndex, 6).setValue(fileId);
+        hojaRegistro.getRange(filaExistenteIndex, 7).setValue("EMITIDA");
+        hojaRegistro.getRange(filaExistenteIndex, 1).setValue(new Date());
+      } else {
+        hojaRegistro.appendRow([new Date(), clienteCodigo, clienteNombre, oficina, asesorNombre, fileId, "EMITIDA", ""]);
+      }
+    }
+    
+    // 6. Obtener correos y Enviar
+    if (correoCajero && correoCajero.indexOf("@") > -1) {
+       MailApp.sendEmail({
+        to: correoCajero,
+        subject: "✅ Solicitud Aprobada - Carta de " + clienteNombre,
+        body: "Hola,\n\nLa solicitud para generar la Carta de No Adeudo de " + clienteNombre + " ha sido aprobada y generada por " + asesorNombre + ".\n\nYa puede descargar el documento entrando nuevamente al sistema administrativo en la sección de Cartas.\n\nSaludos,\nGerencia Grupo Efectivo"
+      });
+    } else {
+      var correos = obtenerCorreosAdmins(oficina);
+      if (correos.length > 0) {
+        var subject = "Carta de No Adeudo Generada - " + clienteNombre + " (" + clienteCodigo + ")";
+        var bodyEmail = "Hola,\n\n" +
+          "El administrador " + asesorNombre + " ha generado una Constancia de No Adeudo para el cliente " + clienteNombre + " (Código: " + clienteCodigo + ").\n\n" +
+          "Adjunto a este correo encontrará el documento PDF generado.\n\n" +
+          "Saludos,\nSistema Grupo Efectivo";
+          
+        MailApp.sendEmail({
+          to: correos.join(","),
+          subject: subject,
+          body: bodyEmail,
+          attachments: [pdfBlob]
+        });
+      }
+    }
+    
+    // 7. Retornar PDF al frontend (en Base64)
+    var base64 = Utilities.base64Encode(pdfBlob.getBytes());
+    return ContentService.createTextOutput(JSON.stringify({
+      success: true, 
+      pdfBase64: base64,
+      filename: savedFile.getName(),
+      fileId: fileId
+    })).setMimeType(ContentService.MimeType.JSON);
+    
+  } catch (e) {
+    return ContentService.createTextOutput(JSON.stringify({error: "Error al generar carta: " + e.toString()}))
+      .setMimeType(ContentService.MimeType.JSON);
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function cartasDescargarExistente(params, session) {
+  try {
+    var fileId = params.fileId;
+    if (!fileId) return ContentService.createTextOutput(JSON.stringify({error: "ID de archivo no proporcionado"})).setMimeType(ContentService.MimeType.JSON);
+    
+    var file = DriveApp.getFileById(fileId);
+    var base64 = Utilities.base64Encode(file.getBlob().getBytes());
+    
+    return ContentService.createTextOutput(JSON.stringify({
+      success: true,
+      pdfBase64: base64,
+      filename: file.getName()
+    })).setMimeType(ContentService.MimeType.JSON);
+  } catch (e) {
+    return ContentService.createTextOutput(JSON.stringify({error: "Error al descargar carta desde Drive: " + e.toString()})).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function cartasSolicitarAprobacion(params, session) {
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(15000)) {
+    return ContentService.createTextOutput(JSON.stringify({error: "El servidor está ocupado. Intenta de nuevo en unos segundos."}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  try {
+    var clienteNombre = params.cliente || 'Desconocido';
+    var clienteCodigo = params.codigo || 'S/N';
+    var oficina = params.sede || (session ? session.oficina : 'TODOS');
+    var asesorNombre = session ? session.nombre : 'Asesor Desconocido';
+    var correoCajero = session ? session.correo : '';
+    
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var hojaRegistro = ss.getSheetByName('REGISTRO_CARTAS');
+    if (!hojaRegistro) return ContentService.createTextOutput(JSON.stringify({error: "No existe hoja REGISTRO_CARTAS"})).setMimeType(ContentService.MimeType.JSON);
+    
+    // Verificar si ya está solicitada o emitida
+    var regData = hojaRegistro.getDataRange().getValues();
+    for (var r = 0; r < regData.length; r++) {
+      var cod = regData[r][1] ? regData[r][1].toString().trim() : '';
+      if (cod === clienteCodigo.toString().trim()) {
+         return ContentService.createTextOutput(JSON.stringify({error: "Este cliente ya tiene una solicitud o carta emitida."})).setMimeType(ContentService.MimeType.JSON);
+      }
+    }
+    
+    // Registrar solicitud
+    hojaRegistro.appendRow([new Date(), clienteCodigo, clienteNombre, oficina, asesorNombre, "", "SOLICITADA", correoCajero]);
+    
+    // Notificar a gerencia
+    var correosAdmin = obtenerCorreosAdmins(oficina);
+    if (correosAdmin.length > 0) {
+      var subject = "NUEVA SOLICITUD: Carta de No Adeudo - " + clienteNombre;
+      var bodyEmail = "Hola,\n\n" +
+        "El cajero/asesor " + asesorNombre + " (" + correoCajero + ") ha solicitado la aprobación de una Carta de No Adeudo para el cliente " + clienteNombre + " (Código: " + clienteCodigo + ").\n\n" +
+        "Por favor ingrese al sistema administrativo en la sección 'Cartas de No Adeudo' para revisarla y darle al botón de 'Aprobar y Generar'.\n\n" +
+        "Saludos,\nSistema Grupo Efectivo";
+      MailApp.sendEmail({
+        to: correosAdmin.join(","),
+        subject: subject,
+        body: bodyEmail
+      });
+    }
+    
+    return ContentService.createTextOutput(JSON.stringify({success: true})).setMimeType(ContentService.MimeType.JSON);
+  } catch(e) {
+    return ContentService.createTextOutput(JSON.stringify({error: "Error al registrar solicitud: " + e.toString()})).setMimeType(ContentService.MimeType.JSON);
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+
+
+
+
+// ── Helper: leer Config clave-valor (con cache por ejecución) ──
+function getConfig(clave) {
+  if (!_configCache) {
+    _configCache = {};
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName("Config");
+    if (sheet && sheet.getLastRow() >= 2) {
+      sheet.getRange(2, 1, sheet.getLastRow() - 1, 2).getValues().forEach(function(r) {
+        if (r[0]) _configCache[String(r[0]).trim().toUpperCase()] = String(r[1]).trim();
+      });
+    }
+  }
+  return _configCache[clave.toUpperCase()] || null;
+}
+
+function getConfigLista(clave) {
+  var val = getConfig(clave);
+  if (!val) return [];
+  return val.split(',').map(function(s) { return s.trim(); }).filter(Boolean);
+}
+
+// ── Helper: obtener hoja BASE por código de crédito (col G = índice 6) ──
+// ═══════════════════════════════════════════════════════
+// ──── CACHE DE HOJAS BASE (evita releer Sheets c/vez) ─
+// ═══════════════════════════════════════════════════════
+// CacheService guarda los datos de BASE en memoria 4 min.
+// Se invalida automaticamente al confirmar un pago (doPost).
+var CACHE_TTL = 240; // segundos (4 minutos)
+var CACHE_KEY_PREFIX = 'base_data_';
+
+function invalidarCacheBase() {
+  try {
+    var cache = CacheService.getScriptCache();
+    var hojas = SpreadsheetApp.getActiveSpreadsheet().getSheets()
+      .filter(function(s) { return s.getName().indexOf('BASE') === 0; });
+    hojas.forEach(function(h) {
+      cache.remove(CACHE_KEY_PREFIX + h.getName());
+    });
+  } catch(e) { Logger.log('invalidarCacheBase error: ' + e); }
+}
+
+function getDatosBase(sheet) {
+  try {
+    var cache = CacheService.getScriptCache();
+    var key = CACHE_KEY_PREFIX + sheet.getName();
+    var cached = cache.get(key);
+    if (cached) return JSON.parse(cached);
+    var data = sheet.getDataRange().getValues();
+    // CacheService tiene limite de 100KB por key — guardar solo columnas necesarias
+    var reducido = data.map(function(row) {
+      return [row[3], row[4], row[5], row[6], row[7], row[14], row[16], row[18], row[19], row[20], row[22]];
+    });
+    try { cache.put(key, JSON.stringify(reducido), CACHE_TTL); } catch(e) {}
+    return reducido;
+  } catch(e) {
+    return sheet.getDataRange().getValues().map(function(row) {
+      return [row[3], row[4], row[5], row[6], row[7], row[14], row[16], row[18], row[19], row[20], row[22]];
+    });
+  }
+}
+
+// Índices en el array reducido (en vez de los originales)
+// 0=asesor(3), 1=nombres(4), 2=celular(5), 3=cod(6), 4=tipo(7),
+// 5=vencimiento(14), 6=cuota(16), 7=deuda(18), 8=cuotasVenc(19), 9=diasAtraso(20), 10=direccion(22)
+
+function obtenerHojaPorCod(cod) {
+  cod = cod ? cod.toString().trim() : "";
+  var hojas = obtenerHojasBase();
+  for (var h = 0; h < hojas.length; h++) {
+    var data = getDatosBase(hojas[h]);
+    for (var i = 1; i < data.length; i++) {
+      var codFila = data[i][3] ? data[i][3].toString().trim() : ""; // índice 3 = col 6 original
+      if (codFila === cod) return { hoja: hojas[h], fila: i + 1, data: data[i], reducido: true };
+    }
+  }
+  return null;
+}
+
+// ── Helper: obtener todas las hojas BASE ──
+function obtenerHojasBase() {
+  return SpreadsheetApp.getActiveSpreadsheet().getSheets()
+    .filter(function(s) { return s.getName().indexOf('BASE') === 0; });
+}
+
+// ── Helper: filtrar hojas BASE por oficina ──
+function obtenerHojasPorOficina(oficina) {
+  var todas = obtenerHojasBase();
+  if (!oficina || oficina === 'TODOS') return todas;
+  var filtradas = todas.filter(function(s) {
+    return s.getName().toUpperCase().indexOf(oficina.toUpperCase()) >= 0;
+  });
+  return filtradas.length > 0 ? filtradas : todas;
+}
+
+// ── Helper: obtener o crear carpeta en Drive ──
+function obtenerOCrearCarpeta(padre, nombre) {
+  var iter = padre ? padre.getFoldersByName(nombre) : DriveApp.getFoldersByName(nombre);
+  if (iter.hasNext()) return iter.next();
+  return padre ? padre.createFolder(nombre) : DriveApp.createFolder(nombre);
+}
+
+
+
+
+
+function autorizarDrive() {
+  DriveApp.getFoldersByName("test");
+  MailApp.sendEmail(Session.getActiveUser().getEmail(), "Test autorización", "OK");
+}
+
+function diagnosticarToken() {
+  var hojas = obtenerHojasBase();
+  hojas.forEach(function(sheet) {
+    Logger.log("=== Hoja: " + sheet.getName() + " ===");
+    var data = sheet.getDataRange().getValues();
+    if (data.length > 1) {
+      var fila2 = data[1];
+      for (var j = 27; j < 35; j++) {
+        Logger.log("Col " + (j+1) + ": [" + fila2[j] + "]");
+      }
+      Logger.log("Total columnas: " + fila2.length);
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════
+// ──────── MÓDULO CAJA CHICA ─────────────────
+// ═══════════════════════════════════════════════
+
+var CAJA_SHEET_MOVIMIENTOS = "Movimientos";
+var CAJA_SHEET_CONFIG = "Config";
+var CAJA_SHEET_ARQUEOS = "Arqueos";
+
+// Carpeta Drive y límite de alerta se leen desde Config (hoja)
+
+function cajaGetDatos(sedeContexto, session) {
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName(CAJA_SHEET_MOVIMIENTOS);
+    var oficina = session ? session.oficina : 'TODOS';
+
+    // Leer categorías y sedes desde Config (clave-valor)
+    var cats_lista = getConfigLista('CATEGORIAS');
+    if (cats_lista.length === 0) cats_lista = ['Alimentos','Transporte','Servicios','otros'];
+    var sedes_lista = getConfigLista('SEDES');
+    if (sedes_lista.length === 0) sedes_lista = ['001-LA MERCED'];
+
+    if (!sheet || sheet.getLastRow() < 2) {
+      return ContentService.createTextOutput(JSON.stringify({
+        movimientos: [], saldo: 0,
+        categorias: cats_lista, sedes: sedes_lista,
+        sedeActiva: sedeContexto !== undefined && sedeContexto !== null ? sedeContexto : sedes_lista[0],
+        metricas: {saldoNeto:0, totalEgresos:0, totalIngresos:0, topGastos:[]}
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // Determinar sede activa
+    var sedeTarget = sedeContexto;
+    if (!sedeTarget && oficina !== 'TODOS') sedeTarget = oficina;
+    if (!sedeTarget || sedeTarget === 'todos') sedeTarget = '';
+    
+    // Normalizar sedeTarget al nombre completo de la lista de sedes (ej: "001-LM" -> "001-LA MERCED")
+    if (sedeTarget && sedeTarget !== 'TODOS') {
+      var codigoSede = sedeTarget.match(/(\d{3})/) ? sedeTarget.match(/(\d{3})/)[1] : sedeTarget;
+      var sedeEncontrada = sedes_lista.filter(function(s) { return s.indexOf(codigoSede) >= 0; });
+      if (sedeEncontrada.length > 0) sedeTarget = sedeEncontrada[0];
+    }
+
+    var data = sheet.getRange(2, 1, sheet.getLastRow()-1, 10).getValues();
+    var saldo = 0, ing = 0, egr = 0, cats = {};
+    var movs = [];
+
+    data.forEach(function(r) {
+      if (!r[1]) return;
+      if (sedeTarget && String(r[9] || '') !== sedeTarget) return;
+
+      var monto = parseFloat(r[4]) || 0;
+      var tipo = String(r[5]);
+      if (tipo === 'Ingreso') saldo += monto; else saldo -= monto;
+
+      var fechaStr = '';
+      try {
+        fechaStr = r[1] instanceof Date ?
+          Utilities.formatDate(r[1], Session.getScriptTimeZone(), 'yyyy-MM-dd') :
+          String(r[1]);
+      } catch(e) { fechaStr = String(r[1]); }
+
+      movs.push({
+        id: String(r[0]),
+        fecha: fechaStr,
+        descripcion: String(r[2] || ''),
+        categoria: String(r[3] || ''),
+        monto: monto,
+        tipo: tipo,
+        sustentoUrl: String(r[8] || ''),
+        sede: String(r[9] || '')
+      });
+
+      if (tipo === 'Ingreso') ing += monto;
+      else { egr += monto; cats[String(r[3])] = (cats[String(r[3])] || 0) + monto; }
+    });
+
+    movs.sort(function(a, b) { return b.fecha.localeCompare(a.fecha); });
+
+    var top = Object.keys(cats).map(function(k) {
+      return {categoria: k, monto: cats[k]};
+    }).sort(function(a,b) { return b.monto - a.monto; }).slice(0,5);
+
+    // Buscar último arqueo para la sede
+    var sheetArqueos = ss.getSheetByName(CAJA_SHEET_ARQUEOS);
+    var ultimoArqueo = null;
+    if (sheetArqueos && sheetArqueos.getLastRow() >= 2) {
+      var dataArq = sheetArqueos.getRange(2, 1, sheetArqueos.getLastRow()-1, 18).getValues();
+      var tz = Session.getScriptTimeZone();
+      for (var i = dataArq.length - 1; i >= 0; i--) {
+        if (!sedeTarget || sedeTarget === 'TODOS' || String(dataArq[i][17]) === sedeTarget) {
+          ultimoArqueo = {
+            fecha: dataArq[i][0] instanceof Date ? Utilities.formatDate(dataArq[i][0], tz, 'dd/MM/yyyy HH:mm') : String(dataArq[i][0]),
+            tipo: String(dataArq[i][2] || '')
+          };
+          break;
+        }
+      }
+    }
+
+    return ContentService.createTextOutput(JSON.stringify({
+      movimientos: movs,
+      saldo: parseFloat(saldo.toFixed(2)),
+      categorias: cats_lista,
+      sedes: sedes_lista,
+      sedeActiva: sedeContexto !== undefined && sedeContexto !== null ? sedeContexto : sedes_lista[0],
+      ultimoArqueo: ultimoArqueo,
+      metricas: {
+        saldoNeto: parseFloat((ing-egr).toFixed(2)),
+        totalIngresos: parseFloat(ing.toFixed(2)),
+        totalEgresos: parseFloat(egr.toFixed(2)),
+        topGastos: top
+      }
+    })).setMimeType(ContentService.MimeType.JSON);
+
+  } catch(e) {
+    return ContentService.createTextOutput(JSON.stringify({error: e.toString()}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+
+function cajaGetArqueos(sedeContexto, session, offset, limit) {
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName(CAJA_SHEET_ARQUEOS);
+    if (!sheet || sheet.getLastRow() < 2) {
+      return ContentService.createTextOutput(JSON.stringify({data: [], total: 0})).setMimeType(ContentService.MimeType.JSON);
+    }
+    var off = parseInt(offset) || 0;
+    var lim = parseInt(limit) || 10;
+    
+    // Crear mapa de correos a nombres (ACCESOS)
+    var hojaAccesos = ss.getSheetByName('ACCESOS');
+    var mapAccesos = {};
+    if (hojaAccesos && hojaAccesos.getLastRow() >= 2) {
+      var accData = hojaAccesos.getRange(2, 1, hojaAccesos.getLastRow()-1, 2).getValues();
+      for (var i = 0; i < accData.length; i++) {
+        var emailKey = String(accData[i][0]).trim().toLowerCase();
+        if (emailKey) mapAccesos[emailKey] = String(accData[i][1]).trim();
+      }
+    }
+
+    var data = sheet.getRange(2, 1, sheet.getLastRow()-1, 18).getValues();
+    var tz = Session.getScriptTimeZone();
+    
+    // 1. Filtrar los datos por sede
+    var filtrados = data.filter(function(r) {
+      return r[0] && (!sedeContexto || sedeContexto === 'TODOS' || String(r[17]) === sedeContexto);
+    });
+    
+    // 2. Invertir (más recientes primero)
+    filtrados.reverse();
+    
+    // 3. Obtener solo la página actual ANTES de mapear
+    var paginado = filtrados.slice(off, off + lim);
+    
+    // 4. Mapear y formatear la fecha SOLO a los registros a mostrar (ej: 10 en vez de miles)
+    var resultado = paginado.map(function(r) {
+      var correoRaw = String(r[1] || '').trim().toLowerCase();
+      var nombreFinal = mapAccesos[correoRaw] || correoRaw;
+      return {
+        fecha: r[0] instanceof Date ? Utilities.formatDate(r[0], tz, 'dd/MM/yyyy HH:mm') : String(r[0]),
+        usuario: nombreFinal,
+        tipo: String(r[2] || ''),
+        teorico: parseFloat(r[3]) || 0,
+        fisico: parseFloat(r[4]) || 0,
+        diferencia: parseFloat(r[5]) || 0,
+        detalle: {b200:r[6],b100:r[7],b50:r[8],b20:r[9],b10:r[10],m5:r[11],m2:r[12],m1:r[13],m050:r[14],m020:r[15],m010:r[16]}
+      };
+    });
+
+    return ContentService.createTextOutput(JSON.stringify({data: resultado, total: filtrados.length})).setMimeType(ContentService.MimeType.JSON);
+  } catch(e) {
+    return ContentService.createTextOutput(JSON.stringify({error: e.toString()})).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function cajaGetKpis(sedeContexto, session) {
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName(CAJA_SHEET_ARQUEOS);
+    var hoy = new Date();
+    var mesActual = hoy.getMonth();
+    var anioActual = hoy.getFullYear();
+    var conteoManager = 0, conteoSupervisor = 0;
+
+    if (sheet && sheet.getLastRow() >= 2) {
+      var data = sheet.getRange(2, 1, sheet.getLastRow()-1, 18).getValues();
+      data.forEach(function(r) {
+        var fecha = new Date(r[0]);
+        var tipo = String(r[2]);
+        var sede = String(r[17]);
+        if ((!sedeContexto || sede === sedeContexto) && 
+            fecha.getMonth() === mesActual && fecha.getFullYear() === anioActual) {
+          if (tipo.includes('Diario')) conteoManager++;
+          else if (tipo.includes('Preventivo') || tipo.includes('Cierre')) conteoSupervisor++;
+        }
+      });
+    }
+    return ContentService.createTextOutput(JSON.stringify({
+      manager: {actual: conteoManager, meta: 24},
+      supervisor: {actual: conteoSupervisor, meta: 5}
+    })).setMimeType(ContentService.MimeType.JSON);
+  } catch(e) {
+    return ContentService.createTextOutput(JSON.stringify({error: e.toString()})).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function cajaGuardarMovimiento(params, session) {
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(10000)) return ContentService.createTextOutput(JSON.stringify({status:'error',message:'Sistema ocupado.'})).setMimeType(ContentService.MimeType.JSON);
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName(CAJA_SHEET_MOVIMIENTOS);
+    var sedeDestino = params.sedeContexto || session.oficina;
+    
+    // Normalizar sedeDestino al nombre completo
+    if (sedeDestino && sedeDestino !== 'TODOS') {
+      var sedes_lista = getConfigLista('SEDES');
+      var codigoSede = sedeDestino.match(/(\d{3})/) ? sedeDestino.match(/(\d{3})/)[1] : sedeDestino;
+      var sedeEncontrada = sedes_lista.filter(function(s) { return s.indexOf(codigoSede) >= 0; });
+      if (sedeEncontrada.length > 0) sedeDestino = sedeEncontrada[0];
+    }
+    
+    var fechaSegura = new Date(params.fecha + 'T12:00:00');
+    var fileUrl = '';
+
+    if (params.archivoBase64) {
+      try {
+        var decoded = Utilities.base64Decode(params.archivoBase64);
+        var blob = Utilities.newBlob(decoded, params.archivoMimeType || 'image/jpeg', params.archivoNombre || 'sustento.jpg');
+        // Usar la nueva estructura centralizada
+        var foldersObj = initEstructuraCarpetas();
+        var folder = getOrCreateFolder(foldersObj.adjuntosFolder, FOLDER_NAMES.ADJUNTOS_CAJA);
+        var d = fechaSegura;
+        var folderName = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+        var subFolders = folder.getFoldersByName(folderName);
+        var subFolder = subFolders.hasNext() ? subFolders.next() : folder.createFolder(folderName);
+        blob.setName(sedeDestino + '_' + params.fecha + '_' + Math.random().toString(36).substring(7));
+        var file = subFolder.createFile(blob);
+        file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+        fileUrl = file.getUrl();
+      } catch(e) { Logger.log('Error Drive caja: ' + e); }
+    }
+
+    if (params.edit_id) {
+      var data = sheet.getRange(2, 1, sheet.getLastRow()-1, 10).getValues();
+      var rowIndex = -1;
+      for (var i = 0; i < data.length; i++) {
+        if (String(data[i][0]) === params.edit_id) { rowIndex = i; break; }
+      }
+      if (rowIndex === -1) return ContentService.createTextOutput(JSON.stringify({status:'error',message:'No encontrado.'})).setMimeType(ContentService.MimeType.JSON);
+      
+      var oldDate = new Date(data[rowIndex][1]);
+      var now = new Date();
+      if (oldDate.getFullYear() < now.getFullYear() || (oldDate.getFullYear() === now.getFullYear() && oldDate.getMonth() < now.getMonth())) {
+        return ContentService.createTextOutput(JSON.stringify({status:'error',message:'No se pueden editar movimientos de meses anteriores.'})).setMimeType(ContentService.MimeType.JSON);
+      }
+      if (fileUrl === '') fileUrl = data[rowIndex][8];
+      sheet.getRange(rowIndex+2, 2, 1, 9).setValues([[fechaSegura, params.descripcion, params.categoria, parseFloat(params.monto), params.tipo, session.correo, new Date(), fileUrl, sedeDestino]]);
+    } else {
+      sheet.appendRow([Utilities.getUuid(), fechaSegura, params.descripcion, params.categoria, parseFloat(params.monto), params.tipo, session.correo, new Date(), fileUrl, sedeDestino]);
+    }
+
+    // Alerta saldo bajo — límite desde Config
+    try {
+      var limiteAlerta = parseFloat(getConfig('ALERTA_SALDO')) || 100;
+      var allData = sheet.getRange(2, 1, sheet.getLastRow()-1, 10).getValues();
+      var saldoSede = 0;
+      allData.forEach(function(r) {
+        if (String(r[9]) === sedeDestino && r[1]) {
+          if (String(r[5]) === 'Ingreso') saldoSede += parseFloat(r[4]) || 0;
+          else saldoSede -= parseFloat(r[4]) || 0;
+        }
+      });
+      if (saldoSede < limiteAlerta) {
+        MailApp.sendEmail({
+          to: session.correo,
+          subject: '🚨 ALERTA: Saldo Bajo en ' + sedeDestino,
+          body: 'El saldo de ' + sedeDestino + ' es S/ ' + saldoSede.toFixed(2) + 
+                '. Límite configurado: S/ ' + limiteAlerta + '. Por favor reabastezca la caja.'
+        });
+      }
+    } catch(e) {}
+
+    return ContentService.createTextOutput(JSON.stringify({status:'ok',message:'Movimiento guardado.'})).setMimeType(ContentService.MimeType.JSON);
+  } catch(e) {
+    return ContentService.createTextOutput(JSON.stringify({status:'error',message:e.toString()})).setMimeType(ContentService.MimeType.JSON);
+  } finally { lock.releaseLock(); }
+}
+
+function cajaEliminarMovimiento(id, session) {
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(5000)) return ContentService.createTextOutput(JSON.stringify({status:'error',message:'Sistema ocupado.'})).setMimeType(ContentService.MimeType.JSON);
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName(CAJA_SHEET_MOVIMIENTOS);
+    var data = sheet.getRange(2, 1, sheet.getLastRow()-1, 10).getValues();
+    var rowIndex = -1;
+    for (var i = 0; i < data.length; i++) {
+      if (String(data[i][0]) === id) { rowIndex = i; break; }
+    }
+    if (rowIndex === -1) return ContentService.createTextOutput(JSON.stringify({status:'error',message:'No existe.'})).setMimeType(ContentService.MimeType.JSON);
+
+    // Proteger movimientos de tipo "Saldo Inicial"
+    var descMov = String(data[rowIndex][2] || '');
+    if (descMov.indexOf('Saldo Inicial') >= 0) {
+      return ContentService.createTextOutput(JSON.stringify({status:'error',message:'No se puede eliminar el saldo inicial.'})).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    var oldDate = new Date(data[rowIndex][1]);
+    var now = new Date();
+    if (oldDate.getFullYear() < now.getFullYear() || (oldDate.getFullYear() === now.getFullYear() && oldDate.getMonth() < now.getMonth())) {
+      return ContentService.createTextOutput(JSON.stringify({status:'error',message:'No se pueden eliminar movimientos de meses anteriores.'})).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    var valoresOriginales = sheet.getRange(rowIndex+2, 1, 1, 10).getValues()[0];
+    var sheetTrash = ss.getSheetByName('Papelera');
+    if (!sheetTrash) sheetTrash = ss.insertSheet('Papelera');
+    sheetTrash.appendRow(valoresOriginales.concat([session.correo, new Date(), 'ELIMINADO_MANUAL']));
+    sheet.deleteRow(rowIndex+2);
+
+    return ContentService.createTextOutput(JSON.stringify({status:'ok',message:'Movimiento enviado a Papelera.'})).setMimeType(ContentService.MimeType.JSON);
+  } catch(e) {
+    return ContentService.createTextOutput(JSON.stringify({status:'error',message:e.toString()})).setMimeType(ContentService.MimeType.JSON);
+  } finally { lock.releaseLock(); }
+}
+
+function cajaProcesarArqueo(params, session) {
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(20000)) return ContentService.createTextOutput(JSON.stringify({status:'error',message:'Ocupado.'})).setMimeType(ContentService.MimeType.JSON);
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheetArq = ss.getSheetByName(CAJA_SHEET_ARQUEOS);
+    if (!sheetArq) sheetArq = ss.insertSheet(CAJA_SHEET_ARQUEOS);
+    var det = typeof params.detalle === 'string' ? JSON.parse(params.detalle) : (params.detalle || {});
+    sheetArq.appendRow([new Date(), session.correo, params.tipoTexto,
+      parseFloat(params.saldoTeorico), parseFloat(params.saldoFisico), parseFloat(params.diferencia),
+      det.b200||0, det.b100||0, det.b50||0, det.b20||0, det.b10||0,
+      det.m5||0, det.m2||0, det.m1||0, det.m050||0, det.m020||0, det.m010||0,
+      params.sedeContexto || session.oficina]);
+
+    if (params.esCierre === true || params.esCierre === 'true') {
+      var sedeTarget = params.sedeContexto || session.oficina;
+
+      // 1. Archivar movimientos a JSON
+      var srcMovs = ss.getSheetByName(CAJA_SHEET_MOVIMIENTOS);
+      if (srcMovs && srcMovs.getLastRow() >= 2) {
+        var movData = srcMovs.getRange(2, 1, srcMovs.getLastRow()-1, 10).getValues();
+        var movsToMove = [], movsToDelete = [];
+        movData.forEach(function(r, i) {
+          if (String(r[9]) === sedeTarget) { movsToMove.push(r); movsToDelete.push(i+2); }
+        });
+        if (movsToMove.length > 0) {
+          archivarHistorialAJson('MOVIMIENTOS', sedeTarget, movsToMove);
+          movsToDelete.reverse().forEach(function(rowNum) { srcMovs.deleteRow(rowNum); });
+        }
+      }
+
+      // 2. Archivar arqueos a JSON
+      if (sheetArq && sheetArq.getLastRow() >= 2) {
+        var arqData = sheetArq.getRange(2, 1, sheetArq.getLastRow()-1, 18).getValues();
+        var arqsToMove = [], arqsToDelete = [];
+        arqData.forEach(function(r, i) {
+          if (String(r[17]) === sedeTarget) { arqsToMove.push(r); arqsToDelete.push(i+2); }
+        });
+        if (arqsToMove.length > 0) {
+          archivarHistorialAJson('ARQUEOS', sedeTarget, arqsToMove);
+          arqsToDelete.reverse().forEach(function(rowNum) { sheetArq.deleteRow(rowNum); });
+        }
+      }
+
+      // 3. Saldo inicial apertura en movimientos
+      if (srcMovs) {
+        srcMovs.appendRow([Utilities.getUuid(), new Date(), 'Saldo Inicial (Apertura)', 'Saldo Inicial',
+          parseFloat(params.saldoFisico), 'Ingreso', session.correo, new Date(), '', sedeTarget]);
+      }
+      
+      return ContentService.createTextOutput(JSON.stringify({status:'ok',message:'Mes cerrado para ' + sedeTarget})).setMimeType(ContentService.MimeType.JSON);
+    }
+    // ── Email para Arqueo Preventivo ──
+    if (params.esPreventivo === true || params.esPreventivo === 'true') {
+      try {
+        var ss2 = SpreadsheetApp.getActiveSpreadsheet();
+        var hojaAcc = ss2.getSheetByName('ACCESOS');
+        var admins = [];
+        if (hojaAcc && hojaAcc.getLastRow() >= 2) {
+          var accData = hojaAcc.getDataRange().getValues();
+          for (var a = 1; a < accData.length; a++) {
+            var accCorreo = accData[a][0] ? accData[a][0].toString().trim() : '';
+            var accRol    = accData[a][2] ? accData[a][2].toString().trim().toLowerCase() : '';
+            var accActivo = accData[a][3] ? accData[a][3].toString().trim().toUpperCase() : '';
+            if (accRol === 'admin' && accActivo === 'SI' && accCorreo) admins.push(accCorreo);
+          }
+        }
+        if (admins.length > 0) {
+          var sede      = params.sedeContexto || session.oficina;
+          var saldoTeo  = parseFloat(params.saldoTeorico).toFixed(2);
+          var saldoFis  = parseFloat(params.saldoFisico).toFixed(2);
+          var diferencia = parseFloat(params.diferencia).toFixed(2);
+          var estado    = Math.abs(parseFloat(params.diferencia)) < 0.01 ? '✅ CUADRE EXACTO' :
+                          parseFloat(params.diferencia) > 0 ? '⚠️ SOBRANTE' : '❌ FALTANTE';
+          var det2 = typeof params.detalle === 'string' ? JSON.parse(params.detalle) : (params.detalle || {});
+          var detalleTexto =
+            'BILLETES:\n' +
+            '  S/ 200 x ' + (det2.b200||0) + ' = S/ ' + ((det2.b200||0)*200).toFixed(2) + '\n' +
+            '  S/ 100 x ' + (det2.b100||0) + ' = S/ ' + ((det2.b100||0)*100).toFixed(2) + '\n' +
+            '  S/ 50  x ' + (det2.b50||0)  + ' = S/ ' + ((det2.b50||0)*50).toFixed(2)   + '\n' +
+            '  S/ 20  x ' + (det2.b20||0)  + ' = S/ ' + ((det2.b20||0)*20).toFixed(2)   + '\n' +
+            '  S/ 10  x ' + (det2.b10||0)  + ' = S/ ' + ((det2.b10||0)*10).toFixed(2)   + '\n\n' +
+            'MONEDAS:\n' +
+            '  S/ 5    x ' + (det2.m5||0)   + ' = S/ ' + ((det2.m5||0)*5).toFixed(2)    + '\n' +
+            '  S/ 2    x ' + (det2.m2||0)   + ' = S/ ' + ((det2.m2||0)*2).toFixed(2)    + '\n' +
+            '  S/ 1    x ' + (det2.m1||0)   + ' = S/ ' + ((det2.m1||0)*1).toFixed(2)    + '\n' +
+            '  S/ 0.50 x ' + (det2.m050||0) + ' = S/ ' + ((det2.m050||0)*0.50).toFixed(2) + '\n' +
+            '  S/ 0.20 x ' + (det2.m020||0) + ' = S/ ' + ((det2.m020||0)*0.20).toFixed(2) + '\n' +
+            '  S/ 0.10 x ' + (det2.m010||0) + ' = S/ ' + ((det2.m010||0)*0.10).toFixed(2);
+
+          MailApp.sendEmail({
+            to: admins.join(','),
+            subject: '🔍 Arqueo Preventivo - ' + sede + ' - ' + estado,
+            body:
+              'ARQUEO PREVENTIVO\n' +
+              '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n' +
+              'Sede      : ' + sede + '\n' +
+              'Usuario   : ' + session.correo + '\n' +
+              'Fecha     : ' + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd/MM/yyyy HH:mm') + '\n\n' +
+              'RESUMEN:\n' +
+              '  Saldo Teórico : S/ ' + saldoTeo + '\n' +
+              '  Saldo Físico  : S/ ' + saldoFis + '\n' +
+              '  Diferencia    : S/ ' + diferencia + '\n' +
+              '  Estado        : ' + estado + '\n\n' +
+              'DETALLE DEL CONTEO:\n' +
+              detalleTexto + '\n\n' +
+              '— Grupo Efectivo'
+          });
+        }
+      } catch(e) { Logger.log('Error email arqueo preventivo: ' + e); }
+    }
+
+    return ContentService.createTextOutput(JSON.stringify({status:'ok',message:'Arqueo guardado.'})).setMimeType(ContentService.MimeType.JSON);
+  } catch(e) {
+    return ContentService.createTextOutput(JSON.stringify({status:'error',message:e.toString()})).setMimeType(ContentService.MimeType.JSON);
+  } finally { lock.releaseLock(); }
+}
+
+
+// ═══════════════════════════════════════════════════════
+// ──── MÓDULO KASNET (Registro Diario) ────────────────
+// ═══════════════════════════════════════════════════════
+
+var KASNET_SHEET = "KASNET";
+
+function kasnetGetDatos(sedeContexto, session) {
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName(KASNET_SHEET);
+    var oficina = session ? session.oficina : 'TODOS';
+    var sedes_lista = getConfigLista('SEDES');
+    if (sedes_lista.length === 0) sedes_lista = ['001-LA MERCED'];
+
+    if (!sheet || sheet.getLastRow() < 2) {
+      return ContentService.createTextOutput(JSON.stringify({
+        registros: [], sedes: sedes_lista
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    var sedeTarget = sedeContexto;
+    if (!sedeTarget && oficina !== 'TODOS') sedeTarget = oficina;
+    if (!sedeTarget || sedeTarget === 'todos') sedeTarget = '';
+
+    var data = sheet.getRange(2, 1, sheet.getLastRow()-1, 14).getValues();
+    var tz = Session.getScriptTimeZone();
+    var regs = [];
+
+    data.forEach(function(r) {
+      if (!r[1]) return;
+      if (sedeTarget && String(r[11] || '') !== sedeTarget) return;
+
+      var fechaStr = '';
+      try {
+        fechaStr = r[1] instanceof Date ?
+          Utilities.formatDate(r[1], tz, 'yyyy-MM-dd') : String(r[1]);
+      } catch(e) { fechaStr = String(r[1]); }
+
+      regs.push({
+        id: String(r[0]),
+        fecha: fechaStr,
+        numOps: parseInt(r[2]) || 0,
+        posVirtual: parseFloat(r[3]) || 0,
+        pagayaVirtual: parseFloat(r[4]) || 0,
+        efectivoFisico: parseFloat(r[5]) || 0,
+        total: parseFloat(r[6]) || 0,
+        diferencia: parseFloat(r[7]) || 0,
+        estado: String(r[8] || ''),
+        usuario: String(r[9] || ''),
+        sede: String(r[11] || ''),
+        comprobante: String(r[12] || ''),
+        desglose: String(r[13] || '')
+      });
+    });
+
+    regs.sort(function(a, b) { return b.fecha.localeCompare(a.fecha); });
+
+    return ContentService.createTextOutput(JSON.stringify({
+      registros: regs, sedes: sedes_lista
+    })).setMimeType(ContentService.MimeType.JSON);
+  } catch(e) {
+    return ContentService.createTextOutput(JSON.stringify({error: e.toString()}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function kasnetGuardarRegistro(params, session) {
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(10000)) return ContentService.createTextOutput(JSON.stringify({status:'error',message:'Sistema ocupado.'})).setMimeType(ContentService.MimeType.JSON);
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName(KASNET_SHEET);
+    if (!sheet) {
+      sheet = ss.insertSheet(KASNET_SHEET);
+      sheet.appendRow(['ID','Fecha','N° Operaciones','POS Virtual','PAGAYA Virtual','Efectivo Físico','Total','Diferencia','Estado','Usuario','Timestamp','Sede', 'Comprobante', 'Desglose']);
+      sheet.getRange(1, 1, 1, 14).setFontWeight('bold').setBackground('#003087').setFontColor('white');
+      sheet.setFrozenRows(1);
+    }
+    
+    var sedeDestino = params.sedeContexto || session.oficina;
+    var fechaSegura = new Date(params.fecha + 'T12:00:00');
+    
+    // Obtener base (3000 por defecto)
+    var baseLocal = getConfig('KASNET_BASE_' + sedeDestino) || getConfig('KASNET_BASE') || 3000;
+    baseLocal = parseFloat(baseLocal);
+
+    var numOps = parseInt(params.numOps) || 0;
+    var posVirt = parseFloat(params.posVirtual) || 0;
+    var pagayaVirt = parseFloat(params.pagayaVirtual) || 0;
+    var efecFis = parseFloat(params.efectivoFisico) || 0;
+    var total = Math.round((posVirt + pagayaVirt + efecFis) * 100) / 100;
+    var diff = Math.round((total - baseLocal) * 100) / 100;
+
+    var estado = 'CUADRE';
+    if (diff > 0) estado = 'SOBRANTE';
+    else if (diff < 0) estado = 'FALTANTE';
+
+    // Procesar envío de comprobante base64
+    var comprobanteLink = "";
+    if (params.comprobante_base64) {
+      try {
+        var baseData = params.comprobante_base64;
+        var mimeType = baseData.indexOf("data:application/pdf") === 0 ? "application/pdf" : 
+                      (baseData.indexOf("data:image/png") === 0 ? "image/png" : "image/jpeg");
+        var ext = mimeType === "application/pdf" ? ".pdf" : (mimeType === "image/png" ? ".png" : ".jpg");
+        var cName = "KASNET_" + params.fecha + "_S" + total.toFixed(2).replace('.', '_') + ext;
+        
+        var bClean = baseData.indexOf(',') > -1 ? baseData.split(',')[1] : baseData;
+        var cBytes = Utilities.base64Decode(bClean);
+        var cBlob = Utilities.newBlob(cBytes, mimeType, cName);
+        
+        var pFecha = new Date();
+        var yyyy = pFecha.getFullYear();
+        var mm = String(pFecha.getMonth() + 1).padStart(2, '0');
+        var dd = String(pFecha.getDate()).padStart(2, '0');
+        
+        // Usar la nueva estructura centralizada
+        var foldersObj = initEstructuraCarpetas();
+        var cRaiz = getOrCreateFolder(foldersObj.adjuntosFolder, FOLDER_NAMES.ADJUNTOS_KASNET);
+        var cMes  = obtenerOCrearCarpeta(cRaiz, yyyy + "-" + mm);
+        var cDia  = obtenerOCrearCarpeta(cMes, yyyy + "-" + mm + "-" + dd);
+        
+        var cFile = cDia.createFile(cBlob);
+        cFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+        comprobanteLink = cFile.getUrl();
+      } catch (err) {
+        Logger.log('Error subiendo comprobante kasnet: ' + err);
+      }
+    }
+
+    if (params.edit_id) {
+      var data = sheet.getRange(2, 1, sheet.getLastRow()-1, 14).getValues();
+      var rowIndex = -1;
+      for (var i = 0; i < data.length; i++) {
+        if (String(data[i][0]) === params.edit_id) { rowIndex = i; break; }
+      }
+      if (rowIndex === -1) return ContentService.createTextOutput(JSON.stringify({status:'error',message:'Registro no encontrado.'})).setMimeType(ContentService.MimeType.JSON);
+      
+      var oldDateStr = '';
+      try {
+        oldDateStr = data[rowIndex][1] instanceof Date ? Utilities.formatDate(data[rowIndex][1], Session.getScriptTimeZone(), 'yyyy-MM-dd') : String(data[rowIndex][1]);
+      } catch(e) { oldDateStr = String(data[rowIndex][1]); }
+
+      var hoyStr = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd');
+      if (oldDateStr !== hoyStr && session.rol !== 'admin') {
+        return ContentService.createTextOutput(JSON.stringify({status:'error',message:'Solo puedes editar registros del día actual.'})).setMimeType(ContentService.MimeType.JSON);
+      }
+
+      sheet.getRange(rowIndex+2, 2, 1, 11).setValues([[fechaSegura, numOps, posVirt, pagayaVirt, efecFis, total, diff, estado, session.correo, new Date(), sedeDestino]]);
+      if (comprobanteLink) {
+        sheet.getRange(rowIndex+2, 13).setValue(comprobanteLink);
+      }
+      if (params.desglose) {
+        sheet.getRange(rowIndex+2, 14).setValue(String(params.desglose));
+      }
+      // Nota: Si es sobrante no creamos Ingreso automático en edición, para evitar duplicados.
+    } else {
+      // Validar si ya existe registro para esa fecha y sede
+      var existeHoy = false;
+      var checkData = sheet.getLastRow() >= 2 ? sheet.getRange(2, 1, sheet.getLastRow()-1, 12).getValues() : [];
+      for(var k=0; k<checkData.length; k++){
+        var cDate = checkData[k][1] instanceof Date ? Utilities.formatDate(checkData[k][1], Session.getScriptTimeZone(), 'yyyy-MM-dd') : String(checkData[k][1]);
+        if(cDate === params.fecha && String(checkData[k][11]) === sedeDestino){
+           existeHoy = true; break;
+        }
+      }
+      if(existeHoy){
+         return ContentService.createTextOutput(JSON.stringify({status:'error',message:'Ya existe un registro para esta fecha y sede. Edita el existente.'})).setMimeType(ContentService.MimeType.JSON);
+      }
+
+      sheet.appendRow([Utilities.getUuid(), fechaSegura, numOps, posVirt, pagayaVirt, efecFis, total, diff, estado, session.correo, new Date(), sedeDestino, comprobanteLink, String(params.desglose || '')]);
+      
+      // Auto ingreso a Caja Chica si hay sobrante
+      if (diff > 0) {
+        var paramsCaja = {
+          fecha: params.fecha,
+          descripcion: 'Sobrante KASNET ' + params.fecha,
+          categoria: 'Sobrante KASNET',
+          monto: diff,
+          tipo: 'Ingreso',
+          sedeContexto: sedeDestino
+        };
+        // Reuse cajaGuardarMovimiento implementation logic directly within this try block, wait actually we can just call it (needs to mock the session if it looks up properties)
+        cajaGuardarMovimiento(paramsCaja, session); 
+      }
+    }
+    return ContentService.createTextOutput(JSON.stringify({status:'ok',message:'Registro KASNET guardado.'})).setMimeType(ContentService.MimeType.JSON);
+  } catch(e) {
+    return ContentService.createTextOutput(JSON.stringify({status:'error',message:e.toString()})).setMimeType(ContentService.MimeType.JSON);
+  } finally { lock.releaseLock(); }
+}
+
+function kasnetEliminarRegistro(id, session) {
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(5000)) return ContentService.createTextOutput(JSON.stringify({status:'error',message:'Sistema ocupado.'})).setMimeType(ContentService.MimeType.JSON);
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName(KASNET_SHEET);
+    if (!sheet) return ContentService.createTextOutput(JSON.stringify({status:'error',message:'Hoja KASNET no encontrada.'})).setMimeType(ContentService.MimeType.JSON);
+    var data = sheet.getRange(2, 1, sheet.getLastRow()-1, 12).getValues();
+    var rowIndex = -1;
+    for (var i = 0; i < data.length; i++) {
+      if (String(data[i][0]) === id) { rowIndex = i; break; }
+    }
+    if (rowIndex === -1) return ContentService.createTextOutput(JSON.stringify({status:'error',message:'No existe.'})).setMimeType(ContentService.MimeType.JSON);
+    
+    // Solo administrador puede eliminar
+    if (session.rol !== 'admin') {
+      return ContentService.createTextOutput(JSON.stringify({status:'error',message:'Solo el administrador puede eliminar registros KASNET.'})).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    sheet.deleteRow(rowIndex+2);
+    // Nota: El sobrante transferido a caja no se borra automáticamente.
+    
+    return ContentService.createTextOutput(JSON.stringify({status:'ok',message:'Registro eliminado.'})).setMimeType(ContentService.MimeType.JSON);
+  } catch(e) {
+    return ContentService.createTextOutput(JSON.stringify({status:'error',message:e.toString()})).setMimeType(ContentService.MimeType.JSON);
+  } finally { lock.releaseLock(); }
+}
+
+// ═══════════════════════════════════════════════════════
+// ──── LIMPIEZA NOCTURNA DE VOUCHERS PENDIENTES ────────
+// ═══════════════════════════════════════════════════════
+// Esta funcion corre automaticamente cada noche via Time-driven trigger.
+// Revisa todos los registros PENDIENTE VERIFICAR en HISTORIAL y, si el
+// codigo de credito ya no existe en BASE (el cajero ingreso el pago),
+// los marca como VERIFICADO automaticamente.
+//
+// CONFIGURAR TRIGGER (solo una vez):
+//   1. En Apps Script: Menu → Activadores (Triggers)
+//   2. Click "+ Agregar activador"
+//   3. Funcion: limpiarPendientesNocturnos
+//   4. Tipo de evento: Basado en tiempo → Temporizador diario
+//   5. Hora: Entre 2:00 y 3:00 AM
+//   6. Guardar
+// ═══════════════════════════════════════════════════════
+
+
+// ═══════════════════════════════════════════════════════
+// ──── KEEP ALIVE (evita cold start de Apps Script) ───
+// ═══════════════════════════════════════════════════════
+// Hacer ping al propio Web App cada 5 minutos para que
+// el servidor no se duerma. Reduccion: de ~7s a <3s.
+//
+// CONFIGURAR TRIGGER (solo una vez):
+//   1. Apps Script → Activadores (icono reloj)
+//   2. "+ Agregar activador"
+//   3. Funcion       : keepAlive
+//   4. Tipo de evento: Basado en tiempo → Temporizador de minutos
+//   5. Intervalo     : Cada 5 minutos
+//   6. Guardar
+// ═══════════════════════════════════════════════════════
+
+function keepAlive() {
+  try {
+    var url = ScriptApp.getService().getUrl() + '?ping=1';
+    UrlFetchApp.fetch(url, { muteHttpExceptions: true });
+  } catch(e) {
+    Logger.log('keepAlive error: ' + e.toString());
+  }
+}
+
+function limpiarPendientesNocturnos() {
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var historial = ss.getSheetByName("HISTORIAL");
+    if (!historial || historial.getLastRow() < 2) return;
+
+    // ── Leer TODOS los códigos de BASE una sola vez (evita N lecturas) ──
+    var codsEnBase = {};
+    var hojas = obtenerHojasBase();
+    hojas.forEach(function(sheet) {
+      var data = sheet.getDataRange().getValues();
+      for (var j = 1; j < data.length; j++) {
+        var c = data[j][6] ? data[j][6].toString().trim() : "";
+        if (c) codsEnBase[c] = true;
+      }
+    });
+
+    var histData = historial.getDataRange().getValues();
+    var actualizados = 0;
+
+    for (var i = 1; i < histData.length; i++) {
+      var cod     = histData[i][3] ? histData[i][3].toString().trim() : "";
+      var estado  = histData[i][7] ? histData[i][7].toString().trim() : "";
+      var voucher = histData[i][8] ? histData[i][8].toString().trim() : "";
+
+      // Solo procesar los que tienen voucher y estan PENDIENTE
+      if (!cod || !voucher || estado !== "PENDIENTE VERIFICAR") continue;
+
+      // Si el codigo ya no existe en BASE → el cajero ingreso el pago
+      if (!codsEnBase[cod]) {
+        historial.getRange(i + 1, 8).setValue("VERIFICADO \u2705");
+        actualizados++;
+      }
+    }
+
+    Logger.log("Limpieza nocturna completada: " + actualizados + " voucher(s) marcados como VERIFICADO.");
+  } catch(e) {
+    Logger.log("Error en limpiarPendientesNocturnos: " + e.toString());
+  }
+}
+
+function formatPhoneNumber(num) {
+  if (!num) return "";
+  var s = num.toString().trim();
+  return s;
+}
+
+// ── Verificar si el cliente ya tiene carta solicitada/emitida ──
+function cartasCheckStatus(params, session) {
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName("REGISTRO_CARTAS");
+    if (!sheet) {
+      return ContentService.createTextOutput(JSON.stringify({hasLetter: false, error: "No sheet"}))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    var data = sheet.getDataRange().getValues();
+    var debugLog = [];
+    var paramCod = params.codigo ? String(params.codigo).trim() : "";
+    
+    for (var i = data.length - 1; i >= 0; i--) {
+      var codFila = data[i][1] ? String(data[i][1]).trim() : "";
+      debugLog.push({ index: i, codFila: codFila, paramCod: paramCod, match: (codFila === paramCod) });
+      
+      if (codFila && paramCod && codFila === paramCod) {
+        var estado = data[i][6] ? String(data[i][6]).trim() : ""; // Columna G (estado)
+        var fecha = data[i][0] ? String(data[i][0]).trim() : ""; // Columna A (fecha)
+        var fileId = data[i][5] ? String(data[i][5]).trim() : ""; // Columna F (pdf id)
+        
+        if (fecha && fecha instanceof Date) {
+          var tz = Session.getScriptTimeZone();
+          fecha = Utilities.formatDate(fecha, tz, "dd/MM/yyyy HH:mm");
+        }
+
+        return ContentService.createTextOutput(JSON.stringify({
+          hasLetter: true,
+          estado: estado,
+          fecha: fecha,
+          fileId: fileId,
+          debug: debugLog
+        })).setMimeType(ContentService.MimeType.JSON);
+      }
+    }
+    
+    // Si no se encontró en la hoja, simplemente no tiene carta (no es un error)
+    return ContentService.createTextOutput(JSON.stringify({hasLetter: false}))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch(e) {
+    return ContentService.createTextOutput(JSON.stringify({hasLetter: false, error: e.toString()}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}

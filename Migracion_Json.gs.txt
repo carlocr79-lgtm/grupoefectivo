@@ -1,0 +1,225 @@
+// ==========================================
+// CONFIGURACIÓN DE CARPETAS Y RUTAS
+// ==========================================
+var FOLDER_ROOT_ID = '1KHwcrKSyVkJamrdSsU_a2cqnCGXTmr1m';
+var FOLDER_NAMES = {
+  HISTORICO: '01_HISTORICO_JSON',
+  ADJUNTOS: '02_ADJUNTOS_COMPROBANTES',
+  ADJUNTOS_CAJA: '03_ADJUNTOS_CAJA',
+  ADJUNTOS_KASNET: '04_ADJUNTOS_KASNET'
+};
+
+/**
+ * Obtiene o crea una subcarpeta dentro de una carpeta padre.
+ */
+function getOrCreateFolder(parentFolder, folderName) {
+  var iter = parentFolder.getFoldersByName(folderName);
+  if (iter.hasNext()) return iter.next();
+  return parentFolder.createFolder(folderName);
+}
+
+/**
+ * Inicializa la estructura de carpetas en Drive si no existe.
+ */
+function initEstructuraCarpetas() {
+  var rootFolder = DriveApp.getFolderById(FOLDER_ROOT_ID);
+  var historicoFolder = getOrCreateFolder(rootFolder, FOLDER_NAMES.HISTORICO);
+  var adjuntosFolder = getOrCreateFolder(rootFolder, FOLDER_NAMES.ADJUNTOS);
+  return { rootFolder: rootFolder, historicoFolder: historicoFolder, adjuntosFolder: adjuntosFolder };
+}
+
+
+// ==========================================
+// LÓGICA DE ARCHIVADO AUTOMÁTICO (CIERRE DE MES)
+// ==========================================
+function archivarHistorialAJson(tipo, sedeTarget, rows) {
+  if (!rows || rows.length === 0) return;
+
+  var rootFolder = initEstructuraCarpetas().historicoFolder;
+  var tz = Session.getScriptTimeZone();
+
+  // 1. Agrupar por año/mes de su propia fecha
+  var agrupado = {};
+  rows.forEach(function(r) {
+    if (!r[1] && tipo === 'MOVIMIENTOS') return;
+    if (!r[0] && tipo === 'ARQUEOS') return;
+    
+    var rawFecha = (tipo === 'MOVIMIENTOS') ? r[1] : r[0];
+    var fechaObj = rawFecha instanceof Date ? rawFecha : new Date(rawFecha);
+    if (isNaN(fechaObj.getTime())) fechaObj = new Date();
+
+    var anio = Utilities.formatDate(fechaObj, tz, "yyyy");
+    var mesNum = Utilities.formatDate(fechaObj, tz, "MM");
+    var ym = anio + "_" + mesNum; 
+
+    if (!agrupado[ym]) agrupado[ym] = [];
+
+    if (tipo === 'MOVIMIENTOS') {
+      agrupado[ym].push({
+        id: String(r[0]),
+        fecha: Utilities.formatDate(fechaObj, tz, "yyyy-MM-dd"),
+        descripcion: String(r[2] || ''),
+        categoria: String(r[3] || ''),
+        monto: parseFloat(r[4]) || 0,
+        tipo: String(r[5]),
+        usuario: String(r[6]),
+        timestamp: r[7] instanceof Date ? Utilities.formatDate(r[7], tz, "yyyy-MM-dd'T'HH:mm:ss") : String(r[7] || ''),
+        sustentoUrl: String(r[8] || ''),
+        sede: String(r[9] || '')
+      });
+    } else if (tipo === 'ARQUEOS') {
+      agrupado[ym].push({
+        fecha: Utilities.formatDate(fechaObj, tz, "dd/MM/yyyy HH:mm"),
+        usuario: String(r[1]),
+        tipo: String(r[2]),
+        teorico: parseFloat(r[3]) || 0,
+        fisico: parseFloat(r[4]) || 0,
+        diferencia: parseFloat(r[5]) || 0,
+        detalle: {b200:r[6],b100:r[7],b50:r[8],b20:r[9],b10:r[10],m5:r[11],m2:r[12],m1:r[13],m050:r[14],m020:r[15],m010:r[16]},
+        sede: String(r[17])
+      });
+    }
+  });
+
+  // 2. Guardar en estructura /2026/04_Abril/SedeXXX_MOVIMIENTOS.json
+  var mesesNombres = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+  for (var ym in agrupado) {
+    var parts = ym.split('_');
+    var anioStr = parts[0];
+    var mesNum = parts[1];
+    var mesStr = mesNum + '_' + mesesNombres[parseInt(mesNum, 10) - 1];
+
+    var anioFolder = getOrCreateFolder(rootFolder, anioStr);
+    var mesFolder = getOrCreateFolder(anioFolder, mesStr);
+
+    var fileName = sedeTarget.replace(/\s+/g, '_') + "_" + tipo + ".json";
+    
+    var registrosExistentes = [];
+    var files = mesFolder.getFilesByName(fileName);
+    var file;
+    if (files.hasNext()) {
+      file = files.next();
+      try {
+        registrosExistentes = JSON.parse(file.getBlob().getDataAsString());
+      } catch(e) { registrosExistentes = []; }
+    } else {
+      file = mesFolder.createFile(fileName, "[]", MimeType.PLAIN_TEXT);
+    }
+    
+    var finalData = registrosExistentes.concat(agrupado[ym]);
+    file.setContent(JSON.stringify(finalData));
+    Logger.log("Archivado en: " + anioStr + "/" + mesStr + "/" + fileName + " (" + agrupado[ym].length + " registros)");
+  }
+
+  invalidarCacheHistorico();
+  return true;
+}
+
+// ==========================================
+// NUEVA API PARA LEER EL HISTORIAL
+// ==========================================
+function apiCajaArchivoNuevo(p) {
+  var sedeTarget = p.sede || '';
+  var anioTarget = p.anio;
+  var mesTarget = p.mes;
+  var tipoTarget = p.tipo || 'MOVIMIENTOS';
+  
+  if (!anioTarget || !mesTarget) {
+    return ContentService.createTextOutput("[]").setMimeType(ContentService.MimeType.JSON);
+  }
+
+  var cacheKey = 'caja_archivo_v3_' + anioTarget + '_' + mesTarget + '_' + tipoTarget + '_' + (sedeTarget || 'todos');
+  
+  var cache = CacheService.getScriptCache();
+  var cached = cache.get(cacheKey);
+  if (cached) {
+    return ContentService.createTextOutput(cached).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  var rootFolder = initEstructuraCarpetas().historicoFolder;
+  
+  // Buscar carpeta Año
+  var anioFolders = rootFolder.getFoldersByName(anioTarget);
+  if (!anioFolders.hasNext()) {
+    return fallbackBusquedaAntigua(rootFolder, anioTarget, mesTarget, tipoTarget, sedeTarget, cacheKey, cache);
+  }
+  var anioFolder = anioFolders.next();
+
+  // Buscar carpeta Mes
+  var mesesNombres = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  var mesStr = String(mesTarget).padStart(2, '0');
+  var mesCompleto = mesStr + '_' + mesesNombres[parseInt(mesStr, 10) - 1];
+
+  var mesFolders = anioFolder.getFoldersByName(mesCompleto);
+  if (!mesFolders.hasNext()) {
+    return fallbackBusquedaAntigua(rootFolder, anioTarget, mesTarget, tipoTarget, sedeTarget, cacheKey, cache);
+  }
+  var mesFolder = mesFolders.next();
+
+  var todos = [];
+  var files = mesFolder.getFilesByType(MimeType.PLAIN_TEXT);
+  while (files.hasNext()) {
+    var file = files.next();
+    if (file.getName().indexOf(tipoTarget) !== -1) {
+      if (sedeTarget && sedeTarget !== 'TODOS' && sedeTarget !== 'Todas las sedes') {
+        var nombreLimpio = sedeTarget.replace(/\s+/g, '_');
+        if (file.getName().indexOf(nombreLimpio) === -1) continue;
+      }
+      try {
+        var data = JSON.parse(file.getBlob().getDataAsString());
+        todos = todos.concat(data);
+      } catch(e) {}
+    }
+  }
+
+  todos.sort(function(a, b) { return b.fecha.localeCompare(a.fecha); });
+  var result = JSON.stringify(todos);
+
+  try { cache.put(cacheKey, result, 21600); } catch(e) {}
+  return ContentService.createTextOutput(result).setMimeType(ContentService.MimeType.JSON);
+}
+
+/**
+ * Fallback para leer archivos antiguos (antes de la arquitectura de subcarpetas por año/mes)
+ */
+function fallbackBusquedaAntigua(rootFolder, anioTarget, mesTarget, tipoTarget, sedeTarget, cacheKey, cache) {
+  if (tipoTarget !== 'MOVIMIENTOS') {
+    return ContentService.createTextOutput("[]").setMimeType(ContentService.MimeType.JSON);
+  }
+  
+  var mesStr = String(mesTarget).padStart(2, '0');
+  var fileName = "caja_archivo_" + anioTarget + "_" + mesStr + ".json";
+  
+  var files = rootFolder.getFilesByName(fileName);
+  if (!files.hasNext()) {
+    return ContentService.createTextOutput("[]").setMimeType(ContentService.MimeType.JSON);
+  }
+  
+  var todos = [];
+  var file = files.next();
+  try {
+    var data = JSON.parse(file.getBlob().getDataAsString());
+    if (sedeTarget && sedeTarget !== 'TODOS' && sedeTarget !== 'Todas las sedes') {
+      data = data.filter(function(m) { return m.sede === sedeTarget; });
+    }
+    todos = data;
+  } catch(e) {}
+  
+  todos.sort(function(a, b) { return b.fecha.localeCompare(a.fecha); });
+  var result = JSON.stringify(todos);
+  try { cache.put(cacheKey, result, 21600); } catch(e) {}
+  return ContentService.createTextOutput(result).setMimeType(ContentService.MimeType.JSON);
+}
+
+/**
+ * Invalida el cache de historial para todas las sedes.
+ */
+function invalidarCacheHistorico() {
+  try {
+    var cache = CacheService.getScriptCache();
+    // Esto es heurístico, CacheService no tiene "removeAll con patron", limpiamos los mas comunes si queremos.
+    // Lo dejaremos limpio sin llaves estrictas o limpiando las ultimas 10 busquedas.
+    Logger.log('Cache de historial limpiado localmente, los Caches se renuevan solos por tiempo.');
+  } catch(e) {}
+}

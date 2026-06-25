@@ -15,16 +15,16 @@
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
 <style>
   :root {
-    --azul: #003087;
-    --azul2: #0052cc;
-    --azul-claro: #e8f0ff;
-    --rojo: #cc0000;
-    --verde: #0052cc;
-    --blanco: #ffffff;
-    --gris: #f5f7fc;
-    --gris2: #e0e6f0;
-    --texto: #1a1a2e;
-    --texto2: #5a6475;
+    --azul: var(--brand-primary);
+    --azul2: var(--brand-secondary);
+    --azul-claro: var(--brand-light);
+    --rojo: var(--alert-danger);
+    --verde: var(--brand-secondary);
+    --blanco: var(--bg-surface);
+    --gris: var(--bg-body);
+    --gris2: var(--border-color);
+    --texto: var(--text-primary);
+    --texto2: var(--text-secondary);
   }
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { height: 100%; overflow: hidden; }
@@ -66,7 +66,7 @@
   #splash {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: linear-gradient(160deg, #002070 0%, #003087 50%, #0052cc 100%);
+    background: linear-gradient(160deg, var(--brand-primary) 0%, var(--brand-primary) 50%, var(--brand-secondary) 100%);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -109,7 +109,7 @@
   }
   .splash-progress-bar {
     height: 100%; width: 0%;
-    background: linear-gradient(90deg, #7eb8ff, #ffffff);
+    background: linear-gradient(90deg, #7eb8ff, var(--bg-surface));
     border-radius: 99px;
     transition: width 0.3s ease;
     position: relative;
@@ -166,7 +166,7 @@
     width: 72px; height: 72px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;
   }
   .status-icon-wrap.naranja { background: #fff3e0; color: #ff8800; animation: pulse-soft-or 2s infinite; }
-  .status-icon-wrap.verde { background: #e8f5e9; color: #0052cc; animation: pulse-soft-gr 2s infinite; }
+  .status-icon-wrap.verde { background: var(--alert-success-light); color: var(--brand-secondary); animation: pulse-soft-gr 2s infinite; }
   @keyframes pulse-soft-or { 0% { box-shadow: 0 0 0 0 rgba(255,136,0,0.2); } 70% { box-shadow: 0 0 0 15px rgba(255,136,0,0); } 100% { box-shadow: 0 0 0 0 rgba(255,136,0,0); } }
   @keyframes pulse-soft-gr { 0% { box-shadow: 0 0 0 0 rgba(0,82,204,0.2); } 70% { box-shadow: 0 0 0 15px rgba(0,82,204,0); } 100% { box-shadow: 0 0 0 0 rgba(0,82,204,0); } }
   .status-title { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 20px; color: var(--texto); margin-bottom: 8px; }
@@ -214,11 +214,11 @@
     border-radius: 20px; font-size: 11px; font-weight: 700;
     font-family: 'Montserrat', sans-serif; margin-bottom: 14px;
   }
-  .estado-normal { background: #0052cc; color: white; }
-  .estado-cpp { background: #ffbb00; color: #1a1a2e; }
+  .estado-normal { background: var(--brand-secondary); color: white; }
+  .estado-cpp { background: var(--alert-warning); color: var(--text-primary); }
   .estado-deficiente { background: #ff8800; color: white; }
-  .estado-dudoso { background: #cc0000; color: white; }
-  .estado-perdida { background: #1a1a2e; color: white; }
+  .estado-dudoso { background: var(--alert-danger); color: white; }
+  .estado-perdida { background: var(--text-primary); color: white; }
 
   .monto-box {
     background: rgba(255,255,255,0.15);
@@ -264,7 +264,7 @@
   /* BTN PRINCIPAL */
   .btn-main {
     width: 100%; padding: 16px;
-    background: linear-gradient(135deg, var(--verde) 0%, #003087 100%);
+    background: linear-gradient(135deg, var(--verde) 0%, var(--brand-primary) 100%);
     color: white; border: none; border-radius: 12px;
     font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 16px;
     cursor: pointer; box-shadow: 0 4px 16px rgba(0,82,204,0.35);
@@ -375,12 +375,12 @@
   .upload-area p { font-size: 12px; color: var(--texto2); }
   #voucher-preview { display: none; margin-bottom: 14px; }
   #voucher-preview img { width: 100%; border-radius: 12px; border: 2px solid var(--gris2); }
-  .alerta-box { background: #fff0f0; border-left: 3px solid var(--rojo); border-radius: 10px; padding: 10px 12px; font-size: 11px; color: #5a0000; margin-top: 12px; line-height: 1.5; }
+  .alerta-box { background: var(--alert-danger-light); border-left: 3px solid var(--rojo); border-radius: 10px; padding: 10px 12px; font-size: 11px; color: #5a0000; margin-top: 12px; line-height: 1.5; }
   .alerta-box strong { color: var(--rojo); }
 
   /* CELEBRATION */
   #step-exito {
-    background: linear-gradient(135deg, #003087 0%, #0052cc 50%, #0052cc 100%);
+    background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-secondary) 50%, var(--brand-secondary) 100%);
     background-size: 300% 300%;
     animation: bgFlow 4s ease infinite;
     align-items: center; justify-content: center;
@@ -402,7 +402,7 @@
   .exito-box::before {
     content: '';
     position: absolute; top: 0; left: 0; right: 0; height: 5px;
-    background: linear-gradient(90deg, #003087, #0052cc, #ffaa00, #003087);
+    background: linear-gradient(90deg, var(--brand-primary), var(--brand-secondary), #ffaa00, var(--brand-primary));
     background-size: 200% 100%;
     animation: shimmer 2s linear infinite;
   }
@@ -410,7 +410,7 @@
   @keyframes popIn { from { transform: scale(0.3) rotate(-5deg); opacity: 0; } to { transform: scale(1) rotate(0deg); opacity: 1; } }
   .exito-icon-wrap {
     width: 100px; height: 100px; border-radius: 50%;
-    background: linear-gradient(135deg, #0052cc, #003087);
+    background: linear-gradient(135deg, var(--brand-secondary), var(--brand-primary));
     display: flex; align-items: center; justify-content: center;
     margin: 0 auto 20px;
     animation: pulse 1.5s ease-in-out infinite;
@@ -421,20 +421,20 @@
     100% { box-shadow: 0 0 0 0 rgba(0,82,204,0); }
   }
   .exito-icon { font-size: 52px; line-height: 1; }
-  .exito-title { font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 26px; color: #003087; margin-bottom: 6px; }
-  .exito-subtitle { font-size: 13px; color: #0052cc; font-weight: 700; margin-bottom: 16px; }
+  .exito-title { font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 26px; color: var(--brand-primary); margin-bottom: 6px; }
+  .exito-subtitle { font-size: 13px; color: var(--brand-secondary); font-weight: 700; margin-bottom: 16px; }
   .exito-msg { font-size: 13px; color: var(--texto2); line-height: 1.7; margin-bottom: 20px; }
   .exito-badge {
     background: linear-gradient(135deg, #f0fff4, #e0f7ea);
-    border: 1.5px solid #003087; border-radius: 12px;
-    padding: 12px 16px; font-size: 12px; color: #0052cc;
+    border: 1.5px solid var(--brand-primary); border-radius: 12px;
+    padding: 12px 16px; font-size: 12px; color: var(--brand-secondary);
     font-weight: 700; margin-bottom: 20px;
     display: flex; align-items: center; gap: 8px; justify-content: center;
   }
   .exito-gracias {
     font-family: 'Montserrat', sans-serif; font-weight: 800;
-    font-size: 13px; color: #003087;
-    background: #e8f0ff; border-radius: 10px; padding: 10px 16px;
+    font-size: 13px; color: var(--brand-primary);
+    background: var(--brand-light); border-radius: 10px; padding: 10px 16px;
   }
 
   /* TOAST */
@@ -492,7 +492,7 @@
 
   .pulse-glow { animation: pulseGlow 2s infinite; }
   .fade-in-up { animation: fadeInUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-  .shake-error { animation: shakeX 0.4s ease; border-color: var(--rojo) !important; background-color: #fff0f0 !important; }
+  .shake-error { animation: shakeX 0.4s ease; border-color: var(--rojo) !important; background-color: var(--alert-danger-light) !important; }
 
   .btn-call-sm {
     position: absolute; top: 10px; right: 10px;
@@ -558,7 +558,7 @@
   </div>
 
   <!-- CARGANDO -->
-  <div class="step active" id="step-cargando" style="display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#003087,#0052cc);padding-top:60px;">
+  <div class="step active" id="step-cargando" style="display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--brand-primary),var(--brand-secondary));padding-top:60px;">
     <div class="spinner"></div>
     <div style="font-family:Montserrat,sans-serif;font-weight:700;font-size:18px;color:white;margin-bottom:8px;">Cargando tu información...</div>
     <div style="font-size:13px;color:rgba(255,255,255,0.7);">Por favor espera</div>
@@ -678,7 +678,7 @@
       </div>
     </div>
     <div class="voucher-body">
-      <div class="alerta-box" style="margin-top:0;margin-bottom:14px;background:#e8f0ff;border-color:var(--azul2);color:var(--azul);">
+      <div class="alerta-box" style="margin-top:0;margin-bottom:14px;background:var(--brand-light);border-color:var(--azul2);color:var(--azul);">
         <strong><span class="mi xs" style="vertical-align:text-bottom;">security</span> Seguro e importante:</strong> Todo pago debe efectuarse a nombre de <strong>GRUPO EFECTIVO S.A.C.</strong> RUC: 20607071447
       </div>
       <div class="upload-area" id="upload-area" onclick="document.getElementById('voucher-file').click()">
@@ -894,7 +894,7 @@
         const hour = now.getHours();
         const minutes = now.getMinutes();
 
-        if (day === 0) return { color: '#ef4444', text: 'Cerrado' };
+        if (day === 0) return { color: 'var(--alert-danger)', text: 'Cerrado' };
 
         let endHour = (day === 6) ? 13 : 18;
         let startHour = 9;
@@ -904,11 +904,11 @@
         let endMins = endHour * 60;
 
         if (totalMins < startMins || totalMins >= endMins) {
-          return { color: '#ef4444', text: 'Cerrado' };
+          return { color: 'var(--alert-danger)', text: 'Cerrado' };
         } else if (endMins - totalMins <= 10) {
-          return { color: '#f59e0b', text: 'Cierra pronto' };
+          return { color: 'var(--alert-warning)', text: 'Cierra pronto' };
         } else {
-          return { color: '#0052cc', text: 'Abierto' };
+          return { color: 'var(--brand-secondary)', text: 'Abierto' };
         }
       }
 
@@ -1091,7 +1091,7 @@
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    const colores = ['#003087','#0052cc','#0052cc','#ffaa00','#ff4444','#ffffff','#003087','#ffcc00'];
+    const colores = ['var(--brand-primary)','var(--brand-secondary)','var(--brand-secondary)','#ffaa00','#ff4444','var(--bg-surface)','var(--brand-primary)','#ffcc00'];
     const particulas = [];
     for (let i = 0; i < 220; i++) {
       const tipo = Math.random() > 0.5 ? 'rect' : 'circle';

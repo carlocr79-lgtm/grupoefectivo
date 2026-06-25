@@ -10,8 +10,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/admin.css?v=202606051">
+<link rel="stylesheet" href="css/admin.css?v=2">
 <link rel="stylesheet" href="css/table.css?v=5">
+<link rel="stylesheet" href="css/utilities.css">
 <script>
   if (sessionStorage.getItem('ge_session')) {
     document.write('<style>#login-screen { display: none !important; } #app { display: block !important; }</style>');
@@ -24,75 +25,60 @@
 <div id="login-screen" class="split-layout">
   
   <!-- LADO IZQUIERDO: Branding y Fondo -->
-  <div class="login-left" style="background: #012041; transition: background 0.3s ease;">
+  <div class="login-left" style="background: var(--brand-dark); transition: background 0.3s ease; position: relative;">
 
-    <div class="login-brand-content" style="position: relative; z-index: 10; width: 100%; height: 100%; display: flex; align-items: center; justify-content: flex-end; padding: 40px; overflow: hidden;">
-
-      <!-- Mascot Image (Reactive) -->
-      <img id="mascot-img" src="img/login_rabbit.png" alt="Mascota Grupo Efectivo">
-
-      <!-- Feature Cards Stack -->
-      <div class="feature-cards-stack" style="position: relative; z-index: 2; width: 280px; display: flex; flex-direction: column; gap: 12px; margin-right: 20px;">
-        <div class="feature-card" style="background: rgba(0,10,31,0.55); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 14px; display: flex; align-items: center; gap: 14px; backdrop-filter: blur(8px);">
-          <div class="fc-icon" style="color: #ff4757;"><i data-lucide="trending-up" class="mi"></i></div>
-          <div class="fc-text"><h4 style="margin:0; font-size:14px; color:white;">Créditos</h4><p style="margin:0; font-size:12px; color:rgba(255,255,255,0.6);">Gestiona y controla tus créditos</p></div>
-        </div>
-        <div class="feature-card" style="background: rgba(0,10,31,0.55); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 14px; display: flex; align-items: center; gap: 14px; backdrop-filter: blur(8px);">
-          <div class="fc-icon" style="color: #ff4757;"><i data-lucide="users" class="mi"></i></div>
-          <div class="fc-text"><h4 style="margin:0; font-size:14px; color:white;">Clientes</h4><p style="margin:0; font-size:12px; color:rgba(255,255,255,0.6);">Información y análisis de clientes</p></div>
-        </div>
-        <div class="feature-card" style="background: rgba(0,10,31,0.55); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 14px; display: flex; align-items: center; gap: 14px; backdrop-filter: blur(8px);">
-          <div class="fc-icon" style="color: #ff4757;"><i data-lucide="circle-dollar-sign" class="mi"></i></div>
-          <div class="fc-text"><h4 style="margin:0; font-size:14px; color:white;">Cobranza</h4><p style="margin:0; font-size:12px; color:rgba(255,255,255,0.6);">Seguimiento y gestión de pagos</p></div>
-        </div>
-        <div class="feature-card" style="background: rgba(0,10,31,0.55); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 14px; display: flex; align-items: center; gap: 14px; backdrop-filter: blur(8px);">
-          <div class="fc-icon" style="color: #ff4757;"><i data-lucide="folder-open" class="mi"></i></div>
-          <div class="fc-text"><h4 style="margin:0; font-size:14px; color:white;">Expedientes</h4><p style="margin:0; font-size:12px; color:rgba(255,255,255,0.6);">Documentos y archivos de clientes</p></div>
-        </div>
-        <div class="feature-card" style="background: rgba(0,10,31,0.55); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 14px; display: flex; align-items: center; gap: 14px; backdrop-filter: blur(8px);">
-          <div class="fc-icon" style="color: #ff4757;"><i data-lucide="vault" class="mi"></i></div>
-          <div class="fc-text"><h4 style="margin:0; font-size:14px; color:white;">Caja</h4><p style="margin:0; font-size:12px; color:rgba(255,255,255,0.6);">Control de movimientos y arqueos</p></div>
-        </div>
+    <div class="d-flex align-center gap-2"  style="position: absolute; top: 32px; left: 40px; z-index: 20;">
+      <div class="d-flex align-center justify-center"  style="width: 24px; height: 24px; background: var(--alert-danger); border-radius: 4px; transform: skewX(-10deg);">
+        <i class="mi text-white text-lg" data-lucide="gem"   style="transform: skewX(10deg);"></i>
       </div>
+      <span class="text-white"  style="font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 20px; letter-spacing: -0.5px;">G. EFECTIVO</span>
+    </div>
+
+    <div class="login-brand-content d-flex align-center justify-center"   style="position: relative; z-index: 10; width: 100%; height: 100%; padding: 40px; overflow: hidden;">
+      <img id="mascot-img" src="img/login_rabbit.png" alt="Mascota Grupo Efectivo" style="max-width: 80%; height: auto;">
     </div>
   </div>
 
   <!-- LADO DERECHO: Formulario -->
-  <div class="login-right">
-    <div class="login-timer-top">
-      <span id="timer-txt">Inicia sesión de forma segura</span>
-      <i data-lucide="shield-check" class="mi sm"></i>
+  <div class="login-right" style="background: var(--bg-surface); position: relative;">
+    <div class="d-flex justify-between align-center text-md"  style="position: absolute; top: 24px; left: 40px; right: 40px;">
+      <a class="font-semibold d-none align-center gap-1" href="#" id="btn-top-volver" onclick="volverCorreo(); return false;"  style="color: var(--alert-danger); text-decoration: none;">
+        <i class="mi text-xl" data-lucide="arrow-left"  ></i> Volver
+      </a>
+      <div class="text-secondary d-flex align-center"  style="gap: 6px; margin-left: auto;">
+        <span class="d-none" id="timer-txt-container" >Esta ventana se cerrará en <strong id="timer-txt">-- segundos</strong></span>
+        <span class="font-medium" id="timer-idle-txt" >Conexión segura</span>
+        <i data-lucide="timer" class="mi sm"></i>
+      </div>
     </div>
 
-    <div class="login-content-wrapper">
-      <div class="login-box flat-panel" id="main-login-panel">
+    <div class="login-content-wrapper d-flex flex-col align-center"   style="margin-top: 60px; width: 100%;">
       
-      <div class="login-header">
-        <div class="logo-icon-wrap" style="margin: 0 auto 16px auto; width: 48px; height: 48px; border-radius: 16px;">
-          <i data-lucide="lock" class="mi" style="font-size: 24px;"></i>
-        </div>
+      <div class="login-box flat-panel d-flex flex-col"  id="main-login-panel"  style="border: 1.5px solid var(--border-color); border-radius: 8px; background: white; padding: 32px 24px; box-shadow: 0 8px 30px rgba(1, 32, 65, 0.08); max-width: 360px; width: 100%; min-height: 360px;">
+      
+      <div class="d-flex align-center mb-6"  style="gap: 10px; padding-bottom: 16px; border-bottom: 1px solid #f0f4f8;">
+        <i data-lucide="credit-card" class="mi" style="color: var(--brand-dark); font-size: 24px;"></i>
+        <h3 class="m-0 font-bold"  style="color: var(--brand-dark); font-family: 'Montserrat', sans-serif; font-size: 15px;">Acceso Seguro</h3>
       </div>
 
       <!-- PASO 1: CORREO -->
-      <div id="box-correo" class="step-container active">
-        <h2 class="step-title" style="font-size: 18px; margin-bottom: 6px;">Acceso Seguro</h2>
-        <p style="text-align:center; font-size:13px; color:var(--texto2); margin-bottom:24px; font-weight:500;">Ingresa tu correo para continuar</p>
+      <div class="step-container active flex-1 d-flex flex-col justify-center" id="box-correo"  >
         
-        <div class="form-group floating">
-          <input type="email" id="inp-correo" placeholder=" " autocomplete="email"
+        <div class="form-group floating" style="margin-bottom: 20px;">
+          <input class="text-lg" type="email" id="inp-correo" placeholder=" " autocomplete="email"  style="border-radius: 6px; padding: 14px 16px;"
             onkeydown="if(event.key==='Enter')solicitarCodigo()">
           <label for="inp-correo">Correo electrónico</label>
         </div>
-        <button class="btn-login" id="btn-solicitar" onclick="solicitarCodigo()">
-          <span class="btn-text">Enviar Código <i data-lucide="arrow-right" class="mi xs" style="vertical-align:middle;"></i></span>
-          <span class="btn-spinner" style="display:none;"><i data-lucide="loader-2" class="mi spin"></i> Procesando...</span>
+        <button class="btn-login font-bold"  id="btn-solicitar" onclick="solicitarCodigo()"  style="background: var(--alert-danger); border-radius: 6px; box-shadow: none; padding: 14px;">
+          <span class="btn-text">Enviar Código</span>
+          <span class="btn-spinner d-none"  ><i data-lucide="loader-2" class="mi spin"></i> Procesando...</span>
         </button>
         <div class="login-error" id="login-error">Correo no autorizado</div>
         <div class="login-success" id="login-ok"><i data-lucide="check-circle" class="mi sm"></i> Código enviado a tu correo</div>
       </div>
 
       <!-- PASO 2: CÓDIGO -->
-      <div id="box-codigo" class="step-container" style="display:none;">
+      <div class="step-container d-none flex-col justify-center flex-1" id="box-codigo"  >
         <h2 class="step-title">Verificación de Seguridad</h2>
         <div class="correo-display">Código enviado a <strong id="correo-display-txt"></strong></div>
         <div class="codigo-inputs">
@@ -103,9 +89,9 @@
           <input type="tel" maxlength="1" class="cod-input" id="c5" autocomplete="one-time-code" oninput="avanzarCodigo(this,'c6')" onkeydown="retrocederCodigo(event,'c4')">
           <input type="tel" maxlength="1" class="cod-input" id="c6" autocomplete="one-time-code" oninput="avanzarCodigo(this,null)" onkeydown="retrocederCodigo(event,'c5')">
         </div>
-        <button class="btn-login" id="btn-verificar-cod" onclick="verificarCodigo()">
-          <span class="btn-text">Verificar Código <i data-lucide="arrow-right" class="mi xs" style="vertical-align:middle;"></i></span>
-          <span class="btn-spinner" style="display:none;"><i data-lucide="loader-2" class="mi spin"></i> Verificando...</span>
+        <button class="btn-login font-bold"  id="btn-verificar-cod" onclick="verificarCodigo()"  style="background: var(--alert-danger); border-radius: 6px; box-shadow: none; padding: 14px;">
+          <span class="btn-text">Verificar Código</span>
+          <span class="btn-spinner d-none"  ><i data-lucide="loader-2" class="mi spin"></i> Verificando...</span>
         </button>
         <div class="login-error" id="codigo-error">Código incorrecto o expirado</div>
         <button class="btn-reenviar" onclick="volverCorreo()"><i data-lucide="arrow-left" class="mi xs" style="vertical-align:middle;"></i> Cambiar correo o Reenviar</button>
@@ -128,7 +114,7 @@
       img.src=STATES[s]; 
       var ll = document.querySelector('.login-left');
       if(ll) {
-        if(s==='base') ll.style.background = '#012041';
+        if(s==='base') ll.style.background = 'var(--brand-dark)';
         else if(s==='pointing') ll.style.background = '#021331';
         else if(s==='otp') ll.style.background = '#001330';
       }
@@ -152,80 +138,142 @@
 </script>
 
 <!-- APP -->
-<div id="app" style="display: none;">
+<div class="d-none" id="app" >
   <div class="app-layout">
     <!-- SIDEBAR -->
     <aside class="sidebar collapsed" id="sidebar">
       <div class="sidebar-header">
-        <div class="sidebar-header-row">
-          <div class="sidebar-user-info">
-            <div class="sidebar-avatar" id="sidebar-avatar"><i data-lucide="user" class="mi"></i></div>
-            <div class="sidebar-user-text">
-              <div class="sidebar-user-name" id="navbar-user"></div>
-              <div class="sidebar-user-badges">
-                <span class="sidebar-user-role" id="navbar-rol"></span>
-                <span class="sidebar-user-role" style="color:rgba(255,255,255,0.2);">·</span>
-                <span class="sidebar-user-role" id="navbar-oficina"></span>
-              </div>
-            </div>
+        <div class="sidebar-header-row align-center justify-between"   style="width: 100%;">
+          <div class="d-flex align-center gap-2"  style="overflow: hidden; padding-left: 6px;">
+            <i class="mi text-white text-xl" data-lucide="gem"  ></i>
+            <span class="nav-item-label font-semibold text-lg text-white"   style="font-family: 'Montserrat', sans-serif; letter-spacing: 0.5px; white-space: nowrap;">G. EFECTIVO</span>
           </div>
-          <button class="btn-sidebar-toggle" onclick="toggleSidebarCollapse()" title="Contraer menú">
+          <button class="btn-sidebar-toggle" onclick="toggleSidebarCollapse()" title="Contraer menú" style="margin-left: auto;">
             <i data-lucide="chevron-left" class="mi sm toggle-icon"></i>
           </button>
         </div>
-        <div class="sidebar-sede-top">
-          <select id="global-sede-select" onchange="globalOnChangeSede()"></select>
-        </div>
       </div>
       <nav class="sidebar-nav">
-        <button class="nav-item active" onclick="navTo('dashboard',this)" title="Dashboard">
-          <i data-lucide="layout-dashboard" class="mi sm"></i> <span class="nav-item-label">Dashboard</span>
+        <button class="nav-item active" onclick="navTo('inicio',this)" title="Inicio">
+          <i data-lucide="home" class="mi sm"></i> <span class="nav-item-label">Inicio</span>
         </button>
-        <div class="nav-divider"></div>
-        <div class="nav-section">Gestiones</div>
+        <button class="nav-item" onclick="navTo('dashboard',this)" title="Analítica">
+          <i data-lucide="pie-chart" class="mi sm"></i> <span class="nav-item-label">Analítica</span>
+        </button>
+
         <button class="nav-item" onclick="navTo('clientes',this)" title="Clientes">
           <i data-lucide="users" class="mi sm"></i> <span class="nav-item-label">Clientes</span>
-          <span class="tab-badge" id="badge-vouchers" style="display:none;">0</span>
+          <span class="tab-badge d-none"  id="badge-vouchers" >0</span>
         </button>
-        <button class="nav-item" onclick="navTo('cartas',this)" title="Cartas de No Adeudo">
-          <i data-lucide="file-text" class="mi sm"></i> <span class="nav-item-label">Cartas</span>
-        </button>
-        <div class="nav-divider"></div>
-        <div class="nav-section">Administración de Efectivo</div>
+
+
         <button class="nav-item" id="nav-caja-parent" onclick="navTo('caja',this)" title="Caja Central">
           <i data-lucide="vault" class="mi sm"></i> <span class="nav-item-label">Caja Central</span>
         </button>
       </nav>
       <div class="sidebar-footer">
-        <button class="btn-sidebar-logout" onclick="logout()" title="Cerrar sesión">
-          <i data-lucide="log-out" class="mi sm"></i> <span class="logout-label">Cerrar sesión</span>
+        
+        <!-- Elementos ocultos por seguridad de JS -->
+        <div class="d-none" >
+          <span id="navbar-user"></span>
+          <span id="navbar-rol"></span>
+          <span id="navbar-oficina"></span>
+        </div>
+
+        <button class="btn-sidebar-logout" onclick="logout()" title="Salir">
+          <i data-lucide="arrow-left-circle" class="mi"></i> <span class="logout-label">Salir</span>
         </button>
       </div>
     </aside>
     <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
     <!-- MAIN CONTENT -->
     <main class="main-content">
-      <header class="topbar">
-        <button class="hamburger" id="hamburger-btn" onclick="toggleSidebar()">
-          <i data-lucide="menu" class="mi"></i>
-        </button>
-        <h1 class="topbar-title" id="topbar-title">Dashboard</h1>
-        <div class="topbar-right">
-          <button id="btn-refresh" class="btn-refresh" onclick="refrescarDatos()" title="Actualizar datos">
-            <i data-lucide="refresh-cw" class="mi sm sync-icon"></i> <span id="btn-refresh-text">Actualizar</span>
+      <header class="topbar" style="padding: 12px 28px 12px 20px;">
+        <div class="d-flex align-center"  style="width: 100%; box-sizing: border-box;">
+          <button class="hamburger" id="hamburger-btn" onclick="toggleSidebar()" style="margin-right: 12px;">
+            <i data-lucide="menu" class="mi"></i>
           </button>
+          <h1 class="topbar-title" id="topbar-title">Dashboard</h1>
+          <div class="topbar-right d-flex align-center gap-3"  >
+            <button id="btn-refresh" class="btn-refresh" onclick="refrescarDatos()" title="Sincronizar manualmente" style="width: 28px; height: 28px;">
+              <span class="sync-dot"></span>
+            </button>
+            <!-- Selector de sede movido aquí (al canto derecho) -->
+            <div class="d-none" id="topbar-sede-container" >
+              <select class="text-base font-semibold text-primary cursor-pointer" id="global-sede-select" onchange="globalOnChangeSede()"  style="background: white; border: 1px solid var(--gris2); border-radius: 6px; padding: 6px 26px 6px 10px; outline: none; appearance: none; background-image: url('data:image/svg+xml; charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2214%22%20height%3D%2214%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23475569%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right 6px center; box-shadow: 0 1px 2px rgba(0,0,0,0.05);"></select>
+            </div>
+          </div>
         </div>
       </header>
       <div class="content-body">
 
-        <!-- SECTION: DASHBOARD -->
-        <div id="section-dashboard" class="section active">
+        <!-- SECTION: INICIO -->
+        <div id="section-inicio" class="section active" style="padding: 24px; max-width: 1200px; margin: 0 auto;">
+          <!-- Encabezado de Inicio -->
+          <div class="text-white d-flex justify-between align-center gap-6"  style="background: linear-gradient(135deg, var(--azul) 0%, var(--brand-dark-hover) 100%); border-radius: 16px; padding: 32px 40px; margin-bottom: 32px; box-shadow: 0 10px 25px rgba(0,32,96,0.15); position: relative; overflow: hidden;">
+            <div style="position: absolute; right: 0; top: 0; bottom: 0; width: 40%; background: url('img/novedades.png') center/cover; opacity: 0.2; mix-blend-mode: luminosity;"></div>
+            <div class="flex-1"  style="position: relative; z-index: 2; padding-right: 16px;">
+              <div class="text-sm font-semibold uppercase mb-2" id="inicio-fecha"  style="letter-spacing: 1.5px; opacity: 0.8;">Cargando fecha...</div>
+              <h2 class="m-0 text-2xl font-extrabold" id="inicio-saludo"  style="font-family: 'DM Sans', sans-serif; letter-spacing: -0.5px;">¡Hola, Bienvenido!</h2>
+              <p class="text-md"  style="margin: 8px 0 0 0; opacity: 0.9;">¿Qué te gustaría gestionar el día de hoy?</p>
+            </div>
+            <div class="text-center flex-shrink-0"  style="position: relative; z-index: 2; background: rgba(255,255,255,0.1); padding: 16px; border-radius: 12px; backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.2); width: 130px; box-sizing: border-box;">
+              <i class="mi mb-1" data-lucide="clock"   style="font-size: 20px;"></i>
+              <div class="text-lg font-bold" id="inicio-hora"  style="font-family: 'DM Sans', sans-serif; font-variant-numeric: tabular-nums; letter-spacing: 0.5px;">--:--:--</div>
+            </div>
+          </div>
+
+          <!-- Quick Actions Grid -->
+          <h3 class="text-md text-primary mb-4 font-bold"  style="font-family: 'DM Sans', sans-serif;">Accesos Rápidos</h3>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+            
+            <div class="dash-panel cursor-pointer"  onclick="navTo('caja', document.getElementById('nav-caja-parent'))"  style="transition: transform 0.2s, box-shadow 0.2s; border: 1px solid var(--gris2);" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 24px rgba(0,0,0,0.08)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.04)'">
+              <div class="d-flex align-center gap-4" >
+                <div class="d-flex align-center justify-center"  style="background: var(--brand-light); color: var(--brand-secondary); width: 44px; height: 44px; border-radius: 12px;">
+                  <i data-lucide="vault" class="mi" style="font-size: 18px;"></i>
+                </div>
+                <div>
+                  <h4 class="m-0 text-md font-bold text-primary" >Caja Central</h4>
+                  <p class="text-sm text-secondary"  style="margin: 2px 0 0 0;">Registrar movimientos y arqueos</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="dash-panel" onclick="navTo('clientes', document.querySelector('.nav-item[title=\'Clientes\']')); setTimeout(()=>switchClientesTab('busqueda'), 100)" style="cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; border: 1px solid var(--gris2);" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 24px rgba(0,0,0,0.08)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.04)'">
+              <div class="d-flex align-center gap-4" >
+                <div class="d-flex align-center justify-center"  style="background: var(--alert-success-light); color: var(--alert-success); width: 44px; height: 44px; border-radius: 12px;">
+                  <i data-lucide="search" class="mi" style="font-size: 18px;"></i>
+                </div>
+                <div>
+                  <h4 class="m-0 text-md font-bold text-primary" >Buscar Cliente</h4>
+                  <p class="text-sm text-secondary"  style="margin: 2px 0 0 0;">Consultar estado y mora</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="dash-panel" onclick="navTo('clientes', document.querySelector('.nav-item[title=\'Clientes\']')); setTimeout(()=>switchClientesTab('cartas-pendientes'), 100)" style="cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; border: 1px solid var(--gris2);" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 24px rgba(0,0,0,0.08)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.04)'">
+              <div class="d-flex align-center gap-4" >
+                <div class="d-flex align-center justify-center"  style="background: var(--alert-danger-light); color: #d93025; width: 44px; height: 44px; border-radius: 12px;">
+                  <i data-lucide="file-text" class="mi" style="font-size: 18px;"></i>
+                </div>
+                <div>
+                  <h4 class="m-0 text-md font-bold text-primary" >Cartas de No Adeudo</h4>
+                  <p class="text-sm text-secondary"  style="margin: 2px 0 0 0;">Emitir y verificar cartas</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- SECTION: ANALÍTICA (Antes Dashboard) -->
+        <div id="section-dashboard" class="section">
           <div id="dash-content">
             <div class="dash-kpis-skeleton">
-              <div class="dash-kpi-sk"><div class="skeleton" style="width:40px;height:40px;border-radius:12px;margin-bottom:12px;"></div><div class="skeleton" style="height:24px;width:80%;margin-bottom:8px;"></div><div class="skeleton" style="height:12px;width:50%;"></div></div>
-              <div class="dash-kpi-sk"><div class="skeleton" style="width:40px;height:40px;border-radius:12px;margin-bottom:12px;"></div><div class="skeleton" style="height:24px;width:80%;margin-bottom:8px;"></div><div class="skeleton" style="height:12px;width:50%;"></div></div>
-              <div class="dash-kpi-sk"><div class="skeleton" style="width:40px;height:40px;border-radius:12px;margin-bottom:12px;"></div><div class="skeleton" style="height:24px;width:80%;margin-bottom:8px;"></div><div class="skeleton" style="height:12px;width:50%;"></div></div>
-              <div class="dash-kpi-sk"><div class="skeleton" style="width:40px;height:40px;border-radius:12px;margin-bottom:12px;"></div><div class="skeleton" style="height:24px;width:80%;margin-bottom:8px;"></div><div class="skeleton" style="height:12px;width:50%;"></div></div>
+              <div class="dash-kpi-sk"><div class="skeleton mb-3"   style="width:40px; height:40px; border-radius:12px;"></div><div class="skeleton mb-2"   style="height:24px; width:80%;"></div><div class="skeleton" style="height:12px;width:50%;"></div></div>
+              <div class="dash-kpi-sk"><div class="skeleton mb-3"   style="width:40px; height:40px; border-radius:12px;"></div><div class="skeleton mb-2"   style="height:24px; width:80%;"></div><div class="skeleton" style="height:12px;width:50%;"></div></div>
+              <div class="dash-kpi-sk"><div class="skeleton mb-3"   style="width:40px; height:40px; border-radius:12px;"></div><div class="skeleton mb-2"   style="height:24px; width:80%;"></div><div class="skeleton" style="height:12px;width:50%;"></div></div>
+              <div class="dash-kpi-sk"><div class="skeleton mb-3"   style="width:40px; height:40px; border-radius:12px;"></div><div class="skeleton mb-2"   style="height:24px; width:80%;"></div><div class="skeleton" style="height:12px;width:50%;"></div></div>
             </div>
             <div class="dash-row">
               <div class="dash-panel skeleton" style="height:200px;"></div>
@@ -235,175 +283,323 @@
         </div>
 
         <!-- SECTION: CLIENTES (Activos, Inactivos, Mora) -->
-        <div id="section-clientes" class="section section-flex">
-          <!-- ZONA DE FILTROS Y TABS -->
-          <div style="padding-bottom: 4px; margin-bottom: 8px; border-bottom: 1px solid var(--gris2);">
-            
-            <!-- TABS ÚNICOS DE SECCIÓN -->
-            <div style="display:inline-flex; background:#f8fafc; padding:6px; border-radius:12px; margin-bottom:16px; border:1px solid #e2e8f0; width:100%; overflow-x:auto; -ms-overflow-style:none; scrollbar-width:none; gap:4px;">
-              <style>.btn-main-tab:hover { background: #f1f5f9 !important; color: #1a73e8 !important; } .btn-main-tab.active:hover { background: #e8f0fe !important; }</style>
-              <button id="tab-clientes-busqueda" class="btn-main-tab active" onclick="switchClientesTab('busqueda')" style="padding:8px 18px; border-radius:8px; border:1px solid #d2e3fc; font-weight:600; font-size:13px; cursor:pointer; background:#e8f0fe; color:#1a73e8; box-shadow:0 1px 2px rgba(0,0,0,0.05); transition:background-color 0.2s, color 0.2s; white-space:nowrap;"><i data-lucide="search" class="mi" style="font-size:15px;margin-right:6px;vertical-align:text-bottom;"></i> Búsqueda General</button>
-              <button id="tab-clientes-mora-pendientes" class="btn-main-tab" onclick="switchClientesTab('mora-pendientes')" style="padding:8px 18px; border-radius:8px; border:1px solid transparent; font-weight:600; font-size:13px; cursor:pointer; background:transparent; color:var(--texto2); box-shadow:none; transition:background-color 0.2s, color 0.2s; white-space:nowrap;"><i data-lucide="bell" class="mi" style="font-size:15px;margin-right:6px;vertical-align:text-bottom;"></i> Mora: Pendientes</button>
-              <button id="tab-clientes-mora-vouchers" class="btn-main-tab" onclick="switchClientesTab('mora-vouchers')" style="padding:8px 18px; border-radius:8px; border:1px solid transparent; font-weight:600; font-size:13px; cursor:pointer; background:transparent; color:var(--texto2); box-shadow:none; transition:background-color 0.2s, color 0.2s; white-space:nowrap;"><i data-lucide="receipt" class="mi" style="font-size:15px;margin-right:6px;vertical-align:text-bottom;"></i> Mora: Vouchers <span class="tab-badge" id="badge-vouchers-sub" style="display:none;margin-left:4px;position:relative;top:-1px;right:0;transform:none;background:var(--naranja);color:white;padding:2px 6px;border-radius:10px;font-size:10px;">0</span></button>
-              <button id="tab-clientes-mora-historial" class="btn-main-tab" onclick="switchClientesTab('mora-historial')" style="padding:8px 18px; border-radius:8px; border:1px solid transparent; font-weight:600; font-size:13px; cursor:pointer; background:transparent; color:var(--texto2); box-shadow:none; transition:background-color 0.2s, color 0.2s; white-space:nowrap;"><i data-lucide="history" class="mi" style="font-size:15px;margin-right:6px;vertical-align:text-bottom;"></i> Mora: Historial</button>
-            </div>
+        <div id="section-clientes" class="section">
+            <!-- ZONA DE FILTROS Y TABS -->
+            <div class="mb-2"  style="padding-bottom: 4px; border-bottom: 1px solid var(--gris2); position: sticky; top: -20px; background: var(--gris); z-index: 10; padding-top: 20px; margin-top: -20px; min-height: 109px; box-sizing: border-box;">
+              
+              <div class="d-flex justify-between align-center mb-4 gap-3" >
+                <!-- BUSCADOR EXPANDIBLE A LA IZQUIERDA -->
+                <div class="d-flex flex-1 align-center gap-3" >
+                  <style>
+                    .search-wrapper {
+                      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+                      border: 1.5px solid transparent;
+                    }
+                    .search-wrapper.collapsed {
+                      max-width: 36px;
+                      background: var(--bg-body);
+                      border-color: transparent;
+                      border-radius: 18px;
+                      box-shadow: none;
+                    }
+                    .search-wrapper.expanded {
+                      max-width: 350px;
+                      background: white;
+                      border-color: var(--azul);
+                      border-radius: 8px;
+                      box-shadow: 0 4px 16px rgba(0,32,96,0.1);
+                    }
+                    .search-wrapper.collapsed #btn-busqueda-global {
+                      opacity: 0;
+                      pointer-events: none;
+                      transform: scale(0.8);
+                      transition: all 0.2s ease-out;
+                    }
+                    .search-wrapper.expanded #btn-busqueda-global {
+                      opacity: 1;
+                      pointer-events: auto;
+                      transform: scale(1);
+                      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s;
+                    }
+                    .search-wrapper.collapsed #icon-busqueda-global {
+                      color: var(--texto2);
+                    }
+                    .search-wrapper.expanded #icon-busqueda-global {
+                      color: var(--azul);
+                    }
+                    #input-busqueda-global:focus {
+                      box-shadow: none !important;
+                    }
+                    #btn-clear-busqueda:hover { background: var(--border-color) !important; color: var(--texto) !important; }
+                    #btn-clear-busqueda[data-estado="loading"] .state-x { animation: localSpin 0.8s linear infinite; }
+                    #btn-clear-busqueda[data-estado="ready"] .state-x { animation: none; transform: rotate(0deg); }
+                  </style>
+                  <div class="search-wrapper collapsed flex-1" id="search-wrapper-global"   style="position:relative; height:36px; overflow:hidden;">
+                    <i class="mi text-xl" data-lucide="search"  id="icon-busqueda-global"  style="position:absolute; left:10px; top:50%; transform:translateY(-50%); pointer-events:none; z-index:2; transition:color 0.3s;"></i>
+                    <input class="text-md font-medium text-primary cursor-pointer" type="text" id="input-busqueda-global" placeholder="Buscar cliente..." onfocus="switchClientesTab('busqueda');" onkeydown="if(event.key==='Enter') window.manejarBusquedaGlobal()" oninput="window.onInputBusquedaGlobal(this.value)"  style="box-sizing:border-box; width:350px; height:100%; padding:0 36px 0 36px; border:none; background:transparent; outline:none;">
+                    <button class="text-secondary d-flex align-center justify-center cursor-pointer" id="btn-clear-busqueda" data-estado="ready" onclick="document.getElementById('input-busqueda-global').value=''; window.onInputBusquedaGlobal('');"  style="position:absolute; right:8px; top:50%; transform:translateY(-50%); width:20px; height:20px; background:var(--bg-body); border:none; border-radius:10px; opacity:0; pointer-events:none; transition: opacity 0.2s, background-color 0.2s;">
+                      <i class="mi state-x text-base m-0" data-lucide="x"   style="stroke-width:3;"></i>
+                    </button>
+                  </div>
+                  <style>
+                    @keyframes localSpin { 100% { transform: rotate(360deg); } }
+                  </style>
+                  <div class="d-none align-center font-medium text-primary text-lg" id="contador-clientes-busqueda"  style="gap:6px;"></div>
+                </div>
 
-            <!-- CONTROLES POR TAB (Clientes) -->
-            <div class="caja-toolbar" id="mora-controls-clientes" style="display:none; gap:12px; flex-wrap:wrap; align-items:center; margin-bottom: 0;">
-              <div style="position:relative; flex:1; min-width:240px; max-width:350px;">
-                <i data-lucide="search" class="mi" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:16px; color:var(--texto2); pointer-events:none;"></i>
-                <input type="text" id="buscar-cliente" placeholder="Buscar cliente por nombre o celular..." oninput="filtrarClientes()" style="width:100%; padding:8px 14px 8px 36px; border:1px solid var(--gris2); border-radius:8px; font-size:13px; outline:none; transition: border-color 0.2s; background:#f8fafc;">
+                <!-- TABS A LA DERECHA -->
+                <div class="gap-1 flex-shrink-0 align-center"  style="display:inline-flex;">
+                  <style>
+                    .btn-main-tab {
+                      all: unset;
+                      box-sizing: border-box;
+                      height: 32px;
+                      padding: 0 14px;
+                      border-radius: 8px;
+                      border: 1px solid var(--gris2);
+                      font-weight: 600;
+                      font-size: 12px;
+                      font-family: inherit;
+                      cursor: pointer;
+                      background: white;
+                      color: var(--texto2);
+                      white-space: nowrap;
+                      display: inline-flex;
+                      align-items: center;
+                      gap: 6px;
+                      user-select: none;
+                      line-height: 1;
+                    }
+                    .btn-main-tab:hover {
+                      border-color: var(--brand-light-border);
+                      color: var(--brand-secondary);
+                      background: var(--bg-body);
+                    }
+                  </style>
+                  <button id="tab-clientes-mora" class="btn-main-tab"
+                    style="background:var(--brand-light); border-color:var(--brand-light-border); color:var(--brand-secondary);"
+                    onclick="switchMoraSubTab('pendientes')">
+                    <i class="mi m-0" data-lucide="bell"   style="font-size:15px;"></i> Mora
+                  </button>
+                  <button id="tab-clientes-cartas-pendientes" class="btn-main-tab"
+                    onclick="switchClientesTab('cartas-pendientes')">
+                    <i class="mi m-0" data-lucide="file-check-2"   style="font-size:15px;"></i> Cartas
+                    <span class="tab-badge d-none text-white text-xs"  id="cartas-pendientes-badge"  style="margin-left:2px; background:var(--alert-danger); padding:2px 6px; border-radius:10px;">0</span>
+                  </button>
+                </div>
               </div>
-              <select id="filtros-asesores" class="clean-select" onchange="setFiltroAsesor(this.value)" style="width:auto;min-width:160px;flex:0 0 auto;padding:8px 30px 8px 12px;border:1px solid var(--gris2);border-radius:8px;font-size:13px;background-color:#f8fafc; cursor:pointer;"></select>
-              <button id="btn-notificaciones" class="btn-ghost-blue" onclick="iniciarRecordatorios()" style="width:auto;padding:8px 16px;border-radius:8px;font-size:13px;display:flex;align-items:center;gap:6px;flex-shrink:0;transition:all 0.3s;font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,0.05);">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="15" height="15" fill="currentColor" style="vertical-align:middle;"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.736 5.472 2.027 7.774L0 32l8.454-2.01A15.938 15.938 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.333a13.27 13.27 0 01-6.748-1.833l-.484-.287-5.02 1.194 1.271-4.874-.317-.502A13.267 13.267 0 012.667 16C2.667 8.636 8.636 2.667 16 2.667S29.333 8.636 29.333 16 23.364 29.333 16 29.333zm7.27-9.862c-.398-.199-2.354-1.162-2.72-1.294-.365-.133-.631-.199-.897.199-.266.398-1.029 1.294-1.262 1.56-.232.266-.465.299-.863.1-.398-.2-1.681-.619-3.203-1.977-1.184-1.057-1.983-2.362-2.215-2.76-.232-.398-.025-.613.174-.811.179-.178.398-.465.598-.698.199-.232.265-.398.398-.664.133-.266.066-.498-.033-.697-.1-.2-.897-2.162-1.229-2.96-.324-.777-.653-.672-.897-.684l-.764-.013c-.266 0-.697.1-1.063.498-.365.398-1.395 1.362-1.395 3.323s1.428 3.854 1.627 4.12c.2.266 2.81 4.287 6.808 6.014.951.41 1.694.656 2.273.839.955.304 1.824.261 2.511.158.766-.114 2.354-.962 2.687-1.891.332-.929.332-1.726.232-1.891-.099-.166-.365-.266-.763-.465z"/></svg>
-                Notificaciones
-              </button>
-              <div id="contador-clientes-mora" style="margin-left:auto; display:none; align-items:center; gap:6px; font-size:14px; font-weight:500; color:var(--texto2); padding-right:16px;"></div>
-            </div>
 
-            <!-- CONTROLES POR TAB (Historial) -->
-            <div class="caja-toolbar" id="mora-controls-historial" style="display:none; gap:12px;">
-              <select id="filtro-hist-asesor" class="clean-select" onchange="renderHistorial()" style="width:auto;min-width:180px;flex:0 0 auto;padding:9px 34px 9px 14px;border:1.5px solid var(--gris2);border-radius:10px;font-size:13px;background-color:white;">
-                <option value="">Todos los asesores</option>
-              </select>
-              <select id="filtro-hist-fecha" class="clean-select" onchange="renderHistorial()" style="width:auto;min-width:180px;flex:0 0 auto;padding:9px 34px 9px 14px;border:1.5px solid var(--gris2);border-radius:10px;font-size:13px;background-color:white;">
-                <option value="">Todas las fechas</option>
-              </select>
-            </div>
-
-            <!-- CONTROLES POR TAB (Busqueda Global) -->
             <style>
-              #input-busqueda-global:focus {
-                box-shadow: 0 4px 12px rgba(0,32,96,0.08) !important;
-                border-color: var(--azul) !important;
+              @keyframes spin-ccw {
+                0% { transform: translate(-50%, -50%) rotate(0deg); }
+                100% { transform: translate(-50%, -50%) rotate(-360deg); }
               }
-              #input-busqueda-global:hover {
-                border-color: var(--azul) !important;
+              .btn-pulse-attention {
+                position: relative !important;
+                border: none !important;
+                background: transparent !important;
+                overflow: hidden !important;
+                box-shadow: 0 2px 4px rgba(239, 68, 68, 0.1) !important;
               }
-              .search-wrapper:hover > i.mi,
-              .search-wrapper:focus-within > i.mi {
-                color: var(--azul) !important;
+              .btn-pulse-attention::before {
+                content: '';
+                position: absolute;
+                top: 50%; left: 50%;
+                width: 200%; height: 200%;
+                background: conic-gradient(from 0deg, transparent 60%, var(--alert-danger) 100%);
+                animation: spin-ccw 1.5s linear infinite;
+                z-index: 0;
               }
-              #btn-busqueda-global:hover {
-                filter: brightness(1.15);
+              .btn-pulse-attention::after {
+                content: '';
+                position: absolute;
+                inset: 1.5px;
+                background: white;
+                border-radius: 6.5px;
+                z-index: 1;
               }
-              #btn-busqueda-global:active {
-                transform: scale(0.95);
-              }
-              #btn-busqueda-global i {
-                transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-              }
-              #btn-busqueda-global[data-estado="buscar"]:hover i {
-                transform: translateX(2px);
-              }
-              #btn-busqueda-global[data-estado="limpiar"]:hover i {
-                transform: scale(1.1) rotate(5deg);
+              .btn-pulse-attention svg {
+                position: relative;
+                z-index: 2;
+                color: var(--alert-danger) !important;
               }
             </style>
-            <div class="caja-toolbar" id="mora-controls-busqueda" style="display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-bottom: 0;">
-              <div class="search-wrapper" style="position:relative; flex:1; min-width:260px; max-width:480px;">
-                <i data-lucide="search" class="mi" style="position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:18px; color:var(--gris2); pointer-events:none; transition:color 0.2s;"></i>
-                <input type="text" id="input-busqueda-global" placeholder="Ingresa código o nombre..." onkeydown="if(event.key==='Enter') window.manejarBusquedaGlobal()" oninput="window.onInputBusquedaGlobal(this.value)" style="width:100%; padding:10px 48px 10px 42px; border:2px solid var(--gris2); border-radius:8px; font-size:14px; outline:none; transition: all 0.2s; background:#ffffff; box-shadow: 0 2px 8px rgba(0,32,96,0.06); font-weight: 500;">
-                <button id="btn-busqueda-global" data-estado="buscar" onclick="window.manejarBusquedaGlobal()" style="position:absolute; right:5px; top:5px; bottom:5px; width:34px; background:var(--azul); color:white; border:none; border-radius:6px; padding:0; cursor:pointer; transition: all 0.2s; display:flex; align-items:center; justify-content:center;"><i data-lucide="arrow-right" class="mi" style="margin:0;"></i></button>
+
+            <!-- CONTROLES POR TAB (Clientes / Mora Global) -->
+            <div class="caja-toolbar d-none gap-3 align-center"  id="mora-controls-clientes"  style="flex-wrap:wrap; margin-bottom: 0;">
+
+              <!-- 1, 2 y 3. Pestañas: Asesores (Principal) / Vouchers / Historial -->
+              <div class="d-flex gap-2 flex-shrink-0" >
+                <!-- El select real (Se muestra cuando estamos en la pestaña principal) -->
+                <select class="clean-select text-base font-semibold cursor-pointer" id="filtros-asesores"  onchange="setFiltroAsesor(this.value)"  style="box-sizing:border-box; height:32px; width:115px; padding:0 24px 0 12px; border:1px solid var(--brand-light-border); border-radius:8px; background-color:var(--brand-light); color:var(--brand-secondary); outline:none; transition:all 0.2s; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;"></select>
+                
+                <!-- El botón falso (Se muestra cuando estamos en otras pestañas) -->
+                <button class="btn-mora-subtab d-none text-secondary font-semibold text-base cursor-pointer align-center justify-center" id="subtab-mora-asesores"  onclick="switchMoraSubTab('pendientes')"  style="box-sizing:border-box; height:32px; width:115px; padding:0; border-radius:8px; border:1px solid var(--gris2); background:white; transition:all 0.2s; gap:6px;">
+                  <i class="mi xs icon-main m-0" data-lucide="user"  ></i>
+                  Asesores
+                </button>
+
+                <button class="btn-mora-subtab text-secondary font-semibold text-base cursor-pointer d-flex align-center" id="subtab-mora-vouchers"  onclick="switchMoraSubTab('vouchers')"  style="height:32px; padding:0 14px; border-radius:8px; border:1px solid var(--gris2); background:white; transition:all 0.2s; gap:6px;">
+                  <i class="mi xs icon-main m-0" data-lucide="receipt"  ></i>
+                  Vouchers
+                  <span class="tab-badge d-none text-white text-xs"  id="badge-vouchers-sub"  style="margin-left:4px; background:var(--alert-danger); padding:2px 6px; border-radius:10px;">0</span>
+                </button>
+                <button class="btn-mora-subtab text-secondary font-semibold text-base cursor-pointer d-flex align-center" id="subtab-mora-historial"  onclick="switchMoraSubTab('historial')"  style="height:32px; padding:0 14px; border-radius:8px; border:1px solid var(--gris2); background:white; transition:all 0.2s; gap:6px;">
+                  <i class="mi xs icon-main m-0" data-lucide="history"  ></i>
+                  Historial
+                </button>
               </div>
-              <div id="contador-clientes-busqueda" style="display:none; align-items:center; margin-left:auto; font-weight:500; color:var(--texto); font-size:15px; gap:6px; padding-right:16px;"></div>
+
+              <!-- 4. Notificaciones Expandible -->
+              <style>
+                #btn-notificaciones-container {
+                  position: relative;
+                  height: 32px;
+                  border-radius: 8px;
+                  background: white;
+                  border: 1px solid var(--gris2);
+                  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+                  overflow: hidden;
+                  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                  width: 32px;
+                  display: flex;
+                  align-items: center;
+                  cursor: pointer;
+                }
+                #btn-notificaciones-container:hover {
+                  width: 130px;
+                  border-color: var(--azul);
+                  background: var(--brand-light);
+                  color: var(--brand-secondary);
+                }
+                #btn-notificaciones-container.disabled-mode {
+                  opacity: 0.6;
+                  cursor: default;
+                  pointer-events: none;
+                }
+                #btn-notificaciones-container svg {
+                  position: absolute;
+                  left: 8px;
+                  top: 50%;
+                  transform: translateY(-50%);
+                  min-width: 14px;
+                }
+                #btn-notificaciones-text {
+                  opacity: 0;
+                  white-space: nowrap;
+                  font-size: 12px;
+                  font-weight: 600;
+                  margin-left: 30px;
+                  transition: opacity 0.3s;
+                }
+                #btn-notificaciones-container:hover #btn-notificaciones-text {
+                  opacity: 1;
+                }
+              </style>
+              <div id="btn-notificaciones" onclick="if(!this.classList.contains('disabled-mode')) iniciarRecordatorios()" id-container="btn-notificaciones-container" class="btn-notificaciones-wrapper">
+                <div id="btn-notificaciones-container">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="14" height="14" fill="currentColor"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.736 5.472 2.027 7.774L0 32l8.454-2.01A15.938 15.938 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.333a13.27 13.27 0 01-6.748-1.833l-.484-.287-5.02 1.194 1.271-4.874-.317-.502A13.267 13.267 0 012.667 16C2.667 8.636 8.636 2.667 16 2.667S29.333 8.636 29.333 16 23.364 29.333 16 29.333zm7.27-9.862c-.398-.199-2.354-1.162-2.72-1.294-.365-.133-.631-.199-.897.199-.266.398-1.029 1.294-1.262 1.56-.232.266-.465.299-.863.1-.398-.2-1.681-.619-3.203-1.977-1.184-1.057-1.983-2.362-2.215-2.76-.232-.398-.025-.613.174-.811.179-.178.398-.465.598-.698.199-.232.265-.398.398-.664.133-.266.066-.498-.033-.697-.1-.2-.897-2.162-1.229-2.96-.324-.777-.653-.672-.897-.684l-.764-.013c-.266 0-.697.1-1.063.498-.365.398-1.395 1.362-1.395 3.323s1.428 3.854 1.627 4.12c.2.266 2.81 4.287 6.808 6.014.951.41 1.694.656 2.273.839.955.304 1.824.261 2.511.158.766-.114 2.354-.962 2.687-1.891.332-.929.332-1.726.232-1.891-.099-.166-.365-.266-.763-.465z"/></svg>
+                  <span id="btn-notificaciones-text">Notificaciones</span>
+                </div>
+              </div>
+
+              <!-- 5. Buscador Expandible (Solo ícono) -->
+              <div class="d-flex align-center gap-2" >
+                <div id="mora-search-container" style="position:relative; transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1); width: 32px; height: 32px;">
+                  <i class="mi text-secondary" data-lucide="search"   style="position:absolute; left:8px; top:50%; transform:translateY(-50%); font-size:15px; pointer-events:none; z-index:2;"></i>
+                  <input class="text-base cursor-pointer" type="text" id="buscar-cliente" placeholder="Buscar cliente..." onfocus="this.parentElement.style.width='320px'; this.style.borderColor='var(--azul)'; this.style.background='white'; this.style.padding='0 12px 0 32px';" onblur="if(!this.value) { this.parentElement.style.width='32px'; this.style.borderColor='var(--gris2)'; this.style.background='var(--bg-body)'; this.style.padding='0 0 0 32px'; }" oninput="filtrarClientes()"  style="position:absolute; top:0; left:0; width:100%; height:100%; padding:0 0 0 32px; border:1px solid var(--gris2); border-radius:8px; background:var(--bg-body); outline:none; transition:all 0.3s; color:var(--texto1);">
+                </div>
+              </div>
+
+              <!-- El icono y cantidad intactos en su sitio original -->
+              <div class="d-none align-center text-lg font-medium text-secondary" id="contador-clientes-mora"  style="margin-left:auto; gap:6px; padding-right:16px;"></div>
+            </div>
+
+            <!-- TOOLBAR CARTAS -->
+            <div class="caja-toolbar gap-3 align-center d-none"  id="cartas-controls-pendientes"  style="flex-wrap:wrap; margin-bottom: 0;">
+              <div class="d-flex gap-2 flex-shrink-0" >
+                <select class="clean-select text-base font-semibold cursor-pointer" id="filtros-asesores-cartas"  onchange="if(window.renderCartasPendientes) window.renderCartasPendientes()"  style="box-sizing:border-box; height:32px; width:115px; padding:0 24px 0 12px; border:1px solid var(--brand-light-border); border-radius:8px; background-color:var(--brand-light); color:var(--brand-secondary); outline:none; transition:all 0.2s; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">
+                  <option value="">Todos</option>
+                </select>
+              </div>
+                
+              <!-- Buscador Expandible -->
+              <div class="d-flex align-center gap-2" >
+                <div id="cartas-search-container" style="position:relative; transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1); width: 32px; height: 32px;">
+                  <i class="mi text-secondary" data-lucide="search"   style="position:absolute; left:8px; top:50%; transform:translateY(-50%); font-size:15px; pointer-events:none; z-index:2;"></i>
+                  <input class="text-base cursor-pointer" type="text" id="buscar-cartas" placeholder="Buscar carta..." onfocus="this.parentElement.style.width='320px'; this.style.borderColor='var(--azul)'; this.style.background='white'; this.style.padding='0 12px 0 32px';" onblur="if(!this.value) { this.parentElement.style.width='32px'; this.style.borderColor='var(--gris2)'; this.style.background='var(--bg-body)'; this.style.padding='0 0 0 32px'; }" oninput="if(window.renderCartasPendientes) window.renderCartasPendientes()"  style="position:absolute; top:0; left:0; width:100%; height:100%; padding:0 0 0 32px; border:1px solid var(--gris2); border-radius:8px; background:var(--bg-body); outline:none; transition:all 0.3s; color:var(--texto1);">
+                </div>
+              </div>
+
+              <!-- Contador -->
+              <div class="d-none align-center text-lg font-medium text-secondary" id="contador-cartas"  style="margin-left:auto; gap:6px; padding-right:16px;"></div>
             </div>
           </div>
 
+
+
           <!-- CONTENIDO BUSQUEDA GLOBAL -->
-          <div id="mora-content-busqueda" style="display:flex; flex: 1; min-height: 0; flex-direction: column;">
-            <div id="resultados-busqueda-global" class="custom-scroll-container" style="flex: 1; min-height: 0; overflow-y: auto; padding-right: 8px; margin-right: -8px; padding-bottom: 40px;">
+          <div class="d-none" id="mora-content-busqueda" >
+            <div id="resultados-busqueda-global" style="padding-bottom: 40px;">
               <!-- Aquí se renderizan los resultados de la búsqueda global -->
             </div>
           </div>
 
           <!-- CONTENIDO CLIENTES (MORA) -->
-          <div id="mora-content-clientes" style="display:none; flex: 1; min-height: 0; flex-direction: column;">
-            <div id="lista-clientes" class="custom-scroll-container" style="flex: 1; min-height: 0; overflow-y: auto; padding-right: 8px; margin-right: -8px;">
-              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
-              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
-              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+          <div class="d-none" id="mora-content-clientes" >
+            <div id="lista-clientes" style="padding-bottom: 40px;">
+              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
             </div>
           </div>
 
           <!-- CONTENIDO VOUCHERS -->
-          <div id="mora-content-vouchers" style="display:none; flex: 1; min-height: 0; flex-direction: column;">
-            <div id="lista-vouchers" class="custom-scroll-container" style="flex: 1; min-height: 0; overflow-y: auto; padding-right: 8px; margin-right: -8px; padding-bottom: 40px;">
-              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
-              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+          <div class="d-none" id="mora-content-vouchers" >
+            <div id="lista-vouchers" style="padding-bottom: 40px;">
+              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
             </div>
           </div>
 
           <!-- CONTENIDO HISTORIAL -->
-          <div id="mora-content-historial" style="display:none; flex: 1; min-height: 0; flex-direction: column;">
-            <div class="resumen-box" id="resumen-historial" style="flex-shrink: 0;">
+          <div class="d-none" id="mora-content-historial" >
+            <div class="resumen-box mb-3"  id="resumen-historial" >
               <div class="resumen-item"><div class="val" id="res-total">-</div><div class="lbl">Total recaudado</div></div>
               <div class="resumen-item"><div class="val" id="res-count">-</div><div class="lbl">Pagos registrados</div></div>
             </div>
-            <div id="lista-historial" class="custom-scroll-container" style="flex: 1; min-height: 0; overflow-y: auto; padding-right: 8px; margin-right: -8px; padding-bottom: 40px;">
-              <div class="skeleton-box"><div class="skeleton sk-avatar" style="border-radius:8px;"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
-              <div class="skeleton-box"><div class="skeleton sk-avatar" style="border-radius:8px;"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+            <div id="lista-historial" style="padding-bottom: 40px;">
+              <div class="skeleton-box"><div class="skeleton sk-avatar" style="border-radius:8px;"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+              <div class="skeleton-box"><div class="skeleton sk-avatar" style="border-radius:8px;"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
             </div>
           </div>
-        </div>
-
-        <!-- SECTION: CARTAS DE NO ADEUDO -->
-        <div id="section-cartas" class="section">
-          <!-- TABS -->
-          <div class="gestiones-subtabs" id="cartas-tabs" style="display:flex;">
-            <button class="gestiones-subtab active" id="tab-cartas-buscador" onclick="cartasSwitchTab('buscador')">Buscador de Clientes</button>
-            <button class="gestiones-subtab" id="tab-cartas-pendientes" onclick="cartasSwitchTab('pendientes')" style="display:none; align-items:center; gap:6px;">
-              Pendientes de Aprobación
-              <span id="cartas-pendientes-badge" style="background:#ef4444; color:white; font-size:10px; font-weight:500; padding:2px 6px; border-radius:10px; display:none;">0</span>
-            </button>
-          </div>
-
-          <!-- CONTENIDO BUSCADOR -->
-          <div id="cartas-content-buscador">
-            <div class="caja-toolbar" style="display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-bottom:16px;">
-              <div style="position:relative; flex:1; min-width:280px; max-width:450px;">
-                <i data-lucide="search" class="mi" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:18px; color:var(--texto2); pointer-events:none;"></i>
-                <input type="text" id="cartas-buscar" placeholder="Buscar por nombre, código o celular..." oninput="toggleCartasClearBtn(); cartasBuscarDebounce();" onkeyup="if(event.key==='Enter') cartasBuscar()" style="width:100%; padding:9px 36px 9px 38px; border:1.5px solid var(--gris2); border-radius:10px; font-size:13px; outline:none; transition:border-color 0.2s;">
-                <button id="cartas-btn-clear" onclick="limpiarBuscadorCartas()" title="Nueva búsqueda" style="display:none; position:absolute; right:8px; top:50%; transform:translateY(-50%); background:var(--gris2); border:none; cursor:pointer; color:var(--texto); width:24px; height:24px; align-items:center; justify-content:center; border-radius:50%; transition:background 0.2s;"><i data-lucide="x" class="mi sm" style="font-size:16px;"></i></button>
-              </div>
-              <div id="cartas-count" style="font-size:12px; color:var(--texto2); font-weight:600;"></div>
-            </div>
-            <div id="cartas-resultados" class="movimientos-list">
-              <div class="empty" style="padding:40px 20px;">
-                <div class="icon"><i data-lucide="file-text" class="mi" style="font-size:48px; color:var(--azul2);"></i></div>
-                <div style="font-weight:500; color:var(--azul); font-size:14px; margin-top:8px;">Cartas de No Adeudo</div>
-                <div style="font-size:12px; color:var(--texto2); margin-top:4px;">Busca un cliente por nombre, código o celular para consultar su estado</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- CONTENIDO PENDIENTES -->
-          <div id="cartas-content-pendientes" style="display:none;">
-            <div id="cartas-pendientes-container"></div>
+          
+          <!-- CONTENIDO CARTAS PENDIENTES -->
+          <div class="d-none" id="mora-content-cartas" >
+            <div id="cartas-pendientes-container" style="padding-bottom: 40px;"></div>
           </div>
         </div>
 
         <!-- SECTION: CAJA CHICA (tabs unificados) -->
         
         <!-- SECTION: CAJA CENTRAL UNIFICADA -->
-        <div id="section-caja" class="section section-flex">
+        <div id="section-caja" class="section">
           
           <!-- TABS DE CAJA -->
-          <div style="padding-bottom: 4px; margin-bottom: 12px; border-bottom: 1px solid var(--gris2);">
-            <div style="display:inline-flex; background:#f1f5f9; padding:4px; border-radius:10px; border:1px solid #e2e8f0; width: 100%; overflow-x: auto;">
-              <button id="tab-caja-cajachica" class="btn-main-tab active" onclick="switchCajaTab('cajachica')" style="padding:7px 18px; border-radius:8px; border:none; font-weight:600; font-size:13px; cursor:pointer; background:white; color:var(--azul); box-shadow:0 1px 3px rgba(0,0,0,0.1); transition:all 0.2s; white-space: nowrap;"><i data-lucide="wallet" class="mi" style="font-size:15px;margin-right:5px;vertical-align:text-bottom;"></i> Caja Chica</button>
-              <button id="tab-caja-kasnet" class="btn-main-tab" onclick="switchCajaTab('kasnet')" style="padding:7px 18px; border-radius:8px; border:none; font-weight:600; font-size:13px; cursor:pointer; background:transparent; color:var(--texto2); box-shadow:none; transition:all 0.2s; white-space: nowrap;"><i data-lucide="store" class="mi" style="font-size:15px;margin-right:5px;vertical-align:text-bottom;"></i> KASNET</button>
-              <button id="tab-caja-arqueo" class="btn-main-tab" onclick="switchCajaTab('arqueo')" style="padding:7px 18px; border-radius:8px; border:none; font-weight:600; font-size:13px; cursor:pointer; background:transparent; color:var(--texto2); box-shadow:none; transition:all 0.2s; white-space: nowrap;"><i data-lucide="calculator" class="mi" style="font-size:15px;margin-right:5px;vertical-align:text-bottom;"></i> Arqueo Global</button>
+          <div class="mb-3"  style="padding-bottom: 4px; border-bottom: 1px solid var(--gris2); position: sticky; top: -20px; background: var(--gris); z-index: 10; padding-top: 20px; margin-top: -20px;">
+            <div style="display:inline-flex; background:var(--bg-body); padding:4px; border-radius:10px; border:1px solid var(--border-color); width: 100%; overflow-x: auto;">
+              <button class="btn-main-tab active font-semibold text-md cursor-pointer" id="tab-caja-cajachica"  onclick="switchCajaTab('cajachica')"  style="padding:7px 18px; border-radius:8px; border:none; background:white; color:var(--azul); box-shadow:0 1px 3px rgba(0,0,0,0.1); transition:all 0.2s; white-space: nowrap;"><i data-lucide="wallet" class="mi" style="font-size:15px;margin-right:5px;vertical-align:text-bottom;"></i> Caja Chica</button>
+              <button class="btn-main-tab font-semibold text-md cursor-pointer text-secondary" id="tab-caja-kasnet"  onclick="switchCajaTab('kasnet')"  style="padding:7px 18px; border-radius:8px; border:none; background:transparent; box-shadow:none; transition:all 0.2s; white-space: nowrap;"><i data-lucide="store" class="mi" style="font-size:15px;margin-right:5px;vertical-align:text-bottom;"></i> KASNET</button>
+              <button class="btn-main-tab font-semibold text-md cursor-pointer text-secondary" id="tab-caja-arqueo"  onclick="switchCajaTab('arqueo')"  style="padding:7px 18px; border-radius:8px; border:none; background:transparent; box-shadow:none; transition:all 0.2s; white-space: nowrap;"><i data-lucide="calculator" class="mi" style="font-size:15px;margin-right:5px;vertical-align:text-bottom;"></i> Arqueo Global</button>
             </div>
           </div>
 
           <!-- CONTENEDOR CAJA CHICA -->
-          <div id="caja-sub-cajachica" style="display:flex; flex-direction:column; flex:1;">
+          <div class="d-flex flex-col" id="caja-sub-cajachica" >
 
 
           <!-- TABS HORIZONTALES (mismo patrón que Mora) -->
-          <div style="display:flex;gap:0;margin-bottom:12px;border-bottom:1px solid var(--gris2);">
+          <div class="d-flex mb-3"  style="gap:0; border-bottom:1px solid var(--gris2);">
             <button id="cc-tab-mesactual"  class="btn-mora-tab active" onclick="cajaSwitchTab('mesactual')"><i data-lucide="arrow-up-down" class="mi sm"></i> Mes Actual</button>
             <button id="cc-tab-mesanterior" class="btn-mora-tab" onclick="cajaSwitchTab('mesanterior')"><i data-lucide="history" class="mi sm"></i> Meses Anteriores</button>
             <button id="cc-tab-arqueo"     class="btn-mora-tab" onclick="cajaSwitchTab('arqueo')"><i data-lucide="archive" class="mi sm"></i> Arqueos</button>
@@ -412,22 +608,22 @@
           <!-- PANEL: MES ACTUAL -->
           <div id="cc-panel-mesactual">
             <div class="caja-toolbar" id="caja-toolbar-actual">
-              <button class="btn-main" onclick="cajaShowModal()" style="padding:10px; display:flex; align-items:center; justify-content:center;" title="Nuevo Movimiento"><i data-lucide="plus" class="mi sm"></i></button>
-              <div style="position:relative;flex:1;max-width:300px;">
-                <i data-lucide="search" class="mi" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--texto2);pointer-events:none;"></i>
-                <input type="text" id="caja-buscar" placeholder="Buscar..." oninput="cajaFiltrar()" style="width:100%;padding:8px 12px 8px 34px;border:1.5px solid var(--gris2);border-radius:10px;font-size:13px;outline:none;">
+              <button class="btn-main d-flex align-center justify-center"  onclick="cajaShowModal()"  style="padding:10px;" title="Nuevo Movimiento"><i data-lucide="plus" class="mi sm"></i></button>
+              <div class="flex-1"  style="position:relative; max-width:300px;">
+                <i class="mi text-xl text-secondary" data-lucide="search"   style="position:absolute; left:12px; top:50%; transform:translateY(-50%); pointer-events:none;"></i>
+                <input class="text-md" type="text" id="caja-buscar" placeholder="Buscar..." oninput="cajaFiltrar()"  style="width:100%; padding:8px 12px 8px 34px; border:1.5px solid var(--gris2); border-radius:10px; outline:none;">
               </div>
             </div>
             <div class="movimientos-list" id="caja-tabla-body">
-              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
-              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
-              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
-              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
             </div>
           </div>
 
           <!-- PANEL: MESES ANTERIORES -->
-          <div id="cc-panel-mesanterior" style="display:none;">
+          <div class="d-none" id="cc-panel-mesanterior" >
             <div class="caja-toolbar" id="caja-toolbar-archivo" style="flex-wrap: wrap; gap: 10px;">
               <select id="hist-tipo" class="sel-sede" style="width:140px; padding:8px; border-radius:8px;">
                 <option value="MOVIMIENTOS">Movimientos</option>
@@ -454,32 +650,32 @@
               </select>
               <button class="btn-primary" onclick="_cajaArchivoUltimoPeriodo=null; cajaCargarArchivo()" style="padding:8px 16px; border-radius:8px;"><i data-lucide="search" class="mi sm"></i> Buscar</button>
               
-              <div style="position:relative;flex:1;min-width:200px;">
-                <i data-lucide="search" class="mi" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--texto2);pointer-events:none;"></i>
-                <input type="text" id="caja-buscar-archivo" placeholder="Filtrar resultados..." oninput="cajaFiltrar()" style="width:100%;padding:8px 12px 8px 34px;border:1.5px solid var(--gris2);border-radius:10px;font-size:13px;outline:none;">
+              <div class="flex-1"  style="position:relative; min-width:200px;">
+                <i class="mi text-xl text-secondary" data-lucide="search"   style="position:absolute; left:12px; top:50%; transform:translateY(-50%); pointer-events:none;"></i>
+                <input class="text-md" type="text" id="caja-buscar-archivo" placeholder="Filtrar resultados..." oninput="cajaFiltrar()"  style="width:100%; padding:8px 12px 8px 34px; border:1.5px solid var(--gris2); border-radius:10px; outline:none;">
               </div>
             </div>
             <div class="movimientos-list" id="caja-tabla-body-archivo">
-              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
-              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
-              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
-              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
             </div>
           </div>
 
           <!-- PANEL: ARQUEOS -->
-          <div id="cc-panel-arqueo" style="display:none;">
+          <div class="d-none" id="cc-panel-arqueo" >
             <div class="caja-toolbar">
-              <button class="btn-main" onclick="cajaShowArqueoModal()" style="padding:10px; display:flex; align-items:center; justify-content:center;" title="Nuevo Arqueo"><i data-lucide="plus" class="mi sm"></i></button>
+              <button class="btn-main d-flex align-center justify-center"  onclick="cajaShowArqueoModal()"  style="padding:10px;" title="Nuevo Arqueo"><i data-lucide="plus" class="mi sm"></i></button>
             </div>
             <div class="movimientos-list" id="caja-hist-body">
-              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
-              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
-              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
-              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
             </div>
-            <div style="text-align:center;margin-top:14px;display:none;" id="caja-hist-mas-container">
-              <button class="btn-main" id="btn-arqueos-mas" onclick="cajaLoadHistorial(true)" style="background:white;color:var(--azul2);border:1.5px solid var(--azul2);width:auto;padding:8px 24px;border-radius:30px;font-size:13px;font-weight:500;"><i data-lucide="chevron-down" class="mi xs" style="vertical-align:text-bottom;margin-right:4px;"></i> Ver más arqueos</button>
+            <div class="text-center d-none"  style="margin-top:14px;" id="caja-hist-mas-container">
+              <button class="btn-main text-md font-medium"  id="btn-arqueos-mas" onclick="cajaLoadHistorial(true)"  style="background:white; color:var(--azul2); border:1.5px solid var(--azul2); width:auto; padding:8px 24px; border-radius:30px;"><i data-lucide="chevron-down" class="mi xs" style="vertical-align:text-bottom;margin-right:4px;"></i> Ver más arqueos</button>
             </div>
           </div><!-- /cc-panel-arqueo -->
 
@@ -488,42 +684,42 @@
         <!-- SECTION: KASNET -->
         
           <!-- CONTENEDOR KASNET -->
-          <div id="caja-sub-kasnet" style="display:none; flex-direction:column; flex:1;">
+          <div class="d-none flex-col flex-1" id="caja-sub-kasnet" >
 
           <div class="caja-toolbar">
-            <button class="btn-main" onclick="kasnetShowModal()" style="padding:10px; display:flex; align-items:center; justify-content:center;" title="Nuevo Registro Diario"><i data-lucide="plus" class="mi sm"></i></button>
-            <div style="position:relative; flex:1; max-width:300px;">
-              <i data-lucide="search" class="mi" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:16px; color:var(--texto2); pointer-events:none;"></i>
-              <input type="text" id="kasnet-buscar" placeholder="Buscar fecha..." oninput="kasnetFiltrar()" style="width:100%; padding:8px 12px 8px 34px; border:1.5px solid var(--gris2); border-radius:10px; font-size:13px; outline:none; transition:border-color 0.2s;">
+            <button class="btn-main d-flex align-center justify-center"  onclick="kasnetShowModal()"  style="padding:10px;" title="Nuevo Registro Diario"><i data-lucide="plus" class="mi sm"></i></button>
+            <div class="flex-1"  style="position:relative; max-width:300px;">
+              <i class="mi text-xl text-secondary" data-lucide="search"   style="position:absolute; left:12px; top:50%; transform:translateY(-50%); pointer-events:none;"></i>
+              <input class="text-md" type="text" id="kasnet-buscar" placeholder="Buscar fecha..." oninput="kasnetFiltrar()"  style="width:100%; padding:8px 12px 8px 34px; border:1.5px solid var(--gris2); border-radius:10px; outline:none; transition:border-color 0.2s;">
             </div>
           </div>
           <div class="movimientos-list" id="kasnet-lista">
-            <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
-            <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div style="flex:1;"><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+            <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+            <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
           </div>
           </div><!-- /caja-sub-kasnet -->
           
           <!-- CONTENEDOR ARQUEO GLOBAL -->
-          <div id="caja-sub-arqueo" style="display:none; flex-direction:column; flex:1; gap: 16px;">
-            <div style="background: white; border-radius: 12px; padding: 20px; border: 1px solid var(--gris2); display: flex; flex-direction: column; gap: 16px;">
-              <h3 style="margin:0; font-size: 16px; color: var(--azul); display: flex; align-items: center; gap: 8px;"><i data-lucide="calculator" class="mi"></i> Resumen de Cuadre Físico General</h3>
-              <p style="margin:0; font-size: 13px; color: var(--texto2);">Este panel suma el dinero en efectivo que debes tener físicamente sumando tu Caja Chica y las operaciones KASNET.</p>
+          <div class="d-none flex-col flex-1 gap-4" id="caja-sub-arqueo" >
+            <div class="d-flex flex-col gap-4"  style="background: white; border-radius: 12px; padding: 20px; border: 1px solid var(--gris2);">
+              <h3 class="m-0 text-xl d-flex align-center gap-2"  style="color: var(--azul);"><i data-lucide="calculator" class="mi"></i> Resumen de Cuadre Físico General</h3>
+              <p class="m-0 text-md text-secondary" >Este panel suma el dinero en efectivo que debes tener físicamente sumando tu Caja Chica y las operaciones KASNET.</p>
               
-              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin-top: 8px;">
-                <div style="background: #f8fafc; padding: 16px; border-radius: 10px; border: 1px solid #e2e8f0;">
-                  <div style="font-size: 12px; font-weight: 600; color: var(--texto2); margin-bottom: 4px; text-transform: uppercase;">Físico Caja Chica</div>
-                  <div id="arqueo-global-cajachica" style="font-size: 24px; font-weight: 700; color: var(--texto); font-family: 'DM Sans', sans-serif;">S/ 0.00</div>
+              <div class="gap-4 mt-2"  style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
+                <div style="background: var(--bg-body); padding: 16px; border-radius: 10px; border: 1px solid var(--border-color);">
+                  <div class="text-base font-semibold text-secondary mb-1 uppercase" >Físico Caja Chica</div>
+                  <div class="font-bold text-primary" id="arqueo-global-cajachica"  style="font-size: 24px; font-family: 'DM Sans', sans-serif;">S/ 0.00</div>
                 </div>
-                <div style="background: #f8fafc; padding: 16px; border-radius: 10px; border: 1px solid #e2e8f0;">
-                  <div style="font-size: 12px; font-weight: 600; color: var(--texto2); margin-bottom: 4px; text-transform: uppercase;">Físico KASNET</div>
-                  <div id="arqueo-global-kasnet" style="font-size: 24px; font-weight: 700; color: var(--texto); font-family: 'DM Sans', sans-serif;">S/ 0.00</div>
+                <div style="background: var(--bg-body); padding: 16px; border-radius: 10px; border: 1px solid var(--border-color);">
+                  <div class="text-base font-semibold text-secondary mb-1 uppercase" >Físico KASNET</div>
+                  <div class="font-bold text-primary" id="arqueo-global-kasnet"  style="font-size: 24px; font-family: 'DM Sans', sans-serif;">S/ 0.00</div>
                 </div>
               </div>
               
-              <div style="background: var(--azul); color: white; padding: 20px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center;">
+              <div class="text-white d-flex justify-between align-center"  style="background: var(--azul); padding: 20px; border-radius: 10px;">
                 <div>
-                  <div style="font-size: 13px; font-weight: 500; opacity: 0.9; margin-bottom: 4px; text-transform: uppercase;">Total Dinero Físico Esperado</div>
-                  <div id="arqueo-global-total" style="font-size: 32px; font-weight: 800; font-family: 'DM Sans', sans-serif; letter-spacing: -1px;">S/ 0.00</div>
+                  <div class="text-md font-medium mb-1 uppercase"  style="opacity: 0.9;">Total Dinero Físico Esperado</div>
+                  <div class="font-extrabold" id="arqueo-global-total"  style="font-size: 32px; font-family: 'DM Sans', sans-serif; letter-spacing: -1px;">S/ 0.00</div>
                 </div>
                 <i data-lucide="vault" class="mi" style="font-size: 48px; opacity: 0.5;"></i>
               </div>
@@ -542,7 +738,7 @@
 <div class="drawer-panel" id="drawer-panel">
   <div class="drawer-header">
     <div class="avatar-group">
-      <div class="avatar" id="dr-avatar" style="background:var(--azul); width:46px; height:46px; font-size:16px;"></div>
+      <div class="avatar text-xl"  id="dr-avatar"  style="background:var(--azul); width:46px; height:46px;"></div>
       <div>
         <h2 id="dr-nombre">Cargando...</h2>
         <div class="subtitle" id="dr-tags"></div>
@@ -562,7 +758,7 @@
       <div class="dr-section-title">Datos Generales</div>
       <div class="dr-item"><span class="lbl">Código</span><span class="val" id="dr-cod"></span></div>
       <div class="dr-item"><span class="lbl">Celular</span><span class="val" id="dr-cel"></span></div>
-      <div class="dr-item"><span class="lbl">Dirección</span><span class="val" id="dr-dir" style="text-align:right; max-width:60%;"></span></div>
+      <div class="dr-item"><span class="lbl">Dirección</span><span class="val text-right"  id="dr-dir"  style="max-width:60%;"></span></div>
       <div class="dr-item"><span class="lbl">Próx. Vencimiento</span><span class="val" id="dr-venc"></span></div>
     </div>
     <div class="dr-section">
@@ -598,15 +794,15 @@
     </div>
     <div class="dr-section" id="dr-caja-desc-section">
       <div class="dr-section-title">Descripción</div>
-      <div id="dr-caja-desc" style="font-size:13px; color:var(--texto); line-height:1.5;"></div>
+      <div class="text-md text-primary" id="dr-caja-desc"  style="line-height:1.5;"></div>
     </div>
-    <div class="dr-section" id="dr-caja-comp-section" style="display:none; flex-direction:column; padding:12px;">
-      <div class="dr-section-title" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+    <div class="dr-section d-none flex-col"  id="dr-caja-comp-section"  style="padding:12px;">
+      <div class="dr-section-title d-flex justify-between align-center mb-3"  >
         <span>Comprobante</span>
-        <a id="dr-caja-link-comp" href="#" target="_blank" style="font-size:11px; color:var(--azul); text-decoration:none; display:none; align-items:center; gap:4px; font-weight:500;"><i data-lucide="external-link" class="mi xs"></i> Abrir</a>
+        <a class="text-sm d-none align-center gap-1 font-medium" id="dr-caja-link-comp" href="#" target="_blank"  style="color:var(--azul); text-decoration:none;"><i data-lucide="external-link" class="mi xs"></i> Abrir</a>
       </div>
-      <button id="dr-caja-btn-show-comp" class="btn-secundary" style="width:100%; justify-content:center; gap:8px;" onclick="mostrarIframeCaja()"><i data-lucide="eye" class="mi sm"></i> Ver Comprobante</button>
-      <iframe id="dr-caja-iframe" src="" style="width:100%; height:250px; border:1px solid var(--gris2); border-radius:10px; background:#f8fafc; display:none;"></iframe>
+      <button class="btn-secundary justify-center gap-2" id="dr-caja-btn-show-comp"   style="width:100%;" onclick="mostrarIframeCaja()"><i data-lucide="eye" class="mi sm"></i> Ver Comprobante</button>
+      <iframe class="d-none" id="dr-caja-iframe" src=""  style="width:100%; height:250px; border:1px solid var(--gris2); border-radius:10px; background:var(--bg-body);"></iframe>
     </div>
   </div>
   <div class="drawer-actions" id="dr-caja-actions"></div>
@@ -637,13 +833,13 @@
       <div class="dr-section-title">Desglose Físico</div>
       <div id="dr-kasnet-desglose"></div>
     </div>
-    <div class="dr-section" id="dr-kasnet-comp-section" style="display:none; flex-direction:column; padding:12px;">
-      <div class="dr-section-title" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+    <div class="dr-section d-none flex-col"  id="dr-kasnet-comp-section"  style="padding:12px;">
+      <div class="dr-section-title d-flex justify-between align-center mb-3"  >
         <span>Comprobante</span>
-        <a id="dr-kasnet-link-comp" href="#" target="_blank" style="font-size:11px; color:var(--azul); text-decoration:none; display:none; align-items:center; gap:4px; font-weight:500;"><i data-lucide="external-link" class="mi xs"></i> Abrir</a>
+        <a class="text-sm d-none align-center gap-1 font-medium" id="dr-kasnet-link-comp" href="#" target="_blank"  style="color:var(--azul); text-decoration:none;"><i data-lucide="external-link" class="mi xs"></i> Abrir</a>
       </div>
-      <button id="dr-kasnet-btn-show-comp" class="btn-secundary" style="width:100%; justify-content:center; gap:8px;" onclick="mostrarIframeKasnet()"><i data-lucide="eye" class="mi sm"></i> Ver Comprobante</button>
-      <iframe id="dr-kasnet-iframe" src="" style="width:100%; height:250px; border:1px solid var(--gris2); border-radius:10px; background:#f8fafc; display:none;"></iframe>
+      <button class="btn-secundary justify-center gap-2" id="dr-kasnet-btn-show-comp"   style="width:100%;" onclick="mostrarIframeKasnet()"><i data-lucide="eye" class="mi sm"></i> Ver Comprobante</button>
+      <iframe class="d-none" id="dr-kasnet-iframe" src=""  style="width:100%; height:250px; border:1px solid var(--gris2); border-radius:10px; background:var(--bg-body);"></iframe>
     </div>
   </div>
   <div class="drawer-actions" id="dr-kasnet-actions"></div>
@@ -668,14 +864,14 @@
       <div class="dr-item"><span class="lbl">Estado</span><span class="val" id="dr-cartas-estado"></span></div>
       <div class="dr-item"><span class="lbl">Calificación</span><span class="val" id="dr-cartas-calif"></span></div>
       <div class="dr-item"><span class="lbl">Celular</span><span class="val" id="dr-cartas-celular"></span></div>
-      <div class="dr-item"><span class="lbl">Últ. Créditos</span><span class="val" id="dr-cartas-ultcred" style="font-size:15px; font-weight:600; color:var(--azul);"></span></div>
+      <div class="dr-item"><span class="lbl">Últ. Créditos</span><span class="val font-semibold"  id="dr-cartas-ultcred"  style="font-size:15px; color:var(--azul);"></span></div>
       <div class="dr-item"><span class="lbl">F. Desembolso</span><span class="val" id="dr-cartas-fdesemb"></span></div>
       <div class="dr-item"><span class="lbl">F. Cancelación</span><span class="val" id="dr-cartas-fcancel"></span></div>
       <div class="dr-item"><span class="lbl">Créd. Activos</span><span class="val" id="dr-cartas-activos"></span></div>
     </div>
     <div class="dr-section">
       <div class="dr-section-title">Observaciones</div>
-      <div style="font-size:13px; color:var(--texto); line-height:1.5; padding:12px; background:#f8fafc; border-radius:8px; border-left:3px solid var(--azul-claro);" id="dr-cartas-obs"></div>
+      <div class="text-md text-primary"  style="line-height:1.5; padding:12px; background:var(--bg-body); border-radius:8px; border-left:3px solid var(--azul-claro);" id="dr-cartas-obs"></div>
     </div>
   </div>
 </div>
@@ -709,9 +905,9 @@
 <!-- MODAL CAJA -->
 <div class="modal-caja" id="modal-caja">
   <div class="modal-caja-box">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+    <div class="d-flex justify-between align-center mb-4" >
       <h3 id="modal-caja-titulo">Nuevo Movimiento</h3>
-      <button onclick="cajaHideModal()" style="background:none;border:none;font-size:18px;cursor:pointer;">x</button>
+      <button class="cursor-pointer" onclick="cajaHideModal()"  style="background:none; border:none; font-size:18px;">x</button>
     </div>
     <input type="hidden" id="caja-edit-id">
     <div class="form-caja-group"><label>Fecha</label><input type="date" id="caja-fecha"></div>
@@ -728,8 +924,8 @@
     <div class="form-caja-group"><label>Categoria</label><select id="caja-categoria"><option value="">Seleccionar...</option></select></div>
     <div class="form-caja-group"><label>Descripcion</label><input type="text" id="caja-descripcion" placeholder="Detalle"></div>
     <div class="form-caja-group"><label>Comprobante (Opc.)</label>
-      <div id="caja-archivo-actual" style="display:none;margin-bottom:8px;">
-        <button onclick="verSustento(document.getElementById('caja-archivo-actual').dataset.url)" style="background:var(--azul-claro);color:var(--azul2);border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:4px;">
+      <div class="d-none mb-2" id="caja-archivo-actual" >
+        <button class="text-base font-medium cursor-pointer align-center gap-1" onclick="verSustento(document.getElementById('caja-archivo-actual').dataset.url)"  style="background:var(--azul-claro); color:var(--azul2); border:none; border-radius:8px; padding:6px 12px; display:inline-flex;">
           <i data-lucide="eye" class="mi sm"></i> Ver archivo actual
         </button>
       </div>
@@ -738,7 +934,7 @@
           <i data-lucide="upload-cloud" class="mi" id="file-upload-icon"></i>
           <span id="file-upload-text">Subir comprobante (Opcional)</span>
         </label>
-        <input type="file" id="caja-archivo" accept="image/*,application/pdf" style="display:none;" onchange="
+        <input class="d-none" type="file" id="caja-archivo" accept="image/*,application/pdf"  onchange="
           const caja_fT = document.getElementById('file-upload-text');
           const caja_fI = document.getElementById('file-upload-icon');
           const caja_fL = document.getElementById('file-upload-label');
@@ -756,14 +952,14 @@
         ">
       </div>
     </div>
-    <div style="display:flex;gap:10px;margin-top:8px;">
-      <button class="btn-secundary" onclick="cajaHideModal()" style="flex:1;">Cancelar</button>
-      <button class="btn-main" onclick="cajaGuardar()" id="caja-btn-guardar" style="flex:1;padding:12px;">Guardar</button>
+    <div class="d-flex mt-2"  style="gap:10px;">
+      <button class="btn-secundary flex-1"  onclick="cajaHideModal()" >Cancelar</button>
+      <button class="btn-main flex-1"  onclick="cajaGuardar()" id="caja-btn-guardar"  style="padding:12px;">Guardar</button>
     </div>
-    <div id="caja-saving-overlay" style="display:none;position:absolute;inset:0;background:rgba(255,255,255,0.92);border-radius:14px;z-index:10;flex-direction:column;align-items:center;justify-content:center;gap:12px;">
+    <div class="d-none flex-col align-center justify-center gap-3" id="caja-saving-overlay"  style="position:absolute; inset:0; background:rgba(255,255,255,0.92); border-radius:14px; z-index:10;">
       <div class="spinner-sm" style="width:32px;height:32px;border-width:3px;"></div>
-      <div id="caja-saving-msg" style="font-family:Montserrat,sans-serif;font-weight:500;font-size:13px;color:var(--azul);text-align:center;">Guardando...</div>
-      <div id="caja-saving-sub" style="font-size:11px;color:var(--texto2);text-align:center;">Esto puede tomar unos segundos</div>
+      <div class="font-medium text-md text-center" id="caja-saving-msg"  style="font-family:Montserrat,sans-serif; color:var(--azul);">Guardando...</div>
+      <div class="text-sm text-secondary text-center" id="caja-saving-sub" >Esto puede tomar unos segundos</div>
     </div>
   </div>
 </div>
@@ -790,56 +986,56 @@
   <div class="modal-caja-box" style="max-width:820px;padding:0;border-radius:20px;overflow:hidden;">
 
     <!-- HEADER -->
-    <div style="background:linear-gradient(135deg,var(--azul),var(--azul2));padding:18px 24px;display:flex;align-items:center;justify-content:space-between;">
-      <div style="display:flex;align-items:center;gap:14px;">
-        <div style="width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;">
-          <i data-lucide="archive" class="mi" style="font-size:22px;color:white;"></i>
+    <div class="d-flex align-center justify-between"  style="background:linear-gradient(135deg,var(--azul),var(--azul2)); padding:18px 24px;">
+      <div class="d-flex align-center"  style="gap:14px;">
+        <div class="d-flex align-center justify-center"  style="width:42px; height:42px; border-radius:12px; background:rgba(255,255,255,0.15);">
+          <i class="mi text-2xl text-white" data-lucide="archive"  ></i>
         </div>
         <div>
-          <div id="modal-arq-titulo" style="font-family:'Montserrat',sans-serif;font-weight:600;font-size:15px;color:white;">Nuevo Arqueo de Caja</div>
-          <div style="font-size:11px;color:rgba(255,255,255,0.7);margin-top:1px;">Conteo físico de efectivo</div>
+          <div class="font-semibold text-white" id="modal-arq-titulo"  style="font-family:'Montserrat',sans-serif; font-size:15px;">Nuevo Arqueo de Caja</div>
+          <div class="text-sm"  style="color:rgba(255,255,255,0.7); margin-top:1px;">Conteo físico de efectivo</div>
         </div>
       </div>
-      <button onclick="cajaHideArqueoModal()" style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.15);border:none;color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.28)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">
+      <button class="text-white cursor-pointer d-flex align-center justify-center" onclick="cajaHideArqueoModal()"  style="width:34px; height:34px; border-radius:50%; background:rgba(255,255,255,0.15); border:none; transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.28)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">
         <i data-lucide="x" class="mi" style="font-size:18px;"></i>
       </button>
     </div>
 
     <!-- BODY -->
-    <div style="padding:18px 20px;background:#f8fafc;">
+    <div style="padding:18px 20px;background:var(--bg-body);">
       <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);gap:14px;align-items:start;">
 
         <!-- COL IZQUIERDA -->
-        <div style="display:flex;flex-direction:column;gap:12px;">
+        <div class="d-flex flex-col gap-3" >
 
           <!-- Saldo Teórico -->
           <div id="arq-bloque-teorico" style="background:white;border-radius:14px;padding:16px;box-shadow:0 2px 12px rgba(0,48,135,0.06);border:1px solid var(--gris2);">
-            <div style="font-size:10px;font-weight:500;color:var(--texto2);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px;display:flex;align-items:center;gap:5px;"><i data-lucide="wallet" class="mi xs" style="color:var(--azul);"></i>Saldo Teórico</div>
+            <div class="text-xs font-medium text-secondary uppercase d-flex align-center"  style="letter-spacing:0.8px; margin-bottom:6px; gap:5px;"><i data-lucide="wallet" class="mi xs" style="color:var(--azul);"></i>Saldo Teórico</div>
             <div style="font-family:'Montserrat',sans-serif;font-size:26px;font-weight:900;color:var(--azul);" id="arq-teorico">S/. 0.00</div>
-            <span id="badge-arq-admin" style="display:none;margin-top:8px;background:var(--azul-claro);color:var(--azul);padding:3px 8px;border-radius:8px;font-size:10px;font-weight:500;align-items:center;gap:4px;"><i data-lucide="history" class="mi xs"></i> Último: <span id="lbl-arq-admin"></span></span>
+            <span class="d-none mt-2 text-xs font-medium align-center gap-1" id="badge-arq-admin"  style="background:var(--azul-claro); color:var(--azul); padding:3px 8px; border-radius:8px;"><i data-lucide="history" class="mi xs"></i> Último: <span id="lbl-arq-admin"></span></span>
           </div>
 
           <!-- Total Físico -->
           <div style="background:white;border-radius:14px;padding:16px;box-shadow:0 2px 12px rgba(0,48,135,0.06);border:1px solid var(--gris2);">
-            <div style="font-size:10px;font-weight:500;color:var(--texto2);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px;display:flex;align-items:center;gap:5px;"><i data-lucide="banknote" class="mi xs" style="color:#0052cc;"></i>Total Físico</div>
-            <div style="font-family:'Montserrat',sans-serif;font-size:26px;font-weight:900;color:#0052cc;" id="arq-fisico">S/. 0.00</div>
+            <div class="text-xs font-medium text-secondary uppercase d-flex align-center"  style="letter-spacing:0.8px; margin-bottom:6px; gap:5px;"><i data-lucide="banknote" class="mi xs" style="color:var(--brand-secondary);"></i>Total Físico</div>
+            <div style="font-family:'Montserrat',sans-serif;font-size:26px;font-weight:900;color:var(--brand-secondary);" id="arq-fisico">S/. 0.00</div>
           </div>
 
           <!-- Diferencia -->
           <div class="diff-card" id="arq-diff-card" style="border-radius:14px;padding:16px;border-width:2px;margin-top:0;">
-            <div style="font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px;opacity:0.7;" id="arq-diff-label">Diferencia VS Teórico</div>
+            <div class="text-xs font-medium uppercase"  style="letter-spacing:0.8px; margin-bottom:6px; opacity:0.7;" id="arq-diff-label">Diferencia VS Teórico</div>
             <div style="font-family:'Montserrat',sans-serif;font-size:28px;font-weight:900;margin-bottom:6px;" id="arq-diferencia">S/. 0.00</div>
-            <div style="font-size:12px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:4px;" id="arq-msg"><i data-lucide="info" class="mi sm"></i> Ingresa el conteo</div>
+            <div class="text-base font-medium d-flex align-center justify-center gap-1"  id="arq-msg"><i data-lucide="info" class="mi sm"></i> Ingresa el conteo</div>
           </div>
         </div>
 
         <!-- COL DERECHA: Denominaciones -->
         <div style="background:white;border-radius:14px;padding:16px;box-shadow:0 2px 12px rgba(0,48,135,0.06);border:1px solid var(--gris2);">
-          <div style="font-size:10px;font-weight:500;color:var(--texto2);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px;display:flex;align-items:center;gap:5px;"><i data-lucide="calculator" class="mi xs" style="color:var(--azul);"></i>Conteo de Efectivo</div>
+          <div class="text-xs font-medium text-secondary uppercase mb-3 d-flex align-center"  style="letter-spacing:0.8px; gap:5px;"><i data-lucide="calculator" class="mi xs" style="color:var(--azul);"></i>Conteo de Efectivo</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 18px;">
             <!-- Billetes -->
             <div>
-              <div style="font-size:9px;font-weight:600;color:var(--azul);text-transform:uppercase;letter-spacing:1px;padding:4px 0;border-bottom:2px solid var(--azul-claro);margin-bottom:8px;">Billetes</div>
+              <div class="font-semibold uppercase mb-2"  style="font-size:9px; color:var(--azul); letter-spacing:1px; padding:4px 0; border-bottom:2px solid var(--azul-claro);">Billetes</div>
               <div class="arq-denom-row"><span>S/ 200</span><input type="number" id="arq-m-b200" data-val="200" placeholder="0" min="0" class="arq-modal-input" oninput="cajaCalcArqueo()"></div>
               <div class="arq-denom-row"><span>S/ 100</span><input type="number" id="arq-m-b100" data-val="100" placeholder="0" min="0" class="arq-modal-input" oninput="cajaCalcArqueo()"></div>
               <div class="arq-denom-row"><span>S/ 50</span><input type="number" id="arq-m-b50" data-val="50" placeholder="0" min="0" class="arq-modal-input" oninput="cajaCalcArqueo()"></div>
@@ -848,7 +1044,7 @@
             </div>
             <!-- Monedas -->
             <div>
-              <div style="font-size:9px;font-weight:600;color:var(--azul);text-transform:uppercase;letter-spacing:1px;padding:4px 0;border-bottom:2px solid var(--azul-claro);margin-bottom:8px;">Monedas</div>
+              <div class="font-semibold uppercase mb-2"  style="font-size:9px; color:var(--azul); letter-spacing:1px; padding:4px 0; border-bottom:2px solid var(--azul-claro);">Monedas</div>
               <div class="arq-denom-row"><span>S/ 5.00</span><input type="number" id="arq-m-m5" data-val="5" placeholder="0" min="0" class="arq-modal-input" oninput="cajaCalcArqueo()"></div>
               <div class="arq-denom-row"><span>S/ 2.00</span><input type="number" id="arq-m-m2" data-val="2" placeholder="0" min="0" class="arq-modal-input" oninput="cajaCalcArqueo()"></div>
               <div class="arq-denom-row"><span>S/ 1.00</span><input type="number" id="arq-m-m1" data-val="1" placeholder="0" min="0" class="arq-modal-input" oninput="cajaCalcArqueo()"></div>
@@ -863,14 +1059,14 @@
 
     <!-- FOOTER -->
     <div style="padding:14px 20px 18px;background:white;border-top:1px solid var(--gris2);">
-      <div style="display:flex;gap:10px;" id="arq-btns-admin">
-        <button class="btn-secundary" onclick="cajaHideArqueoModal()" style="flex:1;padding:11px;font-size:13px;border-radius:12px;">Cancelar</button>
-        <button class="btn-main" id="arq-btn-preventivo" onclick="cajaSubmitArqueo('Arqueo Preventivo')" disabled style="flex:1;padding:11px;font-size:13px;border-radius:12px;background:linear-gradient(135deg,#e67e00,#ff9a00);box-shadow:0 4px 12px rgba(230,126,0,0.25);"><i data-lucide="search" class="mi sm" style="vertical-align:text-bottom;margin-right:4px;"></i>Arqueo Preventivo</button>
-        <button class="btn-main" id="arq-btn-mes" onclick="cajaSubmitArqueo('Cierre de Mes')" disabled style="flex:1;padding:11px;font-size:13px;border-radius:12px;background:linear-gradient(135deg,#b30000,#e60000);box-shadow:0 4px 12px rgba(180,0,0,0.25);"><i data-lucide="lock" class="mi sm" style="vertical-align:text-bottom;margin-right:4px;"></i>Cerrar Mes</button>
+      <div class="d-flex"  style="gap:10px;" id="arq-btns-admin">
+        <button class="btn-secundary flex-1 text-md"  onclick="cajaHideArqueoModal()"  style="padding:11px; border-radius:12px;">Cancelar</button>
+        <button class="btn-main flex-1 text-md"  id="arq-btn-preventivo" onclick="cajaSubmitArqueo('Arqueo Preventivo')" disabled  style="padding:11px; border-radius:12px; background:linear-gradient(135deg,#e67e00,#ff9a00); box-shadow:0 4px 12px rgba(230,126,0,0.25);"><i data-lucide="search" class="mi sm" style="vertical-align:text-bottom;margin-right:4px;"></i>Arqueo Preventivo</button>
+        <button class="btn-main flex-1 text-md"  id="arq-btn-mes" onclick="cajaSubmitArqueo('Cierre de Mes')" disabled  style="padding:11px; border-radius:12px; background:linear-gradient(135deg,#b30000,var(--alert-danger)); box-shadow:0 4px 12px rgba(180,0,0,0.25);"><i data-lucide="lock" class="mi sm" style="vertical-align:text-bottom;margin-right:4px;"></i>Cerrar Mes</button>
       </div>
-      <div style="display:flex;gap:10px;" id="arq-btns-cajera">
-        <button class="btn-secundary" onclick="cajaHideArqueoModal()" style="flex:1;padding:11px;font-size:13px;border-radius:12px;">Cancelar</button>
-        <button class="btn-main" id="arq-btn-diario" onclick="cajaSubmitArqueo('Cierre Diario')" disabled style="flex:1;padding:11px;font-size:13px;border-radius:12px;"><i data-lucide="clipboard-check" class="mi sm" style="vertical-align:text-bottom;margin-right:4px;"></i>Guardar Cierre Diario</button>
+      <div class="d-flex"  style="gap:10px;" id="arq-btns-cajera">
+        <button class="btn-secundary flex-1 text-md"  onclick="cajaHideArqueoModal()"  style="padding:11px; border-radius:12px;">Cancelar</button>
+        <button class="btn-main flex-1 text-md"  id="arq-btn-diario" onclick="cajaSubmitArqueo('Cierre Diario')" disabled  style="padding:11px; border-radius:12px;"><i data-lucide="clipboard-check" class="mi sm" style="vertical-align:text-bottom;margin-right:4px;"></i>Guardar Cierre Diario</button>
       </div>
     </div>
 
@@ -880,44 +1076,44 @@
 <!-- MODAL KASNET -->
 <div class="modal-caja" id="modal-kasnet">
   <div class="modal-caja-box" style="max-width:850px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+    <div class="d-flex justify-between align-center mb-4" >
       <h3 id="modal-kasnet-titulo"><i data-lucide="store" class="mi" style="font-size:18px;vertical-align:middle;"></i> Registro Diario POS</h3>
-      <button onclick="kasnetHideModal()" style="background:none;border:none;font-size:18px;cursor:pointer;">x</button>
+      <button class="cursor-pointer" onclick="kasnetHideModal()"  style="background:none; border:none; font-size:18px;">x</button>
     </div>
     <input type="hidden" id="kasnet-edit-id">
 
-    <div style="display:grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap:16px; align-items: stretch;">
+    <div class="gap-4"  style="display:grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: stretch;">
       <!-- COLUMNA IZQUIERDA -->
-      <div style="display:flex; flex-direction:column; gap:10px;">
+      <div class="d-flex flex-col"  style="gap:10px;">
         <div style="background:white; border:1px solid var(--gris2); padding:10px; border-radius:10px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
-          <h4 style="font-size:11px; margin-bottom:8px; color:var(--azul); font-weight:600; display:flex; align-items:center; gap:4px;"><i data-lucide="info" class="mi xs"></i> Datos Generales</h4>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-            <div class="form-caja-group"><label style="margin-bottom:2px;font-size:9px;">Fecha</label><input type="date" id="kasnet-fecha" style="padding:6px; font-size:11px; border-radius:6px; border:1px solid var(--gris2);"></div>
-            <div class="form-caja-group"><label style="margin-bottom:2px;font-size:9px;">NÂ° Operaciones</label><input type="number" id="kasnet-num-ops" placeholder="0" min="0" step="1" style="padding:6px; font-size:11px; border-radius:6px; border:1px solid var(--gris2);"></div>
+          <h4 class="text-sm mb-2 font-semibold d-flex align-center gap-1"  style="color:var(--azul);"><i data-lucide="info" class="mi xs"></i> Datos Generales</h4>
+          <div class="gap-2"  style="display:grid; grid-template-columns:1fr 1fr;">
+            <div class="form-caja-group"><label style="margin-bottom:2px;font-size:9px;">Fecha</label><input class="text-sm" type="date" id="kasnet-fecha"  style="padding:6px; border-radius:6px; border:1px solid var(--gris2);"></div>
+            <div class="form-caja-group"><label style="margin-bottom:2px;font-size:9px;">NÂ° Operaciones</label><input class="text-sm" type="number" id="kasnet-num-ops" placeholder="0" min="0" step="1"  style="padding:6px; border-radius:6px; border:1px solid var(--gris2);"></div>
           </div>
         </div>
         
         <div style="background:linear-gradient(135deg, #f8fbfd 0%, #f1f6fb 100%); border:1px solid #e1ecf4; padding:10px; border-radius:10px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
-          <h4 style="font-size:11px; margin-bottom:8px; color:var(--azul); font-weight:600; display:flex; align-items:center; gap:4px;"><i data-lucide="wallet" class="mi xs"></i> Saldos Virtuales</h4>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-            <div class="form-caja-group"><label style="margin-bottom:2px;font-size:9px;">POS KASNET</label><input type="number" id="kasnet-pos-virt" placeholder="0.00" step="0.01" oninput="kasnetCalcTotal()" style="padding:6px; font-size:11px; border-radius:6px; border:1px solid #c9dfed;"></div>
-            <div class="form-caja-group"><label style="margin-bottom:2px;font-size:9px;">PAGAYA virtual</label><input type="number" id="kasnet-pagaya-virt" placeholder="0.00" step="0.01" oninput="kasnetCalcTotal()" style="padding:6px; font-size:11px; border-radius:6px; border:1px solid #c9dfed;"></div>
+          <h4 class="text-sm mb-2 font-semibold d-flex align-center gap-1"  style="color:var(--azul);"><i data-lucide="wallet" class="mi xs"></i> Saldos Virtuales</h4>
+          <div class="gap-2"  style="display:grid; grid-template-columns:1fr 1fr;">
+            <div class="form-caja-group"><label style="margin-bottom:2px;font-size:9px;">POS KASNET</label><input class="text-sm" type="number" id="kasnet-pos-virt" placeholder="0.00" step="0.01" oninput="kasnetCalcTotal()"  style="padding:6px; border-radius:6px; border:1px solid #c9dfed;"></div>
+            <div class="form-caja-group"><label style="margin-bottom:2px;font-size:9px;">PAGAYA virtual</label><input class="text-sm" type="number" id="kasnet-pagaya-virt" placeholder="0.00" step="0.01" oninput="kasnetCalcTotal()"  style="padding:6px; border-radius:6px; border:1px solid #c9dfed;"></div>
           </div>
         </div>
 
-        <div style="background:white; border:1px solid var(--gris2); padding:10px; border-radius:10px; flex:1; display:flex; flex-direction:column; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
-          <h4 style="font-size:11px; margin-bottom:8px; color:var(--azul); font-weight:600; display:flex; align-items:center; gap:4px;"><i data-lucide="receipt" class="mi xs"></i> Comprobante</h4>
-          <div id="kasnet-archivo-actual" style="display:none;margin-bottom:8px;">
-            <button type="button" onclick="verSustento(document.getElementById('kasnet-archivo-actual').dataset.url)" style="background:var(--azul-claro);color:var(--azul);border:1px solid #d0e3fc;border-radius:6px;padding:6px 10px;font-size:11px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px;width:100%;justify-content:center;transition:all 0.2s;">
+        <div class="flex-1 d-flex flex-col"  style="background:white; border:1px solid var(--gris2); padding:10px; border-radius:10px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+          <h4 class="text-sm mb-2 font-semibold d-flex align-center gap-1"  style="color:var(--azul);"><i data-lucide="receipt" class="mi xs"></i> Comprobante</h4>
+          <div class="d-none mb-2" id="kasnet-archivo-actual" >
+            <button class="text-sm font-medium cursor-pointer align-center justify-center" type="button" onclick="verSustento(document.getElementById('kasnet-archivo-actual').dataset.url)"  style="background:var(--azul-claro); color:var(--azul); border:1px solid var(--brand-light-border); border-radius:6px; padding:6px 10px; display:inline-flex; gap:6px; width:100%; transition:all 0.2s;">
               <i data-lucide="eye" class="mi sm"></i> Ver comprobante subido
             </button>
           </div>
-          <div class="file-upload-wrapper" style="flex:1; display:flex; align-items:center; justify-content:center;">
-            <label for="kasnet-file" class="file-upload-label" id="kasnet-file-upload-label" style="padding:10px; width:100%; height:100%; display:flex; flex-direction:column; justify-content:center; text-align:center;">
-              <i data-lucide="upload-cloud" class="mi" id="kasnet-file-upload-icon" style="font-size:24px; margin-bottom:4px;"></i>
-              <span id="kasnet-file-upload-text" style="font-weight:600; font-size:11px;">Subir comprobante</span>
+          <div class="file-upload-wrapper flex-1 d-flex align-center justify-center"  >
+            <label class="file-upload-label d-flex flex-col justify-center text-center" for="kasnet-file"  id="kasnet-file-upload-label"  style="padding:10px; width:100%; height:100%;">
+              <i class="mi mb-1" data-lucide="upload-cloud"  id="kasnet-file-upload-icon"  style="font-size:24px;"></i>
+              <span class="font-semibold text-sm" id="kasnet-file-upload-text" >Subir comprobante</span>
             </label>
-            <input type="file" id="kasnet-file" accept="image/*,application/pdf" style="display:none;" onchange="
+            <input class="d-none" type="file" id="kasnet-file" accept="image/*,application/pdf"  onchange="
               const kasnet_fT = document.getElementById('kasnet-file-upload-text');
               const kasnet_fI = document.getElementById('kasnet-file-upload-icon');
               const kasnet_fL = document.getElementById('kasnet-file-upload-label');
@@ -934,58 +1130,58 @@
               }
             ">
           </div>
-          <div style="font-size:9px; color:var(--texto2); margin-top:8px; text-align:center;">Formatos aceptados: JPG, PNG, PDF (Máx. 3MB).</div>
+          <div class="text-secondary mt-2 text-center"  style="font-size:9px;">Formatos aceptados: JPG, PNG, PDF (Máx. 3MB).</div>
         </div>
       </div>
 
       <!-- COLUMNA DERECHA -->
-      <div style="display:flex; flex-direction:column; gap:10px; min-width: 0;">
-        <div style="background:white; border:1px solid var(--gris2); padding:10px; border-radius:10px; flex:1; display:flex; flex-direction:column; box-shadow: 0 2px 8px rgba(0,0,0,0.02); min-width: 0;">
-          <h4 style="font-size:11px; margin-bottom:10px; color:var(--azul); font-weight:600; display:flex; align-items:center; gap:4px;"><i data-lucide="banknote" class="mi xs"></i> Efectivo Físico</h4>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px; flex:1; min-width: 0;">
+      <div class="d-flex flex-col"  style="gap:10px; min-width: 0;">
+        <div class="flex-1 d-flex flex-col"  style="background:white; border:1px solid var(--gris2); padding:10px; border-radius:10px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); min-width: 0;">
+          <h4 class="text-sm font-semibold d-flex align-center gap-1"  style="margin-bottom:10px; color:var(--azul);"><i data-lucide="banknote" class="mi xs"></i> Efectivo Físico</h4>
+          <div class="gap-2 flex-1"  style="display:grid; grid-template-columns:1fr 1fr; min-width: 0;">
             <!-- Billetes -->
             <div style="min-width: 0;">
-              <div style="font-size:9px; border-bottom:1px solid var(--gris); padding-bottom:2px; font-weight:600; color:var(--texto2); margin-bottom:8px; letter-spacing:0.5px;">BILLETES</div>
-              <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:38px; font-size:11px; font-weight:600; color:var(--texto);">S/ 200</span><input type="number" id="k-b200" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
-              <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:38px; font-size:11px; font-weight:600; color:var(--texto);">S/ 100</span><input type="number" id="k-b100" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
-              <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:38px; font-size:11px; font-weight:600; color:var(--texto);">S/ 50</span><input type="number" id="k-b50" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
-              <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:38px; font-size:11px; font-weight:600; color:var(--texto);">S/ 20</span><input type="number" id="k-b20" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
-              <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:38px; font-size:11px; font-weight:600; color:var(--texto);">S/ 10</span><input type="number" id="k-b10" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
+              <div class="font-semibold text-secondary mb-2"  style="font-size:9px; border-bottom:1px solid var(--gris); padding-bottom:2px; letter-spacing:0.5px;">BILLETES</div>
+              <div class="d-flex align-center mb-1"  style="gap:6px;"><span class="text-sm font-semibold text-primary"  style="width:38px;">S/ 200</span><input class="mini-input flex-1 font-semibold text-right text-sm" type="number" id="k-b200" placeholder="0" min="0"  oninput="kasnetCalcTotal()"  style="width:100%; min-width:0; border:1px solid var(--border-color); border-radius:6px; padding:4px 8px;"></div>
+              <div class="d-flex align-center mb-1"  style="gap:6px;"><span class="text-sm font-semibold text-primary"  style="width:38px;">S/ 100</span><input class="mini-input flex-1 font-semibold text-right text-sm" type="number" id="k-b100" placeholder="0" min="0"  oninput="kasnetCalcTotal()"  style="width:100%; min-width:0; border:1px solid var(--border-color); border-radius:6px; padding:4px 8px;"></div>
+              <div class="d-flex align-center mb-1"  style="gap:6px;"><span class="text-sm font-semibold text-primary"  style="width:38px;">S/ 50</span><input class="mini-input flex-1 font-semibold text-right text-sm" type="number" id="k-b50" placeholder="0" min="0"  oninput="kasnetCalcTotal()"  style="width:100%; min-width:0; border:1px solid var(--border-color); border-radius:6px; padding:4px 8px;"></div>
+              <div class="d-flex align-center mb-1"  style="gap:6px;"><span class="text-sm font-semibold text-primary"  style="width:38px;">S/ 20</span><input class="mini-input flex-1 font-semibold text-right text-sm" type="number" id="k-b20" placeholder="0" min="0"  oninput="kasnetCalcTotal()"  style="width:100%; min-width:0; border:1px solid var(--border-color); border-radius:6px; padding:4px 8px;"></div>
+              <div class="d-flex align-center mb-1"  style="gap:6px;"><span class="text-sm font-semibold text-primary"  style="width:38px;">S/ 10</span><input class="mini-input flex-1 font-semibold text-right text-sm" type="number" id="k-b10" placeholder="0" min="0"  oninput="kasnetCalcTotal()"  style="width:100%; min-width:0; border:1px solid var(--border-color); border-radius:6px; padding:4px 8px;"></div>
             </div>
             <!-- Monedas -->
             <div style="min-width: 0;">
-              <div style="font-size:9px; border-bottom:1px solid var(--gris); padding-bottom:2px; font-weight:600; color:var(--texto2); margin-bottom:8px; letter-spacing:0.5px;">MONEDAS</div>
-              <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:40px; font-size:11px; font-weight:600; color:var(--texto);">S/ 5.00</span><input type="number" id="k-m5" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
-              <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:40px; font-size:11px; font-weight:600; color:var(--texto);">S/ 2.00</span><input type="number" id="k-m2" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
-              <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:40px; font-size:11px; font-weight:600; color:var(--texto);">S/ 1.00</span><input type="number" id="k-m1" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
-              <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:40px; font-size:11px; font-weight:600; color:var(--texto);">S/ 0.50</span><input type="number" id="k-m050" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
-              <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:40px; font-size:11px; font-weight:600; color:var(--texto);">S/ 0.20</span><input type="number" id="k-m020" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
-              <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="width:40px; font-size:11px; font-weight:600; color:var(--texto);">S/ 0.10</span><input type="number" id="k-m010" placeholder="0" min="0" class="mini-input" oninput="kasnetCalcTotal()" style="flex:1; width:100%; min-width:0; border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; font-weight:600; text-align:right; font-size:11px;"></div>
+              <div class="font-semibold text-secondary mb-2"  style="font-size:9px; border-bottom:1px solid var(--gris); padding-bottom:2px; letter-spacing:0.5px;">MONEDAS</div>
+              <div class="d-flex align-center mb-1"  style="gap:6px;"><span class="text-sm font-semibold text-primary"  style="width:40px;">S/ 5.00</span><input class="mini-input flex-1 font-semibold text-right text-sm" type="number" id="k-m5" placeholder="0" min="0"  oninput="kasnetCalcTotal()"  style="width:100%; min-width:0; border:1px solid var(--border-color); border-radius:6px; padding:4px 8px;"></div>
+              <div class="d-flex align-center mb-1"  style="gap:6px;"><span class="text-sm font-semibold text-primary"  style="width:40px;">S/ 2.00</span><input class="mini-input flex-1 font-semibold text-right text-sm" type="number" id="k-m2" placeholder="0" min="0"  oninput="kasnetCalcTotal()"  style="width:100%; min-width:0; border:1px solid var(--border-color); border-radius:6px; padding:4px 8px;"></div>
+              <div class="d-flex align-center mb-1"  style="gap:6px;"><span class="text-sm font-semibold text-primary"  style="width:40px;">S/ 1.00</span><input class="mini-input flex-1 font-semibold text-right text-sm" type="number" id="k-m1" placeholder="0" min="0"  oninput="kasnetCalcTotal()"  style="width:100%; min-width:0; border:1px solid var(--border-color); border-radius:6px; padding:4px 8px;"></div>
+              <div class="d-flex align-center mb-1"  style="gap:6px;"><span class="text-sm font-semibold text-primary"  style="width:40px;">S/ 0.50</span><input class="mini-input flex-1 font-semibold text-right text-sm" type="number" id="k-m050" placeholder="0" min="0"  oninput="kasnetCalcTotal()"  style="width:100%; min-width:0; border:1px solid var(--border-color); border-radius:6px; padding:4px 8px;"></div>
+              <div class="d-flex align-center mb-1"  style="gap:6px;"><span class="text-sm font-semibold text-primary"  style="width:40px;">S/ 0.20</span><input class="mini-input flex-1 font-semibold text-right text-sm" type="number" id="k-m020" placeholder="0" min="0"  oninput="kasnetCalcTotal()"  style="width:100%; min-width:0; border:1px solid var(--border-color); border-radius:6px; padding:4px 8px;"></div>
+              <div class="d-flex align-center mb-1"  style="gap:6px;"><span class="text-sm font-semibold text-primary"  style="width:40px;">S/ 0.10</span><input class="mini-input flex-1 font-semibold text-right text-sm" type="number" id="k-m010" placeholder="0" min="0"  oninput="kasnetCalcTotal()"  style="width:100%; min-width:0; border:1px solid var(--border-color); border-radius:6px; padding:4px 8px;"></div>
             </div>
           </div>
-          <div style="margin-top:auto; padding-top:10px; border-top:1px dashed var(--gris2); font-size:12px; font-weight:600; color:var(--texto); display:flex; justify-content:space-between; align-items:center;">
+          <div class="text-base font-semibold text-primary d-flex justify-between align-center"  style="margin-top:auto; padding-top:10px; border-top:1px dashed var(--gris2);">
              <span>Total Físico en Caja:</span>
-             <span id="kasnet-total-fisico" style="color:var(--verde); font-size:14px;">S/. 0.00</span>
+             <span class="text-lg" id="kasnet-total-fisico"  style="color:var(--verde);">S/. 0.00</span>
           </div>
         </div>
         
         <div class="diff-card" id="kasnet-cuadre-diff" style="padding:10px;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-            <span style="font-size:11px; font-weight:500;">TOTAL DECLARADO:</span>
-            <span style="font-size:16px; font-weight:600;" id="kasnet-total-declarado">S/. 0.00</span>
+          <div class="d-flex justify-between align-center"  style="margin-bottom:6px;">
+            <span class="text-sm font-medium" >TOTAL DECLARADO:</span>
+            <span class="text-xl font-semibold"  id="kasnet-total-declarado">S/. 0.00</span>
           </div>
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-size:11px; font-weight:500;">DIFERENCIA VS BASE:</span>
-            <span style="font-size:16px; font-weight:600;" id="kasnet-diferencia-total">S/. 0.00</span>
+          <div class="d-flex justify-between align-center" >
+            <span class="text-sm font-medium" >DIFERENCIA VS BASE:</span>
+            <span class="text-xl font-semibold"  id="kasnet-diferencia-total">S/. 0.00</span>
           </div>
-          <div style="font-size:11px; font-weight:500; margin-top:8px; text-align:center; padding-top:8px; border-top:1px dashed rgba(0,0,0,0.1);" id="kasnet-cuadre-msg">Completa saldos y efectivo</div>
+          <div class="text-sm font-medium mt-2 text-center"  style="padding-top:8px; border-top:1px dashed rgba(0,0,0,0.1);" id="kasnet-cuadre-msg">Completa saldos y efectivo</div>
         </div>
       </div>
     </div>
 
-    <div style="display:flex;gap:10px;margin-top:8px;">
-      <button class="btn-secundary" onclick="kasnetHideModal()" style="flex:1;">Cancelar</button>
-      <button class="btn-main" onclick="kasnetGuardar()" id="kasnet-btn-guardar" style="flex:1;padding:12px;" disabled>Guardar Registro</button>
+    <div class="d-flex mt-2"  style="gap:10px;">
+      <button class="btn-secundary flex-1"  onclick="kasnetHideModal()" >Cancelar</button>
+      <button class="btn-main flex-1"  onclick="kasnetGuardar()" id="kasnet-btn-guardar"  style="padding:12px;" disabled>Guardar Registro</button>
     </div>
   </div>
 </div>
@@ -1039,36 +1235,36 @@
   <script src="js/modules/app.js?v=202606152"></script>
   <script src="js/modules/dashboard.js"></script>
   <script src="js/modules/mora.js"></script>
-  <script src="js/modules/clientes.js?v=2026061428"></script>
+  <script src="js/modules/clientes_v2.js"></script>
   <script src="js/modules/caja-chica.js"></script>
   <script src="js/modules/kasnet.js"></script>
-  <script src="js/modules/cartas.js"></script>
+  <script src="js/modules/cartas_v2.js"></script>
 
 
 
-<div id="modal-rec" style="display:none;position:fixed;inset:0;background:rgba(11,20,26,0.6);backdrop-filter:blur(3px);z-index:9999;align-items:center;justify-content:center;padding:12px;font-family:Segoe UI,Helvetica,Arial,sans-serif;">
-  <div style="background:#f0f2f5;border-radius:20px;width:100%;max-width:350px;overflow:hidden;box-shadow:0 15px 35px rgba(0,0,0,0.2);">
+<div class="d-none align-center justify-center" id="modal-rec"  style="position:fixed; inset:0; background:rgba(11,20,26,0.6); backdrop-filter:blur(3px); z-index:9999; padding:12px; font-family:Segoe UI,Helvetica,Arial,sans-serif;">
+  <div style="background:var(--bg-body);border-radius:20px;width:100%;max-width:350px;overflow:hidden;box-shadow:0 15px 35px rgba(0,0,0,0.2);">
     
     <!-- Header (Contact Info) -->
-    <div style="padding:14px 16px;background:white;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e9edef;">
-      <div style="display:flex;align-items:center;gap:12px;">
-        <div id="rec-avatar" style="width:38px;height:38px;background:#fff0f0;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#cc0000;flex-shrink:0;"><i data-lucide="user" class="mi sm" style="margin:0;"></i></div>
-        <div style="display:flex;flex-direction:column;justify-content:center;">
-          <div id="rec-nombre" style="color:#111b21;font-weight:600;font-size:15px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;">Cargando...</div>
-          <div id="rec-tel" style="font-size:13px;color:#667781;line-height:1.2;margin-top:2px;">-</div>
+    <div class="d-flex align-center justify-between"  style="padding:14px 16px; background:white; border-bottom:1px solid #e9edef;">
+      <div class="d-flex align-center gap-3" >
+        <div class="d-flex align-center justify-center flex-shrink-0" id="rec-avatar"  style="width:38px; height:38px; background:var(--alert-danger-light); border-radius:50%; color:var(--alert-danger);"><i class="mi sm m-0" data-lucide="user"  ></i></div>
+        <div class="d-flex flex-col justify-center" >
+          <div class="font-semibold" id="rec-nombre"  style="color:var(--text-primary); font-size:15px; line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:200px;">Cargando...</div>
+          <div class="text-md" id="rec-tel"  style="color:#667781; line-height:1.2; margin-top:2px;">-</div>
         </div>
       </div>
-      <button onclick="cerrarRecModal()" style="background:transparent;border:none;color:#54656f;cursor:pointer;padding:4px;display:flex;align-items:center;justify-content:center;"><i data-lucide="x" class="mi"></i></button>
+      <button class="cursor-pointer d-flex align-center justify-center" onclick="cerrarRecModal()"  style="background:transparent; border:none; color:var(--text-secondary); padding:4px;"><i data-lucide="x" class="mi"></i></button>
     </div>
 
     <!-- Paginator & Progress -->
-    <div style="background:white;padding:8px 16px;display:flex;align-items:center;border-bottom:1px solid #e9edef;">
-        <div style="display:flex;align-items:center;gap:6px;">
-            <button id="rec-btn-ant" onclick="(function(){_recIdx--;renderRecModal();})()" style="background:none;border:none;cursor:pointer;color:#8696a0;padding:4px;display:flex;align-items:center;border-radius:50%;transition:background 0.2s;"><i data-lucide="chevron-left" class="mi sm"></i></button>
-            <div id="rec-contador" style="font-size:12px;color:#54656f;font-weight:600;min-width:44px;text-align:center;">1/50</div>
-            <button id="rec-btn-sig" onclick="(function(){if(_recIdx < _recLista.length-1){_recIdx++;}else{_recIdx=0;} renderRecModal();})()" style="background:none;border:none;cursor:pointer;color:#8696a0;padding:4px;display:flex;align-items:center;border-radius:50%;transition:background 0.2s;"><i data-lucide="chevron-right" class="mi sm"></i></button>
+    <div class="d-flex align-center"  style="background:white; padding:8px 16px; border-bottom:1px solid #e9edef;">
+        <div class="d-flex align-center"  style="gap:6px;">
+            <button class="cursor-pointer d-flex align-center" id="rec-btn-ant" onclick="(function(){_recIdx--;renderRecModal();})()"  style="background:none; border:none; color:var(--text-muted); padding:4px; border-radius:50%; transition:background 0.2s;"><i data-lucide="chevron-left" class="mi sm"></i></button>
+            <div class="text-base font-semibold text-center" id="rec-contador"  style="color:var(--text-secondary); min-width:44px;">1/50</div>
+            <button class="cursor-pointer d-flex align-center" id="rec-btn-sig" onclick="(function(){if(_recIdx < _recLista.length-1){_recIdx++;}else{_recIdx=0;} renderRecModal();})()"  style="background:none; border:none; color:var(--text-muted); padding:4px; border-radius:50%; transition:background 0.2s;"><i data-lucide="chevron-right" class="mi sm"></i></button>
         </div>
-        <div style="flex:1;margin-left:12px;height:4px;background:#e9edef;border-radius:2px;overflow:hidden;">
+        <div class="flex-1"  style="margin-left:12px; height:4px; background:#e9edef; border-radius:2px; overflow:hidden;">
             <div id="rec-progreso" style="height:100%;background:var(--azul);width:0%;transition:width 0.3s;border-radius:2px;"></div>
         </div>
     </div>
@@ -1077,34 +1273,100 @@
     <div style="padding:20px 16px;background:#e5ddd5;position:relative;">
       
       <!-- Chat Bubble -->
-      <div style="background:#dcf8c6;border-radius:8px;border-top-right-radius:0;box-shadow:0 1px 1px rgba(0,0,0,0.1);padding:8px 10px;position:relative;margin-left:16px;margin-bottom:8px;">
-         <div id="rec-msg" style="font-size:14px;color:#111b21;line-height:1.4;white-space:pre-wrap;max-height:180px;overflow-y:auto;text-shadow: 0 1px 0 rgba(255,255,255,0.4);"></div>
+      <div class="mb-2"  style="background:#dcf8c6; border-radius:8px; border-top-right-radius:0; box-shadow:0 1px 1px rgba(0,0,0,0.1); padding:8px 10px; position:relative; margin-left:16px;">
+         <div class="text-lg" id="rec-msg"  style="color:var(--text-primary); line-height:1.4; white-space:pre-wrap; max-height:180px; overflow-y:auto; text-shadow: 0 1px 0 rgba(255,255,255,0.4);"></div>
          <div style="position:absolute;top:0;right:-8px;width:0;height:0;border-top:10px solid #dcf8c6;border-right:10px solid transparent;"></div>
       </div>
 
     </div>
 
     <!-- Actions Footer -->
-    <div style="padding:14px 16px;background:white;display:flex;flex-direction:column;gap:8px;">
-      <div style="background: #f0f2f5; border-radius: 12px; padding: 12px; font-size: 12px; color: #54656f; margin-bottom: 4px;">
-          <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px; color: #111b21;">
+    <div class="d-flex flex-col gap-2"  style="padding:14px 16px; background:white;">
+      <div class="text-base mb-1"  style="background: var(--bg-body); border-radius: 12px; padding: 12px; color: var(--text-secondary);">
+          <div class="d-flex align-center"  style="gap: 6px; margin-bottom: 6px; color: var(--text-primary);">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
               <strong>Tiempo estimado:</strong> <span id="rec-tiempo">~0 min</span>
           </div>
-          <div style="color: #cc0000; font-weight: 600; font-size: 11.5px; line-height: 1.3;"><i data-lucide="alert-triangle" class="mi xs" style="vertical-align:text-bottom;margin-right:2px;"></i> IMPORTANTE: No abras ni interactúes con la pestaña de WhatsApp Web mientras el Bot esté trabajando.</div>
+          <div class="font-semibold"  style="color: var(--alert-danger); font-size: 11.5px; line-height: 1.3;"><i data-lucide="alert-triangle" class="mi xs" style="vertical-align:text-bottom;margin-right:2px;"></i> IMPORTANTE: No abras ni interactúes con la pestaña de WhatsApp Web mientras el Bot esté trabajando.</div>
       </div>
-      <button onclick="exportarWhatsAppCSV()" style="width:100%;background:linear-gradient(135deg, var(--azul) 0%, var(--azul2) 100%);color:white;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 10px rgba(0,82,204,0.25);">
+      <button class="text-white font-medium cursor-pointer d-flex align-center justify-center gap-2" onclick="exportarWhatsAppCSV()"  style="width:100%; background:linear-gradient(135deg, var(--azul) 0%, var(--azul2) 100%); border:none; border-radius:12px; padding:14px; font-size:15px; box-shadow:0 4px 10px rgba(0,82,204,0.25);">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="16" height="16" fill="white"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg>
         Enviar Masivo
       </button>
-      <div style="display:flex;justify-content:center;">
-        <button onclick="descargarCSVBackup()" style="background:transparent;color:#8696a0;border:none;padding:4px;font-size:11px;font-weight:600;cursor:pointer;text-decoration:underline;">
+      <div class="d-flex justify-center" >
+        <button class="text-sm font-semibold cursor-pointer" onclick="descargarCSVBackup()"  style="background:transparent; color:var(--text-muted); border:none; padding:4px; text-decoration:underline;">
           Descargar Backup (.csv)
         </button>
       </div>
     </div>
   </div>
 </div>
+
+<!-- NOVEDADES MODAL (ESTILO BBVA) -->
+<div class="modal-overlay d-none align-center justify-center"  id="modal-novedades"  style="background: rgba(0, 10, 31, 0.75); backdrop-filter: blur(10px); z-index: 99999; position: fixed; inset: 0;">
+  <div class="novedades-container d-flex"   style="background: white; width: 90%; max-width: 820px; border-radius: 20px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); position: relative; animation: slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;">
+    
+    <button class="d-flex align-center justify-center cursor-pointer text-primary" onclick="cerrarNovedades()"  style="position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.9); backdrop-filter: blur(4px); border: 1px solid rgba(0,0,0,0.05); border-radius: 50%; width: 36px; height: 36px; z-index: 10; transition: all 0.2s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.05);" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+      <i data-lucide="x" class="mi"></i>
+    </button>
+
+    <div class="nov-text-area d-flex flex-col justify-center"   style="flex: 1.1; padding: 56px 48px; background: var(--bg-surface);">
+      <div class="text-md font-bold uppercase mb-4 d-flex align-center gap-2"  style="color: var(--brand-secondary); letter-spacing: 1.5px;">
+        <i data-lucide="sparkles" class="mi sm"></i> Novedades
+      </div>
+      <h2 class="font-extrabold"  style="font-family: 'DM Sans', sans-serif; font-size: 32px; color: var(--text-primary); margin: 0 0 20px 0; line-height: 1.15; letter-spacing: -0.5px;">El sistema se renueva para ti</h2>
+      <p style="font-size: 15px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 32px;">
+        Hemos mejorado la experiencia del panel principal para hacerla más simple, rápida y totalmente segura. 
+        <br><br>
+        Ahora podrás revisar la carga de tus datos en tiempo real mientras nosotros optimizamos la sincronización de las sedes y clientes de Grupo Efectivo, sin demoras ni interrupciones.
+      </p>
+      
+      <div class="d-flex align-center justify-between"  style="margin-top: auto;">
+        <button class="btn-main font-semibold" onclick="cerrarNovedades()"   style="background: var(--brand-secondary); padding: 14px 28px; font-size: 15px; border-radius: 10px; width: auto; box-shadow: 0 4px 12px rgba(26,115,232,0.3); transition: all 0.2s ease;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(26,115,232,0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(26,115,232,0.3)'">Ir al Dashboard</button>
+      </div>
+    </div>
+    
+    <div class="nov-img-area" style="flex: 0.9; background: url('img/novedades.png') center/cover no-repeat; min-height: 420px; position: relative;">
+      <!-- Gradiente suave para mezclar con el texto a la izquierda -->
+      <div style="position: absolute; inset: 0; background: linear-gradient(to right, var(--bg-surface) 0%, rgba(255,255,255,0) 15%);"></div>
+    </div>
+  </div>
+</div>
+
+<style>
+  @keyframes slideUpFade {
+    0% { opacity: 0; transform: translateY(40px) scale(0.95); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @media (max-width: 800px) {
+    .novedades-container { flex-direction: column !important; max-width: 400px !important; margin: 20px; }
+    .nov-img-area { min-height: 220px !important; }
+    .nov-img-area > div { background: linear-gradient(to bottom, var(--bg-surface) 0%, rgba(255,255,255,0) 20%) !important; }
+    .nov-text-area { padding: 40px 24px 32px 24px !important; }
+  }
+</style>
+
+<script>
+  function mostrarNovedades(force = false) {
+    if (force || !sessionStorage.getItem('ge_novedades_visto')) {
+      const modal = document.getElementById('modal-novedades');
+      if(modal) {
+        modal.style.display = 'flex';
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+      }
+    }
+  }
+
+  function cerrarNovedades() {
+    sessionStorage.setItem('ge_novedades_visto', 'true');
+    const modal = document.getElementById('modal-novedades');
+    if(modal) {
+      modal.style.opacity = '0';
+      modal.style.transition = 'opacity 0.3s ease';
+      setTimeout(() => modal.style.display = 'none', 300);
+    }
+  }
+</script>
 </body>
 </html>
 
