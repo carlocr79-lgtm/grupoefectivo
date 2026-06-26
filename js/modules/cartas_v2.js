@@ -669,22 +669,31 @@
       event.stopPropagation();
     }
     
-    let phone = (celular || '').toString().trim();
-    if (!phone) {
-      phone = prompt('El cliente no tiene celular registrado. Ingrese el número (ej. 987654321):');
-      if (!phone) return; // Cancelado por el usuario
-      phone = phone.replace(/\s/g, '');
+    let phone = (celular || '').toString();
+    
+    // Función extractora similar a Mora (coge el primer número válido de 9 dígitos que empiece con 9)
+    function extractValidPhone(raw) {
+      if (!raw) return "";
+      let text = raw.replace(/[\s\-\(\)\.]/g, '');
+      let match = text.match(/9\d{8}/);
+      if (match) return "51" + match[0];
+      let digits = text.replace(/\D/g, '');
+      if (digits.length === 9) return "51" + digits;
+      if (digits.startsWith('51') && digits.length === 11) return digits;
+      return digits;
     }
 
-    // FIX #5: validar que el número tenga exactamente 9 dígitos
-    if (!/^\d{9}$/.test(phone)) {
-      alert('Número inválido. Debe tener exactamente 9 dígitos (ej. 987654321).');
+    phone = extractValidPhone(phone);
+
+    if (!phone || phone.length < 9) {
+      let manualPhone = prompt('El cliente no tiene celular registrado o es inválido. Ingrese el número de 9 dígitos (ej. 987654321):');
+      if (!manualPhone) return;
+      phone = extractValidPhone(manualPhone);
+    }
+
+    if (!phone || phone.length < 9) {
+      alert('Número inválido.');
       return;
-    }
-
-    // Sanitizar número
-    if (!phone.startsWith('51') && phone.length === 9) {
-      phone = '51' + phone;
     }
 
     const driveLink = `https://drive.google.com/file/d/${fileId}/view?usp=sharing`;

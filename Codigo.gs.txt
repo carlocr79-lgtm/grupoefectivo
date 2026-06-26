@@ -1227,9 +1227,23 @@ function cartasGetPendientes(params, session) {
     var sedeCode = sedeContexto ? (sedeContexto.match(/(\d{3})/) ? sedeContexto.match(/(\d{3})/)[1] : sedeContexto) : '';
     var oficinaAdmin = session ? session.oficina : 'TODOS';
 
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var hojaRegistro = ss.getSheetByName('REGISTRO_CARTAS');
-  var resultados = [];
+    // Cargar mapa de celulares desde las hojas CARTAS
+    var celularesMapa = {};
+    var hojasCartas = obtenerHojasCartasPorOficina(oficinaAdmin);
+    for (var h = 0; h < hojasCartas.length; h++) {
+      var dataH = hojasCartas[h].getDataRange().getValues();
+      for (var i = 1; i < dataH.length; i++) {
+        var cCod = dataH[i][1] ? dataH[i][1].toString().trim() : '';
+        var cCel = dataH[i][8] ? dataH[i][8].toString().replace(/\s/g,'') : '';
+        if (cCod && cCel) {
+          celularesMapa[cCod] = cCel;
+        }
+      }
+    }
+
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var hojaRegistro = ss.getSheetByName('REGISTRO_CARTAS');
+    var resultados = [];
 
   if (hojaRegistro) {
     var regData = hojaRegistro.getDataRange().getValues();
