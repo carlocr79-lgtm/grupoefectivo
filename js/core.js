@@ -351,3 +351,28 @@ window.extractValidPhone = function(raw) {
   if (digits.startsWith('51') && digits.length === 11) return digits;
   return digits;
 };
+
+// ─── THEME TOGGLE ───
+function toggleTheme() {
+  const isDark = document.body.classList.toggle('dark-mode');
+  try { localStorage.setItem('ge_theme', isDark ? 'dark' : 'light'); } catch(e) {}
+  updateThemeIcon(isDark);
+}
+
+function updateThemeIcon(isDark) {
+  const icon = document.getElementById('theme-icon');
+  if (icon) {
+    icon.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
+    if (window.lucide) window.lucide.createIcons({ nameAttr: 'data-lucide' });
+  }
+}
+
+(function() {
+  try {
+    const isDark = localStorage.getItem('ge_theme') === 'dark';
+    if (isDark) {
+      document.body.classList.add('dark-mode');
+      setTimeout(() => updateThemeIcon(true), 100); // Dar tiempo a que Lucide cargue
+    }
+  } catch(e) {}
+})();

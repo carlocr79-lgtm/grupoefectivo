@@ -52,6 +52,26 @@
   --shadow-md: 0 4px 8px rgba(0,48,135,0.04), 0 12px 24px rgba(0,48,135,0.06);
   --shadow-hover: 0 12px 24px rgba(0,48,135,0.08), 0 24px 48px rgba(0,48,135,0.12);
 }
+
+/* --- DARK MODE --- */
+body.dark-mode {
+  --bg-surface: #1e293b;
+  --bg-body: #0f172a;
+  --border-color: #334155;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  
+  --brand-light: #1e3a8a;
+  --brand-light-border: #1e40af;
+  --alert-success-light: #064e3b;
+  --alert-danger-light: #7f1d1d;
+  --alert-warning-light: #7c2d12;
+  
+  --shadow-sm: 0 2px 4px rgba(0,0,0,0.2), 0 4px 12px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 8px rgba(0,0,0,0.3), 0 12px 24px rgba(0,0,0,0.4);
+  --shadow-hover: 0 12px 24px rgba(0,0,0,0.4), 0 24px 48px rgba(0,0,0,0.5);
+}
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 /* Standardized Icon System (Lucide Icons) */
 .mi { 

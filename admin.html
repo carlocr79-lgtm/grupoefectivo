@@ -195,6 +195,9 @@
           </button>
           <h1 class="topbar-title" id="topbar-title">Dashboard</h1>
           <div class="topbar-right d-flex align-center gap-3"  >
+            <button id="btn-theme-toggle" onclick="toggleTheme()" class="btn-refresh d-flex align-center justify-center" title="Cambiar Tema" style="width: 28px; height: 28px; background: transparent; border: 1px solid var(--border-color); cursor: pointer; color: var(--text-secondary); border-radius: 8px;">
+              <i id="theme-icon" data-lucide="moon" class="mi sm"></i>
+            </button>
             <button id="btn-refresh" class="btn-refresh" onclick="refrescarDatos()" title="Sincronizar manualmente" style="width: 28px; height: 28px;">
               <span class="sync-dot"></span>
             </button>
