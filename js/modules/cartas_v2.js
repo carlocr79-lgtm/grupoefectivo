@@ -242,7 +242,7 @@
         btnWsp = `<button disabled class="mov-btn" style="opacity:0.4; cursor:not-allowed;" title="No disponible">${waSvgDisabled}</button>`;
         btnPreview = `<button disabled class="mov-btn" style="opacity:0.4; cursor:not-allowed;" title="No disponible"><i data-lucide="eye" class="mi sm" style="color:var(--gris2);"></i></button>`;
         if (!esAdmin) {
-          btnAction = `<button class="mov-btn text-white" onclick="cartasSolicitarAprobacion('${eCodCliente}', '${eNombres}', event)"   style="background:linear-gradient(135deg, var(--azul2), var(--azul)); box-shadow:0 3px 8px rgba(0,82,204,0.25); border:none;" title="Solicitar Carta"><i data-lucide="circle-plus" class="mi sm" style="stroke-width:2.5;"></i></button>`;
+          btnAction = `<button class="mov-btn text-white" onclick="cartasSolicitarAprobacion('${eCodCliente}', '${eNombres}', '${eCelular}', event)"   style="background:linear-gradient(135deg, var(--azul2), var(--azul)); box-shadow:0 3px 8px rgba(0,82,204,0.25); border:none;" title="Solicitar Carta"><i data-lucide="circle-plus" class="mi sm" style="stroke-width:2.5;"></i></button>`;
         } else {
           btnAction = `<button class="mov-btn text-white" onclick="cartasSolicitarCarta('${eCodCliente}', '${eNombres}', '${eCelular}', event)"   style="background:linear-gradient(135deg, var(--azul2), var(--azul)); box-shadow:0 3px 8px rgba(0,82,204,0.25); border:none;" title="Generar Carta Directamente"><i data-lucide="file-check-2" class="mi sm" style="stroke-width:2;"></i></button>`;
         }
@@ -717,27 +717,11 @@
     const btnEmitidas = document.getElementById('btn-filtro-cartas-emitidas');
     
     if (estado === 'SOLICITADA') {
-      if (btnPendientes) {
-        btnPendientes.style.background = 'var(--brand-light)';
-        btnPendientes.style.color = 'var(--brand-secondary)';
-        btnPendientes.style.fontWeight = '600';
-      }
-      if (btnEmitidas) {
-        btnEmitidas.style.background = 'transparent';
-        btnEmitidas.style.color = 'var(--texto2)';
-        btnEmitidas.style.fontWeight = '500';
-      }
+      if (btnPendientes) btnPendientes.classList.add('active-subtab');
+      if (btnEmitidas) btnEmitidas.classList.remove('active-subtab');
     } else {
-      if (btnEmitidas) {
-        btnEmitidas.style.background = 'var(--verde)';
-        btnEmitidas.style.color = 'white';
-        btnEmitidas.style.fontWeight = '600';
-      }
-      if (btnPendientes) {
-        btnPendientes.style.background = 'transparent';
-        btnPendientes.style.color = 'var(--texto2)';
-        btnPendientes.style.fontWeight = '500';
-      }
+      if (btnEmitidas) btnEmitidas.classList.add('active-subtab');
+      if (btnPendientes) btnPendientes.classList.remove('active-subtab');
     }
 
     if(window.renderCartasPendientes) window.renderCartasPendientes();
@@ -749,4 +733,3 @@
   window.cartasSwitchTab = cartasSwitchTab;
   window.cartasCerrarDrawer = cartasCerrarDrawer;
   window.cartasSolicitarCarta = cartasSolicitarCarta;
-})();

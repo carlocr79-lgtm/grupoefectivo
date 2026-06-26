@@ -100,7 +100,14 @@
     } else if (tab === 'cartas-pendientes') {
       document.getElementById('mora-content-cartas').style.display = 'block';
       document.getElementById('cartas-controls-pendientes').style.display = 'flex';
-      if (typeof cartasCargarPendientes === 'function') cartasCargarPendientes();
+      
+      if (typeof setFiltroCartas === 'function') {
+        setFiltroCartas('SOLICITADA');
+      }
+      
+      if (typeof cartasCargarPendientes === 'function') {
+        cartasCargarPendientes();
+      }
     }
   }
   window.switchClientesTab = switchClientesTab;
@@ -110,16 +117,14 @@
     
     // Update subtab buttons UI
     document.querySelectorAll('.btn-mora-subtab').forEach(b => {
-      b.style.background = 'white';
-      b.style.color = 'var(--texto2)';
-      b.style.borderColor = 'var(--gris2)';
+      // Remove inline styles to allow CSS to cascade properly
+      b.style.background = '';
+      b.style.color = '';
+      b.style.borderColor = '';
       b.classList.remove('active-subtab');
     });
     const activeBtn = document.getElementById('subtab-mora-' + (subtab === 'pendientes' ? 'asesores' : subtab));
     if (activeBtn) {
-      activeBtn.style.background = 'var(--brand-light)';
-      activeBtn.style.color = 'var(--brand-secondary)';
-      activeBtn.style.borderColor = 'var(--brand-light-border)';
       activeBtn.classList.add('active-subtab');
     }
 

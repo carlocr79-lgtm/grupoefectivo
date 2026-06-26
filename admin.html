@@ -468,12 +468,15 @@
                 }
                 .expandable-subtab:hover {
                   width: 110px !important;
-                  border-color: var(--brand-light-border) !important;
+                  border-color: var(--azul) !important;
                   background-color: var(--brand-light) !important;
                   color: var(--brand-secondary) !important;
                 }
                 .expandable-subtab.active-subtab {
                   width: 110px !important;
+                  border-color: var(--azul) !important;
+                  background-color: var(--brand-light) !important;
+                  color: var(--brand-secondary) !important;
                 }
                 .expandable-subtab svg,
                 #btn-notificaciones-container svg,
@@ -567,9 +570,15 @@
 
             <!-- TOOLBAR CARTAS -->
             <div class="caja-toolbar gap-3 align-center d-none"  id="cartas-controls-pendientes"  style="flex-wrap:wrap; margin-bottom: 0;">
-              <div class="d-flex flex-shrink-0" style="background: white; border: 1px solid var(--gris2); border-radius: 8px; overflow: hidden; height: 32px; font-size: 14px;">
-                <button id="btn-filtro-cartas-pendientes" onclick="setFiltroCartas('SOLICITADA')" style="flex: 1; padding: 0 16px; border: none; background: var(--brand-light); color: var(--brand-secondary); font-weight: 600; cursor: pointer; transition: all 0.2s;">Pendientes</button>
-                <button id="btn-filtro-cartas-emitidas" onclick="setFiltroCartas('EMITIDA')" style="flex: 1; padding: 0 16px; border: left: 1px solid var(--gris2); background: transparent; color: var(--texto2); font-weight: 500; cursor: pointer; transition: all 0.2s;">Emitidas</button>
+              <div class="d-flex gap-2 flex-shrink-0 align-center" >
+                <button class="btn-cartas-subtab expandable-subtab active-subtab" id="btn-filtro-cartas-pendientes" onclick="setFiltroCartas('SOLICITADA')">
+                  <i class="mi xs icon-main m-0" data-lucide="clock-4"></i>
+                  <span class="subtab-text">Pendientes</span>
+                </button>
+                <button class="btn-cartas-subtab expandable-subtab" id="btn-filtro-cartas-emitidas" onclick="setFiltroCartas('EMITIDA')">
+                  <i class="mi xs icon-main m-0" data-lucide="check-circle-2"></i>
+                  <span class="subtab-text">Emitidas</span>
+                </button>
               </div>
                 
               <!-- Buscador Expandible -->

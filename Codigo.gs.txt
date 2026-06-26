@@ -1253,6 +1253,9 @@ function cartasGetPendientes(params, session) {
       var asesorReq = regData[r][4] ? regData[r][4].toString().trim() : '';
       var fileId = regData[r][5] ? regData[r][5].toString().trim() : '';
       var celularReq = regData[r][8] ? regData[r][8].toString().trim() : ''; // O la columna que tenga el celular si la hay
+      if (!celularReq && celularesMapa[codCliente]) {
+        celularReq = celularesMapa[codCliente];
+      }
       
       resultados.push({
         fecha: fechaStr,
