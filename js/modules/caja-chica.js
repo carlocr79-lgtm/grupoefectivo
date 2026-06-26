@@ -652,7 +652,7 @@
       
       let icono = 'archive'; // default icon (Cierre de mes)
       if (typeof r.tipo === 'string') {
-        if (r.tipo.includes('Preventivo')) icono = 'search';
+        if (r.tipo.includes('Preventivo')) icono = 'clipboard-check';
         if (r.tipo.includes('Diario')) icono = 'calendar';
       }
 

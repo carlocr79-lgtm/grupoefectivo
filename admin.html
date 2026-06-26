@@ -649,45 +649,54 @@
         <div id="section-caja" class="section">
           
           <!-- TABS DE CAJA -->
-          <div class="mb-3"  style="padding-bottom: 4px; border-bottom: 1px solid var(--gris2); position: sticky; top: -20px; background: var(--gris); z-index: 10; padding-top: 20px; margin-top: -20px;">
-            <div style="display:inline-flex; background:var(--bg-body); padding:4px; border-radius:10px; border:1px solid var(--border-color); width: 100%; overflow-x: auto;">
-              <button class="btn-main-tab active font-semibold text-md cursor-pointer" id="tab-caja-cajachica"  onclick="switchCajaTab('cajachica')"  style="padding:7px 18px; border-radius:8px; border:none; background:white; color:var(--azul); box-shadow:0 1px 3px rgba(0,0,0,0.1); transition:all 0.2s; white-space: nowrap;"><i data-lucide="wallet" class="mi" style="font-size:15px;margin-right:5px;vertical-align:text-bottom;"></i> Caja Chica</button>
-              <button class="btn-main-tab font-semibold text-md cursor-pointer text-secondary" id="tab-caja-kasnet"  onclick="switchCajaTab('kasnet')"  style="padding:7px 18px; border-radius:8px; border:none; background:transparent; box-shadow:none; transition:all 0.2s; white-space: nowrap;"><i data-lucide="store" class="mi" style="font-size:15px;margin-right:5px;vertical-align:text-bottom;"></i> KASNET</button>
-              <button class="btn-main-tab font-semibold text-md cursor-pointer text-secondary" id="tab-caja-arqueo"  onclick="switchCajaTab('arqueo')"  style="padding:7px 18px; border-radius:8px; border:none; background:transparent; box-shadow:none; transition:all 0.2s; white-space: nowrap;"><i data-lucide="calculator" class="mi" style="font-size:15px;margin-right:5px;vertical-align:text-bottom;"></i> Arqueo Global</button>
-            </div>
+          <div class="mb-3 d-flex gap-2"  style="padding-bottom: 4px; border-bottom: 1px solid var(--gris2); position: sticky; top: -20px; background: var(--gris); z-index: 10; padding-top: 20px; margin-top: -20px; overflow-x: auto;">
+            <button class="btn-main-tab active font-semibold text-md cursor-pointer" id="tab-caja-cajachica"  onclick="switchCajaTab('cajachica')"  style="padding:8px 20px; border-radius:8px; border:none; background:white; color:var(--azul); box-shadow:0 1px 3px rgba(0,0,0,0.1); transition:all 0.2s; white-space: nowrap;"><i data-lucide="wallet" class="mi" style="font-size:15px;margin-right:5px;vertical-align:text-bottom;"></i> Caja Chica</button>
+            <button class="btn-main-tab font-semibold text-md cursor-pointer text-secondary" id="tab-caja-kasnet"  onclick="switchCajaTab('kasnet')"  style="padding:8px 20px; border-radius:8px; border:none; background:transparent; box-shadow:none; transition:all 0.2s; white-space: nowrap;"><i data-lucide="store" class="mi" style="font-size:15px;margin-right:5px;vertical-align:text-bottom;"></i> KASNET</button>
+            <button class="btn-main-tab font-semibold text-md cursor-pointer text-secondary" id="tab-caja-arqueo"  onclick="switchCajaTab('arqueo')"  style="padding:8px 20px; border-radius:8px; border:none; background:transparent; box-shadow:none; transition:all 0.2s; white-space: nowrap;"><i data-lucide="calculator" class="mi" style="font-size:15px;margin-right:5px;vertical-align:text-bottom;"></i> Arqueo Global</button>
           </div>
 
           <!-- CONTENEDOR CAJA CHICA -->
           <div class="d-flex flex-col" id="caja-sub-cajachica" >
 
 
-          <!-- TABS HORIZONTALES (mismo patrón que Mora) -->
-          <div class="d-flex mb-3"  style="gap:0; border-bottom:1px solid var(--gris2);">
-            <button id="cc-tab-mesactual"  class="btn-mora-tab active" onclick="cajaSwitchTab('mesactual')"><i data-lucide="arrow-up-down" class="mi sm"></i> Mes Actual</button>
-            <button id="cc-tab-mesanterior" class="btn-mora-tab" onclick="cajaSwitchTab('mesanterior')"><i data-lucide="history" class="mi sm"></i> Meses Anteriores</button>
-            <button id="cc-tab-arqueo"     class="btn-mora-tab" onclick="cajaSwitchTab('arqueo')"><i data-lucide="archive" class="mi sm"></i> Arqueos</button>
-          </div>
+          <!-- TABS HORIZONTALES (ESTILO GLOBAL) -->
+          <div class="caja-toolbar gap-3 align-center mb-4" style="flex-wrap:wrap; padding: 12px 16px; border-radius: 12px; margin-top: 10px;">
+            <div class="d-flex gap-2 flex-shrink-0 align-center">
+              <button id="cc-tab-mesactual" class="btn-mora-subtab expandable-subtab active-subtab" onclick="cajaSwitchTab('mesactual')">
+                <i data-lucide="arrow-up-down" class="mi xs icon-main m-0"></i>
+                <span class="subtab-text">Mes Actual</span>
+              </button>
+              <button id="cc-tab-mesanterior" class="btn-mora-subtab expandable-subtab" onclick="cajaSwitchTab('mesanterior')">
+                <i data-lucide="history" class="mi xs icon-main m-0"></i>
+                <span class="subtab-text">Anteriores</span>
+              </button>
+              <button id="cc-tab-arqueo" class="btn-mora-subtab expandable-subtab" onclick="cajaSwitchTab('arqueo')">
+                <i data-lucide="archive" class="mi xs icon-main m-0"></i>
+                <span class="subtab-text">Arqueos</span>
+              </button>
+              
+              <div style="width: 1px; height: 24px; background: var(--gris2); margin: 0 4px;"></div>
+              
+              <button id="caja-btn-nuevo-movimiento" class="d-flex align-center justify-center text-white" onclick="cajaShowModal()" style="width:32px; height:32px; border:none; border-radius:8px; background:var(--brand-primary); cursor:pointer; transition:all 0.3s;" title="Nuevo Movimiento">
+                <i data-lucide="plus" class="mi sm"></i>
+              </button>
+              
+              <button id="caja-btn-nuevo-arqueo" class="d-none align-center justify-center text-white" onclick="cajaShowArqueoModal()" style="width:32px; height:32px; border:none; border-radius:8px; background:var(--brand-primary); cursor:pointer; transition:all 0.3s;" title="Nuevo Arqueo">
+                <i data-lucide="calculator" class="mi sm"></i>
+              </button>
+            </div>
 
-          <!-- PANEL: MES ACTUAL -->
-          <div id="cc-panel-mesactual">
-            <div class="caja-toolbar" id="caja-toolbar-actual">
-              <button class="btn-main d-flex align-center justify-center"  onclick="cajaShowModal()"  style="padding:10px;" title="Nuevo Movimiento"><i data-lucide="plus" class="mi sm"></i></button>
-              <div class="flex-1"  style="position:relative; max-width:300px;">
-                <i class="mi text-xl text-secondary" data-lucide="search"   style="position:absolute; left:12px; top:50%; transform:translateY(-50%); pointer-events:none;"></i>
-                <input class="text-md" type="text" id="caja-buscar" placeholder="Buscar..." oninput="cajaFiltrar()"  style="width:100%; padding:8px 12px 8px 34px; border:1.5px solid var(--gris2); border-radius:10px; outline:none;">
+            <!-- CONTROLES DINÁMICOS POR SUBTAB -->
+            <!-- Controles: Mes Actual -->
+            <div id="caja-controls-mesactual" class="d-flex align-center gap-2 flex-1" style="justify-content: flex-end;">
+              <div id="caja-search-container" style="position:relative; transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1); width: 32px; height: 32px;">
+                <i class="mi text-secondary" data-lucide="search" style="position:absolute; left:8px; top:50%; transform:translateY(-50%); font-size:15px; pointer-events:none; z-index:2;"></i>
+                <input class="text-base cursor-pointer" type="text" id="caja-buscar" placeholder="Buscar movimiento..." onfocus="this.parentElement.style.width='320px'; this.style.borderColor='var(--azul)'; this.style.background='white'; this.style.padding='0 12px 0 32px';" onblur="if(!this.value) { this.parentElement.style.width='32px'; this.style.borderColor='var(--gris2)'; this.style.background='var(--bg-body)'; this.style.padding='0 0 0 32px'; }" oninput="cajaFiltrar()" style="position:absolute; top:0; left:0; width:100%; height:100%; padding:0 0 0 32px; border:1px solid var(--gris2); border-radius:8px; background:var(--bg-body); outline:none; transition:all 0.3s; color:var(--texto1);">
               </div>
             </div>
-            <div class="movimientos-list" id="caja-tabla-body">
-              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
-              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
-              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
-              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
-            </div>
-          </div>
 
-          <!-- PANEL: MESES ANTERIORES -->
-          <div class="d-none" id="cc-panel-mesanterior" >
-            <div class="caja-toolbar" id="caja-toolbar-archivo" style="flex-wrap: wrap; gap: 10px;">
+            <!-- Controles: Meses Anteriores -->
+            <div id="caja-controls-mesanterior" class="d-none align-center gap-2 flex-1" style="justify-content: flex-end; flex-wrap: wrap;">
               <select id="hist-tipo" class="sel-sede" style="width:140px; padding:8px; border-radius:8px;">
                 <option value="MOVIMIENTOS">Movimientos</option>
                 <option value="ARQUEOS">Arqueos</option>
@@ -712,12 +721,29 @@
                 <option value="12">Diciembre</option>
               </select>
               <button class="btn-primary" onclick="_cajaArchivoUltimoPeriodo=null; cajaCargarArchivo()" style="padding:8px 16px; border-radius:8px;"><i data-lucide="search" class="mi sm"></i> Buscar</button>
-              
-              <div class="flex-1"  style="position:relative; min-width:200px;">
-                <i class="mi text-xl text-secondary" data-lucide="search"   style="position:absolute; left:12px; top:50%; transform:translateY(-50%); pointer-events:none;"></i>
-                <input class="text-md" type="text" id="caja-buscar-archivo" placeholder="Filtrar resultados..." oninput="cajaFiltrar()"  style="width:100%; padding:8px 12px 8px 34px; border:1.5px solid var(--gris2); border-radius:10px; outline:none;">
+              <div id="caja-search-container-archivo" style="position:relative; transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1); width: 32px; height: 32px; margin-left: auto;">
+                <i class="mi text-secondary" data-lucide="search" style="position:absolute; left:8px; top:50%; transform:translateY(-50%); font-size:15px; pointer-events:none; z-index:2;"></i>
+                <input class="text-base cursor-pointer" type="text" id="caja-buscar-archivo" placeholder="Filtrar resultados..." onfocus="this.parentElement.style.width='320px'; this.style.borderColor='var(--azul)'; this.style.background='white'; this.style.padding='0 12px 0 32px';" onblur="if(!this.value) { this.parentElement.style.width='32px'; this.style.borderColor='var(--gris2)'; this.style.background='var(--bg-body)'; this.style.padding='0 0 0 32px'; }" oninput="cajaFiltrar()" style="position:absolute; top:0; left:0; width:100%; height:100%; padding:0 0 0 32px; border:1px solid var(--gris2); border-radius:8px; background:var(--bg-body); outline:none; transition:all 0.3s; color:var(--texto1);">
               </div>
             </div>
+
+            <!-- Controles: Arqueos -->
+            <div id="caja-controls-arqueo" class="d-none align-center gap-2 flex-1" style="justify-content: flex-end;">
+            </div>
+          </div>
+
+          <!-- PANEL: MES ACTUAL -->
+          <div id="cc-panel-mesactual">
+            <div class="movimientos-list" id="caja-tabla-body">
+              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+            </div>
+          </div>
+
+          <!-- PANEL: MESES ANTERIORES -->
+          <div class="d-none" id="cc-panel-mesanterior" >
             <div class="movimientos-list" id="caja-tabla-body-archivo">
               <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
               <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
@@ -728,9 +754,6 @@
 
           <!-- PANEL: ARQUEOS -->
           <div class="d-none" id="cc-panel-arqueo" >
-            <div class="caja-toolbar">
-              <button class="btn-main d-flex align-center justify-center"  onclick="cajaShowArqueoModal()"  style="padding:10px;" title="Nuevo Arqueo"><i data-lucide="plus" class="mi sm"></i></button>
-            </div>
             <div class="movimientos-list" id="caja-hist-body">
               <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
               <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>

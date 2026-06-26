@@ -125,7 +125,7 @@
           } else {
             btnHtml = `
               <div class="font-semibold text-base d-flex align-center gap-1"  style="background:var(--alert-warning-light); color:var(--alert-warning-dark); border:1px solid var(--alert-warning-border); padding:8px 12px; border-radius:8px; cursor:not-allowed; opacity:0.9;" title="Solo el administrador puede aprobar">
-                <i data-lucide="clock-8" class="mi xs"></i> Esperando Aprobación
+                <i data-lucide="clock-8" class="mi xs"></i> Pendiente
               </div>
             `;
           }

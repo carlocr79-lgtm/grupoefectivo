@@ -171,8 +171,43 @@
     tabs.forEach(function(t) {
       var btn = document.getElementById('cc-tab-' + t);
       var panel = document.getElementById('cc-panel-' + t);
-      if (btn)   btn.classList.toggle('active', t === tab);
+      var controls = document.getElementById('caja-controls-' + t);
+      if (btn) {
+        btn.classList.toggle('active', t === tab);
+        btn.classList.toggle('active-subtab', t === tab);
+      }
       if (panel) panel.style.display = (t === tab) ? 'block' : 'none';
+      if (controls) {
+        if (t === tab) {
+          controls.classList.remove('d-none');
+          controls.classList.add('d-flex');
+        } else {
+          controls.classList.add('d-none');
+          controls.classList.remove('d-flex');
+        }
+      }
+      
+      // Toggle de botones '+' a la izquierda
+      var btnNuevoMovimiento = document.getElementById('caja-btn-nuevo-movimiento');
+      var btnNuevoArqueo = document.getElementById('caja-btn-nuevo-arqueo');
+      if (btnNuevoMovimiento) {
+        if (tab === 'mesactual') {
+          btnNuevoMovimiento.classList.remove('d-none');
+          btnNuevoMovimiento.classList.add('d-flex');
+        } else {
+          btnNuevoMovimiento.classList.add('d-none');
+          btnNuevoMovimiento.classList.remove('d-flex');
+        }
+      }
+      if (btnNuevoArqueo) {
+        if (tab === 'arqueo') {
+          btnNuevoArqueo.classList.remove('d-none');
+          btnNuevoArqueo.classList.add('d-flex');
+        } else {
+          btnNuevoArqueo.classList.add('d-none');
+          btnNuevoArqueo.classList.remove('d-flex');
+        }
+      }
     });
     // Cargar datos según el tab
     if (tab === 'mesanterior') {
