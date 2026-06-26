@@ -72,6 +72,28 @@ body.dark-mode {
   --shadow-md: 0 4px 8px rgba(0,0,0,0.3), 0 12px 24px rgba(0,0,0,0.4);
   --shadow-hover: 0 12px 24px rgba(0,0,0,0.4), 0 24px 48px rgba(0,0,0,0.5);
 }
+
+body.dark-mode .bg-white, body.dark-mode .status-card, body.dark-mode .detalle-card, 
+body.dark-mode .dash-panel, body.dark-mode .drawer-panel, body.dark-mode .dr-section, 
+body.dark-mode .drawer-actions, body.dark-mode .modal-box, body.dark-mode .hist-card, 
+body.dark-mode .skeleton-box, body.dark-mode .dash-kpi-sk, body.dark-mode .caja-table-wrap, 
+body.dark-mode .mov-card, body.dark-mode .denom-section, body.dark-mode .search-bar input, 
+body.dark-mode .tabs, body.dark-mode .cliente-card {
+  background-color: var(--bg-surface) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary);
+}
+
+body.dark-mode [style*="background: white"],
+body.dark-mode [style*="background:white"],
+body.dark-mode [style*="background:#fff"],
+body.dark-mode [style*="background: #fff"],
+body.dark-mode [style*="background:#ffffff"],
+body.dark-mode [style*="background: #ffffff"] {
+  background-color: var(--bg-surface) !important;
+  color: var(--text-primary);
+  border-color: var(--border-color) !important;
+}
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 /* Standardized Icon System (Lucide Icons) */
 .mi { 
