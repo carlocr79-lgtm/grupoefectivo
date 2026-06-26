@@ -344,7 +344,6 @@
                   <style>
                     @keyframes localSpin { 100% { transform: rotate(360deg); } }
                   </style>
-                  <div class="d-none align-center font-medium text-primary text-lg" id="contador-clientes-busqueda"  style="gap:6px;"></div>
                 </div>
 
                 <!-- TABS A LA DERECHA -->
@@ -557,15 +556,19 @@
                 </div>
               </div>
 
-              <!-- 5. Buscador Expandible (Solo ícono) -->
-              <div id="mora-search-container" style="position:relative; transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1); width: 32px; height: 32px;">
-                <i class="mi text-secondary" data-lucide="search" style="pointer-events:none; z-index:2;"></i>
-                <input class="text-base cursor-pointer" type="text" id="buscar-cliente" placeholder="Buscar cliente..." onfocus="this.parentElement.style.width='320px'; this.style.borderColor='var(--azul)'; this.style.background='white'; this.style.padding='0 12px 0 32px';" onblur="if(!this.value) { this.parentElement.style.width='32px'; this.style.borderColor='var(--gris2)'; this.style.background='var(--bg-body)'; this.style.padding='0 0 0 32px'; }" oninput="filtrarClientes()"  style="position:absolute; top:0; left:0; width:100%; height:100%; padding:0 0 0 32px; border:1px solid var(--gris2); border-radius:8px; background:var(--bg-body); outline:none; transition:all 0.3s; color:var(--texto1);">
-              </div>
-              </div>
+              <!-- 5. Contador y Buscador Expandible -->
+              <div class="d-flex align-center gap-2">
+                <!-- Contador (Botón cuadradito no clickeable) -->
+                <div id="contador-clientes-mora" class="d-flex align-center justify-center text-secondary" style="width:32px; height:32px; border:1px solid var(--gris2); border-radius:8px; background:var(--bg-body); font-size:14px; font-weight:600; cursor:default; transition:all 0.3s;" title="Cantidad de registros">
+                  <i data-lucide="users" class="mi sm"></i>
+                </div>
 
-              <!-- El icono y cantidad intactos en su sitio original -->
-              <div class="d-none align-center text-lg font-medium text-secondary" id="contador-clientes-mora"  style="margin-left:auto; gap:6px; padding-right:16px;"></div>
+                <div id="mora-search-container" style="position:relative; transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1); width: 32px; height: 32px;">
+                  <i class="mi text-secondary" data-lucide="search" style="pointer-events:none; z-index:2;"></i>
+                  <input class="text-base cursor-pointer" type="text" id="buscar-cliente" placeholder="Buscar cliente..." onfocus="this.parentElement.style.width='320px'; this.style.borderColor='var(--azul)'; this.style.background='white'; this.style.padding='0 12px 0 32px';" onblur="if(!this.value) { this.parentElement.style.width='32px'; this.style.borderColor='var(--gris2)'; this.style.background='var(--bg-body)'; this.style.padding='0 0 0 32px'; }" oninput="filtrarClientes()"  style="position:absolute; top:0; left:0; width:100%; height:100%; padding:0 0 0 32px; border:1px solid var(--gris2); border-radius:8px; background:var(--bg-body); outline:none; transition:all 0.3s; color:var(--texto1);">
+                </div>
+              </div>
+              </div>
             </div>
 
             <!-- TOOLBAR CARTAS -->
@@ -581,16 +584,18 @@
                 </button>
               </div>
                 
-              <!-- Buscador Expandible -->
+              <!-- Contador y Buscador -->
               <div class="d-flex align-center gap-2" >
+                <!-- Contador (Botón cuadradito no clickeable) -->
+                <div id="contador-cartas" class="d-flex align-center justify-center text-secondary" style="width:32px; height:32px; border:1px solid var(--gris2); border-radius:8px; background:var(--bg-body); font-size:14px; font-weight:600; cursor:default; transition:all 0.3s;" title="Cantidad de registros">
+                  <i data-lucide="file-text" class="mi sm"></i>
+                </div>
+
                 <div id="cartas-search-container" style="position:relative; transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1); width: 32px; height: 32px;">
                   <i class="mi text-secondary" data-lucide="search"   style="position:absolute; left:8px; top:50%; transform:translateY(-50%); font-size:15px; pointer-events:none; z-index:2;"></i>
                   <input class="text-base cursor-pointer" type="text" id="buscar-cartas" placeholder="Buscar carta..." onfocus="this.parentElement.style.width='320px'; this.style.borderColor='var(--azul)'; this.style.background='white'; this.style.padding='0 12px 0 32px';" onblur="if(!this.value) { this.parentElement.style.width='32px'; this.style.borderColor='var(--gris2)'; this.style.background='var(--bg-body)'; this.style.padding='0 0 0 32px'; }" oninput="if(window.renderCartasPendientes) window.renderCartasPendientes()"  style="position:absolute; top:0; left:0; width:100%; height:100%; padding:0 0 0 32px; border:1px solid var(--gris2); border-radius:8px; background:var(--bg-body); outline:none; transition:all 0.3s; color:var(--texto1);">
                 </div>
               </div>
-
-              <!-- Contador -->
-              <div class="d-none align-center text-lg font-medium text-secondary" id="contador-cartas"  style="margin-left:auto; gap:6px; padding-right:16px;"></div>
             </div>
           </div>
 
@@ -1364,7 +1369,7 @@
 <div class="modal-overlay d-none align-center justify-center"  id="modal-novedades"  style="background: rgba(0, 10, 31, 0.75); backdrop-filter: blur(10px); z-index: 99999; position: fixed; inset: 0;">
   <div class="novedades-container d-flex"   style="background: white; width: 90%; max-width: 820px; border-radius: 20px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); position: relative; animation: slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;">
     
-    <button class="d-flex align-center justify-center cursor-pointer text-primary" onclick="cerrarNovedades()"  style="position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.9); backdrop-filter: blur(4px); border: 1px solid rgba(0,0,0,0.05); border-radius: 50%; width: 36px; height: 36px; z-index: 10; transition: all 0.2s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.05);" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+    <button id="btn-close-novedades" class="d-flex align-center justify-center cursor-pointer text-primary" onclick="cerrarNovedades()"  style="position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.9); backdrop-filter: blur(4px); border: 1px solid rgba(0,0,0,0.05); border-radius: 50%; width: 36px; height: 36px; z-index: 10; transition: all 0.2s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display:none;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
       <i data-lucide="x" class="mi"></i>
     </button>
 
@@ -1372,15 +1377,16 @@
       <div class="text-md font-bold uppercase mb-4 d-flex align-center gap-2"  style="color: var(--brand-secondary); letter-spacing: 1.5px;">
         <i data-lucide="sparkles" class="mi sm"></i> Novedades
       </div>
-      <h2 class="font-extrabold"  style="font-family: 'DM Sans', sans-serif; font-size: 32px; color: var(--text-primary); margin: 0 0 20px 0; line-height: 1.15; letter-spacing: -0.5px;">El sistema se renueva para ti</h2>
-      <p style="font-size: 15px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 32px;">
+      <h2 id="novedad-titulo" class="font-extrabold"  style="font-family: 'DM Sans', sans-serif; font-size: 32px; color: var(--text-primary); margin: 0 0 20px 0; line-height: 1.15; letter-spacing: -0.5px;">El sistema se renueva para ti</h2>
+      <p id="novedad-texto" style="font-size: 15px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 32px;">
         Hemos mejorado la experiencia del panel principal para hacerla más simple, rápida y totalmente segura. 
         <br><br>
         Ahora podrás revisar la carga de tus datos en tiempo real mientras nosotros optimizamos la sincronización de las sedes y clientes de Grupo Efectivo, sin demoras ni interrupciones.
       </p>
       
-      <div class="d-flex align-center justify-between"  style="margin-top: auto;">
-        <button class="btn-main font-semibold" onclick="cerrarNovedades()"   style="background: var(--brand-secondary); padding: 14px 28px; font-size: 15px; border-radius: 10px; width: auto; box-shadow: 0 4px 12px rgba(26,115,232,0.3); transition: all 0.2s ease;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(26,115,232,0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(26,115,232,0.3)'">Ir al Dashboard</button>
+      <div id="novedad-footer" class="d-flex align-center justify-between"  style="margin-top: auto; min-height: 48px;">
+        <!-- El botón estará oculto hasta que cargue para que el usuario se enfoque en leer -->
+        <button id="btn-novedades" class="btn-main font-semibold d-flex align-center gap-2" onclick="cerrarNovedades()"   style="background: var(--brand-secondary); padding: 14px 28px; font-size: 15px; border-radius: 10px; width: auto; box-shadow: 0 4px 12px rgba(26,115,232,0.3); transition: all 0.4s ease; display: none;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(26,115,232,0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(26,115,232,0.3)'">Ir a Inicio <i data-lucide="arrow-right" class="mi sm"></i></button>
       </div>
     </div>
     
@@ -1406,17 +1412,49 @@
 
 <script>
   function mostrarNovedades(force = false) {
-    if (force || !sessionStorage.getItem('ge_novedades_visto')) {
-      const modal = document.getElementById('modal-novedades');
-      if(modal) {
-        modal.style.display = 'flex';
-        if (typeof lucide !== 'undefined') lucide.createIcons();
+    // Si ya lo vio hoy (almacenado en session) y no es forzado, salir
+    if (!force && sessionStorage.getItem('ge_novedades_visto')) return;
+
+    if (typeof generarNovedadDelDia === 'function') generarNovedadDelDia();
+
+    const modal = document.getElementById('modal-novedades');
+    if(modal) {
+      modal.classList.remove('d-none');
+      modal.classList.add('d-flex');
+      modal.style.display = 'flex'; // Compatibilidad
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
+    const btn = document.getElementById('btn-novedades');
+    const closeBtn = document.getElementById('btn-close-novedades');
+    
+    // Función para liberar el bloqueo
+    const liberarBoton = () => {
+      if (btn) {
+        btn.style.display = 'flex';
+        btn.style.animation = 'slideUpFade 0.4s ease-out forwards';
       }
+      if (closeBtn) {
+        closeBtn.style.display = 'flex';
+        closeBtn.style.animation = 'slideUpFade 0.4s ease-out forwards';
+      }
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+    };
+
+    // Si los datos ya cargaron (variable global)
+    if (window.datosCargados) {
+      liberarBoton();
+    } else {
+      document.addEventListener('datos-cargados', function handler() {
+        liberarBoton();
+        document.removeEventListener('datos-cargados', handler);
+      });
     }
   }
 
   function cerrarNovedades() {
     sessionStorage.setItem('ge_novedades_visto', 'true');
+    if (window._novedadInterval) clearInterval(window._novedadInterval);
     const modal = document.getElementById('modal-novedades');
     if(modal) {
       modal.style.opacity = '0';

@@ -21,6 +21,16 @@
       return t.includes(busqueda);
     });
 
+    const contadorEl = document.getElementById('contador-clientes-mora');
+    if (contadorEl) {
+      if (lista.length > 0) {
+        contadorEl.innerHTML = `<span style="color:var(--brand-secondary);">${lista.length}</span>`;
+      } else {
+        contadorEl.innerHTML = `<i data-lucide="receipt" class="mi sm"></i>`;
+      }
+      if(window.lucide) window.lucide.createIcons();
+    }
+
     if (lista.length === 0) {
       document.getElementById('lista-vouchers').innerHTML = '<div class="empty"><div class="icon"><i data-lucide="circle-check" class="mi" style="font-size:40px;color:var(--azul);"></i></div><strong>Sin vouchers pendientes</strong><br><small>Todos los pagos están verificados</small></div>';
       return;
@@ -131,6 +141,16 @@
     const totalMonto = lista.reduce((sum, h) => sum + (parseFloat(h.monto) || 0), 0);
     document.getElementById('res-total').textContent = 'S/. ' + totalMonto.toLocaleString('es-PE',{minimumFractionDigits:2});
     document.getElementById('res-count').textContent = lista.length + ' pago' + (lista.length !== 1 ? 's' : '');
+
+    const contadorEl = document.getElementById('contador-clientes-mora');
+    if (contadorEl) {
+      if (lista.length > 0) {
+        contadorEl.innerHTML = `<span style="color:var(--brand-secondary);">${lista.length}</span>`;
+      } else {
+        contadorEl.innerHTML = `<i data-lucide="history" class="mi sm"></i>`;
+      }
+      if(window.lucide) window.lucide.createIcons();
+    }
 
     if (lista.length === 0) {
       document.getElementById('lista-historial').innerHTML = '<div class="empty"><div class="icon"><i class="mi text-secondary" data-lucide="file-text"   style="font-size:40px;"></i></div>Sin registros</div>';

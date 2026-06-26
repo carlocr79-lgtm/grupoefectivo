@@ -97,9 +97,17 @@
       }
 
       if (resp.length === 0) {
-        container.innerHTML = '<div class="empty"><div class="icon"><i data-lucide="search-x" class="mi" style="font-size:40px;"></i></div>Sin resultados</div>';
+        container.innerHTML = `
+          <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding: 60px 20px; text-align:center; animation: fadeIn 0.4s ease-out;">
+            <div style="background: var(--brand-light); width: 80px; height: 80px; border-radius: 50%; display:flex; align-items:center; justify-content:center; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(15,98,254,0.15);">
+              <i data-lucide="folder-search" style="width:40px; height:40px; color:var(--brand-secondary); stroke-width:1.5;"></i>
+            </div>
+            <h3 style="color:var(--texto); font-size:1.15rem; font-weight:600; margin:0 0 8px 0;">No encontramos coincidencias</h3>
+            <p style="color:var(--texto2); font-size:0.9rem; max-width:350px; line-height:1.5; margin:0;">Intenta buscar con otros términos o verifica que el nombre o DNI estén escritos correctamente.</p>
+          </div>
+        `;
         const contador = document.getElementById('contador-clientes-busqueda');
-        if(contador) contador.style.display = 'none';
+        if(contador) { contador.innerHTML = `<i data-lucide="users" class="mi sm"></i>`; if(window.lucide) window.lucide.createIcons(); }
         lucide.createIcons();
         const btnClear = document.getElementById('btn-clear-busqueda');
         if (btnClear) btnClear.dataset.estado = 'ready';
@@ -109,8 +117,9 @@
       // Reutilizamos la lógica de renderizado de tarjetas, pero insertamos en el contenedor de búsqueda
       let html = '';
       resp.forEach((c, idx) => {
-        const linkWA = c.celular ? `https://web.whatsapp.com/send?phone=${c.celular}` : '';
-        const linkWAMovil = c.celular ? `https://api.whatsapp.com/send?phone=${c.celular}` : '';
+        const phone = window.extractValidPhone ? window.extractValidPhone(c.celular) : c.celular;
+        const linkWA = phone ? `https://web.whatsapp.com/send?phone=${phone}` : '';
+        const linkWAMovil = phone ? `https://api.whatsapp.com/send?phone=${phone}` : '';
         const waSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="12" height="12" fill="currentColor"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.736 5.472 2.027 7.774L0 32l8.454-2.01A15.938 15.938 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.333a13.27 13.27 0 01-6.748-1.833l-.484-.287-5.02 1.194 1.271-4.874-.317-.502A13.267 13.267 0 012.667 16C2.667 8.636 8.636 2.667 16 2.667S29.333 8.636 29.333 16 23.364 29.333 16 29.333zm7.27-9.862c-.398-.199-2.354-1.162-2.72-1.294-.365-.133-.631-.199-.897.199-.266.398-1.029 1.294-1.262 1.56-.232.266-.465.299-.863.1-.398-.2-1.681-.619-3.203-1.977-1.184-1.057-1.983-2.362-2.215-2.76-.232-.398-.025-.613.174-.811.179-.178.398-.465.598-.698.199-.232.265-.398.398-.664.133-.266.066-.498-.033-.697-.1-.2-.897-2.162-1.229-2.96-.324-.777-.653-.672-.897-.684l-.764-.013c-.266 0-.697.1-1.063.498-.365.398-1.395 1.362-1.395 3.323s1.428 3.854 1.627 4.12c.2.266 2.81 4.287 6.808 6.014.951.41 1.694.656 2.273.839.955.304 1.824.261 2.511.158.766-.114 2.354-.962 2.687-1.891.332-.929.332-1.726.232-1.891-.099-.166-.365-.266-.763-.465z"/></svg>';
         
         const montoReal = (c.dias <= 0 && c.cuota > 0) ? c.cuota : c.deuda;
@@ -189,9 +198,12 @@
       // Actualizar contador
       const contador = document.getElementById('contador-clientes-busqueda');
       if (contador) {
-        contador.style.display = 'flex';
-        contador.innerHTML = `<i class="mi text-secondary" data-lucide="users"  ></i> <span class="font-medium"  style="color:var(--azul);">${resp.length}</span>`;
-        lucide.createIcons();
+        if (resp.length > 0) {
+          contador.innerHTML = `<span style="color:var(--brand-secondary);">${resp.length}</span>`;
+        } else {
+          contador.innerHTML = `<i data-lucide="users" class="mi sm"></i>`;
+        }
+        if(window.lucide) window.lucide.createIcons();
       }
 
       const btnClear = document.getElementById('btn-clear-busqueda');
@@ -240,7 +252,7 @@
       }
       document.getElementById('resultados-busqueda-global').innerHTML = '';
       const contador = document.getElementById('contador-clientes-busqueda');
-      if(contador) contador.style.display = 'none';
+      if(contador) { contador.innerHTML = `<i data-lucide="users" class="mi sm"></i>`; if(window.lucide) window.lucide.createIcons(); }
     }
   };
 
@@ -287,9 +299,17 @@
     });
 
     if (lista.length === 0) {
-      document.getElementById('lista-clientes').innerHTML = '<div class="empty"><div class="icon"><i data-lucide="search-x" class="mi" style="font-size:40px;"></i></div>Sin resultados</div>';
+      document.getElementById('lista-clientes').innerHTML = `
+        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding: 60px 20px; text-align:center; animation: fadeIn 0.4s ease-out;">
+          <div style="background: var(--brand-light); width: 80px; height: 80px; border-radius: 50%; display:flex; align-items:center; justify-content:center; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(15,98,254,0.15);">
+            <i data-lucide="folder-open" style="width:40px; height:40px; color:var(--brand-secondary); stroke-width:1.5;"></i>
+          </div>
+          <h3 style="color:var(--texto); font-size:1.15rem; font-weight:600; margin:0 0 8px 0;">Todo al día</h3>
+          <p style="color:var(--texto2); font-size:0.9rem; max-width:350px; line-height:1.5; margin:0;">Actualmente no hay clientes en mora registrados para esta cartera o filtro.</p>
+        </div>
+      `;
       const contadorEl = document.getElementById('contador-clientes-mora');
-      if (contadorEl) contadorEl.style.display = 'none';
+      if(contadorEl) { contadorEl.innerHTML = `<i data-lucide="users" class="mi sm"></i>`; if(window.lucide) window.lucide.createIcons(); }
       return;
     }
 
@@ -299,8 +319,11 @@
 
     const contadorEl = document.getElementById('contador-clientes-mora');
     if (contadorEl) {
-      contadorEl.style.display = 'flex';
-      contadorEl.innerHTML = `<i class="mi text-xl" data-lucide="users"   style="margin-right:4px;"></i> <span class="font-medium text-lg"  style="color:var(--azul);">${lista.length}</span>`;
+      if (lista.length > 0) {
+        contadorEl.innerHTML = `<span style="color:var(--brand-secondary);">${lista.length}</span>`;
+      } else {
+        contadorEl.innerHTML = `<i data-lucide="users" class="mi sm"></i>`;
+      }
       if (window.lucide) window.lucide.createIcons();
     }
 
@@ -308,8 +331,9 @@
       const isNotificado = esNotificado(c.telefono || c.celular);
       const rowStyle = isNotificado ? 'background-color:#f9fbff;' : '';
       
-      const linkWA = c.telefono ? `https://web.whatsapp.com/send?phone=${c.telefono}${c.mensaje ? '&text=' + encodeURIComponent(c.mensaje) : ''}` : '';
-      const linkWAMovil = c.telefono ? `https://api.whatsapp.com/send?phone=${c.telefono}${c.mensaje ? '&text=' + encodeURIComponent(c.mensaje) : ''}` : '';
+      const phone = window.extractValidPhone ? window.extractValidPhone(c.telefono) : c.telefono;
+      const linkWA = phone ? `https://web.whatsapp.com/send?phone=${phone}${c.mensaje ? '&text=' + encodeURIComponent(c.mensaje) : ''}` : '';
+      const linkWAMovil = phone ? `https://api.whatsapp.com/send?phone=${phone}${c.mensaje ? '&text=' + encodeURIComponent(c.mensaje) : ''}` : '';
       const waSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="12" height="12" fill="currentColor"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.736 5.472 2.027 7.774L0 32l8.454-2.01A15.938 15.938 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.333a13.27 13.27 0 01-6.748-1.833l-.484-.287-5.02 1.194 1.271-4.874-.317-.502A13.267 13.267 0 012.667 16C2.667 8.636 8.636 2.667 16 2.667S29.333 8.636 29.333 16 23.364 29.333 16 29.333zm7.27-9.862c-.398-.199-2.354-1.162-2.72-1.294-.365-.133-.631-.199-.897.199-.266.398-1.029 1.294-1.262 1.56-.232.266-.465.299-.863.1-.398-.2-1.681-.619-3.203-1.977-1.184-1.057-1.983-2.362-2.215-2.76-.232-.398-.025-.613.174-.811.179-.178.398-.465.598-.698.199-.232.265-.398.398-.664.133-.266.066-.498-.033-.697-.1-.2-.897-2.162-1.229-2.96-.324-.777-.653-.672-.897-.684l-.764-.013c-.266 0-.697.1-1.063.498-.365.398-1.395 1.362-1.395 3.323s1.428 3.854 1.627 4.12c.2.266 2.81 4.287 6.808 6.014.951.41 1.694.656 2.273.839.955.304 1.824.261 2.511.158.766-.114 2.354-.962 2.687-1.891.332-.929.332-1.726.232-1.891-.099-.166-.365-.266-.763-.465z"/></svg>';
 
       const montoReal = (c.dias <= 0 && c.cuota > 0) ? c.cuota : c.deuda;
@@ -441,8 +465,9 @@
     if(c.celular) {
        accionesHTML += `<button class="text-white cursor-pointer"  style="background:var(--azul); ${btnStyle};" onclick="window.location.href='tel:${c.celular.replace(/\s+/g,'')}'"><i data-lucide="phone" class="mi" style="${iconStyle}"></i> Llamar</button>`;
     }
-    const linkWA = c.telefono ? `https://web.whatsapp.com/send?phone=${c.telefono}${c.mensaje ? '&text=' + encodeURIComponent(c.mensaje) : ''}` : '';
-    const linkWAMovil = c.telefono ? `https://api.whatsapp.com/send?phone=${c.telefono}${c.mensaje ? '&text=' + encodeURIComponent(c.mensaje) : ''}` : '';
+    const phone = window.extractValidPhone ? window.extractValidPhone(c.telefono || c.celular) : (c.telefono || c.celular);
+    const linkWA = phone ? `https://web.whatsapp.com/send?phone=${phone}${c.mensaje ? '&text=' + encodeURIComponent(c.mensaje) : ''}` : '';
+    const linkWAMovil = phone ? `https://api.whatsapp.com/send?phone=${phone}${c.mensaje ? '&text=' + encodeURIComponent(c.mensaje) : ''}` : '';
     if(linkWA) {
        accionesHTML += `<button class="text-white cursor-pointer"  style="background:var(--azul2); ${btnStyle};" onclick="enviarWA('${linkWAMovil}','${linkWA}')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="18" height="18" fill="white" style="${iconStyle}"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.736 5.472 2.027 7.774L0 32l8.454-2.01A15.938 15.938 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.333a13.27 13.27 0 01-6.748-1.833l-.484-.287-5.02 1.194 1.271-4.874-.317-.502A13.267 13.267 0 012.667 16C2.667 8.636 8.636 2.667 16 2.667S29.333 8.636 29.333 16 23.364 29.333 16 29.333zm7.27-9.862c-.398-.199-2.354-1.162-2.72-1.294-.365-.133-.631-.199-.897.199-.266.398-1.029 1.294-1.262 1.56-.232.266-.465.299-.863.1-.398-.2-1.681-.619-3.203-1.977-1.184-1.057-1.983-2.362-2.215-2.76-.232-.398-.025-.613.174-.811.179-.178.398-.465.598-.698.199-.232.265-.398.398-.664.133-.266.066-.498-.033-.697-.1-.2-.897-2.162-1.229-2.96-.324-.777-.653-.672-.897-.684l-.764-.013c-.266 0-.697.1-1.063.498-.365.398-1.395 1.362-1.395 3.323s1.428 3.854 1.627 4.12c.2.266 2.81 4.287 6.808 6.014.951.41 1.694.656 2.273.839.955.304 1.824.261 2.511.158.766-.114 2.354-.962 2.687-1.891.332-.929.332-1.726.232-1.891-.099-.166-.365-.266-.763-.465z"/></svg> WhatsApp</button>`;
     }
@@ -549,9 +574,10 @@
     const total = _recLista.length;
     const c = _recLista[_recIdx];
     const esMobil = /Android|iPhone|iPad/i.test(navigator.userAgent);
+    const phone = window.extractValidPhone ? window.extractValidPhone(c.telefono || c.celular) : (c.telefono || c.celular);
     const linkWA = esMobil
-      ? `https://api.whatsapp.com/send?phone=${c.telefono}&text=${encodeURIComponent(c.mensaje)}`
-      : `https://web.whatsapp.com/send?phone=${c.telefono}&text=${encodeURIComponent(c.mensaje)}`;
+      ? `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(c.mensaje)}`
+      : `https://web.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(c.mensaje)}`;
 
     const yaEnviado = _recEnviados.includes(_recIdx);
     document.getElementById('rec-contador').textContent = `${_recIdx + 1}/${total}`;

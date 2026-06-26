@@ -60,11 +60,11 @@
       const contador = document.getElementById('contador-cartas');
       if (contador) {
         if (filteredData.length > 0) {
-          contador.innerHTML = `<i data-lucide="users" class="mi sm"></i> ${filteredData.length}`;
-          contador.style.display = 'flex';
+          contador.innerHTML = `<span style="color:var(--brand-secondary);">${filteredData.length}</span>`;
         } else {
-          contador.style.display = 'none';
+          contador.innerHTML = `<i data-lucide="file-text" class="mi sm"></i>`;
         }
+        if (window.lucide) window.lucide.createIcons();
       }
       
       // Actualizar el Badge de la pestaña
@@ -78,15 +78,15 @@
       }
       
       if (filteredData.length === 0) {
-        container.innerHTML = `
-          <div class="empty">
-            <div class="icon">
-              <i data-lucide="folder-open" class="mi" style="font-size:40px;color:var(--azul);"></i>
+          container.innerHTML = `
+            <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding: 60px 20px; text-align:center; animation: fadeIn 0.4s ease-out;">
+              <div style="background: var(--brand-light); width: 80px; height: 80px; border-radius: 50%; display:flex; align-items:center; justify-content:center; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(15,98,254,0.15);">
+                <i data-lucide="file-check-2" style="width:40px; height:40px; color:var(--brand-secondary); stroke-width:1.5;"></i>
+              </div>
+              <h3 style="color:var(--texto); font-size:1.15rem; font-weight:600; margin:0 0 8px 0;">Historial vacío</h3>
+              <p style="color:var(--texto2); font-size:0.9rem; max-width:350px; line-height:1.5; margin:0;">Aún no hay solicitudes pendientes ni cartas emitidas en esta categoría.</p>
             </div>
-            <strong>No hay registros</strong><br>
-            <small>No hay solicitudes ni cartas emitidas en el historial.</small>
-          </div>
-        `;
+          `;
         return;
       }
 

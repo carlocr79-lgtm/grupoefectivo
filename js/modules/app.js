@@ -89,6 +89,8 @@
       if (!window._vouchersLoaded) {
         window._vouchersLoaded = true;
         if (typeof cargarVouchers === 'function') cargarVouchers();
+      } else {
+        if (typeof renderVouchers === 'function') renderVouchers();
       }
     } else if (tab === 'mora-historial') {
       document.getElementById('mora-content-historial').style.display = 'block';
@@ -96,6 +98,8 @@
       if (!window._historialLoaded) {
         window._historialLoaded = true;
         if (typeof cargarHistorial === 'function') cargarHistorial();
+      } else {
+        if (typeof renderHistorial === 'function') renderHistorial();
       }
     } else if (tab === 'cartas-pendientes') {
       document.getElementById('mora-content-cartas').style.display = 'block';
@@ -268,6 +272,77 @@
     }, 300);
   }
 
+  // â”€â”€ NOVEDADES DINÁMICAS â”€â”€
+  window._novedadInterval = null;
+
+  window.generarNovedadDelDia = function() {
+    const curiosidades = [
+      { titulo: "¡Feliz Día del Programador!", texto: "Sabías que el primer programador del mundo fue Ada Lovelace en el siglo XIX. Hoy celebramos el código que mueve el mundo." },
+      { titulo: "Dato Senior: Refactoring", texto: "Un buen programador senior sabe que el código no solo debe funcionar, sino que debe ser fácil de leer para el equipo del futuro. ¡Escribe código limpio!" },
+      { titulo: "El Mundial del Código", texto: "Como en el mundial, en la programación se necesita trabajo en equipo. Hoy revisa si tienes compañeros bloqueados y dales una mano." },
+      { titulo: "Resultados del Mundial Histórico", texto: "El Mundial de Brasil 2014 es recordado por la mayor goleada sufrida por un anfitrión en semifinales: Alemania venció 7-1 a Brasil, cambiando la historia del fútbol." },
+      { titulo: "La Regla del Boy Scout", texto: "Siempre deja el código un poco más limpio de lo que lo encontraste. Pequeñas mejoras diarias hacen plataformas invencibles." },
+      { titulo: "Fútbol y Tecnología", texto: "Desde el VAR hasta los balones con sensores, la tecnología es fundamental en mundiales recientes, registrando hasta 500 datos de posición por segundo." },
+      { titulo: "Mentalidad Ágil", texto: "No busques la perfección en el primer intento. Un código funcional hoy es mejor que un código perfecto que nunca se lanza." },
+      { titulo: "Dato Curioso", texto: "Existen más de 700 lenguajes de programación en el mundo, pero solo unos 20 se usan masivamente en la industria moderna." }
+    ];
+
+    const actualizacionesReales = [
+      { fecha: "2026-06-25", titulo: "Mejoras en WhatsApp", texto: "Hemos implementado un extractor inteligente de números en la sección Cartas para que nunca más falle el botón de WhatsApp." },
+      { fecha: "2026-06-25", titulo: "Nueva Interfaz Limpia", texto: "Se rediseñaron los mensajes de 'Sin resultados' por interfaces modernas, claras y personalizadas." },
+      { fecha: "2026-06-26", titulo: "Novedades Inteligentes", texto: "Ahora el panel de inicio bloquea el acceso hasta que los datos están listos, y te muestra carruseles de noticias cada día." }
+    ];
+
+    // Ajustar la zona horaria a Lima para evitar desfases de día
+    const fechaLima = new Date(new Date().toLocaleString("en-US", {timeZone: "America/Lima"}));
+    const mes = String(fechaLima.getMonth() + 1).padStart(2, '0');
+    const dia = String(fechaLima.getDate()).padStart(2, '0');
+    const hoyStr = `${fechaLima.getFullYear()}-${mes}-${dia}`;
+    
+    // Obtenemos actualizaciones de hoy y mezclamos con curiosidades al azar
+    let novedadesDelDia = actualizacionesReales.filter(a => a.fecha === hoyStr);
+    
+    // Agregamos de 2 a 3 curiosidades al azar para tener un carrusel fluido
+    const mezcladas = [...curiosidades].sort(() => 0.5 - Math.random()).slice(0, 3);
+    novedadesDelDia = novedadesDelDia.concat(mezcladas);
+
+    const titleEl = document.getElementById('novedad-titulo');
+    const textEl = document.getElementById('novedad-texto');
+    if (!titleEl || !textEl) return;
+
+    let currentSlide = 0;
+    
+    function renderSlide() {
+      const slide = novedadesDelDia[currentSlide];
+      
+      // Animación de salida
+      titleEl.style.opacity = '0';
+      textEl.style.opacity = '0';
+      titleEl.style.transform = 'translateY(10px)';
+      textEl.style.transform = 'translateY(10px)';
+      titleEl.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+      textEl.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+
+      setTimeout(() => {
+        titleEl.textContent = slide.titulo;
+        textEl.innerHTML = slide.texto;
+        
+        // Animación de entrada
+        titleEl.style.opacity = '1';
+        textEl.style.opacity = '1';
+        titleEl.style.transform = 'translateY(0)';
+        textEl.style.transform = 'translateY(0)';
+      }, 400);
+
+      currentSlide = (currentSlide + 1) % novedadesDelDia.length;
+    }
+
+    // Primera renderización y ciclo
+    renderSlide();
+    if (window._novedadInterval) clearInterval(window._novedadInterval);
+    window._novedadInterval = setInterval(renderSlide, 5000);
+  };
+
   // â”€â”€ CARGA INICIAL (con protección anti race-condition) â”€â”€
   async function cargarTodo() {
     // Capturar el ID de esta petición. Si llega una más nueva, descartamos esta.
@@ -379,6 +454,11 @@
       console.error('Error fatal de conexión:', e);
       document.getElementById('lista-clientes').innerHTML = '<div class="empty">Error de conexión.</div>';
       cajaCargarDatos();
+    } finally {
+      if (myReqId === _loadRequestId) {
+        window.datosCargados = true;
+        document.dispatchEvent(new Event('datos-cargados'));
+      }
     }
   }
 

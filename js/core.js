@@ -339,3 +339,15 @@ function toggleSubnav(id, btn) {
   subnav.classList.toggle('open');
   if (btn) btn.classList.toggle('subnav-open');
 }
+
+// Utilidad global para extraer y formatear números a formato WhatsApp de Perú (+51)
+window.extractValidPhone = function(raw) {
+  if (!raw) return "";
+  let text = String(raw).replace(/[\s\-\(\)\.]/g, '');
+  let match = text.match(/9\d{8}/);
+  if (match) return "51" + match[0];
+  let digits = text.replace(/\D/g, '');
+  if (digits.length === 9) return "51" + digits;
+  if (digits.startsWith('51') && digits.length === 11) return digits;
+  return digits;
+};
