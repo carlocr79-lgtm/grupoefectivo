@@ -429,29 +429,85 @@
             <div class="caja-toolbar d-none gap-3 align-center"  id="mora-controls-clientes"  style="flex-wrap:wrap; margin-bottom: 0;">
 
               <!-- 1, 2 y 3. Pestañas: Asesores (Principal) / Vouchers / Historial -->
-              <div class="d-flex gap-2 flex-shrink-0" >
+              <div class="d-flex gap-2 flex-shrink-0 align-center" >
                 <!-- El select real (Se muestra cuando estamos en la pestaña principal) -->
                 <select class="clean-select text-base font-semibold cursor-pointer" id="filtros-asesores"  onchange="setFiltroAsesor(this.value)"  style="box-sizing:border-box; height:32px; width:115px; padding:0 24px 0 12px; border:1px solid var(--brand-light-border); border-radius:8px; background-color:var(--brand-light); color:var(--brand-secondary); outline:none; transition:all 0.2s; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;"></select>
                 
                 <!-- El botón falso (Se muestra cuando estamos en otras pestañas) -->
-                <button class="btn-mora-subtab d-none text-secondary font-semibold text-base cursor-pointer align-center justify-center" id="subtab-mora-asesores"  onclick="switchMoraSubTab('pendientes')"  style="box-sizing:border-box; height:32px; width:115px; padding:0; border-radius:8px; border:1px solid var(--gris2); background:white; transition:all 0.2s; gap:6px;">
-                  <i class="mi xs icon-main m-0" data-lucide="user"  ></i>
-                  Asesores
+                <button class="btn-mora-subtab d-none expandable-subtab" id="subtab-mora-asesores" onclick="switchMoraSubTab('pendientes')">
+                  <i class="mi xs icon-main m-0" data-lucide="user"></i>
+                  <span class="subtab-text">Asesores</span>
                 </button>
 
-                <button class="btn-mora-subtab text-secondary font-semibold text-base cursor-pointer d-flex align-center" id="subtab-mora-vouchers"  onclick="switchMoraSubTab('vouchers')"  style="height:32px; padding:0 14px; border-radius:8px; border:1px solid var(--gris2); background:white; transition:all 0.2s; gap:6px;">
-                  <i class="mi xs icon-main m-0" data-lucide="receipt"  ></i>
-                  Vouchers
-                  <span class="tab-badge d-none text-white text-xs"  id="badge-vouchers-sub"  style="margin-left:4px; background:var(--alert-danger); padding:2px 6px; border-radius:10px;">0</span>
+                <button class="btn-mora-subtab expandable-subtab" id="subtab-mora-vouchers" onclick="switchMoraSubTab('vouchers')">
+                  <i class="mi xs icon-main m-0" data-lucide="receipt"></i>
+                  <span class="subtab-text">Vouchers</span>
+                  <span class="tab-badge d-none text-white text-xs subtab-badge" id="badge-vouchers-sub" style="background:var(--alert-danger); padding:2px 6px; border-radius:10px;">0</span>
                 </button>
-                <button class="btn-mora-subtab text-secondary font-semibold text-base cursor-pointer d-flex align-center" id="subtab-mora-historial"  onclick="switchMoraSubTab('historial')"  style="height:32px; padding:0 14px; border-radius:8px; border:1px solid var(--gris2); background:white; transition:all 0.2s; gap:6px;">
-                  <i class="mi xs icon-main m-0" data-lucide="history"  ></i>
-                  Historial
+                <button class="btn-mora-subtab expandable-subtab" id="subtab-mora-historial" onclick="switchMoraSubTab('historial')">
+                  <i class="mi xs icon-main m-0" data-lucide="history"></i>
+                  <span class="subtab-text">Historial</span>
                 </button>
-              </div>
 
               <!-- 4. Notificaciones Expandible -->
               <style>
+                .expandable-subtab {
+                  position: relative;
+                  height: 32px;
+                  width: 32px !important;
+                  border-radius: 8px;
+                  overflow: hidden;
+                  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                  display: flex;
+                  align-items: center;
+                  cursor: pointer;
+                  padding: 0 !important;
+                  border: 1px solid var(--gris2);
+                  background: white;
+                  color: var(--texto2);
+                }
+                .expandable-subtab:hover {
+                  width: 110px !important;
+                  border-color: var(--brand-light-border) !important;
+                  background-color: var(--brand-light) !important;
+                  color: var(--brand-secondary) !important;
+                }
+                .expandable-subtab.active-subtab {
+                  width: 110px !important;
+                }
+                .expandable-subtab svg,
+                #btn-notificaciones-container svg,
+                #mora-search-container svg {
+                  position: absolute !important;
+                  left: 8.5px !important;
+                  top: 50% !important;
+                  transform: translateY(-50%) !important;
+                  width: 15px !important;
+                  height: 15px !important;
+                }
+                .expandable-subtab .subtab-text {
+                  opacity: 0;
+                  white-space: nowrap;
+                  margin-left: 30px;
+                  font-size: 13px;
+                  font-weight: 600;
+                  transition: opacity 0.3s;
+                }
+                .expandable-subtab:hover .subtab-text,
+                .expandable-subtab.active-subtab .subtab-text {
+                  opacity: 1;
+                }
+                .expandable-subtab .subtab-badge {
+                  position: absolute;
+                  right: 8px;
+                  opacity: 0;
+                  transition: opacity 0.3s;
+                }
+                .expandable-subtab:hover .subtab-badge,
+                .expandable-subtab.active-subtab .subtab-badge {
+                  opacity: 1;
+                }
+
                 #btn-notificaciones-container {
                   position: relative;
                   height: 32px;
@@ -465,6 +521,7 @@
                   display: flex;
                   align-items: center;
                   cursor: pointer;
+                  color: var(--texto2);
                 }
                 #btn-notificaciones-container:hover {
                   width: 130px;
@@ -477,13 +534,7 @@
                   cursor: default;
                   pointer-events: none;
                 }
-                #btn-notificaciones-container svg {
-                  position: absolute;
-                  left: 8px;
-                  top: 50%;
-                  transform: translateY(-50%);
-                  min-width: 14px;
-                }
+                /* Unified svg rule applied above */
                 #btn-notificaciones-text {
                   opacity: 0;
                   white-space: nowrap;
@@ -504,11 +555,10 @@
               </div>
 
               <!-- 5. Buscador Expandible (Solo ícono) -->
-              <div class="d-flex align-center gap-2" >
-                <div id="mora-search-container" style="position:relative; transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1); width: 32px; height: 32px;">
-                  <i class="mi text-secondary" data-lucide="search"   style="position:absolute; left:8px; top:50%; transform:translateY(-50%); font-size:15px; pointer-events:none; z-index:2;"></i>
-                  <input class="text-base cursor-pointer" type="text" id="buscar-cliente" placeholder="Buscar cliente..." onfocus="this.parentElement.style.width='320px'; this.style.borderColor='var(--azul)'; this.style.background='white'; this.style.padding='0 12px 0 32px';" onblur="if(!this.value) { this.parentElement.style.width='32px'; this.style.borderColor='var(--gris2)'; this.style.background='var(--bg-body)'; this.style.padding='0 0 0 32px'; }" oninput="filtrarClientes()"  style="position:absolute; top:0; left:0; width:100%; height:100%; padding:0 0 0 32px; border:1px solid var(--gris2); border-radius:8px; background:var(--bg-body); outline:none; transition:all 0.3s; color:var(--texto1);">
-                </div>
+              <div id="mora-search-container" style="position:relative; transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1); width: 32px; height: 32px;">
+                <i class="mi text-secondary" data-lucide="search" style="pointer-events:none; z-index:2;"></i>
+                <input class="text-base cursor-pointer" type="text" id="buscar-cliente" placeholder="Buscar cliente..." onfocus="this.parentElement.style.width='320px'; this.style.borderColor='var(--azul)'; this.style.background='white'; this.style.padding='0 12px 0 32px';" onblur="if(!this.value) { this.parentElement.style.width='32px'; this.style.borderColor='var(--gris2)'; this.style.background='var(--bg-body)'; this.style.padding='0 0 0 32px'; }" oninput="filtrarClientes()"  style="position:absolute; top:0; left:0; width:100%; height:100%; padding:0 0 0 32px; border:1px solid var(--gris2); border-radius:8px; background:var(--bg-body); outline:none; transition:all 0.3s; color:var(--texto1);">
+              </div>
               </div>
 
               <!-- El icono y cantidad intactos en su sitio original -->

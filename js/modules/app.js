@@ -113,12 +113,14 @@
       b.style.background = 'white';
       b.style.color = 'var(--texto2)';
       b.style.borderColor = 'var(--gris2)';
+      b.classList.remove('active-subtab');
     });
     const activeBtn = document.getElementById('subtab-mora-' + (subtab === 'pendientes' ? 'asesores' : subtab));
     if (activeBtn) {
       activeBtn.style.background = 'var(--brand-light)';
       activeBtn.style.color = 'var(--brand-secondary)';
       activeBtn.style.borderColor = 'var(--brand-light-border)';
+      activeBtn.classList.add('active-subtab');
     }
 
     // Ocultar select de asesores y mostrar botón falso si no es pendientes

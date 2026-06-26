@@ -1543,7 +1543,7 @@ function invalidarCacheBase() {
   try {
     var cache = CacheService.getScriptCache();
     var hojas = SpreadsheetApp.getActiveSpreadsheet().getSheets()
-      .filter(function(s) { return s.getName().indexOf('BASE') === 0; });
+      .filter(function(s) { return s.getName().indexOf('CARTERA ACTIVA') === 0; });
     hojas.forEach(function(h) {
       cache.remove(CACHE_KEY_PREFIX + h.getName());
     });
@@ -1590,7 +1590,7 @@ function obtenerHojaPorCod(cod) {
 // ── Helper: obtener todas las hojas BASE ──
 function obtenerHojasBase() {
   return SpreadsheetApp.getActiveSpreadsheet().getSheets()
-    .filter(function(s) { return s.getName().indexOf('BASE') === 0; });
+    .filter(function(s) { return s.getName().indexOf('CARTERA ACTIVA') === 0; });
 }
 
 // ── Helper: filtrar hojas BASE por oficina ──

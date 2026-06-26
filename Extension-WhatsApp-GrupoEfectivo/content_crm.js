@@ -46,12 +46,21 @@ function injectBotStyles() {
     style.id = 'ge-bot-styles';
     style.innerHTML = `
         @keyframes pulseBot {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.15); opacity: 0.8; }
-            100% { transform: scale(1); opacity: 1; }
+            0% { transform: translateY(-50%) scale(1); opacity: 1; }
+            50% { transform: translateY(-50%) scale(1.15); opacity: 0.8; }
+            100% { transform: translateY(-50%) scale(1); opacity: 1; }
         }
-        @keyframes spin {
-            100% { transform: rotate(360deg); }
+        @keyframes spinBot {
+            100% { transform: translateY(-50%) rotate(360deg); }
+        }
+        #btn-notificaciones-container.bot-active {
+            border-color: var(--azul) !important;
+            background: var(--brand-light) !important;
+            color: var(--brand-secondary) !important;
+            cursor: default !important;
+        }
+        #btn-notificaciones-container.bot-active:hover {
+            width: 220px !important;
         }
     `;
     document.head.appendChild(style);
@@ -67,6 +76,7 @@ function showFloatingWidget(totalItems) {
     if (!btn.dataset.originalHtml) {
         btn.dataset.originalHtml = btn.innerHTML;
         btn.dataset.originalBg = btn.style.background || '';
+        btn.dataset.originalOnclick = btn.getAttribute('onclick') || '';
     }
     
     // Registrar el tiempo de inicio
@@ -74,43 +84,35 @@ function showFloatingWidget(totalItems) {
     
     const minutes = Math.ceil(totalItems * 15 / 60); // Asumiendo modo rápido
     
+    btn.removeAttribute('onclick'); // Evitar que el main world dispare su evento
     btn.onclick = null; // deshabilitar
-    btn.style.pointerEvents = 'none';
+    // Se elimina pointerEvents='none' para permitir el hover CSS
     btn.innerHTML = `
-        <i data-lucide="loader-2" class="mi sm" style="animation: spin 2s linear infinite; vertical-align: middle;"></i>
-        <span>Abriendo WhatsApp... (~${minutes}m)</span>
+        <div id="btn-notificaciones-container" class="bot-active">
+            <i data-lucide="bot" class="mi sm" style="animation: pulseBot 1.5s infinite;"></i>
+            <span id="btn-notificaciones-text">Abriendo WhatsApp... (~${minutes}m)</span>
+        </div>
     `;
     if (window.lucide) window.lucide.createIcons();
 }
 
 function setWidgetFinished(stats, interrupted, failedItems) {
     const btn = document.getElementById('btn-notificaciones');
-    if (!btn) return;
-    
-    // Calcular tiempo exacto que tomó
-    const timeTakenMs = Date.now() - (window.geBotStartTime || Date.now());
-    const minutes = Math.floor(timeTakenMs / 60000);
-    const seconds = Math.floor((timeTakenMs % 60000) / 1000);
-    const timeStr = minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
-    
-    btn.style.pointerEvents = 'auto';
-    btn.style.background = '#10b981'; // Verde de éxito
-    btn.style.borderColor = '#10b981';
-    
-    btn.innerHTML = `
-        <i data-lucide="check-circle" class="mi sm" style="vertical-align: middle;"></i>
-        <span>Concluido (${timeStr})</span>
-    `;
-    
-    btn.onclick = () => {
-        showBulkSummaryModal(stats, interrupted, failedItems);
-        // Restaurar estado original al darle click para ver el reporte
-        btn.innerHTML = btn.dataset.originalHtml;
-        btn.style.background = btn.dataset.originalBg;
-        btn.style.borderColor = '';
-        btn.onclick = window.iniciarRecordatorios;
+    if (btn) {
+        // Restaurar estado original inmediatamente
+        btn.style.pointerEvents = 'auto';
+        if (btn.dataset.originalHtml) {
+            btn.innerHTML = btn.dataset.originalHtml;
+        }
+        if (btn.dataset.originalOnclick) {
+            btn.setAttribute('onclick', btn.dataset.originalOnclick);
+        }
+        btn.onclick = null;
         if (window.lucide) window.lucide.createIcons();
-    };
+    }
+    
+    // Mostrar el resumen automáticamente
+    showBulkSummaryModal(stats, interrupted, failedItems);
 }
 
 // Escuchar evento de finalización y progreso para mostrar el resumen en el CRM
@@ -129,8 +131,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             texto += ` (~${minutesLeft}m)`;
 
             btn.innerHTML = `
-                <i data-lucide="bot" class="mi sm" style="animation: pulseBot 1.5s infinite; vertical-align: middle;"></i>
-                <span>${texto}</span>
+                <div id="btn-notificaciones-container" class="bot-active">
+                    <i data-lucide="bot" class="mi sm" style="animation: pulseBot 1.5s infinite;"></i>
+                    <span id="btn-notificaciones-text">${texto}</span>
+                </div>
             `;
             if (window.lucide) window.lucide.createIcons();
         }
@@ -153,8 +157,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         const btn = document.getElementById('btn-notificaciones');
         if (btn && !btn.innerHTML.includes('Concluido')) {
             btn.innerHTML = `
-                <i data-lucide="bot" class="mi sm" style="animation: pulseBot 1.5s infinite; vertical-align: middle;"></i>
-                <span>Escribiendo mensaje...</span>
+                <div id="btn-notificaciones-container" class="bot-active">
+                    <i data-lucide="bot" class="mi sm" style="animation: pulseBot 1.5s infinite;"></i>
+                    <span id="btn-notificaciones-text">Escribiendo mensaje...</span>
+                </div>
             `;
             if (window.lucide) window.lucide.createIcons();
         }
@@ -166,6 +172,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 function showBulkSummaryModal(stats, interrupted = false, failedItems = []) {
     const existing = document.getElementById('ge-bulk-modal');
     if (existing) existing.remove();
+
+    const timeTakenMs = Date.now() - (window.geBotStartTime || Date.now());
+    const minutes = Math.floor(timeTakenMs / 60000);
+    const seconds = Math.floor((timeTakenMs % 60000) / 1000);
+    const timeStr = minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
 
     const titleColor = interrupted ? '#d97706' : '#10b981'; // Naranja o Verde
     const headerIcon = interrupted 
@@ -208,9 +219,13 @@ function showBulkSummaryModal(stats, interrupted = false, failedItems = []) {
                     </div>
                 </div>
 
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 4px 20px; border-bottom: ${failedItems.length > 0 ? '1px solid #e9edef' : 'none'}; margin-bottom: ${failedItems.length > 0 ? '20px' : '0'};">
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 4px 10px;">
                     <span style="color: #667781; font-weight: 600; font-size: 13px;"><i data-lucide="users" class="mi xs" style="vertical-align:text-bottom; margin-right:4px;"></i>Total Programado:</span>
                     <span style="color: #111b21; font-weight: 700; font-size: 15px;">${stats.total}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 4px 20px; border-bottom: ${failedItems.length > 0 ? '1px solid #e9edef' : 'none'}; margin-bottom: ${failedItems.length > 0 ? '20px' : '0'};">
+                    <span style="color: #667781; font-weight: 600; font-size: 13px;"><i data-lucide="clock" class="mi xs" style="vertical-align:text-bottom; margin-right:4px;"></i>Tiempo Tomado:</span>
+                    <span style="color: #111b21; font-weight: 700; font-size: 15px;">${timeStr}</span>
                 </div>
 
                 ${interrupted ? `<div style="background: #fffbeb; border: 1px solid #fcd34d; border-radius: 10px; padding: 10px 14px; margin-bottom: 20px; font-size: 12px; color: #92400e; font-weight: 600;">
@@ -241,6 +256,8 @@ function showBulkSummaryModal(stats, interrupted = false, failedItems = []) {
             </div>
         </div>
         <style>
+            #ge-close-modal:hover { background: #0043a6 !important; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,82,204,0.3); }
+            #ge-close-modal:active { transform: translateY(0); box-shadow: none; }
             @keyframes gePopIn {
                 0% { opacity: 0; transform: scale(0.95) translateY(10px); }
                 100% { opacity: 1; transform: scale(1) translateY(0); }
