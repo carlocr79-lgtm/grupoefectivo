@@ -567,10 +567,9 @@
 
             <!-- TOOLBAR CARTAS -->
             <div class="caja-toolbar gap-3 align-center d-none"  id="cartas-controls-pendientes"  style="flex-wrap:wrap; margin-bottom: 0;">
-              <div class="d-flex gap-2 flex-shrink-0" >
-                <select class="clean-select text-base font-semibold cursor-pointer" id="filtros-asesores-cartas"  onchange="if(window.renderCartasPendientes) window.renderCartasPendientes()"  style="box-sizing:border-box; height:32px; width:115px; padding:0 24px 0 12px; border:1px solid var(--brand-light-border); border-radius:8px; background-color:var(--brand-light); color:var(--brand-secondary); outline:none; transition:all 0.2s; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">
-                  <option value="">Todos</option>
-                </select>
+              <div class="d-flex flex-shrink-0" style="background: white; border: 1px solid var(--gris2); border-radius: 8px; overflow: hidden; height: 32px; font-size: 14px;">
+                <button id="btn-filtro-cartas-pendientes" onclick="setFiltroCartas('SOLICITADA')" style="flex: 1; padding: 0 16px; border: none; background: var(--brand-light); color: var(--brand-secondary); font-weight: 600; cursor: pointer; transition: all 0.2s;">Pendientes</button>
+                <button id="btn-filtro-cartas-emitidas" onclick="setFiltroCartas('EMITIDA')" style="flex: 1; padding: 0 16px; border: left: 1px solid var(--gris2); background: transparent; color: var(--texto2); font-weight: 500; cursor: pointer; transition: all 0.2s;">Emitidas</button>
               </div>
                 
               <!-- Buscador Expandible -->

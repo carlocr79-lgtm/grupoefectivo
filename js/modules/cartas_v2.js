@@ -40,16 +40,17 @@
       const badge = document.getElementById('cartas-pendientes-badge');
       const data = window._cartasPendientesData || [];
       
-      const filtroAsesor = document.getElementById('filtros-asesores-cartas') ? document.getElementById('filtros-asesores-cartas').value : '';
+      window.filtroEstadoCartas = window.filtroEstadoCartas || 'SOLICITADA';
+
       const busqueda = document.getElementById('buscar-cartas') ? document.getElementById('buscar-cartas').value.toUpperCase() : '';
       
       let filteredData = data.filter(c => {
-        const matchAsesor = !filtroAsesor || (c.asesor && c.asesor.includes(filtroAsesor));
+        const matchEstado = c.estado === window.filtroEstadoCartas;
         const matchBusqueda = !busqueda || 
                               (c.nombres && c.nombres.toUpperCase().includes(busqueda)) || 
                               (c.celular && c.celular.includes(busqueda)) ||
                               (c.codCliente && c.codCliente.toString().toUpperCase().includes(busqueda));
-        return matchAsesor && matchBusqueda;
+        return matchEstado && matchBusqueda;
       });
 
       // FIX: El número del badge debe reflejar solo las que están en estado "SOLICITADA" (sin filtrar)
@@ -703,13 +704,49 @@
   window.toggleCartasClearBtn = toggleCartasClearBtn;
   window.limpiarBuscadorCartas = limpiarBuscadorCartas;
   window.cartasAbrirDrawer = cartasAbrirDrawer;
-  window.cartasCerrarDrawer = cartasCerrarDrawer;
-  window.cartasSolicitarCarta = cartasSolicitarCarta;
+  window.cartasCargarPendientes = cartasCargarPendientes;
+  window.cartasRenderResultados = cartasRenderResultados;
   window.cartasSolicitarAprobacion = cartasSolicitarAprobacion;
   window.cartasDescargarExistente = cartasDescargarExistente;
+
+  window.setFiltroCartas = function(estado) {
+    window.filtroEstadoCartas = estado;
+    
+    // Update button styles
+    const btnPendientes = document.getElementById('btn-filtro-cartas-pendientes');
+    const btnEmitidas = document.getElementById('btn-filtro-cartas-emitidas');
+    
+    if (estado === 'SOLICITADA') {
+      if (btnPendientes) {
+        btnPendientes.style.background = 'var(--brand-light)';
+        btnPendientes.style.color = 'var(--brand-secondary)';
+        btnPendientes.style.fontWeight = '600';
+      }
+      if (btnEmitidas) {
+        btnEmitidas.style.background = 'transparent';
+        btnEmitidas.style.color = 'var(--texto2)';
+        btnEmitidas.style.fontWeight = '500';
+      }
+    } else {
+      if (btnEmitidas) {
+        btnEmitidas.style.background = 'var(--verde)';
+        btnEmitidas.style.color = 'white';
+        btnEmitidas.style.fontWeight = '600';
+      }
+      if (btnPendientes) {
+        btnPendientes.style.background = 'transparent';
+        btnPendientes.style.color = 'var(--texto2)';
+        btnPendientes.style.fontWeight = '500';
+      }
+    }
+
+    if(window.renderCartasPendientes) window.renderCartasPendientes();
+  };
+
   window.cartasAbrirPreview = cartasAbrirPreview;
   window.cartasPreviewBase64 = cartasPreviewBase64;
   window.cartasEnviarWA = cartasEnviarWA;
   window.cartasSwitchTab = cartasSwitchTab;
-  window.cartasCargarPendientes = cartasCargarPendientes;
-
+  window.cartasCerrarDrawer = cartasCerrarDrawer;
+  window.cartasSolicitarCarta = cartasSolicitarCarta;
+})();
