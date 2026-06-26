@@ -354,16 +354,20 @@ window.extractValidPhone = function(raw) {
 
 // ─── THEME TOGGLE ───
 function toggleTheme() {
-  const isDark = document.body.classList.toggle('dark-mode');
+  const isDark = document.documentElement.classList.toggle('dark-mode');
   try { localStorage.setItem('ge_theme', isDark ? 'dark' : 'light'); } catch(e) {}
   updateThemeIcon(isDark);
 }
 
 function updateThemeIcon(isDark) {
   const icon = document.getElementById('theme-icon');
+  const label = document.getElementById('theme-label');
   if (icon) {
     icon.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
     if (window.lucide) window.lucide.createIcons({ nameAttr: 'data-lucide' });
+  }
+  if (label) {
+    label.textContent = 'Tema';
   }
 }
 
@@ -371,8 +375,10 @@ function updateThemeIcon(isDark) {
   try {
     const isDark = localStorage.getItem('ge_theme') === 'dark';
     if (isDark) {
-      document.body.classList.add('dark-mode');
+      document.documentElement.classList.add('dark-mode');
       setTimeout(() => updateThemeIcon(true), 100); // Dar tiempo a que Lucide cargue
+    } else {
+      setTimeout(() => updateThemeIcon(false), 100);
     }
   } catch(e) {}
 })();

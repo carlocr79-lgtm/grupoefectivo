@@ -54,7 +54,7 @@
 }
 
 /* --- DARK MODE --- */
-body.dark-mode {
+:root.dark-mode {
   --bg-surface: #1e293b;
   --bg-body: #0f172a;
   --border-color: #334155;
@@ -81,27 +81,31 @@ body.dark-mode {
   --azul-claro: var(--brand-dark);
 }
 
-body.dark-mode .bg-white, body.dark-mode .status-card, body.dark-mode .detalle-card, 
-body.dark-mode .dash-panel, body.dark-mode .drawer-panel, body.dark-mode .dr-section, 
-body.dark-mode .drawer-actions, body.dark-mode .modal-box, body.dark-mode .hist-card, 
-body.dark-mode .skeleton-box, body.dark-mode .dash-kpi-sk, body.dark-mode .caja-table-wrap, 
-body.dark-mode .mov-card, body.dark-mode .denom-section, body.dark-mode .search-bar input, 
-body.dark-mode .tabs, body.dark-mode .cliente-card, body.dark-mode .topbar, body.dark-mode .main-content {
+:root.dark-mode .bg-white, :root.dark-mode .status-card, :root.dark-mode .detalle-card, 
+:root.dark-mode .dash-panel, :root.dark-mode .drawer-panel, :root.dark-mode .dr-section, 
+:root.dark-mode .drawer-actions, :root.dark-mode .modal-box, :root.dark-mode .hist-card, 
+:root.dark-mode .skeleton-box, :root.dark-mode .dash-kpi-sk, :root.dark-mode .caja-table-wrap, 
+:root.dark-mode .mov-card, :root.dark-mode .denom-section, :root.dark-mode .search-bar input, 
+:root.dark-mode .tabs, :root.dark-mode .cliente-card, :root.dark-mode .topbar {
   background-color: var(--bg-surface) !important;
   border-color: var(--border-color) !important;
   color: var(--text-primary);
 }
 
-body.dark-mode .topbar-title { color: var(--text-primary); }
+:root.dark-mode .main-content {
+  background-color: var(--bg-body) !important;
+}
 
-body.dark-mode [style*="background: white"],
-body.dark-mode [style*="background:white"],
-body.dark-mode [style*="background:#fff"],
-body.dark-mode [style*="background: #fff"],
-body.dark-mode [style*="background:#ffffff"],
-body.dark-mode [style*="background: #ffffff"] {
+:root.dark-mode .topbar-title { color: var(--text-primary); }
+
+:root.dark-mode [style*="background: white"],
+:root.dark-mode [style*="background:white"],
+:root.dark-mode [style*="background:#fff"],
+:root.dark-mode [style*="background: #fff"],
+:root.dark-mode [style*="background:#ffffff"],
+:root.dark-mode [style*="background: #ffffff"] {
   background-color: var(--bg-surface) !important;
-  color: var(--text-primary);
+  color: var(--text-primary) !important;
   border-color: var(--border-color) !important;
 }
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
