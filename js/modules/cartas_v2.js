@@ -434,7 +434,8 @@
   }
 
   async function cartasSolicitarAprobacion(codCliente, nombres, event) {
-    const btn = event.currentTarget;
+    const btn = event.currentTarget || (event.target ? event.target.closest('button') : null);
+    if (!btn) return;
     const originalHtml = btn.innerHTML;
     btn.innerHTML = '<i data-lucide="loader-circle" class="mi sm" style="animation:spin 1s linear infinite;"></i>';
     if (window.lucide) lucide.createIcons();
@@ -455,6 +456,14 @@
       }
 
       if (resp && resp.success) {
+        if (window._cartasStatusResultCache) {
+          window._cartasStatusResultCache[codCliente] = { hasLetter: true, estado: 'SOLICITADA' };
+        }
+        const idx = typeof _cartasResultados !== 'undefined' ? _cartasResultados.findIndex(c => String(c.codCliente).trim() === String(codCliente).trim()) : -1;
+        if (idx > -1) {
+          _cartasResultados[idx].estadoCarta = 'SOLICITADA';
+        }
+
         if (btn.classList.contains('mov-btn')) {
           btn.outerHTML = `<button disabled class="mov-btn" title="Pendiente de Aprobación" style="background:var(--alert-warning-light); border-color:#fed7aa;"><i data-lucide="hourglass" class="mi sm" style="color:var(--alert-warning);"></i></button>`;
         } else {
