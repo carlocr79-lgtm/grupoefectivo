@@ -417,6 +417,13 @@
           const primerNombre = nombre.split(' ')[0];
           saludoEl.textContent = '¡Hola, ' + primerNombre + '!';
         }
+
+        if (rol !== 'admin') {
+          const dashPanelCartas = document.getElementById('dash-panel-cartas');
+          if (dashPanelCartas) dashPanelCartas.style.display = 'none';
+          const tabCartas = document.getElementById('tab-clientes-cartas-pendientes');
+          if (tabCartas) tabCartas.style.display = 'none';
+        }
       }
       cargarTodo();
     }
