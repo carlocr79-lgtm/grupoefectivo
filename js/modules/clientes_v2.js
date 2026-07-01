@@ -267,12 +267,13 @@
     const clientesContainer = document.getElementById('mora-content-clientes');
     const busqueda = document.getElementById('buscar-cliente').value.toUpperCase();
     const rol = sessionStorage.getItem('ge_rol');
+    const isMoraActive = (window.currentMainTab === 'mora' && window.currentMoraSubTab === 'pendientes');
     
     // 1. Resolver visibilidad primero para que aplique incluso durante la carga (skeletons)
     if (rol !== 'asesor' && !filtroAsesor && !busqueda) {
       if (gridContainer) {
          gridContainer.classList.remove('d-none');
-         gridContainer.style.display = 'block';
+         if (isMoraActive) gridContainer.style.display = 'block';
       }
       if (clientesContainer) {
          clientesContainer.classList.add('d-none');
@@ -285,7 +286,7 @@
       }
       if (clientesContainer) {
          clientesContainer.classList.remove('d-none');
-         clientesContainer.style.display = 'block';
+         if (isMoraActive) clientesContainer.style.display = 'block';
       }
     }
     
@@ -432,7 +433,7 @@
     }
     if (clientesContainer) {
        clientesContainer.classList.remove('d-none');
-       clientesContainer.style.display = 'block';
+       if (isMoraActive) clientesContainer.style.display = 'block';
     }
     
     const subtabAsesores = document.getElementById('subtab-mora-asesores');
