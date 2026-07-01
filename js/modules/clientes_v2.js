@@ -441,7 +441,11 @@
     const subtabAsesoresIcon = document.querySelector('#subtab-mora-asesores .icon-main');
 
     if (rol !== 'asesor' && filtroAsesor && !busqueda) {
-        if (subtabAsesoresText) subtabAsesoresText.textContent = 'Volver';
+        if (subtabAsesoresText) {
+            let firstName = filtroAsesor.split(' ')[0].toLowerCase();
+            let shortName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
+            subtabAsesoresText.textContent = shortName;
+        }
         if (subtabAsesoresIcon) {
             const newIcon = document.createElement('i');
             newIcon.className = 'mi xs icon-main m-0';
