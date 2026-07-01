@@ -356,11 +356,11 @@
                       all: unset;
                       box-sizing: border-box;
                       height: 32px;
-                      padding: 0 14px;
+                      padding: 0 16px;
                       border-radius: 8px;
                       border: 1px solid var(--gris2);
                       font-weight: 600;
-                      font-size: 12px;
+                      font-size: 13px;
                       font-family: inherit;
                       cursor: pointer;
                       background: white;
@@ -371,15 +371,23 @@
                       gap: 6px;
                       user-select: none;
                       line-height: 1;
+                      transition: all 0.2s ease;
                     }
                     .btn-main-tab:hover {
-                      border-color: var(--brand-light-border);
+                      border-color: var(--brand-secondary);
                       color: var(--brand-secondary);
                       background: var(--bg-body);
                     }
+                    .btn-main-tab.active {
+                      background: var(--brand-secondary);
+                      color: white;
+                      border-color: var(--brand-secondary);
+                    }
+                    .btn-main-tab.active i {
+                      color: white !important;
+                    }
                   </style>
-                  <button id="tab-clientes-mora" class="btn-main-tab"
-                    style="background:var(--brand-light); border-color:var(--brand-light-border); color:var(--brand-secondary);"
+                  <button id="tab-clientes-mora" class="btn-main-tab active"
                     onclick="switchMoraSubTab('pendientes')">
                     <i class="mi m-0" data-lucide="bell"   style="font-size:15px;"></i> Mora
                   </button>
@@ -432,14 +440,18 @@
 
               <!-- 1, 2 y 3. Pestañas: Asesores (Principal) / Vouchers / Historial -->
               <div class="d-flex gap-2 flex-shrink-0 align-center" >
-                <!-- El select real (Se muestra cuando estamos en la pestaña principal) -->
-                <select class="clean-select text-base font-semibold cursor-pointer" id="filtros-asesores"  onchange="setFiltroAsesor(this.value)"  style="box-sizing:border-box; height:32px; width:115px; padding:0 24px 0 12px; border:1px solid var(--brand-light-border); border-radius:8px; background-color:var(--brand-light); color:var(--brand-secondary); outline:none; transition:all 0.2s; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;"></select>
-                
-                <!-- El botón falso (Se muestra cuando estamos en otras pestañas) -->
-                <button class="btn-mora-subtab d-none expandable-subtab" id="subtab-mora-asesores" onclick="switchMoraSubTab('pendientes')">
+                <button class="btn-mora-subtab expandable-subtab active-subtab" id="subtab-mora-asesores" onclick="switchMoraSubTab('pendientes')">
                   <i class="mi xs icon-main m-0" data-lucide="user"></i>
                   <span class="subtab-text">Asesores</span>
                 </button>
+
+                <!-- 4. Notificaciones Expandible -->
+                <div id="btn-notificaciones" onclick="if(!this.classList.contains('disabled-mode')) iniciarRecordatorios()" id-container="btn-notificaciones-container" class="btn-notificaciones-wrapper">
+                  <div id="btn-notificaciones-container">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="14" height="14" fill="currentColor"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.736 5.472 2.027 7.774L0 32l8.454-2.01A15.938 15.938 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.333a13.27 13.27 0 01-6.748-1.833l-.484-.287-5.02 1.194 1.271-4.874-.317-.502A13.267 13.267 0 012.667 16C2.667 8.636 8.636 2.667 16 2.667S29.333 8.636 29.333 16 23.364 29.333 16 29.333zm7.27-9.862c-.398-.199-2.354-1.162-2.72-1.294-.365-.133-.631-.199-.897.199-.266.398-1.029 1.294-1.262 1.56-.232.266-.465.299-.863.1-.398-.2-1.681-.619-3.203-1.977-1.184-1.057-1.983-2.362-2.215-2.76-.232-.398-.025-.613.174-.811.179-.178.398-.465.598-.698.199-.232.265-.398.398-.664.133-.266.066-.498-.033-.697-.1-.2-.897-2.162-1.229-2.96-.324-.777-.653-.672-.897-.684l-.764-.013c-.266 0-.697.1-1.063.498-.365.398-1.395 1.362-1.395 3.323s1.428 3.854 1.627 4.12c.2.266 2.81 4.287 6.808 6.014.951.41 1.694.656 2.273.839.955.304 1.824.261 2.511.158.766-.114 2.354-.962 2.687-1.891.332-.929.332-1.726.232-1.891-.099-.166-.365-.266-.763-.465z"/></svg>
+                    <span id="btn-notificaciones-text">Notificaciones</span>
+                  </div>
+                </div>
 
                 <button class="btn-mora-subtab expandable-subtab" id="subtab-mora-vouchers" onclick="switchMoraSubTab('vouchers')">
                   <i class="mi xs icon-main m-0" data-lucide="receipt"></i>
@@ -552,12 +564,6 @@
                   opacity: 1;
                 }
               </style>
-              <div id="btn-notificaciones" onclick="if(!this.classList.contains('disabled-mode')) iniciarRecordatorios()" id-container="btn-notificaciones-container" class="btn-notificaciones-wrapper">
-                <div id="btn-notificaciones-container">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="14" height="14" fill="currentColor"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.736 5.472 2.027 7.774L0 32l8.454-2.01A15.938 15.938 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.333a13.27 13.27 0 01-6.748-1.833l-.484-.287-5.02 1.194 1.271-4.874-.317-.502A13.267 13.267 0 012.667 16C2.667 8.636 8.636 2.667 16 2.667S29.333 8.636 29.333 16 23.364 29.333 16 29.333zm7.27-9.862c-.398-.199-2.354-1.162-2.72-1.294-.365-.133-.631-.199-.897.199-.266.398-1.029 1.294-1.262 1.56-.232.266-.465.299-.863.1-.398-.2-1.681-.619-3.203-1.977-1.184-1.057-1.983-2.362-2.215-2.76-.232-.398-.025-.613.174-.811.179-.178.398-.465.598-.698.199-.232.265-.398.398-.664.133-.266.066-.498-.033-.697-.1-.2-.897-2.162-1.229-2.96-.324-.777-.653-.672-.897-.684l-.764-.013c-.266 0-.697.1-1.063.498-.365.398-1.395 1.362-1.395 3.323s1.428 3.854 1.627 4.12c.2.266 2.81 4.287 6.808 6.014.951.41 1.694.656 2.273.839.955.304 1.824.261 2.511.158.766-.114 2.354-.962 2.687-1.891.332-.929.332-1.726.232-1.891-.099-.166-.365-.266-.763-.465z"/></svg>
-                  <span id="btn-notificaciones-text">Notificaciones</span>
-                </div>
-              </div>
 
               <!-- 5. Contador y Buscador Expandible -->
               <div class="d-flex align-center gap-2">
@@ -611,20 +617,29 @@
             </div>
           </div>
 
+          <!-- CONTENIDO ASESORES (GRID) -->
+          <div class="d-none" id="mora-content-grid-asesores" >
+            <div id="grid-asesores" class="asesor-grid" style="padding-bottom: 40px; display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));">
+            </div>
+          </div>
+
           <!-- CONTENIDO CLIENTES (MORA) -->
           <div class="d-none" id="mora-content-clientes" >
+            <div id="btn-back-asesores" class="d-none mb-3 cursor-pointer" onclick="volverAGridAsesores()" style="align-items:center; gap:6px; color:var(--brand-secondary); font-weight:600; padding:6px 12px; background:var(--brand-light); border-radius:6px; font-size:13px; width:fit-content;">
+              <i data-lucide="arrow-left" class="mi xs"></i> Volver a Asesores
+            </div>
             <div id="lista-clientes" style="padding-bottom: 40px;">
-              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
-              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
-              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+              <div class="cliente-card d-flex justify-between align-center" style="padding:12px 16px; margin-bottom:8px; cursor:default;"><div class="d-flex align-center gap-4"><div class="skeleton" style="width:36px; height:36px; border-radius:50%; flex-shrink:0;"></div><div class="d-flex flex-col" style="gap:8px;"><div class="skeleton sk-line" style="width:160px; margin:0;"></div><div class="skeleton sk-line" style="width:120px; height:10px; margin:0;"></div></div></div><div class="d-flex align-center gap-4 d-none d-sm-flex"><div class="skeleton sk-line" style="width:60px; margin:0;"></div><div class="d-flex gap-2"><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div></div></div></div>
+              <div class="cliente-card d-flex justify-between align-center" style="padding:12px 16px; margin-bottom:8px; cursor:default;"><div class="d-flex align-center gap-4"><div class="skeleton" style="width:36px; height:36px; border-radius:50%; flex-shrink:0;"></div><div class="d-flex flex-col" style="gap:8px;"><div class="skeleton sk-line" style="width:160px; margin:0;"></div><div class="skeleton sk-line" style="width:120px; height:10px; margin:0;"></div></div></div><div class="d-flex align-center gap-4 d-none d-sm-flex"><div class="skeleton sk-line" style="width:60px; margin:0;"></div><div class="d-flex gap-2"><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div></div></div></div>
+              <div class="cliente-card d-flex justify-between align-center" style="padding:12px 16px; margin-bottom:8px; cursor:default;"><div class="d-flex align-center gap-4"><div class="skeleton" style="width:36px; height:36px; border-radius:50%; flex-shrink:0;"></div><div class="d-flex flex-col" style="gap:8px;"><div class="skeleton sk-line" style="width:160px; margin:0;"></div><div class="skeleton sk-line" style="width:120px; height:10px; margin:0;"></div></div></div><div class="d-flex align-center gap-4 d-none d-sm-flex"><div class="skeleton sk-line" style="width:60px; margin:0;"></div><div class="d-flex gap-2"><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div></div></div></div>
             </div>
           </div>
 
           <!-- CONTENIDO VOUCHERS -->
           <div class="d-none" id="mora-content-vouchers" >
             <div id="lista-vouchers" style="padding-bottom: 40px;">
-              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
-              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+              <div class="cliente-card d-flex justify-between align-center" style="padding:12px 16px; margin-bottom:8px; cursor:default;"><div class="d-flex align-center gap-4"><div class="skeleton" style="width:36px; height:36px; border-radius:50%; flex-shrink:0;"></div><div class="d-flex flex-col" style="gap:8px;"><div class="skeleton sk-line" style="width:160px; margin:0;"></div><div class="skeleton sk-line" style="width:120px; height:10px; margin:0;"></div></div></div><div class="d-flex align-center gap-4 d-none d-sm-flex"><div class="skeleton sk-line" style="width:60px; margin:0;"></div><div class="d-flex gap-2"><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div></div></div></div>
+              <div class="cliente-card d-flex justify-between align-center" style="padding:12px 16px; margin-bottom:8px; cursor:default;"><div class="d-flex align-center gap-4"><div class="skeleton" style="width:36px; height:36px; border-radius:50%; flex-shrink:0;"></div><div class="d-flex flex-col" style="gap:8px;"><div class="skeleton sk-line" style="width:160px; margin:0;"></div><div class="skeleton sk-line" style="width:120px; height:10px; margin:0;"></div></div></div><div class="d-flex align-center gap-4 d-none d-sm-flex"><div class="skeleton sk-line" style="width:60px; margin:0;"></div><div class="d-flex gap-2"><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div></div></div></div>
             </div>
           </div>
 
@@ -738,30 +753,30 @@
           <!-- PANEL: MES ACTUAL -->
           <div id="cc-panel-mesactual">
             <div class="movimientos-list" id="caja-tabla-body">
-              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
-              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
-              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
-              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+              <div class="cliente-card d-flex justify-between align-center" style="padding:12px 16px; margin-bottom:8px; cursor:default;"><div class="d-flex align-center gap-4"><div class="skeleton" style="width:36px; height:36px; border-radius:50%; flex-shrink:0;"></div><div class="d-flex flex-col" style="gap:8px;"><div class="skeleton sk-line" style="width:160px; margin:0;"></div><div class="skeleton sk-line" style="width:120px; height:10px; margin:0;"></div></div></div><div class="d-flex align-center gap-4 d-none d-sm-flex"><div class="skeleton sk-line" style="width:60px; margin:0;"></div><div class="d-flex gap-2"><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div></div></div></div>
+              <div class="cliente-card d-flex justify-between align-center" style="padding:12px 16px; margin-bottom:8px; cursor:default;"><div class="d-flex align-center gap-4"><div class="skeleton" style="width:36px; height:36px; border-radius:50%; flex-shrink:0;"></div><div class="d-flex flex-col" style="gap:8px;"><div class="skeleton sk-line" style="width:160px; margin:0;"></div><div class="skeleton sk-line" style="width:120px; height:10px; margin:0;"></div></div></div><div class="d-flex align-center gap-4 d-none d-sm-flex"><div class="skeleton sk-line" style="width:60px; margin:0;"></div><div class="d-flex gap-2"><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div></div></div></div>
+              <div class="cliente-card d-flex justify-between align-center" style="padding:12px 16px; margin-bottom:8px; cursor:default;"><div class="d-flex align-center gap-4"><div class="skeleton" style="width:36px; height:36px; border-radius:50%; flex-shrink:0;"></div><div class="d-flex flex-col" style="gap:8px;"><div class="skeleton sk-line" style="width:160px; margin:0;"></div><div class="skeleton sk-line" style="width:120px; height:10px; margin:0;"></div></div></div><div class="d-flex align-center gap-4 d-none d-sm-flex"><div class="skeleton sk-line" style="width:60px; margin:0;"></div><div class="d-flex gap-2"><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div></div></div></div>
+              <div class="cliente-card d-flex justify-between align-center" style="padding:12px 16px; margin-bottom:8px; cursor:default;"><div class="d-flex align-center gap-4"><div class="skeleton" style="width:36px; height:36px; border-radius:50%; flex-shrink:0;"></div><div class="d-flex flex-col" style="gap:8px;"><div class="skeleton sk-line" style="width:160px; margin:0;"></div><div class="skeleton sk-line" style="width:120px; height:10px; margin:0;"></div></div></div><div class="d-flex align-center gap-4 d-none d-sm-flex"><div class="skeleton sk-line" style="width:60px; margin:0;"></div><div class="d-flex gap-2"><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div></div></div></div>
             </div>
           </div>
 
           <!-- PANEL: MESES ANTERIORES -->
           <div class="d-none" id="cc-panel-mesanterior" >
             <div class="movimientos-list" id="caja-tabla-body-archivo">
-              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
-              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
-              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
-              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+              <div class="cliente-card d-flex justify-between align-center" style="padding:12px 16px; margin-bottom:8px; cursor:default;"><div class="d-flex align-center gap-4"><div class="skeleton" style="width:36px; height:36px; border-radius:50%; flex-shrink:0;"></div><div class="d-flex flex-col" style="gap:8px;"><div class="skeleton sk-line" style="width:160px; margin:0;"></div><div class="skeleton sk-line" style="width:120px; height:10px; margin:0;"></div></div></div><div class="d-flex align-center gap-4 d-none d-sm-flex"><div class="skeleton sk-line" style="width:60px; margin:0;"></div><div class="d-flex gap-2"><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div></div></div></div>
+              <div class="cliente-card d-flex justify-between align-center" style="padding:12px 16px; margin-bottom:8px; cursor:default;"><div class="d-flex align-center gap-4"><div class="skeleton" style="width:36px; height:36px; border-radius:50%; flex-shrink:0;"></div><div class="d-flex flex-col" style="gap:8px;"><div class="skeleton sk-line" style="width:160px; margin:0;"></div><div class="skeleton sk-line" style="width:120px; height:10px; margin:0;"></div></div></div><div class="d-flex align-center gap-4 d-none d-sm-flex"><div class="skeleton sk-line" style="width:60px; margin:0;"></div><div class="d-flex gap-2"><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div></div></div></div>
+              <div class="cliente-card d-flex justify-between align-center" style="padding:12px 16px; margin-bottom:8px; cursor:default;"><div class="d-flex align-center gap-4"><div class="skeleton" style="width:36px; height:36px; border-radius:50%; flex-shrink:0;"></div><div class="d-flex flex-col" style="gap:8px;"><div class="skeleton sk-line" style="width:160px; margin:0;"></div><div class="skeleton sk-line" style="width:120px; height:10px; margin:0;"></div></div></div><div class="d-flex align-center gap-4 d-none d-sm-flex"><div class="skeleton sk-line" style="width:60px; margin:0;"></div><div class="d-flex gap-2"><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div></div></div></div>
+              <div class="cliente-card d-flex justify-between align-center" style="padding:12px 16px; margin-bottom:8px; cursor:default;"><div class="d-flex align-center gap-4"><div class="skeleton" style="width:36px; height:36px; border-radius:50%; flex-shrink:0;"></div><div class="d-flex flex-col" style="gap:8px;"><div class="skeleton sk-line" style="width:160px; margin:0;"></div><div class="skeleton sk-line" style="width:120px; height:10px; margin:0;"></div></div></div><div class="d-flex align-center gap-4 d-none d-sm-flex"><div class="skeleton sk-line" style="width:60px; margin:0;"></div><div class="d-flex gap-2"><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div></div></div></div>
             </div>
           </div>
 
           <!-- PANEL: ARQUEOS -->
           <div class="d-none" id="cc-panel-arqueo" >
             <div class="movimientos-list" id="caja-hist-body">
-              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
-              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
-              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
-              <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+              <div class="cliente-card d-flex justify-between align-center" style="padding:12px 16px; margin-bottom:8px; cursor:default;"><div class="d-flex align-center gap-4"><div class="skeleton" style="width:36px; height:36px; border-radius:50%; flex-shrink:0;"></div><div class="d-flex flex-col" style="gap:8px;"><div class="skeleton sk-line" style="width:160px; margin:0;"></div><div class="skeleton sk-line" style="width:120px; height:10px; margin:0;"></div></div></div><div class="d-flex align-center gap-4 d-none d-sm-flex"><div class="skeleton sk-line" style="width:60px; margin:0;"></div><div class="d-flex gap-2"><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div></div></div></div>
+              <div class="cliente-card d-flex justify-between align-center" style="padding:12px 16px; margin-bottom:8px; cursor:default;"><div class="d-flex align-center gap-4"><div class="skeleton" style="width:36px; height:36px; border-radius:50%; flex-shrink:0;"></div><div class="d-flex flex-col" style="gap:8px;"><div class="skeleton sk-line" style="width:160px; margin:0;"></div><div class="skeleton sk-line" style="width:120px; height:10px; margin:0;"></div></div></div><div class="d-flex align-center gap-4 d-none d-sm-flex"><div class="skeleton sk-line" style="width:60px; margin:0;"></div><div class="d-flex gap-2"><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div></div></div></div>
+              <div class="cliente-card d-flex justify-between align-center" style="padding:12px 16px; margin-bottom:8px; cursor:default;"><div class="d-flex align-center gap-4"><div class="skeleton" style="width:36px; height:36px; border-radius:50%; flex-shrink:0;"></div><div class="d-flex flex-col" style="gap:8px;"><div class="skeleton sk-line" style="width:160px; margin:0;"></div><div class="skeleton sk-line" style="width:120px; height:10px; margin:0;"></div></div></div><div class="d-flex align-center gap-4 d-none d-sm-flex"><div class="skeleton sk-line" style="width:60px; margin:0;"></div><div class="d-flex gap-2"><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div></div></div></div>
+              <div class="cliente-card d-flex justify-between align-center" style="padding:12px 16px; margin-bottom:8px; cursor:default;"><div class="d-flex align-center gap-4"><div class="skeleton" style="width:36px; height:36px; border-radius:50%; flex-shrink:0;"></div><div class="d-flex flex-col" style="gap:8px;"><div class="skeleton sk-line" style="width:160px; margin:0;"></div><div class="skeleton sk-line" style="width:120px; height:10px; margin:0;"></div></div></div><div class="d-flex align-center gap-4 d-none d-sm-flex"><div class="skeleton sk-line" style="width:60px; margin:0;"></div><div class="d-flex gap-2"><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div></div></div></div>
             </div>
             <div class="text-center d-none"  style="margin-top:14px;" id="caja-hist-mas-container">
               <button class="btn-main text-md font-medium"  id="btn-arqueos-mas" onclick="cajaLoadHistorial(true)"  style="background:white; color:var(--azul2); border:1.5px solid var(--azul2); width:auto; padding:8px 24px; border-radius:30px;"><i data-lucide="chevron-down" class="mi xs" style="vertical-align:text-bottom;margin-right:4px;"></i> Ver más arqueos</button>
@@ -783,8 +798,8 @@
             </div>
           </div>
           <div class="movimientos-list" id="kasnet-lista">
-            <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
-            <div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>
+            <div class="cliente-card d-flex justify-between align-center" style="padding:12px 16px; margin-bottom:8px; cursor:default;"><div class="d-flex align-center gap-4"><div class="skeleton" style="width:36px; height:36px; border-radius:50%; flex-shrink:0;"></div><div class="d-flex flex-col" style="gap:8px;"><div class="skeleton sk-line" style="width:160px; margin:0;"></div><div class="skeleton sk-line" style="width:120px; height:10px; margin:0;"></div></div></div><div class="d-flex align-center gap-4 d-none d-sm-flex"><div class="skeleton sk-line" style="width:60px; margin:0;"></div><div class="d-flex gap-2"><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div></div></div></div>
+            <div class="cliente-card d-flex justify-between align-center" style="padding:12px 16px; margin-bottom:8px; cursor:default;"><div class="d-flex align-center gap-4"><div class="skeleton" style="width:36px; height:36px; border-radius:50%; flex-shrink:0;"></div><div class="d-flex flex-col" style="gap:8px;"><div class="skeleton sk-line" style="width:160px; margin:0;"></div><div class="skeleton sk-line" style="width:120px; height:10px; margin:0;"></div></div></div><div class="d-flex align-center gap-4 d-none d-sm-flex"><div class="skeleton sk-line" style="width:60px; margin:0;"></div><div class="d-flex gap-2"><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div></div></div></div>
           </div>
           </div><!-- /caja-sub-kasnet -->
           
@@ -1501,6 +1516,7 @@
 </script>
 </body>
 </html>
+
 
 
 

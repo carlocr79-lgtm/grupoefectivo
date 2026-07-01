@@ -26,7 +26,7 @@
     if(tbody) {
       let skHTML = '';
       for(let i=0; i<4; i++) {
-        skHTML += `<div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>`;
+        skHTML += `<div class="cliente-card d-flex justify-between align-center" style="padding:12px 16px; margin-bottom:8px; cursor:default;"><div class="d-flex align-center gap-4"><div class="skeleton" style="width:36px; height:36px; border-radius:50%; flex-shrink:0;"></div><div class="d-flex flex-col" style="gap:8px;"><div class="skeleton sk-line" style="width:160px; margin:0;"></div><div class="skeleton sk-line" style="width:120px; height:10px; margin:0;"></div></div></div><div class="d-flex align-center gap-4 d-none d-sm-flex"><div class="skeleton sk-line" style="width:60px; margin:0;"></div><div class="d-flex gap-2"><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div></div></div></div>`;
       }
       tbody.innerHTML = skHTML;
     }
@@ -225,7 +225,7 @@
 
     let skHTML = '';
     for(let i=0; i<4; i++) {
-      skHTML += `<div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>`;
+      skHTML += `<div class="cliente-card d-flex justify-between align-center" style="padding:12px 16px; margin-bottom:8px; cursor:default;"><div class="d-flex align-center gap-4"><div class="skeleton" style="width:36px; height:36px; border-radius:50%; flex-shrink:0;"></div><div class="d-flex flex-col" style="gap:8px;"><div class="skeleton sk-line" style="width:160px; margin:0;"></div><div class="skeleton sk-line" style="width:120px; height:10px; margin:0;"></div></div></div><div class="d-flex align-center gap-4 d-none d-sm-flex"><div class="skeleton sk-line" style="width:60px; margin:0;"></div><div class="d-flex gap-2"><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div></div></div></div>`;
     }
     contenedor.innerHTML = skHTML;
 
@@ -693,7 +693,7 @@
       cajaArqueosOffset = 0;
       let skArq = '';
       for(let i=0; i<4; i++) {
-        skArq += `<div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>`;
+        skArq += `<div class="cliente-card d-flex justify-between align-center" style="padding:12px 16px; margin-bottom:8px; cursor:default;"><div class="d-flex align-center gap-4"><div class="skeleton" style="width:36px; height:36px; border-radius:50%; flex-shrink:0;"></div><div class="d-flex flex-col" style="gap:8px;"><div class="skeleton sk-line" style="width:160px; margin:0;"></div><div class="skeleton sk-line" style="width:120px; height:10px; margin:0;"></div></div></div><div class="d-flex align-center gap-4 d-none d-sm-flex"><div class="skeleton sk-line" style="width:60px; margin:0;"></div><div class="d-flex gap-2"><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div></div></div></div>`;
       }
       contenedor.innerHTML = skArq;
       btnMasCont.style.display = 'none';
@@ -821,3 +821,4 @@
   let kasnetRegistros = [];
   let _kasnetRegMap = {};
   const KASNET_BASE_DEFAULT = 3000; // Podría venir de config en el futuro
+

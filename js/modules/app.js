@@ -28,23 +28,24 @@
     let tabGroup = tab.startsWith('mora') ? 'mora' : tab;
     window.currentMainTab = tabGroup;
 
-    // Actualizar botones tab — usando estilos inline directos (igual que switchMoraSubTab)
-    // para evitar recálculo de CSS que causa micro-temblor
+    // Actualizar botones tab principal
     document.querySelectorAll('.btn-main-tab').forEach(b => {
-      b.style.background = 'white';
-      b.style.color = 'var(--texto2)';
-      b.style.borderColor = 'var(--gris2)';
+      b.classList.remove('active');
+      // Limpiar estilos inline si los tuviera
+      b.style.background = '';
+      b.style.color = '';
+      b.style.borderColor = '';
     });
     const btn = document.getElementById('tab-clientes-' + tabGroup);
     if (btn) {
-      btn.style.background = 'var(--brand-light)';
-      btn.style.color = 'var(--brand-secondary)';
-      btn.style.borderColor = 'var(--brand-light-border)';
+      btn.classList.add('active');
     }
 
     // Ocultar todas las vistas y toolbars primero
     document.getElementById('mora-content-busqueda').style.display = 'none';
     document.getElementById('mora-content-clientes').style.display = 'none'; 
+    const gridEl = document.getElementById('mora-content-grid-asesores');
+    if (gridEl) gridEl.style.display = 'none';
     document.getElementById('mora-controls-clientes').style.display = 'none';
     document.getElementById('cartas-controls-pendientes').style.display = 'none';
     document.getElementById('mora-content-vouchers').style.display = 'none';
@@ -132,16 +133,15 @@
       activeBtn.classList.add('active-subtab');
     }
 
-    // Ocultar select de asesores y mostrar botón falso si no es pendientes
-    const selectAsesores = document.getElementById('filtros-asesores');
-    const btnAsesoresFalso = document.getElementById('subtab-mora-asesores');
-    if (selectAsesores && btnAsesoresFalso) {
-      if (subtab === 'pendientes') {
-        selectAsesores.style.display = 'inline-block';
-        btnAsesoresFalso.style.display = 'none';
+    // Inicializar el texto del botón Asesores según el rol
+    const btnAsesoresText = document.querySelector('#subtab-mora-asesores .subtab-text');
+    if (btnAsesoresText && subtab === 'pendientes') {
+      const rol = sessionStorage.getItem('ge_rol');
+      const nombre = sessionStorage.getItem('ge_nombre') || '';
+      if (rol === 'asesor') {
+        btnAsesoresText.textContent = nombre.split(' ')[0] || 'Mi Cartera';
       } else {
-        selectAsesores.style.display = 'none';
-        btnAsesoresFalso.style.display = 'flex';
+        btnAsesoresText.textContent = 'Asesores';
       }
     }
 
@@ -155,6 +155,18 @@
         searchBox.placeholder = 'Buscar en historial...';
       } else {
         searchBox.placeholder = 'Buscar cliente...';
+      }
+    }
+
+    const btnNotif = document.getElementById('btn-notificaciones');
+    const btnNotifCont = document.getElementById('btn-notificaciones-container');
+    if (btnNotif && btnNotifCont) {
+      if (subtab === 'pendientes') {
+        btnNotif.classList.remove('disabled-mode');
+        btnNotifCont.classList.remove('disabled-mode');
+      } else {
+        btnNotif.classList.add('disabled-mode');
+        btnNotifCont.classList.add('disabled-mode');
       }
     }
 
@@ -397,6 +409,8 @@
             if (!c.asesor) return true;
             return c.asesor.toUpperCase().indexOf('CARTERA') < 0;
           });
+          
+          window.datosCargados = true; // El caché ya cuenta como datos cargados
           renderAsesoresFiltros();
           renderClientes();
         }
@@ -466,6 +480,8 @@
           if (!c.asesor) return true;
           return c.asesor.toUpperCase().indexOf('CARTERA') < 0;
         });
+        
+        window.datosCargados = true; // Marcar como cargado antes de renderizar
         renderAsesoresFiltros();
         renderClientes();
       }
@@ -638,7 +654,7 @@
     // Mostrar loading (Skeleton)
     let skHTML = '';
     for(let i=0; i<3; i++) {
-      skHTML += `<div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>`;
+      skHTML += `<div class="cliente-card d-flex justify-between align-center" style="padding:12px 16px; margin-bottom:8px; cursor:default;"><div class="d-flex align-center gap-4"><div class="skeleton" style="width:36px; height:36px; border-radius:50%; flex-shrink:0;"></div><div class="d-flex flex-col" style="gap:8px;"><div class="skeleton sk-line" style="width:160px; margin:0;"></div><div class="skeleton sk-line" style="width:120px; height:10px; margin:0;"></div></div></div><div class="d-flex align-center gap-4 d-none d-sm-flex"><div class="skeleton sk-line" style="width:60px; margin:0;"></div><div class="d-flex gap-2"><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div></div></div></div>`;
     }
     container.innerHTML = skHTML;
     countEl.textContent = '';
@@ -748,4 +764,5 @@
     if(elKasnet) elKasnet.textContent = 'S/ ' + fisicoKasnet.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
     if(elTotal) elTotal.textContent = 'S/ ' + total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
   }
+
 

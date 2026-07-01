@@ -577,8 +577,8 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
 .btn-mora-tab.active { background: transparent; color: var(--azul2); font-weight: 700; border-bottom-color: var(--azul2); box-shadow: none; }
 
 /* TABS PRINCIPALES CLIENTES (NIVEL 1) */
-.btn-main-tab:hover { transform: translateY(-1px); box-shadow: 0 4px 8px rgba(0,0,0,0.05); }
-.btn-main-tab:active { transform: translateY(0); }
+.btn-main-tab:hover { box-shadow: 0 4px 8px rgba(0,0,0,0.05); }
+.btn-main-tab:active { box-shadow: none; }
 
 /* CLIENTE DRAWER */
 .drawer-overlay { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,32,96,0.3); backdrop-filter:blur(4px); z-index:1000; opacity:0; pointer-events:none; transition:opacity 0.4s ease; }
@@ -1028,7 +1028,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   color:var(--azul); flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
 .topbar-right { display:flex; align-items:center; gap:8px; flex-shrink:0; }
-.content-body { flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; }
+.content-body { flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; scrollbar-gutter: stable; }
 .section { display:none; flex-shrink:0; }
 .section.active { display:block; animation:fadeSection 0.25s ease; }
 .section.section-flex.active { display:flex; flex-direction:column; flex:1; min-height:0; overflow:hidden; }
@@ -1301,3 +1301,7 @@ html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--gris
   .fin-name { font-size: 12px; }
   .fin-monto { font-size: 14px; }
 }
+
+/* ASESORES GRID */
+.asesor-card-summary:hover { border-color: var(--brand-secondary) !important; box-shadow: 0 4px 12px rgba(15,98,254,0.1) !important; }
+

@@ -23,20 +23,6 @@
 
   function renderAsesoresFiltros() {
     const asesores = [...new Set(clientes.map(c => c.asesor.split(' ')[0]))].filter(Boolean);
-    const sel = document.getElementById('filtros-asesores');
-    if(!sel) return;
-    sel.innerHTML = '<option value="">Todos</option>';
-    asesores.forEach(a => {
-      sel.innerHTML += `<option value="${escapeHtml(a)}">${escapeHtml(a)}</option>`;
-    });
-    // Conservar seleccion previa si existe
-    if (filtroAsesor && asesores.includes(filtroAsesor)) {
-      sel.value = filtroAsesor;
-    } else {
-      filtroAsesor = '';
-      sel.value = '';
-    }
-
     const selCartas = document.getElementById('filtros-asesores-cartas');
     if(selCartas) {
       selCartas.innerHTML = '<option value="">Todos</option>';
@@ -46,10 +32,16 @@
     }
   }
 
-  function setFiltroAsesor(asesor) {
+  window.setFiltroAsesor = function(asesor) {
     filtroAsesor = asesor;
     renderClientes();
-  }
+  };
+
+  window.volverAGridAsesores = function() {
+    filtroAsesor = '';
+    renderClientes();
+    if (typeof window.switchMoraSubTab === 'function') window.switchMoraSubTab('pendientes');
+  };
 
   const avatarColors = ['#FF4B4B', '#FF8F00', '#00C853', 'var(--brand-secondary)', '#AA00FF', '#00BFA5', '#FF4081', '#3D5AFE'];
   function getColorForName(name) {
@@ -83,7 +75,7 @@
     if (btnClear) btnClear.dataset.estado = 'loading';
 
     const container = document.getElementById('resultados-busqueda-global');
-    container.innerHTML = '<div class="skeleton-box"><div class="skeleton sk-avatar"></div><div class="flex-1" ><div class="skeleton sk-line w-50"></div><div class="skeleton sk-line w-80"></div></div></div>';
+    container.innerHTML = '<div class="cliente-card d-flex justify-between align-center" style="padding:12px 16px; margin-bottom:8px; cursor:default;"><div class="d-flex align-center gap-4"><div class="skeleton" style="width:36px; height:36px; border-radius:50%; flex-shrink:0;"></div><div class="d-flex flex-col" style="gap:8px;"><div class="skeleton sk-line" style="width:160px; margin:0;"></div><div class="skeleton sk-line" style="width:120px; height:10px; margin:0;"></div></div></div><div class="d-flex align-center gap-4 d-none d-sm-flex"><div class="skeleton sk-line" style="width:60px; margin:0;"></div><div class="d-flex gap-2"><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div></div></div></div>';
     
     try {
       const sedeReq = window.cajaSedeActual || '';
@@ -271,8 +263,222 @@
   let clientesFiltrados = [];
 
   window.renderClientes = function renderClientes() {
+    const gridContainer = document.getElementById('mora-content-grid-asesores');
+    const clientesContainer = document.getElementById('mora-content-clientes');
     const busqueda = document.getElementById('buscar-cliente').value.toUpperCase();
+    const rol = sessionStorage.getItem('ge_rol');
+    
+    // 1. Resolver visibilidad primero para que aplique incluso durante la carga (skeletons)
+    if (rol !== 'asesor' && !filtroAsesor && !busqueda) {
+      if (gridContainer) {
+         gridContainer.classList.remove('d-none');
+         gridContainer.style.display = 'block';
+      }
+      if (clientesContainer) {
+         clientesContainer.classList.add('d-none');
+         clientesContainer.style.display = 'none';
+      }
+    } else {
+      if (gridContainer) {
+         gridContainer.classList.add('d-none');
+         gridContainer.style.display = 'none';
+      }
+      if (clientesContainer) {
+         clientesContainer.classList.remove('d-none');
+         clientesContainer.style.display = 'block';
+      }
+    }
+    
+    // 2. Si no hay datos, renderizar skeletons en el contenedor que corresponda
+    if (!window.datosCargados) {
+        if (gridContainer && gridContainer.style.display !== 'none') {
+            document.getElementById('grid-asesores').innerHTML = `
+              <div class="cliente-card d-flex flex-col" style="padding: 18px; border-radius: 12px; border: 1px solid var(--gris2); background: white;">
+                 <div class="d-flex flex-col mb-3">
+                    <div class="d-flex align-center gap-2 mb-2">
+                       <div class="skeleton" style="width:24px; height:24px; border-radius:50%;"></div>
+                       <div class="skeleton sk-line" style="width:140px; margin:0;"></div>
+                    </div>
+                    <div class="skeleton sk-line" style="width:80px; height:18px; margin:0; border-radius:12px;"></div>
+                 </div>
+                 <div class="d-flex justify-between align-center pt-3" style="border-top: 1px dashed var(--gris2); margin-top: auto;">
+                    <div class="skeleton sk-line" style="width:80px; height:12px; margin:0;"></div>
+                    <div class="skeleton sk-line" style="width:100px; margin:0;"></div>
+                 </div>
+              </div>
+            `.repeat(4);
+        }
+        if (clientesContainer && clientesContainer.style.display !== 'none') {
+            document.getElementById('lista-clientes').innerHTML = `
+              <div class="cliente-card d-flex justify-between align-center" style="padding:12px 16px; margin-bottom:8px; cursor:default;"><div class="d-flex align-center gap-4"><div class="skeleton" style="width:36px; height:36px; border-radius:50%; flex-shrink:0;"></div><div class="d-flex flex-col" style="gap:8px;"><div class="skeleton sk-line" style="width:160px; margin:0;"></div><div class="skeleton sk-line" style="width:120px; height:10px; margin:0;"></div></div></div><div class="d-flex align-center gap-4 d-none d-sm-flex"><div class="skeleton sk-line" style="width:60px; margin:0;"></div><div class="d-flex gap-2"><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div><div class="skeleton" style="width:32px; height:32px; border-radius:8px;"></div></div></div></div>
+            `.repeat(4);
+        }
+        return;
+    }
+
     let baseData = clientes;
+    
+    const btnBack = document.getElementById('btn-back-asesores');
+    const contadorEl = document.getElementById('contador-clientes-mora');
+
+    if (rol !== 'asesor' && !filtroAsesor && !busqueda) {
+      const asesoresData = {};
+      baseData.forEach(c => {
+        let esValido = true;
+        if (c.vencimiento && c.vencimiento !== '-') {
+          const partes = c.vencimiento.split('/');
+          if (partes.length === 3) {
+            const hoyDate = new Date(); hoyDate.setHours(0,0,0,0);
+            const vDate = new Date(partes[2], partes[1] - 1, partes[0]); vDate.setHours(0,0,0,0);
+            const diasReales = Math.round((hoyDate.getTime() - vDate.getTime()) / 86400000);
+            if (diasReales < 0) esValido = false; 
+          }
+        }
+        if (!esValido) return;
+
+        const asesorNombre = c.asesor ? c.asesor.trim() : 'Sin Asesor';
+        if (!asesoresData[asesorNombre]) {
+          asesoresData[asesorNombre] = { 
+             nombre: asesorNombre, 
+             count: 0, 
+             monto: 0,
+             riesgo: { normal:0, cpp:0, deficiente:0, dudoso:0, perdida:0 }
+          };
+        }
+        asesoresData[asesorNombre].count++;
+        
+        let d = parseInt(c.dias, 10);
+        if (isNaN(d)) d = 0;
+        
+        if (d <= 8) asesoresData[asesorNombre].riesgo.normal++;
+        else if (d <= 30) asesoresData[asesorNombre].riesgo.cpp++;
+        else if (d <= 60) asesoresData[asesorNombre].riesgo.deficiente++;
+        else if (d <= 120) asesoresData[asesorNombre].riesgo.dudoso++;
+        else asesoresData[asesorNombre].riesgo.perdida++;
+        
+        const montoReal = (c.dias <= 0 && c.cuota > 0) ? c.cuota : c.deuda;
+        asesoresData[asesorNombre].monto += (parseFloat(montoReal) || 0);
+      });
+      
+      let gridHTML = '';
+      const asesoresKeys = Object.keys(asesoresData).sort((a,b) => asesoresData[b].monto - asesoresData[a].monto);
+      
+      asesoresKeys.forEach(key => {
+        const data = asesoresData[key];
+        let riesgoHTML = '';
+        if (data.riesgo.normal > 0) riesgoHTML += `<span title="Normal (0-8 días)" style="background:#e0eaff; color:var(--azul); padding: 2px 6px; border-radius:4px; font-size:10px; font-weight:600; border: 1px solid var(--brand-light-border); display:inline-block; margin-bottom:2px;">N: ${data.riesgo.normal}</span>`;
+        if (data.riesgo.cpp > 0) riesgoHTML += `<span title="CPP (9-30 días)" style="background:var(--alert-warning-light); color:#92400e; padding: 2px 6px; border-radius:4px; font-size:10px; font-weight:600; border: 1px solid #fbbf24; display:inline-block; margin-bottom:2px;">C: ${data.riesgo.cpp}</span>`;
+        if (data.riesgo.deficiente > 0) riesgoHTML += `<span title="Deficiente (31-60 días)" style="background:var(--alert-warning-light); color:#c2410c; padding: 2px 6px; border-radius:4px; font-size:10px; font-weight:600; border: 1px solid #fb923c; display:inline-block; margin-bottom:2px;">D: ${data.riesgo.deficiente}</span>`;
+        if (data.riesgo.dudoso > 0) riesgoHTML += `<span title="Dudoso (61-120 días)" style="background:#fee2e2; color:var(--alert-danger-dark); padding: 2px 6px; border-radius:4px; font-size:10px; font-weight:600; border: 1px solid var(--alert-danger-hover); display:inline-block; margin-bottom:2px;">Du: ${data.riesgo.dudoso}</span>`;
+        if (data.riesgo.perdida > 0) riesgoHTML += `<span title="Pérdida (>120 días)" style="background:var(--alert-danger-dark); color:white; padding: 2px 6px; border-radius:4px; font-size:10px; font-weight:600; border: 1px solid var(--alert-danger-dark); display:inline-block; margin-bottom:2px;">P: ${data.riesgo.perdida}</span>`;
+
+        gridHTML += `
+          <div class="cliente-card asesor-card-summary cursor-pointer d-flex flex-col" onclick="setFiltroAsesor('${escapeHtml(data.nombre)}')" style="padding: 18px; border-radius: 12px; border: 1px solid var(--gris2); background: white; transition: all 0.2s ease; align-items: stretch;">
+            <div class="d-flex flex-col mb-3">
+               <div class="d-flex align-center gap-2 mb-2">
+                 <i data-lucide="user" class="mi" style="margin:0; color:var(--brand-secondary);"></i>
+                 <div class="font-bold text-base" style="color:var(--texto); line-height: 1.2;">${escapeHtml(data.nombre)}</div>
+               </div>
+               <div class="d-flex align-center flex-wrap gap-1" style="margin-top: 2px;">
+                 <span class="text-xs font-semibold" style="color:var(--texto2); background: var(--bg-body); padding: 2px 8px; border-radius: 6px; display:inline-block; margin-bottom:2px; margin-right:4px;">Total: ${data.count}</span>
+                 ${riesgoHTML}
+               </div>
+            </div>
+            <div class="d-flex justify-between align-center pt-3" style="border-top: 1px dashed var(--gris2); margin-top: auto;">
+               <div class="text-xs font-semibold" style="color:var(--texto2);">Saldo en riesgo</div>
+               <div class="font-bold text-lg" style="color:var(--rojo);">S/. ${data.monto.toLocaleString('es-PE', {minimumFractionDigits:2})}</div>
+            </div>
+          </div>
+        `;
+      });
+      
+      document.getElementById('grid-asesores').innerHTML = gridHTML || '<div class="empty">No hay clientes en mora</div>';
+      if (window.lucide) window.lucide.createIcons();
+      
+      if (contadorEl) {
+         let totalClientesGlobal = 0;
+         asesoresKeys.forEach(k => totalClientesGlobal += asesoresData[k].count);
+         contadorEl.innerHTML = `<span style="color:var(--brand-secondary);">${totalClientesGlobal}</span>`;
+         contadorEl.title = "Total de clientes en riesgo de todos los asesores";
+      }
+      
+      const subtabAsesores = document.getElementById('subtab-mora-asesores');
+      const subtabAsesoresText = document.querySelector('#subtab-mora-asesores .subtab-text');
+      const subtabAsesoresIcon = document.querySelector('#subtab-mora-asesores .icon-main');
+      if (subtabAsesoresText) subtabAsesoresText.textContent = 'Asesores';
+      if (subtabAsesoresIcon) {
+          const newIcon = document.createElement('i');
+          newIcon.className = 'mi xs icon-main m-0';
+          newIcon.setAttribute('data-lucide', 'user');
+          subtabAsesoresIcon.replaceWith(newIcon);
+      }
+      if (subtabAsesores) {
+          subtabAsesores.style.background = '';
+          subtabAsesores.style.border = '';
+          subtabAsesores.style.color = '';
+          subtabAsesores.onclick = function() {
+              if (typeof window.switchMoraSubTab === 'function') window.switchMoraSubTab('pendientes');
+          };
+      }
+      if (window.lucide) window.lucide.createIcons();
+      
+      clientesFiltrados = baseData; // Asegurar que la memoria del botón tenga acceso a todos los clientes al estar en la vista global
+      return;
+    }
+
+    if (gridContainer) {
+       gridContainer.classList.add('d-none');
+       gridContainer.style.display = 'none';
+    }
+    if (clientesContainer) {
+       clientesContainer.classList.remove('d-none');
+       clientesContainer.style.display = 'block';
+    }
+    
+    const subtabAsesores = document.getElementById('subtab-mora-asesores');
+    const subtabAsesoresText = document.querySelector('#subtab-mora-asesores .subtab-text');
+    const subtabAsesoresIcon = document.querySelector('#subtab-mora-asesores .icon-main');
+
+    if (rol !== 'asesor' && filtroAsesor && !busqueda) {
+        if (subtabAsesoresText) subtabAsesoresText.textContent = 'Volver';
+        if (subtabAsesoresIcon) {
+            const newIcon = document.createElement('i');
+            newIcon.className = 'mi xs icon-main m-0';
+            newIcon.setAttribute('data-lucide', 'arrow-left');
+            subtabAsesoresIcon.replaceWith(newIcon);
+        }
+        if (subtabAsesores) {
+            subtabAsesores.style.background = 'white';
+            subtabAsesores.style.border = '1px solid var(--gris2)';
+            subtabAsesores.style.color = 'var(--texto)';
+            subtabAsesores.onclick = function() {
+                window.volverAGridAsesores();
+            };
+        }
+    } else {
+        if (subtabAsesoresText) subtabAsesoresText.textContent = (rol === 'asesor') ? ((sessionStorage.getItem('ge_nombre') || '').split(' ')[0] || 'Mi Cartera') : 'Asesores';
+        if (subtabAsesoresIcon) {
+            const newIcon = document.createElement('i');
+            newIcon.className = 'mi xs icon-main m-0';
+            newIcon.setAttribute('data-lucide', 'user');
+            subtabAsesoresIcon.replaceWith(newIcon);
+        }
+        if (subtabAsesores) {
+            subtabAsesores.style.background = '';
+            subtabAsesores.style.border = '';
+            subtabAsesores.style.color = '';
+            subtabAsesores.onclick = function() {
+                if (typeof window.switchMoraSubTab === 'function') window.switchMoraSubTab('pendientes');
+            };
+        }
+    }
+    if (window.lucide) window.lucide.createIcons();
+    
+    if (btnBack) {
+       btnBack.classList.add('d-none');
+       btnBack.classList.remove('d-inline-flex');
+       btnBack.style.display = 'none';
+    }
     
     let lista = baseData.filter(c => {
       const matchAsesor = !filtroAsesor || (c.asesor && c.asesor.includes(filtroAsesor));
@@ -280,7 +486,7 @@
                             (c.nombre && c.nombre.toUpperCase().includes(busqueda)) || 
                             (c.celular && c.celular.includes(busqueda)) ||
                             (c.cod && c.cod.toString().toUpperCase().includes(busqueda));
-      
+
       // FILTRO DE SEGURIDAD FRONTEND: Bloquear fechas futuras estrictamente
       let esValido = true;
       if (c.vencimiento && c.vencimiento !== '-') {
@@ -308,7 +514,6 @@
           <p style="color:var(--texto2); font-size:0.9rem; max-width:350px; line-height:1.5; margin:0;">Actualmente no hay clientes en mora registrados para esta cartera o filtro.</p>
         </div>
       `;
-      const contadorEl = document.getElementById('contador-clientes-mora');
       if(contadorEl) { contadorEl.innerHTML = `<i data-lucide="users" class="mi sm"></i>`; if(window.lucide) window.lucide.createIcons(); }
       return;
     }
@@ -317,7 +522,6 @@
     lista.sort((a, b) => b.dias - a.dias);
     clientesFiltrados = lista;
 
-    const contadorEl = document.getElementById('contador-clientes-mora');
     if (contadorEl) {
       if (lista.length > 0) {
         contadorEl.innerHTML = `<span style="color:var(--brand-secondary);">${lista.length}</span>`;
@@ -383,11 +587,15 @@
       </div>`;
     }).join('');
 
-    document.getElementById('lista-clientes').innerHTML = `
-      <div class="movimientos-list" style="padding-bottom:40px;">
-        ${cardsHTML}
-      </div>
-    `;
+    if (cardsHTML.length > 0) {
+      document.getElementById('lista-clientes').innerHTML = `
+        <div class="movimientos-list" style="padding-bottom:40px;">
+          ${cardsHTML}
+        </div>
+      `;
+    } else {
+      document.getElementById('lista-clientes').innerHTML = '<div class="empty">No hay clientes en mora</div>';
+    }
     
     // Inicializar los iconos de lucide recien inyectados
     if (typeof lucide !== 'undefined') {
@@ -558,11 +766,40 @@
   let _recEnviados = [];
 
   function iniciarRecordatorios() {
-    const conWA = clientesFiltrados.filter(c => c.telefono && c.mensaje);
+    // Primero, igualamos la lista a lo que se ve visualmente (solo vencidos o que vencen hoy)
+    let listaReal = clientesFiltrados.filter(c => {
+      if (c.vencimiento && c.vencimiento !== '-') {
+        const partes = c.vencimiento.split('/');
+        if (partes.length === 3) {
+          const hoyDate = new Date(); hoyDate.setHours(0,0,0,0);
+          const vDate = new Date(partes[2], partes[1] - 1, partes[0]); vDate.setHours(0,0,0,0);
+          const diasReales = Math.round((hoyDate.getTime() - vDate.getTime()) / 86400000);
+          if (diasReales < 0) return false;
+        }
+      }
+      return true;
+    });
+
+    const totalLista = listaReal.length;
+    let sinTelefono = 0;
+    let sinMensaje = 0;
+    
+    listaReal.forEach(c => {
+      const tieneNum = c.telefono || c.celular;
+      if (!tieneNum) sinTelefono++;
+      else if (!c.mensaje) sinMensaje++;
+    });
+
+    const conWA = listaReal.filter(c => (c.telefono || c.celular) && c.mensaje);
     if (!conWA.length) {
-      alert('No hay clientes con teléfono y mensaje configurado en la lista actual.');
+      alert(`Revisados: ${totalLista} clientes en mora.\n\nNinguno puede recibir WhatsApp.\nFaltan números de celular: ${sinTelefono}\nFalta texto de mensaje: ${sinMensaje}`);
       return;
     }
+    
+    if (conWA.length < totalLista) {
+      alert(`Información de Envíos Masivos:\n\nTotal de clientes en mora: ${totalLista}\nSe enviarán WhatsApps a: ${conWA.length}\n\nOmitidos automáticamente:\n- Sin número registrado en Excel: ${sinTelefono}\n- Sin texto de cobro asignado: ${sinMensaje}`);
+    }
+
     _recLista = conWA;
     _recIdx = 0;
     _recEnviados = [];
