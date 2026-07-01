@@ -155,9 +155,8 @@
           <div class="d-flex align-center gap-3" >
             <div class="cliente-monto text-primary text-lg font-bold"  >${deudaFmt}</div>
             <div class="d-flex align-center gap-2" >
-              ${c.celular ? `<button class="btn-call text-secondary cursor-pointer"   style="width:26px; height:26px; border-radius:50%; background:white; border:1px solid var(--gris2); box-shadow:none;" onclick="window.location.href='tel:${c.celular.replace(/\s+/g,'')}'; event.stopPropagation();"><i class="mi xs m-0" data-lucide="phone"  ></i></button>` : ''}
+              ${c.celular ? `<button class="btn-call text-secondary cursor-pointer"   style="width:26px; height:26px; border-radius:50%; background:white; border:1px solid var(--gris2); box-shadow:none;" onclick="window.location.href='tel:${c.celular.replace(/\s+/g,'')}'; event.stopPropagation();"><i class="mi xs m-0" data-lucide="smartphone"  ></i></button>` : ''}
               ${linkWA ? `<button class="btn-wa text-secondary cursor-pointer"   style="width:26px; height:26px; border-radius:50%; background:white; border:1px solid var(--gris2); box-shadow:none; animation:none;" onclick="window.open('${linkWA}', '_blank'); event.stopPropagation();">${waSvg}</button>` : ''}
-              <button class="${c.tipo === 'INACTIVO' ? 'btn-attention-pulse' : ''} text-secondary d-flex align-center justify-center cursor-pointer"   style="width:26px; height:26px; border-radius:50%; background:white; border:1px solid var(--gris2);" onclick="event.stopPropagation(); abrirClienteDrawerFromSearch(${idx});"><i class="mi xs m-0" data-lucide="chevron-right"  ></i></button>
             </div>
           </div>
 
@@ -583,9 +582,8 @@
         <div class="d-flex align-center gap-3" >
           <div class="cliente-monto text-primary text-lg font-bold"  >${deudaFmt}</div>
           <div class="d-flex align-center gap-2" >
-            ${c.celular ? `<button class="btn-call text-secondary"   style="width:26px; height:26px; border-radius:50%; background:white; border:1px solid var(--gris2); box-shadow:none;" onclick="window.location.href='tel:${c.celular.replace(/\s+/g,'')}'; event.stopPropagation();"><i class="mi xs m-0" data-lucide="phone"  ></i></button>` : ''}
+            ${c.celular ? `<button class="btn-call text-secondary"   style="width:26px; height:26px; border-radius:50%; background:white; border:1px solid var(--gris2); box-shadow:none;" onclick="window.location.href='tel:${c.celular.replace(/\s+/g,'')}'; event.stopPropagation();"><i class="mi xs m-0" data-lucide="smartphone"  ></i></button>` : ''}
             ${linkWA ? `<button class="btn-wa text-secondary"   style="width:26px; height:26px; border-radius:50%; background:white; border:1px solid var(--gris2); box-shadow:none; animation:none;" onclick="enviarWA('${linkWAMovil}','${linkWA}'); event.stopPropagation();">${waSvg}</button>` : ''}
-            <button class="${c.tipo === 'INACTIVO' ? 'btn-attention-pulse' : ''} text-secondary d-flex align-center justify-center cursor-pointer"   style="width:26px; height:26px; border-radius:50%; background:white; border:1px solid var(--gris2);" onclick="event.stopPropagation(); abrirClienteDrawer(${idx});"><i class="mi xs m-0" data-lucide="chevron-right"  ></i></button>
           </div>
         </div>
 
