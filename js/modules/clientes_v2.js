@@ -100,7 +100,6 @@
         `;
         const contador = document.getElementById('contador-clientes-busqueda');
         if(contador) { contador.innerHTML = `<i data-lucide="users" class="mi sm"></i>`; if(window.lucide) window.lucide.createIcons(); }
-        lucide.createIcons();
         const btnClear = document.getElementById('btn-clear-busqueda');
         if (btnClear) btnClear.dataset.estado = 'ready';
         return;
@@ -813,12 +812,7 @@
   function renderRecModal() {
     const total = _recLista.length;
     const c = _recLista[_recIdx];
-    const esMobil = /Android|iPhone|iPad/i.test(navigator.userAgent);
-    const phone = window.extractValidPhone ? window.extractValidPhone(c.telefono || c.celular) : (c.telefono || c.celular);
-    const linkWA = esMobil
-      ? `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(c.mensaje)}`
-      : `https://web.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(c.mensaje)}`;
-
+    const c = _recLista[_recIdx];
     const yaEnviado = _recEnviados.includes(_recIdx);
     document.getElementById('rec-contador').textContent = `${_recIdx + 1}/${total}`;
     document.getElementById('rec-progreso').style.width = `${((_recIdx + 1) / total) * 100}%`;
@@ -849,7 +843,8 @@
     let csvContent = "Phone,Message\n";
     
     _recLista.forEach(c => {
-      let phone = (c.telefono || c.celular || "").toString().replace(/\D/g, "");
+      let rawPhone = c.telefono || c.celular;
+      let phone = window.extractValidPhone ? window.extractValidPhone(rawPhone) : (rawPhone || "").toString().replace(/\D/g, "");
       if(!phone.startsWith("51") && phone.length === 9) phone = "51" + phone;
       let msg = (c.mensaje || "").replace(/"/g, '""');
       
@@ -863,9 +858,6 @@
     // Disparamos un evento personalizado que el content_crm.js estará escuchando.
     let evt = new CustomEvent("GE_WA_BOT_SEND_BULK", { detail: exportData });
     window.dispatchEvent(evt);
-
-    // Damos un mensaje de consola
-    console.log("Evento enviado al Robot. Si la extensión no atrapa esto en 1s, el navegador descargará el CSV por seguridad.");
     
     // (Opcional) Si quisieramos descargar el CSV como backup, lo hacemos aquí, 
     // pero para no confundir al robot, ignoraremos el backup a menos que aprieten otro botón.
@@ -893,6 +885,17 @@
   function cerrarRecModal() {
     document.getElementById('modal-rec').style.display = 'none';
   }
+  window.cerrarRecModal = cerrarRecModal;
+
+  window.recAvanzar = function(dir) {
+    if (dir === -1) {
+      if (_recIdx > 0) _recIdx--;
+    } else {
+      if (_recIdx < _recLista.length - 1) _recIdx++;
+      else _recIdx = 0;
+    }
+    renderRecModal();
+  };
 
   // â”€â”€ GESTIÓN DE NOTIFICADOS (LOCALSTORAGE) â”€â”€
   function getNotificadosKey() {
@@ -952,6 +955,13 @@
     }
     
     window._lastBulkPayload = null; // Limpiar memoria
+    
+    if(typeof showToast === 'function') {
+      showToast(`Envíos masivos completados: ${exitosos.length} enviados, ${failedPhones.length} fallidos.`);
+    } else {
+      alert(`Envíos masivos completados: ${exitosos.length} enviados, ${failedPhones.length} fallidos.`);
+    }
+    cerrarRecModal();
   });
 
   // â”€â”€ VOUCHERS â”€â”€

@@ -17,7 +17,7 @@
     container.innerHTML = skHTML;
 
     try {
-      // Al no enviar sedeContexto, el backend devolverá las solicitudes pendientes de TODAS las sedes
+      // Al no enviar sedeContexto, el backend devolverá las solicitudes pendientes de TODAS las sedes (global para admin)
       const resp = await apiFetch({ admin: 'cartas_pendientes' });
       window._cartasPendientesData = resp || [];
       
@@ -45,7 +45,9 @@
       const busqueda = document.getElementById('buscar-cartas') ? document.getElementById('buscar-cartas').value.toUpperCase() : '';
       
       let filteredData = data.filter(c => {
-        const matchEstado = c.estado === window.filtroEstadoCartas;
+        const estadoC = (c.estado || '').toUpperCase().trim();
+        const estadoFiltro = (window.filtroEstadoCartas || 'SOLICITADA').toUpperCase().trim();
+        const matchEstado = estadoC === estadoFiltro;
         const matchBusqueda = !busqueda || 
                               (c.nombres && c.nombres.toUpperCase().includes(busqueda)) || 
                               (c.celular && c.celular.includes(busqueda)) ||
@@ -78,18 +80,18 @@
       }
       
       if (filteredData.length === 0) {
+          const mensajeVacio = window.filtroEstadoCartas === 'SOLICITADA' 
+            ? 'Aún no hay solicitudes pendientes en esta categoría.' 
+            : 'Aún no hay cartas emitidas en esta categoría.';
+            
           container.innerHTML = `
-            <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding: 60px 20px; text-align:center; animation: fadeIn 0.4s ease-out;">
-              <div style="background: var(--brand-light); width: 80px; height: 80px; border-radius: 50%; display:flex; align-items:center; justify-content:center; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(15,98,254,0.15);">
-                <i data-lucide="file-check-2" style="width:40px; height:40px; color:var(--brand-secondary); stroke-width:1.5;"></i>
-              </div>
-              <h3 style="color:var(--texto); font-size:1.15rem; font-weight:600; margin:0 0 8px 0;">Historial vacío</h3>
-              <p style="color:var(--texto2); font-size:0.9rem; max-width:350px; line-height:1.5; margin:0;">Aún no hay solicitudes pendientes ni cartas emitidas en esta categoría.</p>
+            <div style="background-color: #fcedec; border: 1px solid #f5363e; padding: 12px; margin-top: 15px; border-radius: 4px; text-align: center;">
+              <span style="color: #555; font-size: 0.9rem; font-weight: 500;">${mensajeVacio}</span>
             </div>
           `;
-        return;
-      }
-
+          return;
+        }
+      
       let html = `<div class="d-flex flex-col gap-2" >`;
 
       const esAdmin = (sessionStorage.getItem('ge_rol') || 'asesor') === 'admin';
@@ -302,7 +304,7 @@
     document.getElementById('dr-cartas-estado').innerHTML = drEstado;
 
     const cal = (data.calificacion || '').toUpperCase();
-    let drCalif = `<span class="text-secondary font-bold" >${cal || 'NO REGISTRA'}</span>`;
+    let drCalif = `<span class="text-secondary font-bold" >${escHtml(cal) || 'NO REGISTRA'}</span>`;
     if (cal === 'PUNTUAL') drCalif = '<span class="font-bold"  style="color:var(--azul);">PUNTUAL</span>';
     else if (cal === 'NORMAL') drCalif = '<span class="font-bold"  style="color:var(--naranja);">NORMAL</span>';
     document.getElementById('dr-cartas-calif').innerHTML = drCalif;
@@ -434,7 +436,7 @@
     }
   }
 
-  async function cartasSolicitarAprobacion(codCliente, nombres, event) {
+  async function cartasSolicitarAprobacion(codCliente, nombres, celular, event) {
     const btn = event.currentTarget || (event.target ? event.target.closest('button') : null);
     if (!btn) return;
     const originalHtml = btn.innerHTML;
@@ -450,7 +452,7 @@
       });
 
       if (resp && resp.error) {
-        alert('Error: ' + resp.error);
+        if(typeof showToast === 'function') showToast('Error: ' + resp.error); else alert('Error: ' + resp.error);
         btn.innerHTML = originalHtml;
         btn.disabled = false;
         return;
@@ -474,7 +476,7 @@
       }
     } catch (e) {
       console.error(e);
-      alert('Ocurrió un error al enviar la solicitud.');
+      if(typeof showToast === 'function') showToast('Ocurrió un error al enviar la solicitud.'); else alert('Ocurrió un error al enviar la solicitud.');
       btn.innerHTML = originalHtml;
       btn.disabled = false;
     }
@@ -501,7 +503,7 @@
       }
 
       if (resp.error) {
-        alert('Error: ' + resp.error);
+        if(typeof showToast === 'function') showToast('Error: ' + resp.error); else alert('Error: ' + resp.error);
         btn.innerHTML = originalHtml;
         btn.disabled = false;
         return;
@@ -528,13 +530,13 @@
         btn.disabled = false;
       } else {
         // Si no hubo error pero tampoco éxito o faltó el pdfBase64
-        alert('No se pudo descargar el archivo. Respuesta incompleta.');
+        if(typeof showToast === 'function') showToast('No se pudo descargar el archivo. Respuesta incompleta.'); else alert('No se pudo descargar el archivo. Respuesta incompleta.');
         btn.innerHTML = originalHtml;
         btn.disabled = false;
       }
     } catch (e) {
       console.error(e);
-      alert('Ocurrió un error al descargar la carta. Verifica tu conexión o intenta nuevamente.');
+      if(typeof showToast === 'function') showToast('Ocurrió un error al descargar la carta. Verifica tu conexión o intenta nuevamente.'); else alert('Ocurrió un error al descargar la carta. Verifica tu conexión o intenta nuevamente.');
       btn.innerHTML = originalHtml;
       btn.disabled = false;
     }

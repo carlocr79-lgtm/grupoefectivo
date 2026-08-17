@@ -275,24 +275,25 @@
       if(txt) txt.textContent = 'Actualizando...';
 
       // Mostrar overlay, disparar peticiones inmediatamente y esperar a que ambas terminen
-      var activeSec = document.querySelector('.content-section.active');
+      var activeSec = document.querySelector('.section.active');
       var secPromise = Promise.resolve();
 
       if (activeSec) {
         const secId = activeSec.id.replace('section-', '');
         if (secId === 'cajachica' && typeof cajaCargarDatos === 'function') secPromise = cajaCargarDatos();
         else if (secId === 'kasnet' && typeof kasnetCargarDatos === 'function') secPromise = kasnetCargarDatos();
-        else if (secId === 'cartas' && typeof cartasBuscar === 'function') {
-           const searchVal = document.getElementById('cartas-buscar').value;
-           if (searchVal) secPromise = cartasBuscar(); else if (typeof cartasCargarPendientes === 'function') secPromise = cartasCargarPendientes();
-        }
-        else if (secId === 'mora') {
-           const activeTab = document.querySelector('.btn-mora-tab.active');
-           if (activeTab && activeTab.id) {
-             const tabName = activeTab.id.replace('tab-mora-', '');
-             if (tabName === 'vouchers' && typeof cargarVouchers === 'function') secPromise = cargarVouchers();
-             else if (tabName === 'historial' && typeof cargarHistorial === 'function') secPromise = cargarHistorial();
-           }
+        else if (secId === 'clientes') {
+          const activeMainTab = document.querySelector('#section-clientes .btn-main-tab.active');
+          if (activeMainTab && activeMainTab.id === 'tab-clientes-cartas-pendientes') {
+            if (typeof cartasCargarPendientes === 'function') secPromise = cartasCargarPendientes();
+          } else if (activeMainTab && activeMainTab.id === 'tab-clientes-mora') {
+            const activeMoraTab = document.querySelector('.btn-mora-tab.active');
+            if (activeMoraTab && activeMoraTab.id) {
+              const tabName = activeMoraTab.id.replace('tab-mora-', '');
+              if (tabName === 'vouchers' && typeof cargarVouchers === 'function') secPromise = cargarVouchers();
+              else if (tabName === 'historial' && typeof cargarHistorial === 'function') secPromise = cargarHistorial();
+            }
+          }
         }
       }
 
@@ -419,9 +420,7 @@
           globalSel.innerHTML = '';
           const rolActual = sessionStorage.getItem('ge_rol') || 'asesor';
           dashCached.sedes.forEach(function(s) { const o = document.createElement('option'); o.value=s; o.textContent=s; globalSel.appendChild(o); });
-          if (globalSel.parentElement) {
-             globalSel.parentElement.style.display = (rolActual !== 'admin' && dashCached.sedes.length <= 1) ? 'none' : 'block';
-          }
+          
           // Admin: seleccionar por defecto la primera sede real (no 'Todas')
           if (dashCached.sedeActiva !== undefined && dashCached.sedeActiva !== null && dashCached.sedeActiva !== '') {
             globalSel.value = dashCached.sedeActiva;
@@ -431,6 +430,19 @@
             cajaSedeActual = dashCached.sedes[0];
           }
         }
+        
+        // FIX: Garantizar que la visibilidad se aplique siempre desde caché
+        if (globalSel && globalSel.parentElement) {
+          const rolActual = sessionStorage.getItem('ge_rol') || 'asesor';
+          if (rolActual === 'admin' || (dashCached.sedes && dashCached.sedes.length > 1)) {
+            globalSel.parentElement.classList.remove('d-none');
+            globalSel.parentElement.style.display = 'block';
+          } else {
+            globalSel.parentElement.classList.add('d-none');
+            globalSel.parentElement.style.display = 'none';
+          }
+        }
+
         renderDashboard();
       }
 
@@ -439,7 +451,7 @@
 
       const resp = await pDash;
       // <i data-lucide="alert-triangle" class="mi xs" style="vertical-align:text-bottom;margin-right:2px;"></i> Guard: si llegó una carga más nueva mientras esperábamos, ignorar esta respuesta
-      if (myReqId !== _loadRequestId) { console.log('[cargarTodo] descartando respuesta obsoleta (req ' + myReqId + ')'); return; }
+      if (myReqId !== _loadRequestId) { return; }
 
       if (!resp || resp.error) {
         if (!dashCached) {
@@ -454,19 +466,27 @@
       // Poblar selector de sedes solo la primera vez (cuando está vacío)
       if (resp.sedes && resp.sedes.length > 0 && globalSel.options.length === 0) {
         globalSel.innerHTML = '';
-        const rolActual = sessionStorage.getItem('ge_rol') || 'asesor';
         resp.sedes.forEach(function(s) { const o = document.createElement('option'); o.value=s; o.textContent=s; globalSel.appendChild(o); });
         
-        if (globalSel.parentElement) {
-           globalSel.parentElement.style.display = (rolActual !== 'admin' && resp.sedes.length <= 1) ? 'none' : 'block';
-        }
-
         // Seleccionar por defecto la primera sede real
         if (resp.sedes.length > 0) {
           if (globalSel) globalSel.value = resp.sedes[0];
           cajaSedeActual = resp.sedes[0];
         }
       }
+      
+      // FIX: Garantizar que la visibilidad del selector se aplique siempre, no solo la primera vez
+      if (globalSel && globalSel.parentElement) {
+        const rolActual = sessionStorage.getItem('ge_rol') || 'asesor';
+        if (rolActual === 'admin' || (resp.sedes && resp.sedes.length > 1)) {
+          globalSel.parentElement.classList.remove('d-none');
+          globalSel.parentElement.style.display = 'block';
+        } else {
+          globalSel.parentElement.classList.add('d-none');
+          globalSel.parentElement.style.display = 'none';
+        }
+      }
+
       // Solo actualizar la sede si coincide con la que pedimos (o si fue la carga inicial donde pedimos '')
       if (resp.sedeActiva !== undefined && resp.sedeActiva !== null && resp.sedeActiva !== '' && (sedeReq === '' || sedeReq === (globalSel ? globalSel.value : sedeReq))) {
         if (globalSel) globalSel.value = resp.sedeActiva;
@@ -504,7 +524,6 @@
       if (myReqId !== _loadRequestId) return; // ignorar si ya hay una carga más nueva
       console.error('Error fatal de conexión:', e);
       document.getElementById('lista-clientes').innerHTML = '<div class="empty">Error de conexión.</div>';
-      cajaCargarDatos();
     } finally {
       if (myReqId === _loadRequestId) {
         window.datosCargados = true;
@@ -702,16 +721,13 @@
   window.switchCajaTab = function(tab) {
     document.querySelectorAll('#section-caja .btn-main-tab').forEach(b => {
       b.classList.remove('active');
-      b.style.background = 'transparent';
-      b.style.color = 'var(--texto2)';
-      b.style.boxShadow = 'none';
+      b.style.background = '';
+      b.style.color = '';
+      b.style.boxShadow = '';
     });
     const btn = document.getElementById('tab-caja-' + tab);
     if (btn) {
       btn.classList.add('active');
-      btn.style.background = 'white';
-      btn.style.color = 'var(--azul)';
-      btn.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
     }
 
     document.getElementById('caja-sub-cajachica').style.display = (tab === 'cajachica') ? 'flex' : 'none';

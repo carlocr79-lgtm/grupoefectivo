@@ -1342,7 +1342,7 @@
   <script src="js/modules/clientes_v2.js"></script>
   <script src="js/modules/caja-chica.js"></script>
   <script src="js/modules/kasnet.js"></script>
-  <script src="js/modules/cartas_v2.js"></script>
+  <script src="js/modules/cartas_v2.js?v=2"></script>
 
 
 
@@ -1364,9 +1364,9 @@
     <!-- Paginator & Progress -->
     <div class="d-flex align-center"  style="background:white; padding:8px 16px; border-bottom:1px solid #e9edef;">
         <div class="d-flex align-center"  style="gap:6px;">
-            <button class="cursor-pointer d-flex align-center" id="rec-btn-ant" onclick="(function(){_recIdx--;renderRecModal();})()"  style="background:none; border:none; color:var(--text-muted); padding:4px; border-radius:50%; transition:background 0.2s;"><i data-lucide="chevron-left" class="mi sm"></i></button>
+            <button class="cursor-pointer d-flex align-center" id="rec-btn-ant" onclick="recAvanzar(-1)"  style="background:none; border:none; color:var(--text-muted); padding:4px; border-radius:50%; transition:background 0.2s;"><i data-lucide="chevron-left" class="mi sm"></i></button>
             <div class="text-base font-semibold text-center" id="rec-contador"  style="color:var(--text-secondary); min-width:44px;">1/50</div>
-            <button class="cursor-pointer d-flex align-center" id="rec-btn-sig" onclick="(function(){if(_recIdx < _recLista.length-1){_recIdx++;}else{_recIdx=0;} renderRecModal();})()"  style="background:none; border:none; color:var(--text-muted); padding:4px; border-radius:50%; transition:background 0.2s;"><i data-lucide="chevron-right" class="mi sm"></i></button>
+            <button class="cursor-pointer d-flex align-center" id="rec-btn-sig" onclick="recAvanzar(1)"  style="background:none; border:none; color:var(--text-muted); padding:4px; border-radius:50%; transition:background 0.2s;"><i data-lucide="chevron-right" class="mi sm"></i></button>
         </div>
         <div class="flex-1"  style="margin-left:12px; height:4px; background:#e9edef; border-radius:2px; overflow:hidden;">
             <div id="rec-progreso" style="height:100%;background:var(--azul);width:0%;transition:width 0.3s;border-radius:2px;"></div>

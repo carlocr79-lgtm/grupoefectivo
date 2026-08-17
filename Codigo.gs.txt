@@ -42,9 +42,8 @@ function solicitarCodigo(correo) {
   var codigo = Math.floor(100000 + Math.random() * 900000).toString();
   var expira = new Date(new Date().getTime() + 10 * 60 * 1000); // 10 minutos
 
-  // Guardar código y expiración en la hoja (col 6=F y 7=G, E=Oficina no se toca)
-  hojaAccesos.getRange(usuarioEncontrado.fila, 6).setValue(codigo);
-  hojaAccesos.getRange(usuarioEncontrado.fila, 7).setValue(expira);
+  // Guardar código y expiración en la hoja (col 6=F y 7=G) en una sola operación
+  hojaAccesos.getRange(usuarioEncontrado.fila, 6, 1, 2).setValues([[codigo, expira]]);
 
   // Enviar correo
   MailApp.sendEmail({
@@ -80,15 +79,11 @@ function verificarCodigo(correo, codigo) {
     if (new Date() > expiraFila) return {error: "Código expirado. Solicita uno nuevo."};
     if (codigoFila !== codigo.trim()) return {error: "Código incorrecto."};
 
-    // Limpiar código usado
-    hojaAccesos.getRange(i + 1, 6).setValue("");
-    hojaAccesos.getRange(i + 1, 7).setValue("");
-
-    // Generar token de sesión (8 horas)
+    // Limpiar código usado y generar token de sesión (8 horas)
+    // Se agrupa en una sola operación (columnas 6, 7, 8, 9) para maximizar la velocidad de respuesta
     var sessionToken = Utilities.getUuid().replace(/-/g,'');
     var sessionExpira = new Date(new Date().getTime() + 8 * 60 * 60 * 1000);
-    hojaAccesos.getRange(i + 1, 8).setValue(sessionToken);
-    hojaAccesos.getRange(i + 1, 9).setValue(sessionExpira);
+    hojaAccesos.getRange(i + 1, 6, 1, 4).setValues([["", "", sessionToken, sessionExpira]]);
 
     return {
       success: true,
@@ -314,6 +309,19 @@ function doPost(e) {
         return ContentService.createTextOutput(JSON.stringify({error: "Sesión inválida o expirada"}))
           .setMimeType(ContentService.MimeType.JSON);
       }
+      
+      // OPTIMIZACIÓN: Si la sede viene vacía (ej. primer login), forzar la primera sede permitida
+      // Esto evita que el rol Admin sature el servidor tratando de cargar todas las sedes a la vez
+      if (!params.sedeContexto) {
+        var oficinaUser = sessionGet.oficina || 'TODOS';
+        var codigoOficina = oficinaUser !== 'TODOS' ? (oficinaUser.match(/(\d{3})/) ? oficinaUser.match(/(\d{3})/)[1] : oficinaUser) : '';
+        var sedesLista = getConfigLista('SEDES');
+        if (sedesLista.length === 0) sedesLista = ['001-LA MERCED'];
+        var sedesPermitidas = codigoOficina ? sedesLista.filter(function(s) { return s.indexOf(codigoOficina) >= 0; }) : sedesLista;
+        if (sedesPermitidas.length === 0) sedesPermitidas = sedesLista;
+        params.sedeContexto = sedesPermitidas[0];
+      }
+
       switch (params.admin) {
         case 'clientes':  return adminGetClientes(sessionGet, params.sedeContexto || '');
         case 'clientes_buscar_global': return adminBuscarClienteGlobal(sessionGet, params);
@@ -609,12 +617,12 @@ function adminGetClientes(session, sedeContexto) {
 
   hojas.forEach(function(item) {
     if (!item.hoja) return;
-    var data = item.hoja.getDataRange().getValues();
+    var data = getDatosBase(item.hoja);
     for (var i = 1; i < data.length; i++) {
-      var nombre = data[i][4] ? data[i][4].toString().trim() : "";
+      var nombre = data[i][1] ? data[i][1].toString().trim() : "";
       if (!nombre || nombre === "REVISAR") continue;
 
-      var asesor = data[i][3] ? data[i][3].toString().trim() : "";
+      var asesor = data[i][0] ? data[i][0].toString().trim() : "";
       var asesorUp = asesor.toUpperCase();
 
       // EXCLUSIÓN: No incluir clientes en cartera castigada o asignados genéricamente a "CARTERA"
@@ -623,25 +631,27 @@ function adminGetClientes(session, sedeContexto) {
       // Asesor solo ve sus propios clientes
       if (rol === 'asesor' && asesorUp.indexOf(asesorNombre.split(' ')[0]) < 0) continue;
 
-      var celular = formatPhoneNumber(data[i][5]);
-      var colC = data[i][2] ? data[i][2].toString().trim() : "";
-      var colG = data[i][6] ? data[i][6].toString().trim() : "";
+      var celular = formatPhoneNumber(data[i][2]);
+      var colC = data[i][11] ? data[i][11].toString().trim() : "";
+      var colG = data[i][3] ? data[i][3].toString().trim() : "";
       var codMostrar = colC ? colC : colG;
       if (colC && colG && colC !== colG) codMostrar = colC + " / " + colG;
       var cod = codMostrar;
-      var tipo = data[i][7] ? data[i][7].toString() : "";
-      var deuda = data[i][18] ? parseFloat(data[i][18]) : 0;
-      var diasRaw = data[i][20];
+      var tipo = data[i][4] ? data[i][4].toString() : "";
+      var deuda = data[i][7] ? parseFloat(data[i][7]) : 0;
+      var diasRaw = data[i][9];
       var diasColumna = (diasRaw === "" || isNaN(parseFloat(diasRaw))) ? -1 : parseFloat(diasRaw);
       
-      var cuotas = data[i][19] ? parseFloat(data[i][19]) : 0;
-      var cuota = data[i][16] ? parseFloat(data[i][16]) : 0;
-      var vencimientoRaw = data[i][14];
+      var cuotas = data[i][8] ? parseFloat(data[i][8]) : 0;
+      var cuota = data[i][6] ? parseFloat(data[i][6]) : 0;
+      var vencimientoRaw = data[i][5];
       
       // Calcular fecha de vencimiento real
       var fechaVenc = null;
       if (vencimientoRaw instanceof Date) {
         fechaVenc = new Date(vencimientoRaw.getTime());
+      } else if (typeof vencimientoRaw === 'string' && vencimientoRaw.indexOf('T') > 0) {
+        fechaVenc = new Date(vencimientoRaw); // Parse ISO string from CacheService
       } else if (typeof vencimientoRaw === 'string' && vencimientoRaw.indexOf('/') > 0) {
         var partes = vencimientoRaw.split(' ')[0].split('/'); // Por si viene con hora
         if (partes.length === 3) {
@@ -667,16 +677,16 @@ function adminGetClientes(session, sedeContexto) {
       // 2. Le toca hoy (diasAtrasoReales === 0)
       if (diasAtrasoReales < 0 || diasAtrasoReales === -999) continue;
 
-      var vencimiento = vencimientoRaw ? (vencimientoRaw instanceof Date ? Utilities.formatDate(vencimientoRaw, Session.getScriptTimeZone(), "dd/MM/yyyy") : vencimientoRaw.toString()) : "";
-      var direccion = data[i][22] ? data[i][22].toString().trim() : "";
+      var vencimiento = fechaVenc ? Utilities.formatDate(fechaVenc, Session.getScriptTimeZone(), "dd/MM/yyyy") : (vencimientoRaw ? vencimientoRaw.toString() : "");
+      var direccion = data[i][10] ? data[i][10].toString().trim() : "";
       
       var nombreHoja = item.hoja.getName().toUpperCase();
       var matchSede = nombreHoja.match(/(\d{3})/);
       var codigoSede = matchSede ? matchSede[1] : '001';
       var mensaje = generarMensajeCobranza(nombre, vencimientoRaw, deuda, cuota, cod, diasAtrasoReales > 0 ? diasAtrasoReales : 0, cuotas, codigoSede);
-      var telefono = formatPhoneNumber(data[i][5]);
-      var voucher = data[i][27] ? data[i][27].toString().trim() : "";
-      var obs = data[i][29] ? data[i][29].toString().trim() : "";
+      var telefono = formatPhoneNumber(data[i][2]);
+      var voucher = data[i][12] ? data[i][12].toString().trim() : "";
+      var obs = data[i][13] ? data[i][13].toString().trim() : "";
 
       resultado.push({
         fila: i + 1,
@@ -761,10 +771,9 @@ function adminBuscarClienteGlobal(session, params) {
       }
     }
 
-    // FASE 1: Buscar en BASE
+    // FASE 1: Buscar en BASE (Búsqueda Global en lugar de por oficina)
     var hojasBase = [];
-    obtenerHojasPorOficina(oficina).forEach(function(s) {
-      if (sedeCode && s.getName().indexOf(sedeCode) < 0) return;
+    obtenerHojasBase().forEach(function(s) {
       hojasBase.push({hoja: s, oficina: s.getName()});
     });
 
@@ -814,32 +823,40 @@ function adminBuscarClienteGlobal(session, params) {
             telefono: celular,
             voucher: data[i][27] ? data[i][27].toString().trim() : "",
             obs: data[i][29] ? data[i][29].toString().trim() : "",
-            score: getMatchScore(nombre, colC, colG)
+            score: getMatchScore(nombre, colC, colG) + (sedeCode && item.hoja.getName().indexOf(sedeCode) >= 0 ? 100 : 0)
           });
         }
       }
     });
 
-    // FASE 2: Buscar siempre en CARTAS (Inactivos) para no omitir coincidencias
-    var hojasCartas = obtenerHojasCartasPorOficina(oficina);
+    // FASE 2: Buscar siempre en CARTAS (Inactivos) para no omitir coincidencias (Búsqueda Global)
+    var hojasCartas = obtenerHojasCartasPorOficina('TODOS');
     hojasCartas.forEach(function(hoja) {
       if (!hoja) return;
-      if (sedeCode && hoja.getName().indexOf(sedeCode) < 0) return;
       
-      var data = hoja.getDataRange().getValues();
+      var data = getDatosCartas(hoja);
       for (var i = 1; i < data.length; i++) {
-        var codCliente = data[i][1] ? data[i][1].toString().trim() : "";
-        var nombre = data[i][2] ? data[i][2].toString().trim() : "";
+        var codCliente = data[i][0] ? data[i][0].toString().trim() : "";
+        var nombre = data[i][1] ? data[i][1].toString().trim() : "";
         if (!nombre && !codCliente) continue;
 
-        var celular = formatPhoneNumber(data[i][8]);
+        var celular = formatPhoneNumber(data[i][4]);
         
         if (matchesQuery(nombre, codCliente, "")) {
-          var asesor = data[i][3] ? data[i][3].toString() : "";
+          var asesor = data[i][2] ? data[i][2].toString() : "";
           if (rol === 'asesor' && asesor.toUpperCase().indexOf(asesorNombre.split(' ')[0]) < 0) continue;
 
-          var vencimientoRaw = data[i][5];
-          var vencimiento = vencimientoRaw ? (vencimientoRaw instanceof Date ? Utilities.formatDate(vencimientoRaw, Session.getScriptTimeZone(), "dd/MM/yyyy") : vencimientoRaw.toString()) : "";
+          var vencimientoRaw = data[i][3];
+          var fechaVenc = null;
+          if (vencimientoRaw instanceof Date) {
+            fechaVenc = new Date(vencimientoRaw.getTime());
+          } else if (typeof vencimientoRaw === 'string' && vencimientoRaw.indexOf('T') > 0) {
+            fechaVenc = new Date(vencimientoRaw);
+          } else if (typeof vencimientoRaw === 'string' && vencimientoRaw.indexOf('/') > 0) {
+            var partes = vencimientoRaw.split(' ')[0].split('/');
+            if (partes.length === 3) fechaVenc = new Date(partes[2], partes[1] - 1, partes[0]);
+          }
+          var vencimiento = fechaVenc ? Utilities.formatDate(fechaVenc, Session.getScriptTimeZone(), "dd/MM/yyyy") : (vencimientoRaw ? vencimientoRaw.toString() : "");
           
           resultado.push({
             fila: i + 1,
@@ -859,8 +876,8 @@ function adminBuscarClienteGlobal(session, params) {
             mensaje: '',
             telefono: celular,
             voucher: '',
-            obs: data[i][12] ? data[i][12].toString().trim() : "",
-            score: getMatchScore(nombre, codCliente, "")
+            obs: data[i][5] ? data[i][5].toString().trim() : "",
+            score: getMatchScore(nombre, codCliente, "") + (sedeCode && hoja.getName().indexOf(sedeCode) >= 0 ? 100 : 0)
           });
         }
       }
@@ -907,34 +924,45 @@ function adminGetDashboard(session, sedeContexto) {
   hojas.forEach(function(sheet) {
     if (!sheet) return;
     if (sedeCode && sheet.getName().indexOf(sedeCode) < 0) return;
-    var data = sheet.getDataRange().getValues();
+    var data = getDatosBase(sheet);
     for (var i = 1; i < data.length; i++) {
-      var nombre = data[i][4] ? data[i][4].toString().trim() : "";
+      var nombre = data[i][1] ? data[i][1].toString().trim() : "";
       if (!nombre || nombre === "REVISAR") continue;
-      var asesor = data[i][3] ? data[i][3].toString() : "";
+      var asesor = data[i][0] ? data[i][0].toString() : "";
       if (rol === 'asesor' && asesor.toUpperCase().indexOf(asesorNombre.split(' ')[0]) < 0) continue;
-      var colC = data[i][2] ? data[i][2].toString().trim() : "";
-      var colG = data[i][6] ? data[i][6].toString().trim() : "";
+      var colC = data[i][11] ? data[i][11].toString().trim() : "";
+      var colG = data[i][3] ? data[i][3].toString().trim() : "";
       var codMostrar = colC ? colC : colG;
       if (colC && colG && colC !== colG) codMostrar = colC + " / " + colG;
       
+      var vencimientoRaw = data[i][5];
+      var fechaVenc = null;
+      if (vencimientoRaw instanceof Date) {
+        fechaVenc = new Date(vencimientoRaw.getTime());
+      } else if (typeof vencimientoRaw === 'string' && vencimientoRaw.indexOf('T') > 0) {
+        fechaVenc = new Date(vencimientoRaw);
+      } else if (typeof vencimientoRaw === 'string' && vencimientoRaw.indexOf('/') > 0) {
+        var partes = vencimientoRaw.split(' ')[0].split('/');
+        if (partes.length === 3) fechaVenc = new Date(partes[2], partes[1] - 1, partes[0]);
+      }
+
       clientes.push({
         fila: i + 1, hoja: sheet.getName(), oficina: sheet.getName(),
         nombre: nombre,
-        celular: formatPhoneNumber(data[i][5]),
+        celular: formatPhoneNumber(data[i][2]),
         cod: codMostrar,
-        tipo: data[i][7] ? data[i][7].toString() : "",
+        tipo: data[i][4] ? data[i][4].toString() : "",
         asesor: asesor,
-        vencimiento: data[i][14] ? (data[i][14] instanceof Date ? Utilities.formatDate(data[i][14], tz, "dd/MM/yyyy") : data[i][14].toString()) : "",
-        cuota: data[i][16] ? parseFloat(data[i][16]) : 0,
-        deuda: data[i][18] ? parseFloat(data[i][18]) : 0,
-        dias: data[i][20] ? parseFloat(data[i][20]) : 0,
-        cuotas: data[i][19] ? parseFloat(data[i][19]) : 0,
-        direccion: data[i][22] ? data[i][22].toString().trim() : "",
-        mensaje: generarMensajeCobranza(nombre, data[i][14], parseFloat(data[i][18]||0), parseFloat(data[i][16]||0), data[i][6], parseFloat(data[i][20]||0), parseFloat(data[i][19]||0), sheet.getName().toUpperCase().match(/(\d{3})/) ? sheet.getName().toUpperCase().match(/(\d{3})/)[1] : '001'),
-        telefono: formatPhoneNumber(data[i][5]),
-        voucher: data[i][27] ? data[i][27].toString().trim() : "",
-        obs: data[i][29] ? data[i][29].toString().trim() : ""
+        vencimiento: fechaVenc ? Utilities.formatDate(fechaVenc, tz, "dd/MM/yyyy") : (vencimientoRaw ? vencimientoRaw.toString() : ""),
+        cuota: data[i][6] ? parseFloat(data[i][6]) : 0,
+        deuda: data[i][7] ? parseFloat(data[i][7]) : 0,
+        dias: data[i][9] ? parseFloat(data[i][9]) : 0,
+        cuotas: data[i][8] ? parseFloat(data[i][8]) : 0,
+        direccion: data[i][10] ? data[i][10].toString().trim() : "",
+        mensaje: generarMensajeCobranza(nombre, vencimientoRaw, parseFloat(data[i][7]||0), parseFloat(data[i][6]||0), data[i][3], parseFloat(data[i][9]||0), parseFloat(data[i][8]||0), sheet.getName().toUpperCase().match(/(\d{3})/) ? sheet.getName().toUpperCase().match(/(\d{3})/)[1] : '001'),
+        telefono: formatPhoneNumber(data[i][2]),
+        voucher: data[i][12] ? data[i][12].toString().trim() : "",
+        obs: data[i][13] ? data[i][13].toString().trim() : ""
       });
     }
   });
@@ -1231,10 +1259,10 @@ function cartasGetPendientes(params, session) {
     var celularesMapa = {};
     var hojasCartas = obtenerHojasCartasPorOficina(oficinaAdmin);
     for (var h = 0; h < hojasCartas.length; h++) {
-      var dataH = hojasCartas[h].getDataRange().getValues();
+      var dataH = getDatosCartas(hojasCartas[h]);
       for (var i = 1; i < dataH.length; i++) {
-        var cCod = dataH[i][1] ? dataH[i][1].toString().trim() : '';
-        var cCel = dataH[i][8] ? dataH[i][8].toString().replace(/\s/g,'') : '';
+        var cCod = dataH[i][0] ? dataH[i][0].toString().trim() : '';
+        var cCel = dataH[i][4] ? dataH[i][4].toString().replace(/\s/g,'') : '';
         if (cCod && cCel) {
           celularesMapa[cCod] = cCel;
         }
@@ -1249,15 +1277,22 @@ function cartasGetPendientes(params, session) {
     var regData = hojaRegistro.getDataRange().getValues();
     var tz = Session.getScriptTimeZone();
     
+    var conteoSolicitadas = 0;
+    var conteoEmitidas = 0;
+
     // Iteramos de abajo hacia arriba para los más recientes primero
     for (var r = regData.length - 1; r >= 0; r--) {
       var estado = regData[r][6] ? regData[r][6].toString().trim() : '';
       if (!estado) continue; // Salta filas vacías
+      
+      var esSolicitada = estado.toUpperCase() === 'SOLICITADA';
+      if (esSolicitada && conteoSolicitadas >= 100) continue;
+      if (!esSolicitada && conteoEmitidas >= 100) continue;
 
       var oficinaReq = regData[r][3] ? regData[r][3].toString().trim().toUpperCase() : '';
       
       // Filtros de oficina
-      if (oficinaAdmin !== 'TODOS' && oficinaReq !== 'TODOS' && oficinaReq.indexOf(oficinaAdmin) < 0) continue;
+      if (!rol.includes('admin') && oficinaAdmin !== 'TODOS' && oficinaReq !== 'TODOS' && oficinaReq.indexOf(oficinaAdmin) < 0) continue;
       if (sedeCode && sedeCode.toUpperCase() !== 'TODOS' && oficinaReq !== 'TODOS' && oficinaReq.indexOf(sedeCode) < 0) continue;
 
       var fechaVal = regData[r][0];
@@ -1282,7 +1317,8 @@ function cartasGetPendientes(params, session) {
         celular: celularReq
       });
       
-      if (resultados.length >= 100) break; // Límite de 100 registros para rendimiento
+      if (esSolicitada) { conteoSolicitadas++; } else { conteoEmitidas++; }
+      if (conteoSolicitadas >= 100 && conteoEmitidas >= 100) break; // Terminar si ambos llenaron su cupo
     }
   }
 
@@ -1522,10 +1558,6 @@ function cartasSolicitarAprobacion(params, session) {
   }
 }
 
-
-
-
-
 // ── Helper: leer Config clave-valor (con cache por ejecución) ──
 function getConfig(clave) {
   if (!_configCache) {
@@ -1560,11 +1592,31 @@ function invalidarCacheBase() {
   try {
     var cache = CacheService.getScriptCache();
     var hojas = SpreadsheetApp.getActiveSpreadsheet().getSheets()
-      .filter(function(s) { return s.getName().indexOf('CARTERA ACTIVA') === 0; });
+      .filter(function(s) { return s.getName().indexOf('CARTERA ACTIVA') === 0 || s.getName().indexOf('CARTAS') === 0; });
     hojas.forEach(function(h) {
       cache.remove(CACHE_KEY_PREFIX + h.getName());
     });
   } catch(e) { Logger.log('invalidarCacheBase error: ' + e); }
+}
+
+function getDatosCartas(sheet) {
+  try {
+    var cache = CacheService.getScriptCache();
+    var key = CACHE_KEY_PREFIX + sheet.getName();
+    var cached = cache.get(key);
+    if (cached) return JSON.parse(cached);
+    var data = sheet.getDataRange().getValues();
+    // Índices reducidos: 0=cod(1), 1=nombre(2), 2=asesor(3), 3=vencimiento(5), 4=celular(8), 5=obs(12)
+    var reducido = data.map(function(row) {
+      return [row[1], row[2], row[3], row[5], row[8], row[12]];
+    });
+    try { cache.put(key, JSON.stringify(reducido), CACHE_TTL); } catch(e) {}
+    return reducido;
+  } catch(e) {
+    return sheet.getDataRange().getValues().map(function(row) {
+      return [row[1], row[2], row[3], row[5], row[8], row[12]];
+    });
+  }
 }
 
 function getDatosBase(sheet) {
@@ -1574,15 +1626,15 @@ function getDatosBase(sheet) {
     var cached = cache.get(key);
     if (cached) return JSON.parse(cached);
     var data = sheet.getDataRange().getValues();
-    // CacheService tiene limite de 100KB por key — guardar solo columnas necesarias
+    // Índices reducidos: 0=asesor(3), 1=nombres(4), 2=celular(5), 3=codInt(6), 4=tipo(7), 5=venc(14), 6=cuota(16), 7=deuda(18), 8=cuotas(19), 9=dias(20), 10=dir(22), 11=DNI/codC(2), 12=voucher(27), 13=obs(29)
     var reducido = data.map(function(row) {
-      return [row[3], row[4], row[5], row[6], row[7], row[14], row[16], row[18], row[19], row[20], row[22]];
+      return [row[3], row[4], row[5], row[6], row[7], row[14], row[16], row[18], row[19], row[20], row[22], row[2], row[27], row[29]];
     });
     try { cache.put(key, JSON.stringify(reducido), CACHE_TTL); } catch(e) {}
     return reducido;
   } catch(e) {
     return sheet.getDataRange().getValues().map(function(row) {
-      return [row[3], row[4], row[5], row[6], row[7], row[14], row[16], row[18], row[19], row[20], row[22]];
+      return [row[3], row[4], row[5], row[6], row[7], row[14], row[16], row[18], row[19], row[20], row[22], row[2], row[27], row[29]];
     });
   }
 }
@@ -1630,26 +1682,6 @@ function obtenerOCrearCarpeta(padre, nombre) {
 
 
 
-
-function autorizarDrive() {
-  DriveApp.getFoldersByName("test");
-  MailApp.sendEmail(Session.getActiveUser().getEmail(), "Test autorización", "OK");
-}
-
-function diagnosticarToken() {
-  var hojas = obtenerHojasBase();
-  hojas.forEach(function(sheet) {
-    Logger.log("=== Hoja: " + sheet.getName() + " ===");
-    var data = sheet.getDataRange().getValues();
-    if (data.length > 1) {
-      var fila2 = data[1];
-      for (var j = 27; j < 35; j++) {
-        Logger.log("Col " + (j+1) + ": [" + fila2[j] + "]");
-      }
-      Logger.log("Total columnas: " + fila2.length);
-    }
-  });
-}
 
 // ═══════════════════════════════════════════════
 // ──────── MÓDULO CAJA CHICA ─────────────────
@@ -2402,12 +2434,6 @@ function limpiarPendientesNocturnos() {
   }
 }
 
-function formatPhoneNumber(num) {
-  if (!num) return "";
-  var s = num.toString().trim();
-  return s;
-}
-
 // ── Verificar si el cliente ya tiene carta solicitada/emitida ──
 function cartasCheckStatus(params, session) {
   try {
@@ -2419,12 +2445,10 @@ function cartasCheckStatus(params, session) {
     }
     
     var data = sheet.getDataRange().getValues();
-    var debugLog = [];
     var paramCod = params.codigo ? String(params.codigo).trim() : "";
     
     for (var i = data.length - 1; i >= 0; i--) {
       var codFila = data[i][1] ? String(data[i][1]).trim() : "";
-      debugLog.push({ index: i, codFila: codFila, paramCod: paramCod, match: (codFila === paramCod) });
       
       if (codFila && paramCod && codFila === paramCod) {
         var estado = data[i][6] ? String(data[i][6]).trim() : ""; // Columna G (estado)
@@ -2440,8 +2464,7 @@ function cartasCheckStatus(params, session) {
           hasLetter: true,
           estado: estado,
           fecha: fecha,
-          fileId: fileId,
-          debug: debugLog
+          fileId: fileId
         })).setMimeType(ContentService.MimeType.JSON);
       }
     }
