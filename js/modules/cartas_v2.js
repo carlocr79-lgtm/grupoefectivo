@@ -19,7 +19,7 @@
 
     try {
       // Usar la sede actual en la petición para filtrar por oficina
-      const sedeReq = window.cajaSedeActual || '';
+      const sedeReq = typeof cajaSedeActual !== 'undefined' ? cajaSedeActual : '';
       const resp = await apiFetch({ admin: 'cartas_pendientes', sedeContexto: sedeReq });
       window._cartasPendientesData = resp || [];
       

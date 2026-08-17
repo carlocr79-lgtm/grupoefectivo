@@ -1293,7 +1293,7 @@ function cartasGetPendientes(params, session) {
       
       // Filtros de oficina
       if (!rol.includes('admin') && oficinaAdmin !== 'TODOS' && oficinaReq !== 'TODOS' && oficinaReq.indexOf(oficinaAdmin) < 0) continue;
-      if (sedeCode && sedeCode.toUpperCase() !== 'TODOS' && oficinaReq !== 'TODOS' && oficinaReq.indexOf(sedeCode) < 0) continue;
+      if (sedeCode && sedeCode.toUpperCase() !== 'TODOS' && oficinaReq !== 'TODOS' && oficinaReq.indexOf(sedeCode.toUpperCase()) < 0) continue;
 
       var fechaVal = regData[r][0];
       var fechaStr = fechaVal instanceof Date ? Utilities.formatDate(fechaVal, tz, "dd/MM/yyyy HH:mm") : fechaVal.toString();
