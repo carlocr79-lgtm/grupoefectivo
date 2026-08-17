@@ -285,7 +285,7 @@
         else if (secId === 'clientes') {
           const activeMainTab = document.querySelector('#section-clientes .btn-main-tab.active');
           if (activeMainTab && activeMainTab.id === 'tab-clientes-cartas-pendientes') {
-            if (typeof cartasCargarPendientes === 'function') secPromise = cartasCargarPendientes();
+            if (typeof cartasCargarPendientes === 'function') secPromise = cartasCargarPendientes(true);
           } else if (activeMainTab && activeMainTab.id === 'tab-clientes-mora') {
             const activeMoraTab = document.querySelector('.btn-mora-tab.active');
             if (activeMoraTab && activeMoraTab.id) {

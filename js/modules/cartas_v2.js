@@ -1,11 +1,12 @@
-  async function cartasCargarPendientes() {
+  window.cartasCargarPendientes = async function(forceRefresh = false) {
     const rol = sessionStorage.getItem('ge_rol') || 'asesor';
     const tabPendientes = document.getElementById('tab-clientes-cartas-pendientes');
 
     // FIX: caché de 30s — evita llamadas innecesarias al cambiar de sección
     const _ahora = Date.now();
-    if (_ahora - _cartasPendientesTs < 30000) return;
-    _cartasPendientesTs = _ahora;
+    if (typeof window._cartasPendientesTs === 'undefined') window._cartasPendientesTs = 0;
+    if (!forceRefresh && (_ahora - window._cartasPendientesTs < 30000)) return;
+    window._cartasPendientesTs = _ahora;
 
     const container = document.getElementById('cartas-pendientes-container');
     const badge = document.getElementById('cartas-pendientes-badge');
@@ -17,8 +18,9 @@
     container.innerHTML = skHTML;
 
     try {
-      // Al no enviar sedeContexto, el backend devolverá las solicitudes pendientes de TODAS las sedes (global para admin)
-      const resp = await apiFetch({ admin: 'cartas_pendientes' });
+      // Usar la sede actual en la petición para filtrar por oficina
+      const sedeReq = window.cajaSedeActual || '';
+      const resp = await apiFetch({ admin: 'cartas_pendientes', sedeContexto: sedeReq });
       window._cartasPendientesData = resp || [];
       
       window.renderCartasPendientes();
