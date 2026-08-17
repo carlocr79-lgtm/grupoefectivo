@@ -812,7 +812,6 @@
   function renderRecModal() {
     const total = _recLista.length;
     const c = _recLista[_recIdx];
-    const c = _recLista[_recIdx];
     const yaEnviado = _recEnviados.includes(_recIdx);
     document.getElementById('rec-contador').textContent = `${_recIdx + 1}/${total}`;
     document.getElementById('rec-progreso').style.width = `${((_recIdx + 1) / total) * 100}%`;
